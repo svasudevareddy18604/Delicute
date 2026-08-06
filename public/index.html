@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Delicute | Every Bite Tells a Story</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Playfair Display', serif;
+      background: linear-gradient(135deg, #d8b7d2 0%, #e0e7fa 100%);
+      color: #1a1a1a;
+      overflow-x: hidden;
+      line-height: 1.6;
+      min-height: 100vh;
+    }
+
+    .hero {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 2rem;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(142, 68, 173, 0.3), transparent);
+      animation: shine 4s infinite;
+      z-index: 0;
+    }
+
+    .hero-content {
+      position: relative;
+      z-index: 1;
+      max-width: 900px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .hero img {
+      width: 180px;
+      max-width: 50%;
+      margin-bottom: 1.5rem;
+      filter: drop-shadow(0 3px 8px rgba(0, 0, 0, 0.2));
+      opacity: 0;
+      transform: scale(0.8);
+      animation: fadeInScale 1s ease-out forwards;
+    }
+
+    .hero h1 {
+      font-size: 3.5rem;
+      font-weight: 800;
+      margin-bottom: 0.75rem;
+      color: #8e44ad;
+      text-shadow: 0 2px 6px rgba(255, 167, 38, 0.4);
+      opacity: 0;
+      transform: translateY(20px);
+      animation: fadeInUp 0.8s ease-out 0.2s forwards;
+      letter-spacing: 1px;
+    }
+
+    .hero p {
+      font-size: 1.25rem;
+      font-weight: 600;
+      color: #4b5e8e;
+      margin-bottom: 2rem;
+      max-width: 600px;
+      opacity: 0;
+      transform: translateY(20px);
+      animation: fadeInUp 0.8s ease-out 0.4s forwards;
+    }
+
+    .hero .btn {
+      background: linear-gradient(45deg, #ffa726, #ffca28);
+      color: #1a1a1a;
+      padding: 1rem 2.5rem;
+      font-size: 1.1rem;
+      font-weight: 700;
+      border: none;
+      border-radius: 50px;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-block;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 15px rgba(142, 68, 173, 0.2);
+      opacity: 0;
+      transform: translateY(20px);
+      animation: fadeInUp 0.8s ease-out 0.6s forwards;
+    }
+
+    .hero .btn:hover {
+      background: linear-gradient(45deg, #ffca28, #ffb300);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(142, 68, 173, 0.3);
+    }
+
+    .hero .terms-link {
+      margin-top: 1rem;
+      display: block;
+      font-size: 0.95rem;
+      color: #4b5e8e;
+      text-decoration: underline;
+      opacity: 0;
+      transform: translateY(20px);
+      animation: fadeInUp 0.8s ease-out 0.8s forwards;
+    }
+
+    .hero .terms-link:hover {
+      color: #8e44ad;
+    }
+
+    @keyframes shine {
+      0% { left: -100%; }
+      50% { left: 100%; }
+      100% { left: 100%; }
+    }
+
+    @keyframes fadeInScale {
+      to { opacity: 1; transform: scale(1); }
+    }
+
+    @keyframes fadeInUp {
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @media (max-width: 768px) {
+      .hero h1 {
+        font-size: 2.5rem;
+      }
+      .hero p {
+        font-size: 1.1rem;
+      }
+      .hero img {
+        width: 140px;
+      }
+      .hero .btn {
+        padding: 0.9rem 2rem;
+        font-size: 1rem;
+      }
+      .hero .terms-link {
+        font-size: 0.9rem;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .hero h1 {
+        font-size: 2rem;
+      }
+      .hero p {
+        font-size: 1rem;
+      }
+      .hero img {
+        width: 120px;
+      }
+      .hero .btn {
+        padding: 0.8rem 1.8rem;
+        font-size: 0.95rem;
+        width: 100%;
+        max-width: 280px;
+      }
+      .hero .terms-link {
+        font-size: 0.85rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <section class="hero">
+    <div class="hero-content">
+      <img src="https://i.postimg.cc/W3pgQx9q/DELICUTE-Imgur-1-modified.png" alt="Delicute Logo" />
+      <h1>Welcome to Delicute</h1>
+      <p>Every Bite Tells a Story</p>
+      <a href="customermenu.html" class="btn">Explore Our Menu</a>
+      <a href="terms.html" class="terms-link">Terms & Conditions</a>
+    </div>
+  </section>
+</body>
+</html>

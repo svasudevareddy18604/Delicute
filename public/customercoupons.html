@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DELICUTE | Available Coupons</title>
+  <link rel="icon" href="https://i.postimg.cc/W3pgQx9q/DELICUTE-Imgur-1-modified.png">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&display=swap" rel="stylesheet">
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
+    body {
+      font-family: 'Playfair Display', serif;
+      background: linear-gradient(135deg, #D8BFD8 0%, #E6E6FA 100%);
+      color: #1A1A1A;
+      min-height: 100vh;
+      overflow-x: hidden;
+      overflow-y: auto;
+      -webkit-font-smoothing: antialiased;
+      -webkit-overflow-scrolling: touch;
+      touch-action: pan-y;
+      scroll-behavior: smooth;
+    }
+    header {
+      background: linear-gradient(90deg, #9370DB 0%, #D8BFD8 100%);
+      color: #FFFFFF;
+      padding: 0.8rem;
+      text-align: center;
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      box-shadow: 0 2px 8px rgba(142, 68, 173, 0.2);
+    }
+    header img {
+      height: clamp(40px, 7vw, 50px);
+      filter: drop-shadow(0 1px 3px rgba(0, 0, 0, 0.2));
+      transition: transform 0.2s ease;
+      pointer-events: auto;
+    }
+    header img:hover {
+      transform: scale(1.05);
+    }
+    header h1 {
+      font-size: clamp(1.1rem, 2.5vw, 1.4rem);
+      font-weight: 800;
+      margin-top: 0.3rem;
+      text-shadow: 0 1px 3px rgba(138, 43, 226, 0.3);
+    }
+    header span {
+      font-size: clamp(0.65rem, 1.8vw, 0.8rem);
+      font-weight: 600;
+      opacity: 0.9;
+      color: #F0E68C;
+      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+    }
+    .container {
+      max-width: 1400px;
+      margin: 0.5rem auto;
+      padding: 0 0.5rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      touch-action: pan-y;
+      -webkit-overflow-scrolling: touch;
+    }
+    .back-btn {
+      background: linear-gradient(45deg, #9370DB, #D8BFD8);
+      color: #1A1A1A;
+      border: none;
+      padding: 0.5rem;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: clamp(0.75rem, 1.6vw, 0.85rem);
+      font-weight: 600;
+      margin: 0.6rem 0;
+      transition: background 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+      box-shadow: 0 2px 5px rgba(147, 112, 219, 0.1);
+      touch-action: manipulation;
+      width: auto;
+    }
+    .back-btn:hover {
+      background: linear-gradient(45deg, #8A2BE2, #D8BFD8);
+      transform: scale(1.05);
+    }
+    .coupon-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 0.5rem;
+      width: 100%;
+      max-width: 1400px;
+      padding: 0 0.3rem;
+    }
+    .coupon-card {
+      background: #FFFFFF;
+      border: 1px solid #D8BFD8;
+      border-radius: 8px;
+      padding: 0.8rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.6rem;
+      box-shadow: 0 2px 5px rgba(216, 183, 210, 0.1);
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      width: 100%;
+    }
+    .coupon-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 3px 8px rgba(216, 183, 210, 0.2);
+    }
+    .coupon-card img {
+      width: 100%;
+      height: 130px;
+      object-fit: contain;
+      border-radius: 4px;
+      background: #F0F8FF;
+      pointer-events: none;
+      user-drag: none;
+      -webkit-user-drag: none;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+    .coupon-info {
+      flex: 1;
+    }
+    .coupon-info b {
+      font-size: clamp(0.8rem, 1.6vw, 0.9rem);
+      font-weight: 700;
+      color: #9370DB;
+      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+    }
+    .coupon-info p {
+      font-size: clamp(0.7rem, 1.4vw, 0.8rem);
+      color: #4B5E8E;
+      margin: 0.3rem 0;
+      line-height: 1.2;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+    .apply-btn {
+      background: linear-gradient(45deg, #9370DB, #D8BFD8);
+      color: #1A1A1A;
+      border: none;
+      padding: 0.5rem;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: clamp(0.75rem, 1.6vw, 0.85rem);
+      font-weight: 600;
+      width: 100%;
+      transition: background 0.2s ease;
+      box-shadow: 0 2px 5px rgba(147, 112, 219, 0.1);
+      touch-action: manipulation;
+    }
+    .apply-btn:hover {
+      background: linear-gradient(45deg, #8A2BE2, #D8BFD8);
+    }
+    #toast {
+      visibility: hidden;
+      min-width: 180px;
+      max-width: 90%;
+      background: linear-gradient(45deg, #9370DB, #D8BFD8);
+      color: #FFFFFF;
+      text-align: center;
+      border-radius: 8px;
+      padding: 0.7rem;
+      position: fixed;
+      z-index: 1000;
+      top: 50px;
+      right: 10px;
+      font-size: clamp(0.7rem, 1.8vw, 0.8rem);
+      box-shadow: 0 2px 5px rgba(142, 68, 173, 0.2);
+      font-family: Arial, sans-serif;
+    }
+    #toast.show {
+      visibility: visible;
+      animation: slideDown 0.4s ease-out, slideUp 0.4s ease-in 2s forwards;
+    }
+    @keyframes slideDown {
+      from { opacity: 0; top: -100%; }
+      to { opacity: 1; top: 50px; }
+    }
+    @keyframes slideUp {
+      from { opacity: 1; top: 50px; }
+      to { opacity: 0; top: -100%; }
+    }
+    @media (min-width: 769px) {
+      .container { padding: 0 0.8rem; }
+      .coupon-grid { max-width: 900px; }
+      .coupon-card { max-width: 100%; }
+    }
+    @media (max-width: 360px) {
+      header img { height: 40px; }
+      header h1 { font-size: 1rem; }
+      header span { font-size: 0.6rem; }
+      .container { margin: 0.4rem; padding: 0 0.3rem; }
+      .back-btn { font-size: 0.7rem; padding: 0.4rem; }
+      .coupon-grid { grid-template-columns: 1fr; gap: 0.3rem; }
+      .coupon-card { padding: 0.5rem; }
+      .coupon-card img { height: 110px; }
+      .coupon-info b { font-size: 0.75rem; }
+      .coupon-info p { font-size: 0.65rem; }
+      .apply-btn { font-size: 0.7rem; padding: 0.4rem; }
+      #toast { font-size: 0.65rem; padding: 0.6rem; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <img src="https://i.postimg.cc/W3pgQx9q/DELICUTE-Imgur-1-modified.png" alt="DELICUTE Logo">
+    <div>
+      <h1>Available Coupons</h1>
+      <span>Unlock Delicious Savings</span>
+    </div>
+  </header>
+  <div class="container">
+    <button class="back-btn" onclick="window.location.href='customermenu.html'; localStorage.removeItem('openCart'); localStorage.removeItem('appliedCoupon');">Back to Menu</button>
+    <div class="coupon-grid" id="couponList"></div>
+  </div>
+
+  <div id="toast"></div>
+
+  <script>
+    function showToast(msg, success = true) {
+      const toast = document.getElementById("toast");
+      toast.textContent = msg;
+      toast.style.background = success ? "linear-gradient(45deg, #9370DB, #D8BFD8)" : "linear-gradient(45deg, #ef5350, #e53935)";
+      toast.className = "show";
+      setTimeout(() => toast.className = toast.className.replace("show", ""), 2000);
+    }
+
+    async function loadCoupons() {
+      try {
+        const res = await fetch("/api/coupons");
+        const data = await res.json();
+        const list = document.getElementById("couponList");
+
+        if (data.success && data.data.length > 0) {
+          data.data.forEach(coupon => {
+            list.innerHTML += `
+              <div class="coupon-card">
+                <img src="${coupon.image}" alt="${coupon.code}" loading="lazy" onerror="this.src='https://i.postimg.cc/W3pgQx9q/DELICUTE-Imgur-1-modified.png'">
+                <div class="coupon-info">
+                  <b>${coupon.code}</b>
+                  <p>${coupon.description}</p>
+                </div>
+                <button class="apply-btn" onclick="applyCoupon('${coupon.code}')">Apply Coupon</button>
+              </div>
+            `;
+          });
+        } else {
+          list.innerHTML = "<p style='text-align:center;color:#4B5E8E;font-size:0.8rem;'>No coupons available right now.</p>";
+        }
+      } catch (err) {
+        showToast("Error loading coupons", false);
+        console.error("Coupon Load Error:", err);
+      }
+    }
+
+    function applyCoupon(code) {
+      localStorage.setItem("appliedCoupon", code);
+      localStorage.setItem("openCart", "true");
+      showToast(`Coupon ${code} applied! Returning to cart...`, true);
+      setTimeout(() => {
+        window.location.href = "customermenu.html#cartSection";
+      }, 1000);
+    }
+
+    window.addEventListener("load", loadCoupons);
+  </script>
+</body>
+</html>

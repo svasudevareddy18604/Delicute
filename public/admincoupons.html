@@ -1,0 +1,690 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin | Manage Coupons</title>
+  <link rel="icon" href="https://i.postimg.cc/W3pgQx9q/DELICUTE-Imgur-1-modified.png">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&display=swap" rel="stylesheet">
+  <style>
+    * {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+body {
+  font-family: 'Playfair Display', serif;
+  background: linear-gradient(135deg, #D8BFD8 0%, #E6E6FA 100%);
+  color: #1a1a1a;
+  min-height: 100vh;
+  line-height: 1.6;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  overscroll-behavior: contain;
+}
+header {
+  background: linear-gradient(90deg, #9370DB, #D8BFD8);
+  color: #fff;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 3px 10px rgba(142, 68, 173, 0.15);
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  overflow: hidden;
+}
+header::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(240, 230, 140, 0.3), transparent);
+  animation: shine 3s infinite;
+}
+header img {
+  height: 55px;
+  filter: drop-shadow(0 2px 5px rgba(0, 0, 0, 0.2));
+  animation: fadeInScale 0.8s ease-out;
+  transition: transform 0.3s ease;
+  touch-action: pan-y;
+}
+header img:hover {
+  transform: scale(1.1);
+}
+header h1 {
+  font-size: 1.8rem;
+  font-weight: 800;
+  margin-top: 0.4rem;
+  text-shadow: 0 2px 5px rgba(240, 230, 140, 0.4);
+  animation: fadeInUp 0.6s ease-out 0.2s forwards;
+}
+header span {
+  font-size: 0.85rem;
+  font-weight: 600;
+  opacity: 0.9;
+  color: #F0E68C;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+  animation: fadeInUp 0.6s ease-out 0.4s forwards;
+}
+nav {
+  background: #1a1a1a;
+  display: flex;
+  justify-content: center;
+  box-shadow: 0 2px 8px rgba(142, 68, 173, 0.15);
+  flex-wrap: wrap;
+}
+nav a {
+  flex: 0 1 120px;
+  padding: 0.8rem;
+  text-align: center;
+  color: #fff;
+  text-decoration: none;
+  font-size: 0.95rem;
+  font-weight: 600;
+  transition: background 0.3s ease, transform 0.2s ease, color 0.3s ease;
+  touch-action: manipulation;
+}
+nav a:hover {
+  background: #8A2BE2;
+  color: #F0E68C;
+  transform: translateY(-2px);
+  box-shadow: 0 3px 8px rgba(142, 68, 173, 0.2);
+}
+.logout {
+  background: linear-gradient(45deg, #9370DB, #D8BFD8);
+  border: none;
+  padding: 0.5rem 1.2rem;
+  color: #1a1a1a;
+  font-weight: 700;
+  font-size: 0.9rem;
+  border-radius: 8px;
+  cursor: pointer;
+  position: absolute;
+  top: 0.8rem;
+  right: 0.8rem;
+  transition: background 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+  box-shadow: 0 2px 6px rgba(142, 68, 173, 0.1);
+  touch-action: manipulation;
+}
+.logout:hover {
+  background: linear-gradient(45deg, #8A2BE2, #D8BFD8);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(142, 68, 173, 0.2);
+}
+.container {
+  max-width: 1000px;
+  margin: 1.2rem auto;
+  padding: 1rem;
+  background: rgba(255, 255, 255, 0.98);
+  border-radius: 12px;
+  box-shadow: 0 4px 16px rgba(142, 68, 173, 0.1);
+  animation: slideUp 0.6s ease-out;
+}
+.container h2 {
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: #9370DB;
+  margin-bottom: 0.8rem;
+  text-align: center;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+form {
+  display: grid;
+  gap: 0.6rem;
+  background: #fff;
+  padding: 1rem;
+  border-radius: 8px;
+  box-shadow: 0 3px 10px rgba(142, 68, 173, 0.05);
+  margin-bottom: 1rem;
+}
+label {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #1a1a1a;
+}
+input, textarea, select {
+  padding: 0.6rem;
+  border: 1px solid #D8BFD8;
+  border-radius: 6px;
+  font-family: 'Playfair Display', serif;
+  font-size: 0.9rem;
+  background: #F0F8FF;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+  width: 100%;
+}
+input:focus, textarea:focus, select:focus {
+  border-color: #9370DB;
+  box-shadow: 0 0 0 2px rgba(147, 112, 219, 0.2);
+  outline: none;
+}
+textarea {
+  resize: vertical;
+  min-height: 70px;
+}
+button {
+  background: linear-gradient(45deg, #9370DB, #D8BFD8);
+  border: none;
+  padding: 0.6rem 1.2rem;
+  color: #1a1a1a;
+  font-weight: 700;
+  font-size: 0.9rem;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+  box-shadow: 0 2px 6px rgba(142, 68, 173, 0.1);
+  touch-action: manipulation;
+}
+button:hover {
+  background: linear-gradient(45deg, #8A2BE2, #D8BFD8);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(142, 68, 173, 0.2);
+}
+table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  background: #fff;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 3px 10px rgba(142, 68, 173, 0.05);
+  margin-top: 0.8rem;
+}
+th, td {
+  padding: 0.6rem;
+  text-align: center;
+  vertical-align: middle;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+}
+th {
+  background: linear-gradient(45deg, #9370DB, #D8BFD8);
+  color: #fff;
+  font-weight: 700;
+  font-size: 0.95rem;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+td {
+  font-size: 0.9rem;
+  color: #1a1a1a;
+}
+img {
+  width: 45px;
+  height: 45px;
+  object-fit: cover;
+  border-radius: 6px;
+  transition: transform 0.3s ease;
+}
+img:hover {
+  transform: scale(1.1);
+}
+table tr:hover {
+  background: rgba(147, 112, 219, 0.05);
+}
+.btn-edit {
+  background: linear-gradient(45deg, #9370DB, #D8BFD8);
+  color: #fff;
+  margin-right: 0.4rem;
+}
+.btn-edit:hover {
+  background: linear-gradient(45deg, #8A2BE2, #9370DB);
+  transform: translateY(-2px);
+}
+.btn-delete {
+  background: linear-gradient(45deg, #8A2BE2, #D8BFD8);
+  color: #fff;
+}
+.btn-delete:hover {
+  background: linear-gradient(45deg, #6A0DAD, #8A2BE2);
+  transform: translateY(-2px);
+}
+.no-coupons {
+  font-size: 0.95rem;
+  color: #4B5E8E;
+  text-align: center;
+  padding: 1.5rem;
+  font-family: Arial, sans-serif;
+}
+#toast {
+  visibility: hidden;
+  min-width: 200px;
+  max-width: 280px;
+  background: linear-gradient(45deg, #9370DB, #D8BFD8);
+  color: #fff;
+  text-align: center;
+  border-radius: 8px;
+  padding: 0.8rem;
+  position: fixed;
+  z-index: 1000;
+  top: 20px;
+  right: 20px;
+  font-size: 0.85rem;
+  box-shadow: 0 3px 8px rgba(142, 68, 173, 0.2);
+  font-family: Arial, sans-serif;
+}
+#toast.show {
+  visibility: visible;
+  animation: slideIn 0.5s ease-out, slideOut 0.5s ease-in 2.5s forwards;
+}
+@keyframes shine {
+  0% { left: -100%; }
+  50% { left: 100%; }
+  100% { left: 100%; }
+}
+@keyframes fadeInScale {
+  from { opacity: 0; transform: scale(0.9); }
+  to { opacity: 1; transform: scale(1); }
+}
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(15px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes slideIn {
+  from { opacity: 0; transform: translateY(-20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes slideOut {
+  from { opacity: 1; transform: translateY(0); }
+  to { opacity: 0; transform: translateY(-20px); }
+}
+@media (max-width: 768px) {
+  header { padding: 0.8rem; }
+  header img { height: 50px; }
+  header h1 { font-size: 1.5rem; }
+  header span { font-size: 0.8rem; }
+  nav a { font-size: 0.85rem; padding: 0.6rem; flex: 0 1 100px; }
+  .logout { padding: 0.4rem 1rem; font-size: 0.85rem; top: 0.6rem; right: 0.6rem; }
+  .container { margin: 1rem; padding: 0.8rem; }
+  .container h2 { font-size: 1.4rem; }
+  form { padding: 0.8rem; gap: 0.5rem; }
+  label, input, textarea, select, button { font-size: 0.85rem; padding: 0.5rem; }
+  th, td { font-size: 0.85rem; padding: 0.5rem; }
+  img { width: 40px; height: 40px; }
+  .btn-edit, .btn-delete { padding: 0.5rem 0.8rem; font-size: 0.85rem; }
+  .no-coupons { font-size: 0.9rem; padding: 1rem; }
+  #toast { top: 15px; right: 15px; font-size: 0.8rem; padding: 0.7rem; max-width: 250px; }
+}
+@media (max-width: 360px) {
+  header { padding: 0.6rem; }
+  header img { height: 45px; }
+  header h1 { font-size: 1.3rem; }
+  header span { font-size: 0.7rem; }
+  nav a { font-size: 0.8rem; padding: 0.5rem; flex: 0 1 80px; }
+  .logout { padding: 0.3rem 0.8rem; font-size: 0.8rem; top: 0.5rem; right: 0.5rem; }
+  .container { margin: 0.8rem; padding: 0.6rem; }
+  .container h2 { font-size: 1.2rem; }
+  form { padding: 0.6rem; gap: 0.4rem; }
+  label, input, textarea, select, button { font-size: 0.8rem; padding: 0.4rem; }
+  th, td { font-size: 0.8rem; padding: 0.4rem; }
+  img { width: 35px; height: 35px; }
+  .btn-edit, .btn-delete { padding: 0.4rem 0.6rem; font-size: 0.8rem; }
+  .no-coupons { font-size: 0.85rem; padding: 0.8rem; }
+  #toast { top: 10px; right: 10px; font-size: 0.75rem; padding: 0.6rem; max-width: 220px; }
+}
+  </style>
+</head>
+<body>
+  <header>
+    <img src="https://i.postimg.cc/W3pgQx9q/DELICUTE-Imgur-1-modified.png" alt="DELICUTE Logo">
+    <div>
+      <h1>DELICUTE</h1>
+      <span>Every Bite Tells A Story</span>
+    </div>
+    <button class="logout" onclick="logout()">Logout</button>
+  </header>
+
+  <nav>
+    <a href="adminorders.html">Orders</a>
+    <a href="adminmenu.html">Menu</a>
+    <a href="admincoupons.html">Coupons</a>
+    <a href="admincategories.html">Categories</a>
+    <a href="admintoppicks.html">Top Picks</a>
+  </nav>
+
+  <div class="container">
+    <h2>Manage Coupons 🎟️</h2>
+    <form id="couponForm" novalidate>
+      <input type="hidden" id="couponId">
+      <label>Coupon Code</label>
+      <input type="text" id="code" required>
+      <label>Description</label>
+      <textarea id="description" required></textarea>
+      <label>Image</label>
+      <input type="file" id="image" accept="image/*">
+      <label>Discount Amount (% for Buy_X/Min_Cart_Amount, ₹ for Date Range)</label>
+      <input type="number" id="discount" min="0">
+      <label>Quantity</label>
+      <input type="number" id="quantity" min="1">
+      <label>Category</label>
+      <select id="category"></select>
+      <label>Type</label>
+      <select id="type" required>
+        <option value="buy_x">Buy_X</option>
+        <option value="date_range">Date Range</option>
+        <option value="min_cart_amount">Min Cart Amount</option>
+        <option value="bogo">Buy One Get One Free</option>
+      </select>
+      <div id="buyXFields">
+        <label>Buy_X (Minimum Quantity)</label>
+        <input type="number" id="buy_x" min="1">
+      </div>
+      <div id="dateFields">
+        <label>Valid From</label>
+        <input type="date" id="valid_from">
+        <label>Valid To</label>
+        <input type="date" id="valid_to">
+      </div>
+      <div id="minCartFields">
+        <label>Minimum Cart Amount (₹)</label>
+        <input type="number" id="min_cart_amount" min="1">
+        <label>Free Item (Optional)</label>
+        <input type="text" id="free_item" placeholder="e.g., Free Pizza of Our Choice">
+      </div>
+      <button type="submit">Save Coupon</button>
+    </form>
+
+    <h2>Coupons List</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Image</th>
+          <th>Code</th>
+          <th>Description</th>
+          <th>Discount</th>
+          <th>Quantity</th>
+          <th>Category</th>
+          <th>Type</th>
+          <th>Validity</th>
+          <th>Min Cart Amount</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody id="couponTable"></tbody>
+    </table>
+  </div>
+
+  <div id="toast"></div>
+
+  <script>
+    const API_URL = "/api/coupons";
+
+    function showгодиToast(msg, success = true) {
+      const toast = document.getElementById("toast");
+      toast.textContent = msg;
+      toast.style.background = success ? "linear-gradient(45deg, #26a69a, #4dd0e1)" : "linear-gradient(45deg, #ef5350, #e53935)";
+      toast.className = "show";
+      setTimeout(() => toast.className = toast.className.replace("show", ""), 3000);
+    }
+
+    function toggleRequiredFields() {
+      const type = document.getElementById("type").value;
+      const quantityInput = document.getElementById("quantity");
+      const categorySelect = document.getElementById("category");
+      const discountInput = document.getElementById("discount");
+      const minCartAmountInput = document.getElementById("min_cart_amount");
+      const freeItemInput = document.getElementById("free_item");
+
+      if (type === "min_cart_amount") {
+        quantityInput.removeAttribute("required");
+        categorySelect.removeAttribute("required");
+        discountInput.removeAttribute("required"); // Allow discount to be 0 for free item
+        if (minCartAmountInput) minCartAmountInput.setAttribute("required", "required");
+        if (freeItemInput) freeItemInput.removeAttribute("required");
+      } else if (type === "bogo") {
+        quantityInput.setAttribute("required", "required");
+        categorySelect.setAttribute("required", "required");
+        discountInput.removeAttribute("required");
+      } else {
+        quantityInput.setAttribute("required", "required");
+        categorySelect.setAttribute("required", "required");
+        discountInput.setAttribute("required", "required");
+      }
+    }
+
+    window.addEventListener("DOMContentLoaded", async () => {
+      try {
+        const res = await fetch("/api/auth/check", { credentials: "include" });
+        if (!res.ok) {
+          window.location.href = "/admin.html";
+          return;
+        }
+        await loadCategories();
+        await fetchCoupons();
+        toggleRequiredFields();
+      } catch (err) {
+        window.location.href = "/admin.html";
+        console.error("Auth Check Error:", err);
+      }
+    });
+
+    document.getElementById("type").addEventListener("change", (e) => {
+      const type = e.target.value;
+      const discountInput = document.getElementById("discount");
+      const discountLabel = document.querySelector("label[for='discount']");
+      const minCartFields = document.getElementById("minCartFields");
+
+      document.getElementById("buyXFields").style.display = type === "buy_x" ? "block" : "none";
+      document.getElementById("dateFields").style.display = type === "date_range" ? "block" : "none";
+      document.getElementById("minCartFields").style.display = type === "min_cart_amount" ? "block" : "none";
+
+      if (discountInput && discountLabel) {
+        const isDiscountVisible = type !== "bogo";
+        discountInput.style.display = isDiscountVisible ? "block" : "none";
+        discountLabel.style.display = isDiscountVisible ? "block" : "none";
+      }
+
+      toggleRequiredFields();
+    });
+
+    async function loadCategories() {
+      try {
+        const res = await fetch("/api/categories");
+        const data = await res.json();
+        const categorySelect = document.getElementById("category");
+        categorySelect.innerHTML = '<option value="">All Categories</option>';
+        if (data.success && data.data.length > 0) {
+          data.data.forEach(cat => {
+            categorySelect.innerHTML += `<option value="${cat.name}">${cat.name}</option>`;
+          });
+        } else {
+          categorySelect.innerHTML += `<option value="" disabled>No categories available</option>`;
+        }
+      } catch (err) {
+        showToast("Error loading categories", false);
+        console.error("Category Load Error:", err);
+      }
+    }
+
+    async function fetchCoupons() {
+      try {
+        const res = await fetch(API_URL);
+        const data = await res.json();
+        const table = document.getElementById("couponTable");
+        table.innerHTML = "";
+
+        if (!data.success || data.data.length === 0) {
+          table.innerHTML = "<tr><td colspan='10' class='no-coupons'>No coupons found</td></tr>";
+          return;
+        }
+
+        data.data.forEach(coupon => {
+          const quantityDisplay = coupon.type === "buy_x" ? coupon.buy_x : coupon.quantity;
+          const minCartDisplay = coupon.type === "min_cart_amount" ? `₹${coupon.min_cart_amount}` : "-";
+          const discountDisplay = coupon.type === "bogo" ? "BOGO" :
+                                coupon.type === "date_range" ? `₹${coupon.discount}` :
+                                coupon.type === "min_cart_amount" && coupon.discount === 0 && coupon.free_item ? coupon.free_item :
+                                coupon.type === "min_cart_amount" ? `${coupon.discount}%` :
+                                `${coupon.discount}%`;
+
+          table.innerHTML += `
+            <tr>
+              <td><img src="${coupon.image}" alt="${coupon.code}" onerror="this.src='https://i.postimg.cc/W3pgQx9q/DELICUTE-Imgur-1-modified.png'"></td>
+              <td>${coupon.code}</td>
+              <td>${coupon.description}</td>
+              <td>${discountDisplay}</td>
+              <td>${quantityDisplay || '-'}</td>
+              <td>${coupon.category || 'All'}</td>
+              <td>${coupon.type}</td>
+              <td>${coupon.valid_from ? coupon.valid_from.split("T")[0] : "-"} → ${coupon.valid_to ? coupon.valid_to.split("T")[0] : "-"}</td>
+              <td>${minCartDisplay}</td>
+              <td>
+                <button class="btn-edit" onclick="editCoupon(${coupon.id})">Edit</button>
+                <button class="btn-delete" onclick="deleteCoupon(${coupon.id})">Delete</button>
+              </td>
+            </tr>
+          `;
+        });
+      } catch (err) {
+        showToast("Error loading coupons", false);
+        console.error("Coupon Load Error:", err);
+      }
+    }
+
+    document.getElementById("couponForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      const formData = new FormData();
+      formData.append("code", document.getElementById("code").value);
+      formData.append("description", document.getElementById("description").value);
+      const type = document.getElementById("type").value;
+      formData.append("type", type);
+
+      if (type !== "bogo") {
+        const discount = document.getElementById("discount").value;
+        formData.append("discount", discount || 0); // Default to 0 if empty
+      }
+
+      const quantity = document.getElementById("quantity").value;
+      if (quantity) formData.append("quantity", quantity);
+
+      const category = document.getElementById("category").value;
+      if (category) formData.append("category", category);
+
+      if (type === "buy_x") {
+        formData.append("buy_x", document.getElementById("buy_x").value || null);
+      } else if (type === "date_range") {
+        formData.append("valid_from", document.getElementById("valid_from").value || null);
+        formData.append("valid_to", document.getElementById("valid_to").value || null);
+      } else if (type === "min_cart_amount") {
+        formData.append("min_cart_amount", document.getElementById("min_cart_amount").value || null);
+        const freeItem = document.getElementById("free_item").value;
+        if (freeItem) formData.append("free_item", freeItem);
+      }
+
+      const imageFile = document.getElementById("image").files[0];
+      if (imageFile) formData.append("image", imageFile);
+
+      const id = document.getElementById("couponId").value;
+      const method = id ? "PUT" : "POST";
+      const url = id ? `${API_URL}/${id}` : API_URL;
+
+      try {
+        const res = await fetch(url, { method, body: formData });
+        const data = await res.json();
+        if (res.ok) {
+          showToast(data.message || (id ? "Coupon updated!" : "Coupon added!"), true);
+          document.getElementById("couponForm").reset();
+          document.getElementById("buyXFields").style.display = "none";
+          document.getElementById("dateFields").style.display = "none";
+          document.getElementById("minCartFields").style.display = "none";
+          const discountInput = document.getElementById("discount");
+          const discountLabel = document.querySelector("label[for='discount']");
+          if (discountInput && discountLabel) {
+            discountInput.style.display = "block";
+            discountLabel.style.display = "block";
+          }
+          document.getElementById("type").value = "buy_x";
+          document.getElementById("buyXFields").style.display = "block";
+          toggleRequiredFields();
+          fetchCoupons();
+        } else {
+          showToast(data.message || "Error saving coupon", false);
+        }
+      } catch (err) {
+        showToast("Error saving coupon", false);
+        console.error("Save Error:", err);
+      }
+    });
+
+    async function editCoupon(id) {
+      try {
+        const res = await fetch(`${API_URL}/${id}`);
+        const data = await res.json();
+        if (data.success) {
+          const c = data.data;
+          document.getElementById("couponId").value = c.id;
+          document.getElementById("code").value = c.code;
+          document.getElementById("description").value = c.description;
+          document.getElementById("discount").value = c.discount || "";
+          document.getElementById("quantity").value = c.quantity || "";
+          document.getElementById("category").value = c.category || "";
+          document.getElementById("type").value = c.type;
+          document.getElementById("buy_x").value = c.buy_x || "";
+          document.getElementById("valid_from").value = c.valid_from?.split("T")[0] || "";
+          document.getElementById("valid_to").value = c.valid_to?.split("T")[0] || "";
+          document.getElementById("min_cart_amount").value = c.min_cart_amount || "";
+          document.getElementById("free_item").value = c.free_item || "";
+
+          document.getElementById("buyXFields").style.display = c.type === "buy_x" ? "block" : "none";
+          document.getElementById("dateFields").style.display = c.type === "date_range" ? "block" : "none";
+          document.getElementById("minCartFields").style.display = c.type === "min_cart_amount" ? "block" : "none";
+          const discountInput = document.getElementById("discount");
+          const discountLabel = document.querySelector("label[for='discount']");
+          if (discountInput && discountLabel) {
+            const isDiscountVisible = c.type !== "bogo";
+            discountInput.style.display = isDiscountVisible ? "block" : "none";
+            discountLabel.style.display = isDiscountVisible ? "block" : "none";
+          }
+
+          toggleRequiredFields();
+        } else {
+          showToast("Error loading coupon data", false);
+        }
+      } catch (err) {
+        showToast("Error loading coupon data", false);
+        console.error("Edit Error:", err);
+      }
+    }
+
+    async function deleteCoupon(id) {
+      if (!confirm("Delete this coupon?")) return;
+      try {
+        const res = await fetch(`${API_URL}/${id}`, { method: "DELETE" });
+        const data = await res.json();
+        if (res.ok) {
+          showToast(data.message || "Coupon deleted!", true);
+          fetchCoupons();
+        } else {
+          showToast(data.message || "Error deleting coupon", false);
+        }
+      } catch (err) {
+        showToast("Error deleting coupon", false);
+        console.error("Delete Error:", err);
+      }
+    }
+
+    async function logout() {
+      try {
+        await fetch("/api/auth/logout", { method: "POST", credentials: "include" });
+        window.location.href = "/admin.html";
+      } catch (err) {
+        showToast("Error logging out", false);
+        console.error("Logout Error:", err);
+      }
+    }
+
+    window.addEventListener("load", () => {
+      document.getElementById("buyXFields").style.display = "block";
+      document.getElementById("dateFields").style.display = "none";
+      document.getElementById("minCartFields").style.display = "none";
+    });
+  </script>
+</body>
+</html>

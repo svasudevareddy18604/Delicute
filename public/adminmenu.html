@@ -1,0 +1,740 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Admin | Manage Menu</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&display=swap" rel="stylesheet">
+  <style>
+   * {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+body {
+  font-family: 'Playfair Display', serif;
+  background: linear-gradient(135deg, #D8BFD8 0%, #E6E6FA 100%);
+  color: #1a1a1a;
+  min-height: 100vh;
+  line-height: 1.6;
+  overflow-x: hidden;
+}
+header {
+  background: linear-gradient(90deg, #9370DB, #D8BFD8);
+  color: #fff;
+  padding: 1.5rem 2rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 16px rgba(142, 68, 173, 0.15);
+  position: relative;
+  overflow: hidden;
+}
+header::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(240, 230, 140, 0.3), transparent);
+  animation: shine 3s infinite;
+}
+header img {
+  height: 60px;
+  filter: drop-shadow(0 3px 8px rgba(0, 0, 0, 0.2));
+  animation: fadeInScale 0.8s ease-out;
+  transition: transform 0.3s ease;
+}
+header img:hover {
+  transform: scale(1.15);
+}
+header h1 {
+  font-size: 2.2rem;
+  font-weight: 800;
+  margin-top: 0.5rem;
+  text-shadow: 0 2px 6px rgba(240, 230, 140, 0.4);
+  animation: fadeInUp 0.6s ease-out 0.2s forwards;
+}
+header span {
+  font-size: 0.9rem;
+  font-weight: 600;
+  opacity: 0.9;
+  color: #F0E68C;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+  animation: fadeInUp 0.6s ease-out 0.4s forwards;
+}
+nav {
+  background: #1a1a1a;
+  display: flex;
+  justify-content: center;
+  box-shadow: 0 2px 8px rgba(142, 68, 173, 0.15);
+}
+nav a {
+  flex: 0 1 150px;
+  padding: 1rem;
+  text-align: center;
+  color: #fff;
+  text-decoration: none;
+  font-size: 1.1rem;
+  font-weight: 600;
+  transition: background 0.3s ease, transform 0.2s ease, color 0.3s ease;
+}
+nav a:hover {
+  background: #8A2BE2;
+  color: #F0E68C;
+  transform: translateY(-3px);
+  box-shadow: 0 3px 8px rgba(142, 68, 173, 0.2);
+}
+.logout {
+  background: linear-gradient(45deg, #9370DB, #D8BFD8);
+  border: none;
+  padding: 0.6rem 1.5rem;
+  color: #1a1a1a;
+  font-weight: 700;
+  font-size: 1rem;
+  border-radius: 10px;
+  cursor: pointer;
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  transition: background 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+  box-shadow: 0 3px 8px rgba(142, 68, 173, 0.1);
+}
+.logout:hover {
+  background: linear-gradient(45deg, #8A2BE2, #D8BFD8);
+  transform: translateY(-3px);
+  box-shadow: 0 5px 12px rgba(142, 68, 173, 0.2);
+}
+.content {
+  max-width: 1200px;
+  margin: 2rem auto;
+  padding: 1.5rem;
+  background: rgba(255, 255, 255, 0.98);
+  border-radius: 16px;
+  box-shadow: 0 6px 20px rgba(142, 68, 173, 0.1);
+  animation: slideUp 0.6s ease-out;
+}
+.content h2, .content h3 {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #9370DB;
+  margin-bottom: 1rem;
+  text-align: center;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+.content h3 {
+  font-size: 1.5rem;
+  margin: 1.5rem 0 0.5rem;
+  text-align: left;
+}
+.search-bar {
+  display: flex;
+  align-items: center;
+  max-width: 100%;
+  margin: 1rem 0;
+  background: #F0F8FF;
+  border-radius: 8px;
+  padding: 0.3rem;
+  box-shadow: 0 2px 6px rgba(142, 68, 173, 0.1);
+  transition: box-shadow 0.3s ease;
+}
+.search-bar:hover {
+  box-shadow: 0 3px 8px rgba(142, 68, 173, 0.15);
+}
+.search-bar input {
+  flex: 1;
+  border: none;
+  padding: 0.6rem;
+  font-size: 1rem;
+  font-family: 'Playfair Display', serif;
+  color: #1a1a1a;
+  outline: none;
+  background: transparent;
+}
+.search-bar button {
+  background: transparent;
+  border: none;
+  padding: 0.6rem;
+  cursor: pointer;
+  color: #9370DB;
+  font-size: 1rem;
+  transition: color 0.3s ease;
+}
+.search-bar button:hover {
+  color: #8A2BE2;
+}
+.category-section {
+  margin-top: 1rem;
+}
+.category-header {
+  background: linear-gradient(45deg, #9370DB, #D8BFD8);
+  color: #fff;
+  padding: 0.8rem;
+  border-radius: 8px 8px 0 0;
+  cursor: pointer;
+  font-weight: 700;
+  font-size: 1.2rem;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+.category-items {
+  display: block;
+}
+.category-items.collapsed {
+  display: none;
+}
+table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  background: #fff;
+  border-radius: 0 0 12px 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(142, 68, 173, 0.05);
+  margin-top: -1px;
+}
+table th, table td {
+  padding: 0.8rem;
+  text-align: left;
+  vertical-align: middle;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+}
+table th {
+  background: linear-gradient(45deg, #9370DB, #D8BFD8);
+  color: #fff;
+  font-weight: 700;
+  font-size: 1.1rem;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+table td {
+  font-size: 1rem;
+  color: #1a1a1a;
+}
+table img {
+  width: 50px;
+  height: 50px;
+  object-fit: cover;
+  border-radius: 8px;
+  transition: transform 0.3s ease;
+}
+table img:hover {
+  transform: scale(1.1);
+}
+table tr:hover {
+  background: rgba(147, 112, 219, 0.05);
+}
+form {
+  background: #fff;
+  padding: 1.5rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(142, 68, 173, 0.05);
+  margin-top: 1.5rem;
+}
+form input, form textarea, form select {
+  width: 100%;
+  padding: 0.8rem;
+  margin: 0.5rem 0;
+  border: 1px solid #D8BFD8;
+  border-radius: 8px;
+  font-family: 'Playfair Display', serif;
+  font-size: 1rem;
+  background: #F0F8FF;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+form input:focus, form textarea:focus, form select:focus {
+  border-color: #9370DB;
+  box-shadow: 0 0 0 2px rgba(147, 112, 219, 0.2);
+  outline: none;
+}
+form textarea {
+  resize: vertical;
+  min-height: 80px;
+}
+form button {
+  background: linear-gradient(45deg, #9370DB, #D8BFD8);
+  border: none;
+  padding: 0.8rem 1.5rem;
+  color: #1a1a1a;
+  font-weight: 700;
+  font-size: 1rem;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+  box-shadow: 0 3px 8px rgba(142, 68, 173, 0.1);
+}
+form button:hover {
+  background: linear-gradient(45deg, #8A2BE2, #D8BFD8);
+  transform: translateY(-2px);
+  box-shadow: 0 5px 12px rgba(142, 68, 173, 0.2);
+}
+.btn {
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.95rem;
+  font-weight: 600;
+  transition: background 0.3s ease, transform 0.2s ease;
+}
+.btn-edit {
+  background: linear-gradient(45deg, #9370DB, #D8BFD8);
+  color: #fff;
+  margin-right: 0.5rem;
+}
+.btn-edit:hover {
+  background: linear-gradient(45deg, #8A2BE2, #9370DB);
+  transform: translateY(-2px);
+}
+.btn-del {
+  background: linear-gradient(45deg, #8A2BE2, #D8BFD8);
+  color: #fff;
+}
+.btn-del:hover {
+  background: linear-gradient(45deg, #6A0DAD, #8A2BE2);
+  transform: translateY(-2px);
+}
+.modal {
+  display: none;
+  position: fixed;
+  z-index: 2000;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.6);
+  justify-content: center;
+  align-items: center;
+}
+.modal-content {
+  background: #fff;
+  padding: 1.5rem;
+  border-radius: 16px;
+  width: 100%;
+  max-width: 450px;
+  box-shadow: 0 6px 20px rgba(142, 68, 173, 0.2);
+  animation: modalScaleIn 0.3s ease-out;
+}
+.modal-content h3 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #9370DB;
+  margin: 0 0 1rem;
+  text-align: center;
+}
+.close {
+  float: right;
+  font-size: 1.5rem;
+  color: #4B5E8E;
+  cursor: pointer;
+  transition: color 0.3s ease;
+}
+.close:hover {
+  color: #1a1a1a;
+}
+#toast {
+  visibility: hidden;
+  min-width: 250px;
+  background: linear-gradient(45deg, #9370DB, #D8BFD8);
+  color: #fff;
+  text-align: center;
+  border-radius: 12px;
+  padding: 1rem;
+  position: fixed;
+  z-index: 1000;
+  left: 50%;
+  bottom: 30px;
+  transform: translateX(-50%);
+  font-size: 0.95rem;
+  box-shadow: 0 4px 12px rgba(142, 68, 173, 0.2);
+}
+#toast.show {
+  visibility: visible;
+  animation: slideDown 0.5s ease-out, slideUp 0.5s ease-in 2.5s forwards;
+}
+.size-field {
+  display: none;
+}
+.size-field.visible {
+  display: block;
+}
+@keyframes shine {
+  0% { left: -100%; }
+  50% { left: 100%; }
+  100% { left: 100%; }
+}
+@keyframes fadeInScale {
+  from { opacity: 0; transform: scale(0.9); }
+  to { opacity: 1; transform: scale(1); }
+}
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(15px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes slideDown {
+  from { opacity: 0; transform: translate(-50%, -100%); }
+  to { opacity: 1; transform: translate(-50%, 0); }
+}
+@keyframes modalScaleIn {
+  from { opacity: 0; transform: scale(0.9); }
+  to { opacity: 1; transform: scale(1); }
+}
+@media (max-width: 480px) {
+  header img { height: 45px; }
+  header h1 { font-size: 1.8rem; }
+  header span { font-size: 0.8rem; }
+  nav a { font-size: 0.9rem; padding: 0.8rem; flex: 0 1 100px; }
+  .logout { padding: 0.5rem 1rem; font-size: 0.9rem; }
+  .content { margin: 1rem; padding: 1rem; }
+  .content h2 { font-size: 1.6rem; }
+  .search-bar input { font-size: 0.9rem; padding: 0.5rem; }
+  .search-bar button { font-size: 0.9rem; padding: 0.5rem; }
+  table th, table td { font-size: 0.9rem; padding: 0.6rem; }
+  table img { width: 40px; height: 40px; }
+  .modal-content { max-width: 90%; padding: 1rem; }
+  .modal-content h3 { font-size: 1.3rem; }
+  .category-header { font-size: 1rem; padding: 0.6rem; }
+}
+  </style>
+</head>
+<body>
+  <header>
+    <img src="https://i.postimg.cc/W3pgQx9q/DELICUTE-Imgur-1-modified.png" alt="DELICUTE Logo">
+    <div>
+      <h1>DELICUTE</h1>
+      <span>Every Bite Tells A Story</span>
+    </div>
+    <button class="logout" onclick="logout()">Logout</button>
+  </header>
+
+  <nav>
+    <a href="adminorders.html">Orders</a>
+    <a href="adminmenu.html">Menu</a>
+    <a href="admincoupons.html">Coupons</a>
+    <a href="admincategories.html">Categories</a>
+    <a href="admintoppicks.html">Top Picks</a>
+  </nav>
+
+  <div class="content">
+    <h2>Manage Menu Items 🍽️</h2>
+    <h3>Add New Item</h3>
+    <form id="addMenuForm" enctype="multipart/form-data">
+      <input type="text" name="name" placeholder="Item Name" required>
+      <textarea name="description" placeholder="Description"></textarea>
+      <input type="number" step="0.01" name="original_price" placeholder="Original Price" required>
+      <input type="number" step="0.01" name="saved_price" placeholder="Saved Price (Discounted)">
+      <select name="category_id" id="categorySelect" required></select>
+      <select name="size" id="addSizeSelect" class="size-field">
+        <option value="" disabled selected>Select Size</option>
+        <option value="REGULAR">REGULAR</option>
+        <option value="MEDIUM">MEDIUM</option>
+        <option value="LARGE">LARGE</option>
+      </select>
+      <input type="file" name="image" accept="image/*" required>
+      <button type="submit">Add Item</button>
+    </form>
+    <div class="search-bar">
+      <input type="text" id="searchInput" placeholder="Search by name or category...">
+      <button onclick="filterMenu()"><i class="fas fa-search"></i></button>
+    </div>
+    <div id="menuCategories" class="category-section"></div>
+  </div>
+
+  <!-- Edit Modal -->
+  <div id="editModal" class="modal">
+    <div class="modal-content">
+      <span class="close" onclick="closeModal()">&times;</span>
+      <h3>Edit Menu Item</h3>
+      <form id="editMenuForm" enctype="multipart/form-data">
+        <input type="hidden" name="id" id="editId">
+        <input type="text" name="name" id="editName" placeholder="Item Name" required>
+        <textarea name="description" id="editDescription" placeholder="Description"></textarea>
+        <input type="number" step="0.01" name="original_price" id="editOriginalPrice" placeholder="Original Price" required>
+        <input type="number" step="0.01" name="saved_price" id="editSavedPrice" placeholder="Saved Price">
+        <select name="category_id" id="editCategorySelect" required></select>
+        <select name="size" id="editSizeSelect" class="size-field">
+          <option value="" disabled selected>Select Size</option>
+          <option value="REGULAR">REGULAR</option>
+          <option value="MEDIUM">MEDIUM</option>
+          <option value="LARGE">LARGE</option>
+        </select>
+        <input type="file" name="image" accept="image/*">
+        <button type="submit">Update Item</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div id="toast"></div>
+
+  <script>
+    let menuData = [];
+    let categories = [];
+
+    function showToast(msg, success = true) {
+      const toast = document.getElementById("toast");
+      toast.textContent = msg;
+      toast.style.background = success ? "linear-gradient(45deg, #26a69a, #4dd0e1)" : "linear-gradient(45deg, #ef5350, #e53935)";
+      toast.className = "show";
+      setTimeout(() => toast.className = toast.className.replace("show", ""), 3000);
+    }
+
+    function debounce(func, wait) {
+      let timeout;
+      return function (...args) {
+        clearTimeout(timeout);
+        timeout = setTimeout(() => func.apply(this, args), wait);
+      };
+    }
+
+    function filterMenu() {
+      const query = document.getElementById("searchInput").value.toLowerCase().trim();
+      const filtered = query
+        ? menuData.filter(item =>
+            item.name.toLowerCase().includes(query) ||
+            item.category.toLowerCase().includes(query))
+        : menuData;
+      renderMenu(filtered);
+    }
+
+    function renderMenu(data) {
+      const categoriesEl = document.getElementById("menuCategories");
+      categoriesEl.innerHTML = "";
+      if (!Array.isArray(data) || data.length === 0) {
+        categoriesEl.innerHTML = "<p style='text-align:center;color:#4b5e8e;font-size:1rem;'>No menu items available</p>";
+        return;
+      }
+
+      const grouped = {};
+      data.forEach(item => {
+        if (!item || !item.category) return;
+        if (!grouped[item.category]) grouped[item.category] = [];
+        grouped[item.category].push(item);
+      });
+
+      Object.keys(grouped).sort().forEach(category => {
+        const isPizzaCategory = category.toLowerCase().includes("pizza");
+        categoriesEl.innerHTML += `
+          <div class="category-section">
+            <div class="category-header" onclick="toggleCategory('${category}')">${category} <span>▼</span></div>
+            <div class="category-items" id="category-${category.replace(/ /g, '-')}" data-expanded="true">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Name</th>
+                    <th>Description</th>
+                    <th>Original Price</th>
+                    <th>Saved Price</th>
+                    ${isPizzaCategory ? "<th>Size</th>" : ""}
+                    <th>Image</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  ${grouped[category].map(item => `
+                    <tr>
+                      <td>${item.name}</td>
+                      <td>${item.description || ""}</td>
+                      <td>₹${item.original_price}</td>
+                      <td>${item.saved_price > 0 ? "₹" + item.saved_price : "-"}</td>
+                      ${isPizzaCategory ? `<td>${item.size || "-"}</td>` : ""}
+                      <td><img src="${item.image}" alt="${item.name}"></td>
+                      <td>
+                        <button class="btn btn-edit" onclick="openEditModal(${item.id})">Edit</button>
+                        <button class="btn btn-del" onclick="deleteItem(${item.id})">Delete</button>
+                      </td>
+                    </tr>
+                  `).join("")}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        `;
+      });
+    }
+
+    function toggleCategory(category) {
+      const categoryDiv = document.getElementById(`category-${category.replace(/ /g, '-')}`);
+      const isExpanded = categoryDiv.getAttribute("data-expanded") === "true";
+      categoryDiv.classList.toggle("collapsed", isExpanded);
+      categoryDiv.setAttribute("data-expanded", !isExpanded);
+      const header = categoryDiv.previousElementSibling;
+      header.innerHTML = `${category} <span>${isExpanded ? "▶" : "▼"}</span>`;
+    }
+
+    function toggleSizeField(selectElement, sizeElementId) {
+      const sizeField = document.getElementById(sizeElementId);
+      const selectedCategoryId = selectElement.value;
+      const selectedCategory = categories.find(cat => cat.id == selectedCategoryId);
+      const isPizza = selectedCategory && selectedCategory.name.toLowerCase().includes("pizza");
+      sizeField.classList.toggle("visible", isPizza);
+      if (!isPizza) {
+        sizeField.value = "";
+      }
+    }
+
+    window.addEventListener("DOMContentLoaded", async () => {
+      try {
+        const res = await fetch("/api/auth/check", { credentials: "include" });
+        if (!res.ok) {
+          window.location.href = "/admin.html";
+          return;
+        }
+        await loadCategories();
+        await loadMenu();
+        document.getElementById("categorySelect").addEventListener("change", (e) => toggleSizeField(e.target, "addSizeSelect"));
+        document.getElementById("editCategorySelect").addEventListener("change", (e) => toggleSizeField(e.target, "editSizeSelect"));
+      } catch (err) {
+        window.location.href = "/admin.html";
+      }
+    });
+
+    async function loadMenu() {
+      try {
+        const res = await fetch("/api/menu");
+        const data = await res.json();
+        if (data.success) {
+          menuData = data.data;
+          renderMenu(menuData);
+        } else {
+          showToast("Failed to load menu", false);
+        }
+      } catch (err) {
+        showToast("Error loading menu", false);
+        console.error("Menu Load Error:", err);
+      }
+    }
+
+    async function loadCategories() {
+      try {
+        const res = await fetch("/api/categories");
+        const data = await res.json();
+        if (data.success) {
+          categories = data.data;
+          const categorySelect = document.getElementById("categorySelect");
+          const editSelect = document.getElementById("editCategorySelect");
+          categorySelect.innerHTML = "";
+          editSelect.innerHTML = "";
+          data.data.forEach(cat => {
+            categorySelect.innerHTML += `<option value="${cat.id}">${cat.name}</option>`;
+            editSelect.innerHTML += `<option value="${cat.id}">${cat.name}</option>`;
+          });
+        } else {
+          showToast("Failed to load categories", false);
+        }
+      } catch (err) {
+        showToast("Error loading categories", false);
+        console.error("Categories Load Error:", err);
+      }
+    }
+
+    document.getElementById("addMenuForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const formData = new FormData(e.target);
+      const selectedCategoryId = formData.get("category_id");
+      const selectedCategory = categories.find(cat => cat.id == selectedCategoryId);
+      if (selectedCategory && !selectedCategory.name.toLowerCase().includes("pizza")) {
+        formData.delete("size");
+      }
+      try {
+        const res = await fetch("/api/menu", { method: "POST", body: formData });
+        if (res.ok) {
+          showToast("Menu item added!");
+          await loadMenu();
+          e.target.reset();
+          document.getElementById("addSizeSelect").classList.remove("visible");
+        } else {
+          showToast("Error adding item", false);
+        }
+      } catch (err) {
+        showToast("Error adding item", false);
+        console.error("Add Item Error:", err);
+      }
+    });
+
+    async function openEditModal(id) {
+      try {
+        const res = await fetch(`/api/menu/${id}`);
+        const { data } = await res.json();
+        if (data) {
+          document.getElementById("editId").value = data.id;
+          document.getElementById("editName").value = data.name;
+          document.getElementById("editDescription").value = data.description || "";
+          document.getElementById("editOriginalPrice").value = data.original_price;
+          document.getElementById("editSavedPrice").value = data.saved_price || "";
+          document.getElementById("editCategorySelect").value = data.category_id;
+          document.getElementById("editSizeSelect").value = data.size || "";
+          const selectedCategory = categories.find(cat => cat.id == data.category_id);
+          document.getElementById("editSizeSelect").classList.toggle("visible", selectedCategory && selectedCategory.name.toLowerCase().includes("pizza"));
+          document.getElementById("editModal").style.display = "flex";
+        } else {
+          showToast("Failed to load item details", false);
+        }
+      } catch (err) {
+        showToast("Error loading item", false);
+        console.error("Edit Modal Error:", err);
+      }
+    }
+
+    function closeModal() {
+      document.getElementById("editModal").style.display = "none";
+      document.getElementById("editSizeSelect").classList.remove("visible");
+    }
+
+    document.getElementById("editMenuForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const formData = new FormData(e.target);
+      const id = formData.get("id");
+      const selectedCategoryId = formData.get("category_id");
+      const selectedCategory = categories.find(cat => cat.id == selectedCategoryId);
+      if (selectedCategory && !selectedCategory.name.toLowerCase().includes("pizza")) {
+        formData.delete("size");
+      }
+      try {
+        const res = await fetch(`/api/menu/${id}`, { method: "PUT", body: formData });
+        if (res.ok) {
+          showToast("Menu item updated!");
+          await loadMenu();
+          closeModal();
+        } else {
+          showToast("Error updating item", false);
+        }
+      } catch (err) {
+        showToast("Error updating item", false);
+        console.error("Update Item Error:", err);
+      }
+    });
+
+    async function deleteItem(id) {
+      if (!confirm("Delete this item?")) return;
+      try {
+        const res = await fetch(`/api/menu/${id}`, { method: "DELETE" });
+        if (res.ok) {
+          showToast("Menu item deleted!");
+          await loadMenu();
+        } else {
+          showToast("Error deleting item", false);
+        }
+      } catch (err) {
+        showToast("Error deleting item", false);
+        console.error("Delete Item Error:", err);
+      }
+    }
+
+    async function logout() {
+      try {
+        await fetch("/api/auth/logout", { method: "POST", credentials: "include" });
+        window.location.href = "/admin.html";
+      } catch (err) {
+        showToast("Error logging out", false);
+        console.error("Logout Error:", err);
+      }
+    }
+
+    document.getElementById("searchInput").addEventListener("input", debounce(filterMenu, 300));
+  </script>
+</body>
+</html>

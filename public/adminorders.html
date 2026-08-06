@@ -1,0 +1,1020 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin | Manage Orders</title>
+  <link rel="icon" href="https://i.postimg.cc/W3pgQx9q/DELICUTE-Imgur-1-modified.png">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+  <style>
+    :root {
+  --primary-purple: #9370DB;
+  --secondary-purple: #D8BFD8;
+  --light-yellow: #F0E68C;
+  --purple-accent: #8A2BE2;
+  --dark: #1A1A1A;
+  --text-accent: #F0E68C;
+  --error-purple: #8A2BE2;
+  --success-purple: #9370DB;
+  --cancel-purple: #8A2BE2;
+  --shadow-sm: 0 2px 8px rgba(142, 68, 173, 0.1);
+  --shadow-md: 0 4px 16px rgba(142, 68, 173, 0.15);
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Playfair Display', serif;
+  background: linear-gradient(135deg, #D8BFD8, #E6E6FA);
+  color: var(--dark);
+  min-height: 100vh;
+  line-height: 1.6;
+  overflow-x: hidden;
+}
+
+header {
+  background: linear-gradient(90deg, var(--primary-purple), var(--secondary-purple));
+  color: white;
+  padding: 1.5rem 2rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  box-shadow: var(--shadow-md);
+  position: relative;
+}
+
+header::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(240, 230, 140, 0.3), transparent);
+  animation: shine 3s infinite;
+}
+
+header img {
+  height: 60px;
+  filter: drop-shadow(0 3px 8px rgba(0, 0, 0, 0.2));
+  animation: fadeInScale 0.8s ease-out;
+  transition: transform 0.3s ease;
+}
+
+header img:hover {
+  transform: scale(1.1);
+}
+
+header h1 {
+  font-size: 2.2rem;
+  font-weight: 700;
+  margin-top: 0.5rem;
+  text-shadow: 0 2px 6px rgba(240, 230, 140, 0.4);
+  animation: fadeInUp 0.6s ease-out 0.2s forwards;
+}
+
+header span {
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--text-accent);
+  animation: fadeInUp 0.6s ease-out 0.4s forwards;
+}
+
+nav {
+  background: var(--dark);
+  display: flex;
+  justify-content: center;
+  box-shadow: var(--shadow-sm);
+  overflow-x: auto;
+  white-space: nowrap;
+}
+
+nav a {
+  flex: 0 1 150px;
+  padding: 1rem;
+  text-align: center;
+  color: white;
+  text-decoration: none;
+  font-size: 1.1rem;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+nav a:hover {
+  background: var(--purple-accent);
+  color: var(--text-accent);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-sm);
+}
+
+.logout {
+  background: linear-gradient(45deg, var(--primary-purple), var(--secondary-purple));
+  border: none;
+  padding: 0.6rem 1.5rem;
+  color: var(--dark);
+  font-weight: 700;
+  font-size: 1rem;
+  border-radius: 8px;
+  cursor: pointer;
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  transition: all 0.3s ease;
+  box-shadow: var(--shadow-sm);
+}
+
+.logout:hover {
+  background: linear-gradient(45deg, var(--purple-accent), var(--secondary-purple));
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.container {
+  max-width: 1200px;
+  margin: 2rem auto;
+  padding: 1.5rem;
+  background: rgba(255, 255, 255, 0.98);
+  border-radius: 12px;
+  box-shadow: var(--shadow-md);
+  animation: slideUp 0.6s ease-out;
+}
+
+.container h2 {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--primary-purple);
+  margin-bottom: 1rem;
+  text-align: center;
+}
+
+.table-wrapper {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  background: white;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+  table-layout: fixed;
+}
+
+th, td {
+  padding: 0.8rem;
+  text-align: left;
+  vertical-align: middle;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+  font-size: 0.95rem;
+}
+
+th {
+  background: linear-gradient(45deg, var(--primary-purple), var(--secondary-purple));
+  color: white;
+  font-weight: 700;
+  font-size: 1rem;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+td {
+  font-size: 0.9rem;
+  color: var(--dark);
+  word-wrap: break-word;
+}
+
+table tr:hover {
+  background: rgba(147, 112, 219, 0.05);
+}
+
+.status {
+  font-weight: 500;
+  padding: 0.4rem 0.8rem;
+  border-radius: 8px;
+  text-transform: capitalize;
+  display: inline-block;
+}
+
+.status.Pending {
+  background: linear-gradient(45deg, var(--primary-purple), var(--secondary-purple));
+  color: var(--dark);
+}
+
+.status.Preparing {
+  background: linear-gradient(45deg, var(--primary-purple), var(--purple-accent));
+  color: white;
+}
+
+.status.Delivered {
+  background: linear-gradient(45deg, var(--success-purple), var(--secondary-purple));
+  color: white;
+}
+
+.status.Cancelled {
+  background: linear-gradient(45deg, var(--cancel-purple), var(--secondary-purple));
+  color: white;
+}
+
+.btn {
+  padding: 0.5rem;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: all 0.3s ease;
+  margin-right: 0.5rem;
+  box-shadow: var(--shadow-sm);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 40px;
+  height: 40px;
+}
+
+.btn-cancel {
+  background: linear-gradient(45deg, var(--primary-purple), var(--secondary-purple));
+  color: var(--dark);
+}
+
+.btn-cancel:hover {
+  background: linear-gradient(45deg, var(--purple-accent), var(--secondary-purple));
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.btn-delete {
+  background: linear-gradient(45deg, var(--cancel-purple), var(--secondary-purple));
+  color: white;
+}
+
+.btn-delete:hover {
+  background: linear-gradient(45deg, #6A0DAD, var(--cancel-purple));
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.status-dropdown {
+  position: relative;
+  display: inline-block;
+  margin-right: 0.5rem;
+}
+
+.status-selected {
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  background: linear-gradient(45deg, var(--primary-purple), var(--secondary-purple));
+  color: white;
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  box-shadow: var(--shadow-sm);
+  transition: all 0.3s ease;
+  min-width: 100px;
+  text-align: center;
+}
+
+.status-selected:hover {
+  background: linear-gradient(45deg, var(--purple-accent), var(--primary-purple));
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.status-options {
+  display: none;
+  position: absolute;
+  top: 100%;
+  left: 0;
+  background: linear-gradient(45deg, var(--primary-purple), var(--secondary-purple));
+  border: 1px solid rgba(147, 112, 219, 0.2);
+  border-radius: 8px;
+  box-shadow: var(--shadow-md);
+  z-index: 100;
+  min-width: 100px;
+  padding: 0.5rem 0;
+  transform: translateY(-10px);
+  opacity: 0;
+  transition: all 0.3s ease;
+}
+
+.status-options.show {
+  display: block;
+  transform: translateY(0);
+  opacity: 1;
+}
+
+.status-options li {
+  padding: 0.6rem 1rem;
+  color: white;
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.3s ease;
+  min-height: 40px;
+  display: flex;
+  align-items: center;
+}
+
+.status-options li:hover {
+  background: linear-gradient(45deg, var(--purple-accent), var(--primary-purple));
+}
+
+.instructions {
+  font-size: 0.9rem;
+  color: #4B5E8E;
+  max-width: 200px;
+  white-space: normal;
+  word-wrap: break-word;
+  padding: 0.4rem 0.8rem;
+  background: rgba(147, 112, 219, 0.05);
+  border-radius: 8px;
+  max-height: 80px;
+  overflow-y: auto;
+}
+
+.coupon-info {
+  font-size: 0.9rem;
+  color: #4B5E8E;
+  padding: 0.4rem 0.8rem;
+  background: rgba(240, 230, 140, 0.1);
+  border-radius: 8px;
+  margin-top: 0.2rem;
+}
+
+.no-orders {
+  font-size: 1rem;
+  color: #4B5E8E;
+  text-align: center;
+  padding: 2rem;
+}
+
+#toast {
+  visibility: hidden;
+  min-width: 200px;
+  max-width: 300px;
+  background: linear-gradient(45deg, var(--success-purple), var(--secondary-purple));
+  color: white;
+  text-align: center;
+  border-radius: 12px;
+  padding: 1rem;
+  position: fixed;
+  z-index: 1000;
+  top: 80px;
+  right: 20px;
+  font-size: 0.9rem;
+  box-shadow: var(--shadow-md);
+}
+
+#toast.show {
+  visibility: visible;
+  animation: slideDown 0.5s ease-out, slideUp 0.5s ease-in 2.5s forwards;
+}
+
+.notification-container {
+  position: absolute;
+  top: 1rem;
+  right: 8rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.notification-icon {
+  position: relative;
+  cursor: pointer;
+  font-size: 1.4rem;
+  color: var(--text-accent);
+  transition: transform 0.2s ease;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.notification-icon:hover {
+  transform: scale(1.1);
+}
+
+.notification-badge {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  background: var(--error-purple);
+  color: white;
+  border-radius: 50%;
+  padding: 3px 7px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  box-shadow: var(--shadow-sm);
+}
+
+.notification-dropdown {
+  display: none;
+  position: absolute;
+  top: 2.5rem;
+  right: 0;
+  width: 280px;
+  max-height: 360px;
+  overflow-y: auto;
+  background: white;
+  border-radius: 8px;
+  box-shadow: var(--shadow-md);
+  z-index: 1000;
+  padding: 1rem;
+}
+
+.notification-dropdown.show {
+  display: block;
+}
+
+.notification-item {
+  padding: 0.75rem;
+  border-bottom: 1px solid var(--secondary-purple);
+  font-size: 0.85rem;
+  color: var(--dark);
+  transition: background 0.2s ease;
+}
+
+.notification-item:last-child {
+  border-bottom: none;
+}
+
+.notification-item:hover {
+  background: var(--secondary-purple);
+}
+
+.notification-item strong {
+  color: var(--primary-purple);
+}
+
+.clear-notifications {
+  width: 100%;
+  padding: 0.5rem;
+  background: linear-gradient(45deg, var(--primary-purple), var(--secondary-purple));
+  color: var(--dark);
+  border: none;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+  margin-top: 0.5rem;
+  transition: all 0.2s ease;
+  height: 40px;
+}
+
+.clear-notifications:hover {
+  background: linear-gradient(45deg, var(--purple-accent), var(--secondary-purple));
+  transform: translateY(-1px);
+}
+
+.no-notifications {
+  padding: 0.75rem;
+  font-size: 0.85rem;
+  color: #4B5E8E;
+  text-align: center;
+}
+
+.enable-sound-btn {
+  background: linear-gradient(45deg, var(--primary-purple), var(--secondary-purple));
+  border: none;
+  padding: 0.5rem 1rem;
+  color: white;
+  font-weight: 500;
+  font-size: 0.9rem;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 40px;
+}
+
+.enable-sound-btn:hover {
+  background: linear-gradient(45deg, var(--purple-accent), var(--primary-purple));
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+@keyframes shine {
+  0% { left: -100%; }
+  50% { left: 100%; }
+  100% { left: 100%; }
+}
+
+@keyframes fadeInScale {
+  from { opacity: 0; transform: scale(0.9); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(15px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slideDown {
+  from { opacity: 0; top: -100%; }
+  to { opacity: 1; top: 80px; }
+}
+
+@keyframes slideUp {
+  from { opacity: 1; top: 80px; }
+  to { opacity: 0; top: -100%; }
+}
+
+@media (max-width: 768px) {
+  header img { height: 50px; }
+  header h1 { font-size: 1.8rem; }
+  header span { font-size: 0.85rem; }
+  nav a { font-size: 0.95rem; padding: 0.8rem; flex: 0 1 120px; }
+  .logout { padding: 0.5rem 1.2rem; font-size: 0.9rem; height: 36px; }
+  .container { margin: 1.5rem; padding: 1rem; }
+  .container h2 { font-size: 1.8rem; }
+  th, td { font-size: 0.85rem; padding: 0.6rem; }
+  .btn, .status-selected, .status-options li { font-size: 0.85rem; padding: 0.4rem; min-height: 36px; min-width: 36px; }
+  .status { font-size: 0.8rem; padding: 0.3rem 0.6rem; }
+  .instructions { font-size: 0.8rem; max-width: 150px; max-height: 70px; }
+  .coupon-info { font-size: 0.8rem; }
+  #toast { top: 70px; right: 15px; font-size: 0.85rem; min-width: 180px; }
+  .notification-container { right: 6.5rem; }
+  .notification-dropdown { width: 240px; max-height: 320px; }
+  .notification-icon { font-size: 1.2rem; width: 36px; height: 36px; }
+  .notification-badge { font-size: 0.7rem; padding: 2px 6px; }
+  .notification-item { font-size: 0.8rem; padding: 0.6rem; }
+  .clear-notifications { font-size: 0.8rem; height: 36px; }
+  .table-wrapper { max-height: 400px; }
+  table { min-width: 800px; }
+  th { min-width: 100px; }
+  td { min-width: 100px; }
+  .enable-sound-btn { font-size: 0.85rem; padding: 0.4rem 0.8rem; height: 36px; }
+}
+
+@media (max-width: 480px) {
+  header img { height: 40px; }
+  header h1 { font-size: 1.6rem; }
+  header span { font-size: 0.8rem; }
+  nav a { font-size: 0.85rem; padding: 0.6rem; flex: 0 1 100px; }
+  .logout { padding: 0.4rem 1rem; font-size: 0.85rem; height: 32px; }
+  .container { margin: 1rem; padding: 0.8rem; }
+  .container h2 { font-size: 1.5rem; }
+  th, td { font-size: 0.8rem; padding: 0.5rem; }
+  .btn, .status-selected, .status-options li { font-size: 0.8rem; padding: 0.3rem; min-height: 32px; min-width: 32px; }
+  .status { font-size: 0.75rem; padding: 0.2rem 0.5rem; }
+  .instructions { font-size: 0.75rem; max-width: 120px; max-height: 60px; }
+  .coupon-info { font-size: 0.75rem; }
+  #toast { top: 60px; right: 10px; font-size: 0.8rem; min-width: 160px; }
+  .notification-container { right: 5rem; }
+  .notification-dropdown { width: 200px; max-height: 280px; }
+  .notification-icon { font-size: 1.1rem; width: 32px; height: 32px; }
+  .notification-badge { font-size: 0.65rem; padding: 2px 5px; }
+  .notification-item { font-size: 0.75rem; padding: 0.5rem; }
+  .clear-notifications { font-size: 0.75rem; height: 32px; }
+  .table-wrapper { max-height: 350px; }
+  .enable-sound-btn { font-size: 0.8rem; padding: 0.3rem 0.6rem; height: 32px; }
+}
+  </style>
+</head>
+<body>
+  <header>
+    <img src="https://i.postimg.cc/W3pgQx9q/DELICUTE-Imgur-1-modified.png" alt="DELICUTE Logo">
+    <div>
+      <h1>DELICUTE</h1>
+      <span>Every Bite Tells A Story</span>
+    </div>
+    <div class="notification-container">
+      <button class="enable-sound-btn" id="enable-sound-btn" title="Enable Notification Sound">
+        <i class="fas fa-volume-up"></i>
+      </button>
+      <span class="notification-icon" title="Notifications">
+        <i class="fas fa-bell"></i>
+        <span class="notification-badge" id="notification-count">0</span>
+      </span>
+      <div class="notification-dropdown" id="notification-dropdown">
+        <div id="notification-list"></div>
+        <button class="clear-notifications" onclick="clearNotifications()">Clear All</button>
+      </div>
+    </div>
+    <button class="logout" onclick="logout()">Logout</button>
+  </header>
+
+  <nav>
+    <a href="admindashboard.html">Dashboard</a>
+    <a href="adminorders.html">Orders</a>
+    <a href="adminmenu.html">Menu</a>
+    <a href="admincoupons.html">Coupons</a>
+    <a href="admincategories.html">Categories</a>
+    <a href="admintoppicks.html">Top Picks</a>
+  </nav>
+
+  <div class="container">
+    <h2>Manage Orders 📦</h2>
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>Customer</th>
+            <th>Phone Number</th>
+            <th>Items (Qty)</th>
+            <th>Total Price</th>
+            <th>Coupon</th>
+            <th>Address</th>
+            <th>Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="ordersTable">
+          <tr><td colspan="8" class="no-orders">Loading orders...</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div id="toast"></div>
+
+  <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+  <script>
+    const AudioContext = window.AudioContext || window.webkitAudioContext;
+    const audioCtx = new AudioContext();
+    let isSoundEnabled = false;
+
+    const elements = {
+      notificationCount: document.getElementById("notification-count"),
+      notificationList: document.getElementById("notification-list"),
+      notificationDropdown: document.getElementById("notification-dropdown"),
+      notificationIcon: document.querySelector(".notification-icon"),
+      ordersTable: document.getElementById("ordersTable"),
+      toast: document.getElementById("toast"),
+      enableSoundBtn: document.getElementById("enable-sound-btn")
+    };
+
+    let notifications = JSON.parse(localStorage.getItem("notifications") || "[]");
+
+    // Log initial AudioContext state
+    console.log(`Initial AudioContext state: ${audioCtx.state}`);
+
+    // Resume AudioContext on any touch event for mobile
+    const resumeAudioContext = async () => {
+      if (audioCtx.state === 'suspended') {
+        try {
+          await audioCtx.resume();
+          console.log(`AudioContext resumed on touch, state: ${audioCtx.state}`);
+        } catch (err) {
+          console.error("Touch resume error:", err);
+        }
+      }
+    };
+    document.addEventListener('touchstart', resumeAudioContext, { once: true });
+
+    // Play notification sound using Web Audio API
+    function playNotificationSound() {
+      console.log(`Attempting to play sound, isSoundEnabled: ${isSoundEnabled}, AudioContext state: ${audioCtx.state}`);
+      if (!isSoundEnabled) {
+        showToast("Please enable sound to hear notifications", false);
+        return;
+      }
+      if (audioCtx.state === 'suspended') {
+        showToast("Audio context suspended. Tap Enable Sound again.", false);
+        console.log("AudioContext suspended during playback attempt");
+        return;
+      }
+      try {
+        const oscillator = audioCtx.createOscillator();
+        const gainNode = audioCtx.createGain();
+        oscillator.connect(gainNode);
+        gainNode.connect(audioCtx.destination);
+        oscillator.type = 'sine';
+        const frequencies = [440, 523.25, 659.25, 783.99]; // A4, C5, E5, G5
+        let currentTime = audioCtx.currentTime;
+        frequencies.forEach((freq, index) => {
+          oscillator.frequency.setValueAtTime(freq, currentTime + index * 1.25);
+          gainNode.gain.setValueAtTime(0.8, currentTime + index * 1.25);
+          gainNode.gain.exponentialRampToValueAtTime(0.001, currentTime + (index + 1) * 1.25 - 0.1);
+        });
+        oscillator.start();
+        oscillator.stop(audioCtx.currentTime + 5);
+        console.log("Notification sound played successfully");
+      } catch (err) {
+        console.error("Audio playback error:", err);
+        showToast("Error playing notification sound", false);
+      }
+    }
+
+    // Enable sound on user interaction
+    elements.enableSoundBtn.addEventListener("click", async () => {
+      console.log(`Enable Sound clicked, AudioContext state: ${audioCtx.state}`);
+      if (audioCtx.state === 'suspended' || !isSoundEnabled) {
+        try {
+          await audioCtx.resume();
+          isSoundEnabled = true;
+          elements.enableSoundBtn.style.opacity = "0.7";
+          showToast("Notification sound enabled!");
+          console.log(`AudioContext resumed, state: ${audioCtx.state}`);
+          // Play a brief test sound
+          playNotificationSound();
+        } catch (err) {
+          console.error("Audio initialization error:", err);
+          showToast("Failed to enable sound. Try again.", false);
+        }
+      } else {
+        showToast("Notification sound already enabled!");
+      }
+    });
+
+    function showToast(msg, success = true) {
+      elements.toast.textContent = msg;
+      elements.toast.style.background = success
+        ? "linear-gradient(45deg, #4caf50, #66bb6a)"
+        : "linear-gradient(45deg, #f44336, #ef5350)";
+      elements.toast.className = "show";
+      setTimeout(() => elements.toast.className = "", 3000);
+    }
+
+    function updateNotificationCount() {
+      elements.notificationCount.textContent = notifications.length;
+      elements.notificationCount.style.display = notifications.length ? "inline" : "none";
+    }
+
+    function renderNotifications() {
+      elements.notificationList.innerHTML = notifications.length
+        ? notifications.map(n => `
+            <div class="notification-item">
+              <strong>Order #${n.id}</strong> by ${n.customer_name}<br>
+              Table: ${n.table_number} | Total: ₹${n.total.toFixed(2)}
+            </div>
+          `).join("")
+        : '<div class="no-notifications">No new notifications</div>';
+      updateNotificationCount();
+    }
+
+    function toggleDropdown(event) {
+      event.stopPropagation();
+      elements.notificationDropdown.classList.toggle("show");
+    }
+
+    function clearNotifications() {
+      notifications = [];
+      localStorage.setItem("notifications", JSON.stringify(notifications));
+      renderNotifications();
+    }
+
+    // Authentication Check
+    document.addEventListener("DOMContentLoaded", async () => {
+      try {
+        const res = await fetch("/api/auth/check", { credentials: "include" });
+        if (!res.ok) {
+          window.location.href = "/admin.html";
+          return;
+        }
+        await fetchOrders();
+        renderNotifications();
+      } catch (err) {
+        console.error("Auth check error:", err);
+        showToast("Authentication failed", false);
+        window.location.href = "/admin.html";
+      }
+    });
+
+    // WebSocket Connection
+    const socket = io({
+      auth: { token: getCookie("token") }
+    });
+
+    socket.on("connect", () => {
+      console.log("Connected to WebSocket");
+      showToast("Connected to notifications");
+    });
+
+    socket.on("new-order", (order) => {
+      console.log("New order received:", order);
+      playNotificationSound();
+      showToast(`New Order #${order.id} by ${order.customer_name} for ₹${order.total.toFixed(2)}`);
+      notifications.unshift(order);
+      localStorage.setItem("notifications", JSON.stringify(notifications));
+      renderNotifications();
+      prependOrder(order);
+    });
+
+    socket.on("connect_error", (error) => {
+      console.error("WebSocket error:", error);
+      showToast("Notification service unavailable", false);
+    });
+
+    // Event Listeners
+    elements.notificationIcon.addEventListener("click", toggleDropdown);
+    document.addEventListener("click", (e) => {
+      if (!e.target.closest(".status-dropdown") && !e.target.closest(".notification-icon")) {
+        document.querySelectorAll(".status-options").forEach(d => d.classList.remove("show"));
+        elements.notificationDropdown.classList.remove("show");
+      }
+    });
+
+    async function fetchOrders() {
+      try {
+        const res = await fetch("/api/orders", { credentials: "include" });
+        const data = await res.json();
+        elements.ordersTable.innerHTML = "";
+
+        if (!data.success || data.data.length === 0) {
+          elements.ordersTable.innerHTML = "<tr><td colspan='8' class='no-orders'>No orders found</td></tr>";
+          return;
+        }
+
+        const statusPriority = { Pending: 1, Preparing: 2, Delivered: 3, Cancelled: 4 };
+        data.data.sort((a, b) => statusPriority[a.status] - statusPriority[b.status]);
+
+        data.data.forEach(order => renderOrderRow(order));
+      } catch (err) {
+        showToast("Error loading orders", false);
+        console.error("Orders Load Error:", err);
+      }
+    }
+
+    function renderOrderRow(order) {
+      const items = Array.isArray(order.items)
+        ? order.items.map(i => `${i.name} (x${i.qty ?? 1})`).join("<br>")
+        : order.items;
+      const instructions = order.instructions || "None";
+      const couponInfo = order.coupon_code
+        ? `Coupon: ${order.coupon_code} (Discount: ₹${order.discount.toFixed(2)})`
+        : "No coupon used";
+      elements.ordersTable.innerHTML += `
+        <tr>
+          <td>Order #${order.id} - ${order.customer_name}</td>
+          <td>${order.table_number}</td>
+          <td>${items}</td>
+          <td>₹${order.total.toFixed(2)}</td>
+          <td class="coupon-info">${couponInfo}</td>
+          <td class="instructions">${instructions}</td>
+          <td><span class="status ${order.status}">${order.status}</span></td>
+          <td>
+            <div class="status-dropdown">
+              <div class="status-selected" onclick="toggleDropdownStatus(event, ${order.id})">${order.status}</div>
+              <ul class="status-options" id="dropdown-${order.id}">
+                <li onclick="updateStatus(${order.id}, 'Pending')">Pending</li>
+                <li onclick="updateStatus(${order.id}, 'Preparing')">Preparing</li>
+                <li onclick="updateStatus(${order.id}, 'Delivered')">Delivered</li>
+                <li onclick="updateStatus(${order.id}, 'Cancelled')">Cancelled</li>
+              </ul>
+            </div>
+            ${order.status !== "Cancelled" && order.status !== "Delivered"
+              ? `<button class="btn btn-cancel" onclick="cancelOrder(${order.id})" title="Cancel Order"><i class="fas fa-ban"></i></button>`
+              : ""}
+            <button class="btn btn-delete" onclick="deleteOrder(${order.id})" title="Delete Order"><i class="fas fa-trash"></i></button>
+          </td>
+        </tr>
+      `;
+    }
+
+    function prependOrder(order) {
+      const items = Array.isArray(order.items)
+        ? order.items.map(i => `${i.name} (x${i.qty ?? 1})`).join("<br>")
+        : order.items;
+      const instructions = order.instructions || "None";
+      const couponInfo = order.coupon_code
+        ? `Coupon: ${order.coupon_code} (Discount: ₹${order.discount.toFixed(2)})`
+        : "No coupon used";
+      const newRow = document.createElement("tr");
+      newRow.innerHTML = `
+        <td>Order #${order.id} - ${order.customer_name}</td>
+        <td>${order.table_number}</td>
+        <td>${items}</td>
+        <td>₹${order.total.toFixed(2)}</td>
+        <td class="coupon-info">${couponInfo}</td>
+        <td class="instructions">${instructions}</td>
+        <td><span class="status ${order.status}">${order.status}</span></td>
+        <td>
+          <div class="status-dropdown">
+            <div class="status-selected" onclick="toggleDropdownStatus(event, ${order.id})">${order.status}</div>
+            <ul class="status-options" id="dropdown-${order.id}">
+              <li onclick="updateStatus(${order.id}, 'Pending')">Pending</li>
+              <li onclick="updateStatus(${order.id}, 'Preparing')">Preparing</li>
+              <li onclick="updateStatus(${order.id}, 'Delivered')">Delivered</li>
+              <li onclick="updateStatus(${order.id}, 'Cancelled')">Cancelled</li>
+            </ul>
+          </div>
+          ${order.status !== "Cancelled" && order.status !== "Delivered"
+            ? `<button class="btn btn-cancel" onclick="cancelOrder(${order.id})" title="Cancel Order"><i class="fas fa-ban"></i></button>`
+            : ""}
+          <button class="btn btn-delete" onclick="deleteOrder(${order.id})" title="Delete Order"><i class="fas fa-trash"></i></button>
+        </td>
+      `;
+      elements.ordersTable.prepend(newRow);
+    }
+
+    function toggleDropdownStatus(event, id) {
+      event.stopPropagation();
+      const dropdown = document.getElementById(`dropdown-${id}`);
+      if (!dropdown) {
+        console.error(`Dropdown with id dropdown-${id} not found`);
+        return;
+      }
+      const isShown = dropdown.classList.contains("show");
+      document.querySelectorAll(".status-options").forEach(d => d.classList.remove("show"));
+      if (!isShown) dropdown.classList.add("show");
+    }
+
+    async function updateStatus(id, status) {
+      try {
+        const res = await fetch(`/api/orders/${id}/status`, {
+          method: "PUT",
+          headers: { 
+            "Content-Type": "application/json",
+            credentials: "include"
+          },
+          body: JSON.stringify({ status })
+        });
+        const data = await res.json();
+        if (data.success) {
+          showToast(`Order #${id} marked as ${status}!`);
+          document.querySelectorAll(".status-options").forEach(d => d.classList.remove("show"));
+          await fetchOrders();
+        } else {
+          showToast("Failed: " + data.message, false);
+        }
+      } catch (err) {
+        showToast("Error updating status", false);
+        console.error("Status Update Error:", err);
+      }
+    }
+
+    async function cancelOrder(id) {
+      if (!confirm("Are you sure you want to cancel this order?")) return;
+      try {
+        const res = await fetch(`/api/orders/${id}/cancel`, {
+          method: "PUT",
+          headers: { 
+            "Content-Type": "application/json",
+            credentials: "include"
+          },
+          body: JSON.stringify({ status: "Cancelled" })
+        });
+        const data = await res.json();
+        if (data.success) {
+          showToast(`Order #${id} cancelled!`);
+          await fetchOrders();
+        } else {
+          showToast("Failed: " + (data.message || "Unable to cancel order"), false);
+        }
+      } catch (err) {
+        showToast("Error cancelling order", false);
+        console.error("Cancel Error:", err);
+      }
+    }
+
+    async function deleteOrder(id) {
+      if (!confirm("Are you sure you want to delete this order?")) return;
+      try {
+        const res = await fetch(`/api/orders/${id}`, {
+          method: "DELETE",
+          headers: { 
+            "Content-Type": "application/json",
+            credentials: "include"
+          }
+        });
+        const data = await res.json();
+        if (data.success) {
+          showToast(`Order #${id} deleted!`);
+          await fetchOrders();
+        } else {
+          showToast("Failed: " + (data.message || "Unable to delete order"), false);
+        }
+      } catch (err) {
+        showToast("Error deleting order", false);
+        console.error("Delete Error:", err);
+      }
+    }
+
+    async function logout() {
+      try {
+        await fetch("/api/auth/logout", { 
+          method: "POST", 
+          headers: { "Content-Type": "application/json" },
+          credentials: "include" 
+        });
+        window.location.href = "/admin.html";
+      } catch (err) {
+        console.error("Logout error:", err);
+        window.location.href = "/admin.html";
+      }
+    }
+
+    function getCookie(name) {
+      const value = `; ${document.cookie}`;
+      const parts = value.split(`; ${name}=`);
+      return parts.length === 2 ? parts.pop().split(";").shift() : null;
+    }
+  </script>
+</body>
+</html>

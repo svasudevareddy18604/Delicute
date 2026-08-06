@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Dashboard | DELICUTE</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+  <style>
+    :root {
+  --primary-purple: #9370DB;
+  --secondary-purple: #D8BFD8;
+  --light-yellow: #F0E68C;
+  --purple-accent: #8A2BE2;
+  --dark: #1A1A1A;
+  --text-accent: #F0E68C;
+  --error-purple: #8A2BE2;
+  --shadow-sm: 0 2px 8px rgba(142, 68, 173, 0.1);
+  --shadow-md: 0 4px 16px rgba(142, 68, 173, 0.15);
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  -webkit-tap-highlight-color: transparent;
+}
+
+body {
+  font-family: 'Playfair Display', serif;
+  background: linear-gradient(135deg, #D8BFD8, #E6E6FA);
+  color: var(--dark);
+  min-height: 100vh;
+  line-height: 1.6;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+header {
+  background: linear-gradient(90deg, var(--primary-purple), var(--secondary-purple));
+  color: white;
+  padding: 1.5rem 2rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  box-shadow: var(--shadow-md);
+  position: relative;
+}
+
+header::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(240, 230, 140, 0.3), transparent);
+  animation: shine 3s infinite;
+}
+
+header img {
+  height: 60px;
+  filter: drop-shadow(0 3px 8px rgba(0, 0, 0, 0.2));
+  transition: transform 0.3s ease;
+}
+
+header img:hover {
+  transform: scale(1.1);
+}
+
+header h1 {
+  font-size: 2.2rem;
+  font-weight: 800;
+  margin-top: 0.5rem;
+  text-shadow: 0 2px 6px rgba(240, 230, 140, 0.4);
+}
+
+header span {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--text-accent);
+}
+
+nav {
+  background: var(--dark);
+  display: flex;
+  justify-content: center;
+  box-shadow: var(--shadow-sm);
+}
+
+nav a {
+  flex: 0 1 150px;
+  padding: 1rem;
+  text-align: center;
+  color: white;
+  text-decoration: none;
+  font-size: 1.1rem;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+nav a:hover {
+  background: var(--purple-accent);
+  color: var(--text-accent);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-sm);
+}
+
+.logout {
+  background: linear-gradient(45deg, var(--primary-purple), var(--secondary-purple));
+  border: none;
+  padding: 0.6rem 1.5rem;
+  color: var(--dark);
+  font-weight: 700;
+  font-size: 1rem;
+  border-radius: 8px;
+  cursor: pointer;
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  transition: all 0.3s ease;
+  box-shadow: var(--shadow-sm);
+}
+
+.logout:hover {
+  background: linear-gradient(45deg, var(--purple-accent), var(--secondary-purple));
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.content {
+  max-width: 1200px;
+  margin: 2rem auto;
+  padding: 1.5rem;
+  background: rgba(255, 255, 255, 0.98);
+  border-radius: 12px;
+  box-shadow: var(--shadow-md);
+  text-align: center;
+}
+
+.content h2 {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--primary-purple);
+  margin-bottom: 0.5rem;
+}
+
+.content p {
+  font-size: 1.1rem;
+  color: #4B5E8E;
+  font-weight: 600;
+}
+
+.notification-container {
+  position: absolute;
+  top: 1rem;
+  right: 8rem;
+  display: flex;
+  align-items: center;
+}
+
+.notification-icon {
+  position: relative;
+  cursor: pointer;
+  font-size: 1.4rem;
+  color: var(--text-accent);
+  transition: transform 0.2s ease;
+}
+
+.notification-icon:hover {
+  transform: scale(1.1);
+}
+
+.notification-badge {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  background: var(--error-purple);
+  color: white;
+  border-radius: 50%;
+  padding: 2px 6px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  box-shadow: var(--shadow-sm);
+}
+
+.notification-dropdown {
+  display: none;
+  position: absolute;
+  top: 2.5rem;
+  right: 0;
+  width: 280px;
+  max-height: 360px;
+  overflow-y: auto;
+  background: white;
+  border-radius: 8px;
+  box-shadow: var(--shadow-md);
+  z-index: 1000;
+  padding: 1rem;
+}
+
+.notification-dropdown.show {
+  display: block;
+}
+
+.notification-item {
+  padding: 0.75rem;
+  border-bottom: 1px solid var(--secondary-purple);
+  font-size: 0.85rem;
+  color: var(--dark);
+  transition: background 0.2s ease;
+}
+
+.notification-item:last-child {
+  border-bottom: none;
+}
+
+.notification-item:hover {
+  background: var(--secondary-purple);
+}
+
+.notification-item strong {
+  color: var(--primary-purple);
+}
+
+.clear-notifications {
+  width: 100%;
+  padding: 0.5rem;
+  background: linear-gradient(45deg, var(--primary-purple), var(--secondary-purple));
+  color: var(--dark);
+  border: none;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  margin-top: 0.5rem;
+  transition: all 0.2s ease;
+}
+
+.clear-notifications:hover {
+  background: linear-gradient(45deg, var(--purple-accent), var(--secondary-purple));
+  transform: translateY(-1px);
+}
+
+.no-notifications {
+  padding: 0.75rem;
+  font-size: 0.85rem;
+  color: #4B5E8E;
+  text-align: center;
+}
+
+#toast {
+  visibility: hidden;
+  min-width: 180px;
+  max-width: 90%;
+  background: linear-gradient(45deg, var(--primary-purple), var(--secondary-purple));
+  color: #FFFFFF;
+  text-align: center;
+  border-radius: 8px;
+  padding: 0.8rem;
+  position: fixed;
+  z-index: 1000;
+  top: 60px;
+  right: 10px;
+  font-size: 0.85rem;
+  box-shadow: var(--shadow-sm);
+  font-family: Arial, sans-serif;
+}
+
+#toast.show {
+  visibility: visible;
+  animation: slideDown 0.4s ease-out, slideUp 0.4s ease-in 2s forwards;
+}
+
+@keyframes shine {
+  0% { left: -100%; }
+  50% { left: 100%; }
+  100% { left: 100%; }
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slideDown {
+  from { opacity: 0; top: -100%; }
+  to { opacity: 1; top: 60px; }
+}
+
+@keyframes slideUp {
+  from { opacity: 1; top: 60px; }
+  to { opacity: 0; top: -100%; }
+}
+
+@media (max-width: 480px) {
+  header img { height: 45px; }
+  header h1 { font-size: 1.8rem; }
+  header span { font-size: 0.8rem; }
+  nav a { font-size: 0.9rem; padding: 0.8rem; flex: 0 1 100px; }
+  .logout { padding: 0.5rem 1rem; font-size: 0.9rem; }
+  .content { margin: 1rem; padding: 1rem; }
+  .content h2 { font-size: 1.6rem; }
+  .content p { font-size: 1rem; }
+  .notification-container { right: 6.5rem; }
+  .notification-dropdown { width: 240px; }
+  .notification-icon { font-size: 1.2rem; }
+  #toast { font-size: 0.7rem; padding: 0.7rem; top: 50px; }
+}
+  </style>
+</head>
+<body>
+  <div id="toast"></div>
+
+  <header>
+    <img src="https://i.postimg.cc/W3pgQx9q/DELICUTE-Imgur-1-modified.png" alt="DELICUTE Logo">
+    <div>
+      <h1>DELICUTE</h1>
+      <span>Every Bite Tells A Story</span>
+    </div>
+    <div class="notification-container">
+      <span class="notification-icon">
+        <i class="fas fa-bell"></i>
+        <span class="notification-badge" id="notification-count">0</span>
+      </span>
+      <div class="notification-dropdown" id="notification-dropdown">
+        <div id="notification-list"></div>
+        <button class="clear-notifications" onclick="clearNotifications()">Clear All</button>
+      </div>
+    </div>
+    <button class="logout" onclick="logout()">Logout</button>
+  </header>
+
+  <nav>
+    <a href="adminorders.html">Orders</a>
+    <a href="adminmenu.html">Menu</a>
+    <a href="admincoupons.html">Coupons</a>
+    <a href="admincategories.html">Categories</a>
+    <a href="admintoppicks.html">Top Picks</a>
+    <a href="adminpromotions.html">Promotions</a>
+  </nav>
+
+  <div class="content">
+    <h2>Welcome to the Admin Dashboard, <span id="admin-name">Admin</span> 🎉</h2>
+    <p>Select a section above to manage your kitchen.</p>
+  </div>
+
+  <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+  <script>
+    // Toast Notification Function
+    function showToast(msg, success = true) {
+      const toast = document.getElementById("toast");
+      toast.textContent = msg;
+      toast.style.background = success 
+        ? "linear-gradient(45deg, #4caf50, #66bb6a)" 
+        : "linear-gradient(45deg, #f44336, #ef5350)";
+      toast.className = "show";
+      setTimeout(() => toast.className = toast.className.replace("show", ""), 2000);
+    }
+
+    // Authentication Check
+    document.addEventListener("DOMContentLoaded", async () => {
+      try {
+        const response = await fetch("/api/auth/check", { 
+          credentials: "include",
+          cache: "no-store"
+        });
+        if (!response.ok) {
+          showToast("Authentication failed. Redirecting to login.", false);
+          setTimeout(() => window.location.href = "/admin.html", 2000);
+        } else {
+          const data = await response.json();
+          const adminName = data.user?.name || "Admin";
+          document.getElementById("admin-name").textContent = adminName;
+        }
+      } catch (error) {
+        console.error("Auth Check Error:", error);
+        showToast("Authentication failed: " + error.message, false);
+        setTimeout(() => window.location.href = "/admin.html", 2000);
+      }
+    });
+
+    // Logout Function
+    async function logout() {
+      try {
+        const response = await fetch("/api/auth/logout", { 
+          method: "POST", 
+          credentials: "include",
+          cache: "no-store"
+        });
+        if (response.ok) {
+          showToast("Logged out successfully!", true);
+          setTimeout(() => window.location.href = "/admin.html", 1000);
+        } else {
+          throw new Error("Logout failed");
+        }
+      } catch (error) {
+        console.error("Logout Error:", error);
+        showToast("Logout failed: " + error.message, false);
+      }
+    }
+
+    // Notification System
+    const socket = io({
+      auth: { token: localStorage.getItem("token") || getCookie("token") },
+      reconnectionAttempts: 3,
+      timeout: 5000
+    });
+
+    const elements = {
+      notificationCount: document.getElementById("notification-count"),
+      notificationList: document.getElementById("notification-list"),
+      notificationDropdown: document.getElementById("notification-dropdown"),
+      notificationIcon: document.querySelector(".notification-icon")
+    };
+
+    let notifications = JSON.parse(localStorage.getItem("notifications") || "[]");
+
+    function updateNotificationCount() {
+      elements.notificationCount.textContent = notifications.length;
+      elements.notificationCount.style.display = notifications.length ? "inline" : "none";
+    }
+
+    function renderNotifications() {
+      elements.notificationList.innerHTML = notifications.length
+        ? notifications.map(n => `
+            <div class="notification-item">
+              <strong>Order #${n.id}</strong> by ${escapeHtml(n.customer_name)}<br>
+              Table: ${n.table_number} | Total: ₹${n.total.toFixed(2)}
+            </div>
+          `).join("")
+        : '<div class="no-notifications">No new notifications</div>';
+      updateNotificationCount();
+    }
+
+    function toggleDropdown() {
+      elements.notificationDropdown.classList.toggle("show");
+    }
+
+    function clearNotifications() {
+      notifications = [];
+      localStorage.setItem("notifications", JSON.stringify(notifications));
+      renderNotifications();
+      showToast("Notifications cleared!", true);
+    }
+
+    // HTML Escape Utility
+    function escapeHtml(text) {
+      const div = document.createElement("div");
+      div.textContent = text;
+      return div.innerHTML;
+    }
+
+    elements.notificationIcon.addEventListener("click", toggleDropdown);
+
+    socket.on("connect", () => console.log("WebSocket connected:", socket.id));
+    socket.on("new-order", (order) => {
+      notifications.unshift(order);
+      localStorage.setItem("notifications", JSON.stringify(notifications));
+      renderNotifications();
+      showToast(`New order #${order.id} received!`, true);
+    });
+    socket.on("connect_error", (err) => {
+      console.error("WebSocket Error:", err);
+      showToast("WebSocket connection failed", false);
+    });
+
+    // Ensure navigation links are always visible
+    document.querySelectorAll("nav a").forEach(link => {
+      link.style.display = "block";
+      link.addEventListener("click", (e) => {
+        const href = link.getAttribute("href");
+        if (!href) {
+          e.preventDefault();
+          showToast("Navigation link is not configured correctly", false);
+        }
+      });
+    });
+
+    renderNotifications();
+    
+    function getCookie(name) {
+      const value = `; ${document.cookie}`;
+      const parts = value.split(`; ${name}=`);
+      return parts.length === 2 ? parts.pop().split(";").shift() : null;
+    }
+  </script>
+</body>
+</html>

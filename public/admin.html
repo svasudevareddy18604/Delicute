@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DELICUTE | Admin Portal</title>
+  <link rel="icon" href="https://i.postimg.cc/W3pgQx9q/DELICUTE-Imgur-1-modified.png">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&display=swap" rel="stylesheet">
+  <style>
+    * {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+body {
+  font-family: 'Playfair Display', serif;
+  background: linear-gradient(135deg, #D8BFD8 0%, #E6E6FA 100%);
+  color: #1A1A1A;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow-x: hidden;
+}
+.container {
+  background: rgba(255, 255, 255, 0.98);
+  padding: 2rem;
+  border-radius: 16px;
+  box-shadow: 0 6px 20px rgba(142, 68, 173, 0.15);
+  width: 90%;
+  max-width: 450px;
+  text-align: center;
+  animation: slideUp 0.8s ease-out;
+  position: relative;
+  overflow: hidden;
+}
+.container::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(240, 230, 140, 0.3), transparent);
+  animation: shine 4s infinite;
+}
+.logo-section {
+  margin-bottom: 1.5rem;
+}
+.logo {
+  width: 100px;
+  height: 100px;
+  object-fit: contain;
+  display: block;
+  margin: 0 auto 0.5rem auto;
+  filter: drop-shadow(0 3px 8px rgba(0, 0, 0, 0.2));
+  animation: fadeInScale 0.8s ease-out;
+  transition: transform 0.3s ease;
+}
+.logo:hover {
+  transform: scale(1.15);
+}
+.logo-section h1 {
+  font-size: 2.5rem;
+  font-weight: 800;
+  color: #1A1A1A;
+  text-shadow: 0 2px 6px rgba(240, 230, 140, 0.3);
+  animation: fadeInUp 0.6s ease-out 0.2s forwards;
+}
+.tagline {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #4B5E8E;
+  font-style: italic;
+  animation: fadeInUp 0.6s ease-out 0.4s forwards;
+}
+.tab-buttons {
+  display: flex;
+  justify-content: center;
+  margin: 1.5rem 0;
+  background: #1A1A1A;
+  border-radius: 12px;
+  padding: 0.3rem;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1);
+}
+.tab-button {
+  flex: 1;
+  padding: 0.8rem;
+  background: transparent;
+  border: none;
+  color: #FFFFFF;
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.3s ease, color 0.3s ease, transform 0.2s ease;
+}
+.tab-button:hover {
+  background: #8A2BE2;
+  color: #F0E68C;
+  transform: translateY(-2px);
+}
+.tab-button.active {
+  background: linear-gradient(45deg, #9370DB, #8A2BE2);
+  color: #FFFFFF;
+  border-radius: 10px;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.2);
+}
+.form {
+  display: none;
+  flex-direction: column;
+  opacity: 0;
+  transform: translateY(20px);
+  animation: formFadeIn 0.5s ease-out forwards;
+}
+.form.active {
+  display: flex;
+}
+.form h2 {
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: #9370DB;
+  margin-bottom: 1rem;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+.form input {
+  margin: 0.6rem 0;
+  padding: 0.8rem;
+  border: 1px solid #D8BFD8;
+  border-radius: 8px;
+  font-family: 'Playfair Display', serif;
+  font-size: 1rem;
+  background: #F0F8FF;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+.form input:focus {
+  border-color: #9370DB;
+  box-shadow: 0 0 0 2px rgba(147, 112, 219, 0.2);
+  outline: none;
+}
+.form button {
+  margin-top: 1rem;
+  padding: 0.8rem;
+  border: none;
+  border-radius: 8px;
+  background: linear-gradient(45deg, #9370DB, #D8BFD8);
+  color: #1A1A1A;
+  font-weight: 700;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+  box-shadow: 0 3px 8px rgba(142, 68, 173, 0.1);
+}
+.form button:hover {
+  background: linear-gradient(45deg, #8A2BE2, #D8BFD8);
+  transform: translateY(-2px);
+  box-shadow: 0 5px 12px rgba(142, 68, 173, 0.2);
+}
+.message {
+  margin-top: 0.8rem;
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+.error {
+  color: #8A2BE2;
+  background: rgba(138, 43, 226, 0.1);
+  padding: 0.5rem;
+  border-radius: 8px;
+}
+.success {
+  color: #9370DB;
+  background: rgba(147, 112, 219, 0.1);
+  padding: 0.5rem;
+  border-radius: 8px;
+}
+#toast {
+  visibility: hidden;
+  min-width: 250px;
+  background: linear-gradient(45deg, #9370DB, #D8BFD8);
+  color: #FFFFFF;
+  text-align: center;
+  border-radius: 12px;
+  padding: 1rem;
+  position: fixed;
+  z-index: 1000;
+  left: 50%;
+  bottom: 30px;
+  transform: translateX(-50%);
+  font-size: 0.95rem;
+  box-shadow: 0 4px 12px rgba(142, 68, 173, 0.2);
+}
+#toast.show {
+  visibility: visible;
+  animation: slideDown 0.5s ease-out, slideUp 0.5s ease-in 2.5s forwards;
+}
+@keyframes shine {
+  0% { left: -100%; }
+  50% { left: 100%; }
+  100% { left: 100%; }
+}
+@keyframes fadeInScale {
+  from { opacity: 0; transform: scale(0.9); }
+  to { opacity: 1; transform: scale(1); }
+}
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(15px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes slideDown {
+  from { opacity: 0; G: translate(-50%, -100%); }
+  to { opacity: 1; transform: translate(-50%, 0); }
+}
+@keyframes formFadeIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@media (max-width: 480px) {
+  .container { margin: 1rem; padding: 1.5rem; max-width: 90%; }
+  .logo { width: 80px; height: 80px; }
+  .logo-section h1 { font-size: 2rem; }
+  .tagline { font-size: 0.9rem; }
+  .tab-button { font-size: 1rem; padding: 0.6rem; }
+  .form h2 { font-size: 1.6rem; }
+  .form input, .form button { font-size: 0.9rem; padding: 0.7rem; }
+  .message { font-size: 0.85rem; }
+}
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Logo & Branding -->
+    <div class="logo-section">
+      <img src="https://i.postimg.cc/W3pgQx9q/DELICUTE-Imgur-1-modified.png" alt="DELICUTE Logo" class="logo">
+      <h1>DELICUTE</h1>
+      <p class="tagline">Every Bite Tells A Story</p>
+    </div>
+
+    <!-- Tabs -->
+    <div class="tab-buttons">
+      <button class="tab-button active" onclick="showForm('login')">Login</button>
+      <button class="tab-button" onclick="showForm('signup')">Signup</button>
+    </div>
+
+    <!-- Login -->
+    <form id="loginForm" class="form active">
+      <h2>Admin Login</h2>
+      <input type="email" id="loginEmail" placeholder="Email" required>
+      <input type="password" id="loginPassword" placeholder="Password" required>
+      <button type="submit">Login</button>
+      <p id="loginMsg" class="message"></p>
+    </form>
+
+    <!-- Signup -->
+    <form id="signupForm" class="form">
+      <h2>Create Account</h2>
+      <input type="text" id="signupName" placeholder="Full Name" required>
+      <input type="email" id="signupEmail" placeholder="Email" required>
+      <input type="password" id="signupPassword" placeholder="Password" required>
+      <button type="submit">Signup</button>
+      <p id="signupMsg" class="message"></p>
+    </form>
+
+    <!-- Toast -->
+    <div id="toast"></div>
+  </div>
+
+  <script>
+    function showToast(msg, success = true) {
+      const toast = document.getElementById("toast");
+      toast.textContent = msg;
+      toast.style.background = success ? "linear-gradient(45deg, #26a69a, #4dd0e1)" : "linear-gradient(45deg, #ef5350, #e53935)";
+      toast.className = "show";
+      setTimeout(() => toast.className = toast.className.replace("show", ""), 3000);
+    }
+
+    function showForm(formId) {
+      document.querySelectorAll(".form").forEach(form => {
+        form.classList.remove("active");
+        form.style.animation = "none";
+      });
+      document.querySelectorAll(".tab-button").forEach(btn => btn.classList.remove("active"));
+
+      const selectedForm = document.getElementById(`${formId}Form`);
+      selectedForm.classList.add("active");
+      selectedForm.style.animation = "formFadeIn 0.5s ease-out forwards";
+
+      document.querySelector(`button[onclick="showForm('${formId}')"]`).classList.add("active");
+    }
+
+    // Handle Login
+    document.getElementById("loginForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const email = document.getElementById("loginEmail").value;
+      const password = document.getElementById("loginPassword").value;
+      const loginMsg = document.getElementById("loginMsg");
+
+      try {
+        const res = await fetch("/api/auth/login", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email, password }),
+          credentials: "include"
+        });
+
+        const data = await res.json();
+
+        if (res.ok) {
+          showToast("Login successful!", true);
+          setTimeout(() => {
+            window.location.href = "/admindashboard.html";
+          }, 1000);
+        } else {
+          loginMsg.className = "message error";
+          loginMsg.innerText = data.message || "Invalid login credentials";
+          showToast(data.message || "Invalid login credentials", false);
+        }
+      } catch (err) {
+        loginMsg.className = "message error";
+        loginMsg.innerText = "Server error. Please try again.";
+        showToast("Server error. Please try again.", false);
+      }
+    });
+
+    // Handle Signup
+    document.getElementById("signupForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const name = document.getElementById("signupName").value;
+      const email = document.getElementById("signupEmail").value;
+      const password = document.getElementById("signupPassword").value;
+      const signupMsg = document.getElementById("signupMsg");
+
+      try {
+        const res = await fetch("/api/auth/signup", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ name, email, password })
+        });
+        const data = await res.json();
+
+        signupMsg.className = data.success ? "message success" : "message error";
+        signupMsg.innerText = data.message || (data.success ? "Account created!" : "Signup failed");
+        showToast(data.message || (data.success ? "Account created!" : "Signup failed"), data.success);
+
+        if (data.success) {
+          document.getElementById("signupForm").reset();
+          setTimeout(() => showForm("login"), 1000);
+        }
+      } catch (err) {
+        signupMsg.className = "message error";
+        signupMsg.innerText = "Server error. Please try again.";
+        showToast("Server error. Please try again.", false);
+      }
+    });
+  </script>
+</body>
+</html>
