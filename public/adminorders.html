@@ -5,608 +5,433 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Admin | Manage Orders</title>
   <link rel="icon" href="https://i.postimg.cc/W3pgQx9q/DELICUTE-Imgur-1-modified.png">
-  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
   <style>
     :root {
-  --primary-purple: #9370DB;
-  --secondary-purple: #D8BFD8;
-  --light-yellow: #F0E68C;
-  --purple-accent: #8A2BE2;
-  --dark: #1A1A1A;
-  --text-accent: #F0E68C;
-  --error-purple: #8A2BE2;
-  --success-purple: #9370DB;
-  --cancel-purple: #8A2BE2;
-  --shadow-sm: 0 2px 8px rgba(142, 68, 173, 0.1);
-  --shadow-md: 0 4px 16px rgba(142, 68, 173, 0.15);
-}
-
-* {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-}
-
-body {
-  font-family: 'Playfair Display', serif;
-  background: linear-gradient(135deg, #D8BFD8, #E6E6FA);
-  color: var(--dark);
-  min-height: 100vh;
-  line-height: 1.6;
-  overflow-x: hidden;
-}
-
-header {
-  background: linear-gradient(90deg, var(--primary-purple), var(--secondary-purple));
-  color: white;
-  padding: 1.5rem 2rem;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  box-shadow: var(--shadow-md);
-  position: relative;
-}
-
-header::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(240, 230, 140, 0.3), transparent);
-  animation: shine 3s infinite;
-}
-
-header img {
-  height: 60px;
-  filter: drop-shadow(0 3px 8px rgba(0, 0, 0, 0.2));
-  animation: fadeInScale 0.8s ease-out;
-  transition: transform 0.3s ease;
-}
-
-header img:hover {
-  transform: scale(1.1);
-}
-
-header h1 {
-  font-size: 2.2rem;
-  font-weight: 700;
-  margin-top: 0.5rem;
-  text-shadow: 0 2px 6px rgba(240, 230, 140, 0.4);
-  animation: fadeInUp 0.6s ease-out 0.2s forwards;
-}
-
-header span {
-  font-size: 0.9rem;
-  font-weight: 500;
-  color: var(--text-accent);
-  animation: fadeInUp 0.6s ease-out 0.4s forwards;
-}
-
-nav {
-  background: var(--dark);
-  display: flex;
-  justify-content: center;
-  box-shadow: var(--shadow-sm);
-  overflow-x: auto;
-  white-space: nowrap;
-}
-
-nav a {
-  flex: 0 1 150px;
-  padding: 1rem;
-  text-align: center;
-  color: white;
-  text-decoration: none;
-  font-size: 1.1rem;
-  font-weight: 500;
-  transition: all 0.3s ease;
-}
-
-nav a:hover {
-  background: var(--purple-accent);
-  color: var(--text-accent);
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-sm);
-}
-
-.logout {
-  background: linear-gradient(45deg, var(--primary-purple), var(--secondary-purple));
-  border: none;
-  padding: 0.6rem 1.5rem;
-  color: var(--dark);
-  font-weight: 700;
-  font-size: 1rem;
-  border-radius: 8px;
-  cursor: pointer;
-  position: absolute;
-  top: 1rem;
-  right: 1rem;
-  transition: all 0.3s ease;
-  box-shadow: var(--shadow-sm);
-}
-
-.logout:hover {
-  background: linear-gradient(45deg, var(--purple-accent), var(--secondary-purple));
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-md);
-}
-
-.container {
-  max-width: 1200px;
-  margin: 2rem auto;
-  padding: 1.5rem;
-  background: rgba(255, 255, 255, 0.98);
-  border-radius: 12px;
-  box-shadow: var(--shadow-md);
-  animation: slideUp 0.6s ease-out;
-}
-
-.container h2 {
-  font-size: 2rem;
-  font-weight: 700;
-  color: var(--primary-purple);
-  margin-bottom: 1rem;
-  text-align: center;
-}
-
-.table-wrapper {
-  width: 100%;
-  overflow-x: auto;
-  -webkit-overflow-scrolling: touch;
-}
-
-table {
-  width: 100%;
-  border-collapse: separate;
-  border-spacing: 0;
-  background: white;
-  border-radius: 12px;
-  overflow: hidden;
-  box-shadow: var(--shadow-sm);
-  table-layout: fixed;
-}
-
-th, td {
-  padding: 0.8rem;
-  text-align: left;
-  vertical-align: middle;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
-  font-size: 0.95rem;
-}
-
-th {
-  background: linear-gradient(45deg, var(--primary-purple), var(--secondary-purple));
-  color: white;
-  font-weight: 700;
-  font-size: 1rem;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
-  position: sticky;
-  top: 0;
-  z-index: 10;
-}
-
-td {
-  font-size: 0.9rem;
-  color: var(--dark);
-  word-wrap: break-word;
-}
-
-table tr:hover {
-  background: rgba(147, 112, 219, 0.05);
-}
-
-.status {
-  font-weight: 500;
-  padding: 0.4rem 0.8rem;
-  border-radius: 8px;
-  text-transform: capitalize;
-  display: inline-block;
-}
-
-.status.Pending {
-  background: linear-gradient(45deg, var(--primary-purple), var(--secondary-purple));
-  color: var(--dark);
-}
-
-.status.Preparing {
-  background: linear-gradient(45deg, var(--primary-purple), var(--purple-accent));
-  color: white;
-}
-
-.status.Delivered {
-  background: linear-gradient(45deg, var(--success-purple), var(--secondary-purple));
-  color: white;
-}
-
-.status.Cancelled {
-  background: linear-gradient(45deg, var(--cancel-purple), var(--secondary-purple));
-  color: white;
-}
-
-.btn {
-  padding: 0.5rem;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  font-size: 0.9rem;
-  transition: all 0.3s ease;
-  margin-right: 0.5rem;
-  box-shadow: var(--shadow-sm);
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 40px;
-  height: 40px;
-}
-
-.btn-cancel {
-  background: linear-gradient(45deg, var(--primary-purple), var(--secondary-purple));
-  color: var(--dark);
-}
-
-.btn-cancel:hover {
-  background: linear-gradient(45deg, var(--purple-accent), var(--secondary-purple));
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-md);
-}
-
-.btn-delete {
-  background: linear-gradient(45deg, var(--cancel-purple), var(--secondary-purple));
-  color: white;
-}
-
-.btn-delete:hover {
-  background: linear-gradient(45deg, #6A0DAD, var(--cancel-purple));
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-md);
-}
-
-.status-dropdown {
-  position: relative;
-  display: inline-block;
-  margin-right: 0.5rem;
-}
-
-.status-selected {
-  padding: 0.5rem 1rem;
-  border-radius: 8px;
-  background: linear-gradient(45deg, var(--primary-purple), var(--secondary-purple));
-  color: white;
-  font-size: 0.9rem;
-  font-weight: 500;
-  cursor: pointer;
-  box-shadow: var(--shadow-sm);
-  transition: all 0.3s ease;
-  min-width: 100px;
-  text-align: center;
-}
-
-.status-selected:hover {
-  background: linear-gradient(45deg, var(--purple-accent), var(--primary-purple));
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-md);
-}
-
-.status-options {
-  display: none;
-  position: absolute;
-  top: 100%;
-  left: 0;
-  background: linear-gradient(45deg, var(--primary-purple), var(--secondary-purple));
-  border: 1px solid rgba(147, 112, 219, 0.2);
-  border-radius: 8px;
-  box-shadow: var(--shadow-md);
-  z-index: 100;
-  min-width: 100px;
-  padding: 0.5rem 0;
-  transform: translateY(-10px);
-  opacity: 0;
-  transition: all 0.3s ease;
-}
-
-.status-options.show {
-  display: block;
-  transform: translateY(0);
-  opacity: 1;
-}
-
-.status-options li {
-  padding: 0.6rem 1rem;
-  color: white;
-  font-size: 0.9rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: background 0.3s ease;
-  min-height: 40px;
-  display: flex;
-  align-items: center;
-}
-
-.status-options li:hover {
-  background: linear-gradient(45deg, var(--purple-accent), var(--primary-purple));
-}
-
-.instructions {
-  font-size: 0.9rem;
-  color: #4B5E8E;
-  max-width: 200px;
-  white-space: normal;
-  word-wrap: break-word;
-  padding: 0.4rem 0.8rem;
-  background: rgba(147, 112, 219, 0.05);
-  border-radius: 8px;
-  max-height: 80px;
-  overflow-y: auto;
-}
-
-.coupon-info {
-  font-size: 0.9rem;
-  color: #4B5E8E;
-  padding: 0.4rem 0.8rem;
-  background: rgba(240, 230, 140, 0.1);
-  border-radius: 8px;
-  margin-top: 0.2rem;
-}
-
-.no-orders {
-  font-size: 1rem;
-  color: #4B5E8E;
-  text-align: center;
-  padding: 2rem;
-}
-
-#toast {
-  visibility: hidden;
-  min-width: 200px;
-  max-width: 300px;
-  background: linear-gradient(45deg, var(--success-purple), var(--secondary-purple));
-  color: white;
-  text-align: center;
-  border-radius: 12px;
-  padding: 1rem;
-  position: fixed;
-  z-index: 1000;
-  top: 80px;
-  right: 20px;
-  font-size: 0.9rem;
-  box-shadow: var(--shadow-md);
-}
-
-#toast.show {
-  visibility: visible;
-  animation: slideDown 0.5s ease-out, slideUp 0.5s ease-in 2.5s forwards;
-}
-
-.notification-container {
-  position: absolute;
-  top: 1rem;
-  right: 8rem;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.notification-icon {
-  position: relative;
-  cursor: pointer;
-  font-size: 1.4rem;
-  color: var(--text-accent);
-  transition: transform 0.2s ease;
-  width: 40px;
-  height: 40px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.notification-icon:hover {
-  transform: scale(1.1);
-}
-
-.notification-badge {
-  position: absolute;
-  top: -6px;
-  right: -6px;
-  background: var(--error-purple);
-  color: white;
-  border-radius: 50%;
-  padding: 3px 7px;
-  font-size: 0.75rem;
-  font-weight: 500;
-  box-shadow: var(--shadow-sm);
-}
-
-.notification-dropdown {
-  display: none;
-  position: absolute;
-  top: 2.5rem;
-  right: 0;
-  width: 280px;
-  max-height: 360px;
-  overflow-y: auto;
-  background: white;
-  border-radius: 8px;
-  box-shadow: var(--shadow-md);
-  z-index: 1000;
-  padding: 1rem;
-}
-
-.notification-dropdown.show {
-  display: block;
-}
-
-.notification-item {
-  padding: 0.75rem;
-  border-bottom: 1px solid var(--secondary-purple);
-  font-size: 0.85rem;
-  color: var(--dark);
-  transition: background 0.2s ease;
-}
-
-.notification-item:last-child {
-  border-bottom: none;
-}
-
-.notification-item:hover {
-  background: var(--secondary-purple);
-}
-
-.notification-item strong {
-  color: var(--primary-purple);
-}
-
-.clear-notifications {
-  width: 100%;
-  padding: 0.5rem;
-  background: linear-gradient(45deg, var(--primary-purple), var(--secondary-purple));
-  color: var(--dark);
-  border: none;
-  border-radius: 6px;
-  font-size: 0.85rem;
-  font-weight: 500;
-  cursor: pointer;
-  margin-top: 0.5rem;
-  transition: all 0.2s ease;
-  height: 40px;
-}
-
-.clear-notifications:hover {
-  background: linear-gradient(45deg, var(--purple-accent), var(--secondary-purple));
-  transform: translateY(-1px);
-}
-
-.no-notifications {
-  padding: 0.75rem;
-  font-size: 0.85rem;
-  color: #4B5E8E;
-  text-align: center;
-}
-
-.enable-sound-btn {
-  background: linear-gradient(45deg, var(--primary-purple), var(--secondary-purple));
-  border: none;
-  padding: 0.5rem 1rem;
-  color: white;
-  font-weight: 500;
-  font-size: 0.9rem;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  box-shadow: var(--shadow-sm);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  height: 40px;
-}
-
-.enable-sound-btn:hover {
-  background: linear-gradient(45deg, var(--purple-accent), var(--primary-purple));
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-md);
-}
-
-@keyframes shine {
-  0% { left: -100%; }
-  50% { left: 100%; }
-  100% { left: 100%; }
-}
-
-@keyframes fadeInScale {
-  from { opacity: 0; transform: scale(0.9); }
-  to { opacity: 1; transform: scale(1); }
-}
-
-@keyframes fadeInUp {
-  from { opacity: 0; transform: translateY(15px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-@keyframes slideDown {
-  from { opacity: 0; top: -100%; }
-  to { opacity: 1; top: 80px; }
-}
-
-@keyframes slideUp {
-  from { opacity: 1; top: 80px; }
-  to { opacity: 0; top: -100%; }
-}
-
-@media (max-width: 768px) {
-  header img { height: 50px; }
-  header h1 { font-size: 1.8rem; }
-  header span { font-size: 0.85rem; }
-  nav a { font-size: 0.95rem; padding: 0.8rem; flex: 0 1 120px; }
-  .logout { padding: 0.5rem 1.2rem; font-size: 0.9rem; height: 36px; }
-  .container { margin: 1.5rem; padding: 1rem; }
-  .container h2 { font-size: 1.8rem; }
-  th, td { font-size: 0.85rem; padding: 0.6rem; }
-  .btn, .status-selected, .status-options li { font-size: 0.85rem; padding: 0.4rem; min-height: 36px; min-width: 36px; }
-  .status { font-size: 0.8rem; padding: 0.3rem 0.6rem; }
-  .instructions { font-size: 0.8rem; max-width: 150px; max-height: 70px; }
-  .coupon-info { font-size: 0.8rem; }
-  #toast { top: 70px; right: 15px; font-size: 0.85rem; min-width: 180px; }
-  .notification-container { right: 6.5rem; }
-  .notification-dropdown { width: 240px; max-height: 320px; }
-  .notification-icon { font-size: 1.2rem; width: 36px; height: 36px; }
-  .notification-badge { font-size: 0.7rem; padding: 2px 6px; }
-  .notification-item { font-size: 0.8rem; padding: 0.6rem; }
-  .clear-notifications { font-size: 0.8rem; height: 36px; }
-  .table-wrapper { max-height: 400px; }
-  table { min-width: 800px; }
-  th { min-width: 100px; }
-  td { min-width: 100px; }
-  .enable-sound-btn { font-size: 0.85rem; padding: 0.4rem 0.8rem; height: 36px; }
-}
-
-@media (max-width: 480px) {
-  header img { height: 40px; }
-  header h1 { font-size: 1.6rem; }
-  header span { font-size: 0.8rem; }
-  nav a { font-size: 0.85rem; padding: 0.6rem; flex: 0 1 100px; }
-  .logout { padding: 0.4rem 1rem; font-size: 0.85rem; height: 32px; }
-  .container { margin: 1rem; padding: 0.8rem; }
-  .container h2 { font-size: 1.5rem; }
-  th, td { font-size: 0.8rem; padding: 0.5rem; }
-  .btn, .status-selected, .status-options li { font-size: 0.8rem; padding: 0.3rem; min-height: 32px; min-width: 32px; }
-  .status { font-size: 0.75rem; padding: 0.2rem 0.5rem; }
-  .instructions { font-size: 0.75rem; max-width: 120px; max-height: 60px; }
-  .coupon-info { font-size: 0.75rem; }
-  #toast { top: 60px; right: 10px; font-size: 0.8rem; min-width: 160px; }
-  .notification-container { right: 5rem; }
-  .notification-dropdown { width: 200px; max-height: 280px; }
-  .notification-icon { font-size: 1.1rem; width: 32px; height: 32px; }
-  .notification-badge { font-size: 0.65rem; padding: 2px 5px; }
-  .notification-item { font-size: 0.75rem; padding: 0.5rem; }
-  .clear-notifications { font-size: 0.75rem; height: 32px; }
-  .table-wrapper { max-height: 350px; }
-  .enable-sound-btn { font-size: 0.8rem; padding: 0.3rem 0.6rem; height: 32px; }
-}
+      --primary-purple: #8B6BC9;
+      --primary-purple-dark: #6B4FA0;
+      --secondary-purple: #D8BFD8;
+      --bg-lilac: #F3EEFA;
+      --dark: #2B2B33;
+      --muted: #6B6B76;
+      --border: #E7E1F2;
+      --pending: #9370DB;
+      --preparing: #6A5ACD;
+      --delivered: #2E8B57;
+      --cancelled: #C0392B;
+      --radius: 10px;
+      --shadow-sm: 0 1px 3px rgba(60, 40, 100, 0.08);
+      --shadow-md: 0 4px 14px rgba(60, 40, 100, 0.12);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Roboto', sans-serif;
+      background: var(--bg-lilac);
+      color: var(--dark);
+      min-height: 100vh;
+      line-height: 1.5;
+    }
+
+    header {
+      background: linear-gradient(90deg, var(--primary-purple-dark), var(--primary-purple));
+      color: white;
+      padding: 1rem 1.25rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      box-shadow: var(--shadow-md);
+      position: relative;
+      text-align: center;
+    }
+
+    header img { height: 50px; border-radius: 50%; box-shadow: 0 2px 8px rgba(0,0,0,0.25); }
+    header h1 { font-family: 'Playfair Display', serif; font-size: 1.8rem; margin-top: 0.4rem; }
+    header span { font-size: 0.8rem; opacity: 0.85; }
+
+    .top-actions {
+      position: absolute;
+      top: 0.8rem;
+      right: 0.8rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .icon-btn {
+      background: rgba(255,255,255,0.15);
+      border: none;
+      color: white;
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 1rem;
+      position: relative;
+      transition: background 0.2s ease;
+    }
+    .icon-btn:hover { background: rgba(255,255,255,0.28); }
+
+    .notification-badge {
+      position: absolute;
+      top: -4px;
+      right: -4px;
+      background: var(--cancelled);
+      color: white;
+      border-radius: 50%;
+      min-width: 16px;
+      height: 16px;
+      font-size: 0.65rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0 3px;
+    }
+
+    .logout-btn {
+      background: white;
+      color: var(--primary-purple-dark);
+      border: none;
+      padding: 0 0.9rem;
+      height: 38px;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 0.85rem;
+      cursor: pointer;
+    }
+
+    .notification-dropdown {
+      display: none;
+      position: absolute;
+      top: 3rem;
+      right: 0;
+      width: 260px;
+      max-height: 320px;
+      overflow-y: auto;
+      background: white;
+      border-radius: 10px;
+      box-shadow: var(--shadow-md);
+      z-index: 1000;
+      padding: 0.6rem;
+      color: var(--dark);
+      text-align: left;
+    }
+    .notification-dropdown.show { display: block; }
+
+    .notification-item {
+      padding: 0.6rem;
+      border-bottom: 1px solid var(--border);
+      font-size: 0.82rem;
+    }
+    .notification-item:last-child { border-bottom: none; }
+    .notification-item strong { color: var(--primary-purple-dark); }
+
+    .no-notifications { padding: 0.6rem; font-size: 0.82rem; color: var(--muted); text-align: center; }
+
+    .clear-notifications {
+      width: 100%;
+      margin-top: 0.4rem;
+      padding: 0.5rem;
+      background: var(--bg-lilac);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--primary-purple-dark);
+      cursor: pointer;
+    }
+
+    nav {
+      background: #1E1E24;
+      display: flex;
+      justify-content: center;
+      overflow-x: auto;
+    }
+    nav a {
+      flex: 0 0 auto;
+      padding: 0.85rem 1.1rem;
+      color: #ddd;
+      text-decoration: none;
+      font-size: 0.9rem;
+      font-weight: 500;
+      white-space: nowrap;
+      transition: color 0.2s ease, background 0.2s ease;
+    }
+    nav a:hover { background: rgba(139, 107, 201, 0.25); color: #fff; }
+
+    .container {
+      max-width: 1200px;
+      margin: 1.5rem auto;
+      padding: 1.25rem;
+    }
+
+    .container h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.5rem;
+      color: var(--primary-purple-dark);
+      margin-bottom: 1rem;
+      text-align: center;
+    }
+
+    /* ---- Desktop table ---- */
+    .table-wrapper {
+      width: 100%;
+      overflow-x: auto;
+      background: white;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow-sm);
+    }
+
+    table { width: 100%; border-collapse: collapse; min-width: 900px; }
+
+    th {
+      background: var(--primary-purple-dark);
+      color: white;
+      text-align: left;
+      font-size: 0.8rem;
+      font-weight: 600;
+      letter-spacing: 0.02em;
+      text-transform: uppercase;
+      padding: 0.75rem 0.9rem;
+    }
+
+    td {
+      padding: 0.85rem 0.9rem;
+      font-size: 0.88rem;
+      border-bottom: 1px solid var(--border);
+      vertical-align: top;
+      color: var(--dark);
+    }
+
+    tbody tr:hover { background: #FAF8FE; }
+    tbody tr:last-child td { border-bottom: none; }
+
+    .order-id { font-weight: 600; color: var(--muted); font-size: 0.75rem; display: block; margin-bottom: 2px; }
+    .customer-name { font-weight: 600; }
+
+    .items-list { font-size: 0.85rem; }
+    .items-list div { padding: 1px 0; }
+
+    .total-price { font-weight: 700; color: var(--primary-purple-dark); }
+
+    .coupon-info { font-size: 0.82rem; color: var(--muted); }
+    .coupon-info.has-coupon { color: #B8860B; font-weight: 500; }
+
+    .instructions {
+      font-size: 0.82rem;
+      color: var(--muted);
+      max-width: 180px;
+      max-height: 70px;
+      overflow-y: auto;
+      display: block;
+    }
+
+    .status-pill {
+      display: inline-block;
+      padding: 0.3rem 0.75rem;
+      border-radius: 20px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: white;
+      text-align: center;
+    }
+    .status-pill.Pending    { background: var(--pending); }
+    .status-pill.Preparing  { background: var(--preparing); }
+    .status-pill.Delivered  { background: var(--delivered); }
+    .status-pill.Cancelled  { background: var(--cancelled); }
+
+    .status-dropdown { position: relative; display: inline-block; }
+
+    .status-selected {
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+    }
+    .status-selected::after {
+      content: '\f078';
+      font-family: 'Font Awesome 6 Free';
+      font-weight: 900;
+      font-size: 0.65rem;
+      color: var(--muted);
+    }
+
+    .status-options {
+      display: none;
+      position: absolute;
+      top: calc(100% + 6px);
+      left: 0;
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      box-shadow: var(--shadow-md);
+      z-index: 100;
+      min-width: 130px;
+      overflow: hidden;
+      list-style: none;
+    }
+    .status-options.show { display: block; }
+    .status-options li {
+      padding: 0.55rem 0.9rem;
+      font-size: 0.82rem;
+      font-weight: 500;
+      cursor: pointer;
+      color: var(--dark);
+      transition: background 0.15s ease;
+    }
+    .status-options li:hover { background: var(--bg-lilac); }
+
+    .actions-row {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 0.5rem;
+    }
+
+    .action-btns { display: flex; gap: 0.4rem; }
+
+    .btn {
+      border: none;
+      border-radius: 7px;
+      cursor: pointer;
+      width: 32px;
+      height: 32px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.85rem;
+      color: white;
+      transition: opacity 0.2s ease;
+    }
+    .btn:hover { opacity: 0.85; }
+    .btn-cancel { background: #B08D57; }
+    .btn-delete { background: var(--cancelled); }
+
+    .no-orders { font-size: 0.95rem; color: var(--muted); text-align: center; padding: 2.5rem 1rem; }
+
+    #toast {
+      visibility: hidden;
+      min-width: 200px;
+      max-width: 300px;
+      background: var(--delivered);
+      color: white;
+      text-align: center;
+      border-radius: 10px;
+      padding: 0.85rem 1rem;
+      position: fixed;
+      z-index: 2000;
+      top: 80px;
+      right: 20px;
+      font-size: 0.85rem;
+      box-shadow: var(--shadow-md);
+    }
+    #toast.show { visibility: visible; animation: slideDown 0.4s ease-out, slideUp 0.4s ease-in 2.6s forwards; }
+
+    @keyframes slideDown { from { opacity: 0; transform: translateY(-15px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes slideUp { from { opacity: 1; transform: translateY(0); } to { opacity: 0; transform: translateY(-15px); } }
+
+    /* ================= MOBILE / TABLET CARD LAYOUT ================= */
+    @media (max-width: 860px) {
+      header h1 { font-size: 1.5rem; }
+      header img { height: 42px; }
+      .container { margin: 1rem; padding: 0; }
+      .container h2 { font-size: 1.3rem; }
+
+      .table-wrapper { overflow: visible; background: none; box-shadow: none; border-radius: 0; }
+
+      table, thead, tbody, th, td, tr { display: block; width: 100%; min-width: 0; }
+      thead { display: none; }
+
+      tbody#ordersTable { display: flex; flex-direction: column; gap: 0.85rem; }
+
+      tr {
+        background: white;
+        border-radius: var(--radius);
+        box-shadow: var(--shadow-sm);
+        padding: 0.9rem 1rem;
+        border: 1px solid var(--border);
+      }
+
+      tr.no-orders-row { box-shadow: none; border: none; background: none; }
+
+      td {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 0.75rem;
+        padding: 0.5rem 0;
+        border-bottom: 1px dashed var(--border);
+        font-size: 0.85rem;
+      }
+      td:last-child { border-bottom: none; padding-bottom: 0; }
+      td:first-child { padding-top: 0; }
+
+      td::before {
+        content: attr(data-label);
+        font-size: 0.72rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        color: var(--muted);
+        flex: 0 0 90px;
+        letter-spacing: 0.02em;
+      }
+
+      td.cell-customer::before,
+      td.cell-actions::before { display: none; }
+
+      td.cell-customer { display: block; padding-top: 0; }
+      .customer-name { display: block; font-size: 0.98rem; }
+      .order-id { margin-bottom: 3px; }
+
+      td.cell-items .items-list,
+      td.cell-instructions .instructions,
+      td.cell-coupon .coupon-info { text-align: right; max-width: 65%; }
+
+      td.cell-actions {
+        display: block;
+        padding-top: 0.6rem;
+      }
+      .actions-row { flex-direction: row; align-items: center; justify-content: space-between; flex-wrap: wrap; }
+      .status-options { left: auto; right: 0; }
+    }
+
+    @media (max-width: 480px) {
+      header .top-actions { right: 0.5rem; gap: 0.35rem; }
+      .icon-btn { width: 34px; height: 34px; font-size: 0.9rem; }
+      .logout-btn { height: 34px; padding: 0 0.7rem; font-size: 0.8rem; }
+      nav a { font-size: 0.82rem; padding: 0.7rem 0.85rem; }
+      td { font-size: 0.82rem; }
+      td::before { flex-basis: 78px; font-size: 0.68rem; }
+      .customer-name { font-size: 0.92rem; }
+    }
   </style>
 </head>
 <body>
   <header>
+    <div class="top-actions">
+      <button class="icon-btn" id="enable-sound-btn" title="Enable Notification Sound">
+        <i class="fas fa-volume-up"></i>
+      </button>
+      <button class="icon-btn" id="notification-icon" title="Notifications">
+        <i class="fas fa-bell"></i>
+        <span class="notification-badge" id="notification-count">0</span>
+      </button>
+      <div class="notification-dropdown" id="notification-dropdown">
+        <div id="notification-list"></div>
+        <button class="clear-notifications" onclick="clearNotifications()">Clear All</button>
+      </div>
+      <button class="logout-btn" onclick="logout()">Logout</button>
+    </div>
     <img src="https://i.postimg.cc/W3pgQx9q/DELICUTE-Imgur-1-modified.png" alt="DELICUTE Logo">
     <div>
       <h1>DELICUTE</h1>
       <span>Every Bite Tells A Story</span>
     </div>
-    <div class="notification-container">
-      <button class="enable-sound-btn" id="enable-sound-btn" title="Enable Notification Sound">
-        <i class="fas fa-volume-up"></i>
-      </button>
-      <span class="notification-icon" title="Notifications">
-        <i class="fas fa-bell"></i>
-        <span class="notification-badge" id="notification-count">0</span>
-      </span>
-      <div class="notification-dropdown" id="notification-dropdown">
-        <div id="notification-list"></div>
-        <button class="clear-notifications" onclick="clearNotifications()">Clear All</button>
-      </div>
-    </div>
-    <button class="logout" onclick="logout()">Logout</button>
   </header>
 
   <nav>
@@ -625,17 +450,18 @@ table tr:hover {
         <thead>
           <tr>
             <th>Customer</th>
-            <th>Phone Number</th>
+            <th>Phone</th>
             <th>Items (Qty)</th>
-            <th>Total Price</th>
+            <th>Total</th>
             <th>Coupon</th>
             <th>Address</th>
+            <th>Instructions</th>
             <th>Status</th>
             <th>Actions</th>
           </tr>
         </thead>
         <tbody id="ordersTable">
-          <tr><td colspan="8" class="no-orders">Loading orders...</td></tr>
+          <tr class="no-orders-row"><td colspan="9" class="no-orders">Loading orders...</td></tr>
         </tbody>
       </table>
     </div>
@@ -653,7 +479,7 @@ table tr:hover {
       notificationCount: document.getElementById("notification-count"),
       notificationList: document.getElementById("notification-list"),
       notificationDropdown: document.getElementById("notification-dropdown"),
-      notificationIcon: document.querySelector(".notification-icon"),
+      notificationIcon: document.getElementById("notification-icon"),
       ordersTable: document.getElementById("ordersTable"),
       toast: document.getElementById("toast"),
       enableSoundBtn: document.getElementById("enable-sound-btn")
@@ -661,41 +487,23 @@ table tr:hover {
 
     let notifications = JSON.parse(localStorage.getItem("notifications") || "[]");
 
-    // Log initial AudioContext state
-    console.log(`Initial AudioContext state: ${audioCtx.state}`);
-
-    // Resume AudioContext on any touch event for mobile
     const resumeAudioContext = async () => {
       if (audioCtx.state === 'suspended') {
-        try {
-          await audioCtx.resume();
-          console.log(`AudioContext resumed on touch, state: ${audioCtx.state}`);
-        } catch (err) {
-          console.error("Touch resume error:", err);
-        }
+        try { await audioCtx.resume(); } catch (err) { console.error("Touch resume error:", err); }
       }
     };
     document.addEventListener('touchstart', resumeAudioContext, { once: true });
 
-    // Play notification sound using Web Audio API
     function playNotificationSound() {
-      console.log(`Attempting to play sound, isSoundEnabled: ${isSoundEnabled}, AudioContext state: ${audioCtx.state}`);
-      if (!isSoundEnabled) {
-        showToast("Please enable sound to hear notifications", false);
-        return;
-      }
-      if (audioCtx.state === 'suspended') {
-        showToast("Audio context suspended. Tap Enable Sound again.", false);
-        console.log("AudioContext suspended during playback attempt");
-        return;
-      }
+      if (!isSoundEnabled) { showToast("Please enable sound to hear notifications", false); return; }
+      if (audioCtx.state === 'suspended') { showToast("Audio context suspended. Tap Enable Sound again.", false); return; }
       try {
         const oscillator = audioCtx.createOscillator();
         const gainNode = audioCtx.createGain();
         oscillator.connect(gainNode);
         gainNode.connect(audioCtx.destination);
         oscillator.type = 'sine';
-        const frequencies = [440, 523.25, 659.25, 783.99]; // A4, C5, E5, G5
+        const frequencies = [440, 523.25, 659.25, 783.99];
         let currentTime = audioCtx.currentTime;
         frequencies.forEach((freq, index) => {
           oscillator.frequency.setValueAtTime(freq, currentTime + index * 1.25);
@@ -704,24 +512,19 @@ table tr:hover {
         });
         oscillator.start();
         oscillator.stop(audioCtx.currentTime + 5);
-        console.log("Notification sound played successfully");
       } catch (err) {
         console.error("Audio playback error:", err);
         showToast("Error playing notification sound", false);
       }
     }
 
-    // Enable sound on user interaction
     elements.enableSoundBtn.addEventListener("click", async () => {
-      console.log(`Enable Sound clicked, AudioContext state: ${audioCtx.state}`);
       if (audioCtx.state === 'suspended' || !isSoundEnabled) {
         try {
           await audioCtx.resume();
           isSoundEnabled = true;
-          elements.enableSoundBtn.style.opacity = "0.7";
+          elements.enableSoundBtn.style.opacity = "0.6";
           showToast("Notification sound enabled!");
-          console.log(`AudioContext resumed, state: ${audioCtx.state}`);
-          // Play a brief test sound
           playNotificationSound();
         } catch (err) {
           console.error("Audio initialization error:", err);
@@ -734,16 +537,14 @@ table tr:hover {
 
     function showToast(msg, success = true) {
       elements.toast.textContent = msg;
-      elements.toast.style.background = success
-        ? "linear-gradient(45deg, #4caf50, #66bb6a)"
-        : "linear-gradient(45deg, #f44336, #ef5350)";
+      elements.toast.style.background = success ? "#2E8B57" : "#C0392B";
       elements.toast.className = "show";
       setTimeout(() => elements.toast.className = "", 3000);
     }
 
     function updateNotificationCount() {
       elements.notificationCount.textContent = notifications.length;
-      elements.notificationCount.style.display = notifications.length ? "inline" : "none";
+      elements.notificationCount.style.display = notifications.length ? "flex" : "none";
     }
 
     function renderNotifications() {
@@ -769,14 +570,10 @@ table tr:hover {
       renderNotifications();
     }
 
-    // Authentication Check
     document.addEventListener("DOMContentLoaded", async () => {
       try {
         const res = await fetch("/api/auth/check", { credentials: "include" });
-        if (!res.ok) {
-          window.location.href = "/admin.html";
-          return;
-        }
+        if (!res.ok) { window.location.href = "/admin.html"; return; }
         await fetchOrders();
         renderNotifications();
       } catch (err) {
@@ -786,18 +583,11 @@ table tr:hover {
       }
     });
 
-    // WebSocket Connection
-    const socket = io({
-      auth: { token: getCookie("token") }
-    });
+    const socket = io({ auth: { token: getCookie("token") } });
 
-    socket.on("connect", () => {
-      console.log("Connected to WebSocket");
-      showToast("Connected to notifications");
-    });
+    socket.on("connect", () => showToast("Connected to notifications"));
 
     socket.on("new-order", (order) => {
-      console.log("New order received:", order);
       playNotificationSound();
       showToast(`New Order #${order.id} by ${order.customer_name} for ₹${order.total.toFixed(2)}`);
       notifications.unshift(order);
@@ -811,10 +601,9 @@ table tr:hover {
       showToast("Notification service unavailable", false);
     });
 
-    // Event Listeners
     elements.notificationIcon.addEventListener("click", toggleDropdown);
     document.addEventListener("click", (e) => {
-      if (!e.target.closest(".status-dropdown") && !e.target.closest(".notification-icon")) {
+      if (!e.target.closest(".status-dropdown") && !e.target.closest("#notification-icon")) {
         document.querySelectorAll(".status-options").forEach(d => d.classList.remove("show"));
         elements.notificationDropdown.classList.remove("show");
       }
@@ -827,40 +616,45 @@ table tr:hover {
         elements.ordersTable.innerHTML = "";
 
         if (!data.success || data.data.length === 0) {
-          elements.ordersTable.innerHTML = "<tr><td colspan='8' class='no-orders'>No orders found</td></tr>";
+          elements.ordersTable.innerHTML = "<tr class='no-orders-row'><td colspan='9' class='no-orders'>No orders found</td></tr>";
           return;
         }
 
         const statusPriority = { Pending: 1, Preparing: 2, Delivered: 3, Cancelled: 4 };
         data.data.sort((a, b) => statusPriority[a.status] - statusPriority[b.status]);
 
-        data.data.forEach(order => renderOrderRow(order));
+        data.data.forEach(order => elements.ordersTable.insertAdjacentHTML("beforeend", buildOrderRow(order)));
       } catch (err) {
         showToast("Error loading orders", false);
         console.error("Orders Load Error:", err);
       }
     }
 
-    function renderOrderRow(order) {
+    function buildOrderRow(order) {
       const items = Array.isArray(order.items)
-        ? order.items.map(i => `${i.name} (x${i.qty ?? 1})`).join("<br>")
-        : order.items;
+        ? order.items.map(i => `<div>${i.name} (x${i.qty ?? 1})</div>`).join("")
+        : `<div>${order.items}</div>`;
       const instructions = order.instructions || "None";
-      const couponInfo = order.coupon_code
-        ? `Coupon: ${order.coupon_code} (Discount: ₹${order.discount.toFixed(2)})`
+      const hasCoupon = !!order.coupon_code;
+      const couponInfo = hasCoupon
+        ? `${order.coupon_code} · -₹${order.discount.toFixed(2)}`
         : "No coupon used";
-      elements.ordersTable.innerHTML += `
+
+      return `
         <tr>
-          <td>Order #${order.id} - ${order.customer_name}</td>
-          <td>${order.table_number}</td>
-          <td>${items}</td>
-          <td>₹${order.total.toFixed(2)}</td>
-          <td class="coupon-info">${couponInfo}</td>
-          <td class="instructions">${instructions}</td>
-          <td><span class="status ${order.status}">${order.status}</span></td>
-          <td>
+          <td class="cell-customer">
+            <span class="order-id">Order #${order.id}</span>
+            <span class="customer-name">${order.customer_name}</span>
+          </td>
+          <td data-label="Phone">${order.table_number}</td>
+          <td data-label="Items" class="cell-items"><div class="items-list">${items}</div></td>
+          <td data-label="Total"><span class="total-price">₹${order.total.toFixed(2)}</span></td>
+          <td data-label="Coupon" class="cell-coupon"><span class="coupon-info ${hasCoupon ? "has-coupon" : ""}">${couponInfo}</span></td>
+          <td data-label="Address">${order.address || "None"}</td>
+          <td data-label="Notes" class="cell-instructions"><span class="instructions">${instructions}</span></td>
+          <td data-label="Status">
             <div class="status-dropdown">
-              <div class="status-selected" onclick="toggleDropdownStatus(event, ${order.id})">${order.status}</div>
+              <div class="status-selected status-pill ${order.status}" onclick="toggleDropdownStatus(event, ${order.id})">${order.status}</div>
               <ul class="status-options" id="dropdown-${order.id}">
                 <li onclick="updateStatus(${order.id}, 'Pending')">Pending</li>
                 <li onclick="updateStatus(${order.id}, 'Preparing')">Preparing</li>
@@ -868,58 +662,29 @@ table tr:hover {
                 <li onclick="updateStatus(${order.id}, 'Cancelled')">Cancelled</li>
               </ul>
             </div>
-            ${order.status !== "Cancelled" && order.status !== "Delivered"
-              ? `<button class="btn btn-cancel" onclick="cancelOrder(${order.id})" title="Cancel Order"><i class="fas fa-ban"></i></button>`
-              : ""}
-            <button class="btn btn-delete" onclick="deleteOrder(${order.id})" title="Delete Order"><i class="fas fa-trash"></i></button>
+          </td>
+          <td class="cell-actions">
+            <div class="actions-row">
+              <div class="action-btns">
+                ${order.status !== "Cancelled" && order.status !== "Delivered"
+                  ? `<button class="btn btn-cancel" onclick="cancelOrder(${order.id})" title="Cancel Order"><i class="fas fa-ban"></i></button>`
+                  : ""}
+                <button class="btn btn-delete" onclick="deleteOrder(${order.id})" title="Delete Order"><i class="fas fa-trash"></i></button>
+              </div>
+            </div>
           </td>
         </tr>
       `;
     }
 
     function prependOrder(order) {
-      const items = Array.isArray(order.items)
-        ? order.items.map(i => `${i.name} (x${i.qty ?? 1})`).join("<br>")
-        : order.items;
-      const instructions = order.instructions || "None";
-      const couponInfo = order.coupon_code
-        ? `Coupon: ${order.coupon_code} (Discount: ₹${order.discount.toFixed(2)})`
-        : "No coupon used";
-      const newRow = document.createElement("tr");
-      newRow.innerHTML = `
-        <td>Order #${order.id} - ${order.customer_name}</td>
-        <td>${order.table_number}</td>
-        <td>${items}</td>
-        <td>₹${order.total.toFixed(2)}</td>
-        <td class="coupon-info">${couponInfo}</td>
-        <td class="instructions">${instructions}</td>
-        <td><span class="status ${order.status}">${order.status}</span></td>
-        <td>
-          <div class="status-dropdown">
-            <div class="status-selected" onclick="toggleDropdownStatus(event, ${order.id})">${order.status}</div>
-            <ul class="status-options" id="dropdown-${order.id}">
-              <li onclick="updateStatus(${order.id}, 'Pending')">Pending</li>
-              <li onclick="updateStatus(${order.id}, 'Preparing')">Preparing</li>
-              <li onclick="updateStatus(${order.id}, 'Delivered')">Delivered</li>
-              <li onclick="updateStatus(${order.id}, 'Cancelled')">Cancelled</li>
-            </ul>
-          </div>
-          ${order.status !== "Cancelled" && order.status !== "Delivered"
-            ? `<button class="btn btn-cancel" onclick="cancelOrder(${order.id})" title="Cancel Order"><i class="fas fa-ban"></i></button>`
-            : ""}
-          <button class="btn btn-delete" onclick="deleteOrder(${order.id})" title="Delete Order"><i class="fas fa-trash"></i></button>
-        </td>
-      `;
-      elements.ordersTable.prepend(newRow);
+      elements.ordersTable.insertAdjacentHTML("afterbegin", buildOrderRow(order));
     }
 
     function toggleDropdownStatus(event, id) {
       event.stopPropagation();
       const dropdown = document.getElementById(`dropdown-${id}`);
-      if (!dropdown) {
-        console.error(`Dropdown with id dropdown-${id} not found`);
-        return;
-      }
+      if (!dropdown) return;
       const isShown = dropdown.classList.contains("show");
       document.querySelectorAll(".status-options").forEach(d => d.classList.remove("show"));
       if (!isShown) dropdown.classList.add("show");
@@ -929,10 +694,8 @@ table tr:hover {
       try {
         const res = await fetch(`/api/orders/${id}/status`, {
           method: "PUT",
-          headers: { 
-            "Content-Type": "application/json",
-            credentials: "include"
-          },
+          headers: { "Content-Type": "application/json" },
+          credentials: "include",
           body: JSON.stringify({ status })
         });
         const data = await res.json();
@@ -954,10 +717,8 @@ table tr:hover {
       try {
         const res = await fetch(`/api/orders/${id}/cancel`, {
           method: "PUT",
-          headers: { 
-            "Content-Type": "application/json",
-            credentials: "include"
-          },
+          headers: { "Content-Type": "application/json" },
+          credentials: "include",
           body: JSON.stringify({ status: "Cancelled" })
         });
         const data = await res.json();
@@ -978,10 +739,8 @@ table tr:hover {
       try {
         const res = await fetch(`/api/orders/${id}`, {
           method: "DELETE",
-          headers: { 
-            "Content-Type": "application/json",
-            credentials: "include"
-          }
+          headers: { "Content-Type": "application/json" },
+          credentials: "include"
         });
         const data = await res.json();
         if (data.success) {
@@ -998,10 +757,10 @@ table tr:hover {
 
     async function logout() {
       try {
-        await fetch("/api/auth/logout", { 
-          method: "POST", 
+        await fetch("/api/auth/logout", {
+          method: "POST",
           headers: { "Content-Type": "application/json" },
-          credentials: "include" 
+          credentials: "include"
         });
         window.location.href = "/admin.html";
       } catch (err) {
