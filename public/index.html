@@ -14,7 +14,6 @@
 
     body {
       font-family: 'Playfair Display', serif;
-      background: linear-gradient(135deg, #d8b7d2 0%, #e0e7fa 100%);
       color: #1a1a1a;
       overflow-x: hidden;
       line-height: 1.6;
@@ -31,6 +30,17 @@
       text-align: center;
       position: relative;
       overflow: hidden;
+
+      /* Deeper, richer purple-to-indigo gradient — no washed-out/white corners */
+      background: linear-gradient(135deg, #6a2c91 0%, #8e44ad 35%, #5b4fa8 70%, #3f5ba0 100%);
+      background-size: 200% 200%;
+      animation: gradientShift 12s ease infinite;
+    }
+
+    @keyframes gradientShift {
+      0%   { background-position: 0% 50%; }
+      50%  { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
     }
 
     .hero::before {
@@ -40,7 +50,7 @@
       left: -100%;
       width: 100%;
       height: 100%;
-      background: linear-gradient(90deg, transparent, rgba(142, 68, 173, 0.3), transparent);
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.15), transparent);
       animation: shine 4s infinite;
       z-index: 0;
     }
@@ -58,7 +68,7 @@
       width: 180px;
       max-width: 50%;
       margin-bottom: 1.5rem;
-      filter: drop-shadow(0 3px 8px rgba(0, 0, 0, 0.2));
+      filter: drop-shadow(0 3px 8px rgba(0, 0, 0, 0.3));
       opacity: 0;
       transform: scale(0.8);
       animation: fadeInScale 1s ease-out forwards;
@@ -68,8 +78,8 @@
       font-size: 3.5rem;
       font-weight: 800;
       margin-bottom: 0.75rem;
-      color: #8e44ad;
-      text-shadow: 0 2px 6px rgba(255, 167, 38, 0.4);
+      color: #f3e6ff;
+      text-shadow: 0 2px 10px rgba(0, 0, 0, 0.35);
       opacity: 0;
       transform: translateY(20px);
       animation: fadeInUp 0.8s ease-out 0.2s forwards;
@@ -79,12 +89,13 @@
     .hero p {
       font-size: 1.25rem;
       font-weight: 600;
-      color: #4b5e8e;
+      color: #e4e8ff;
       margin-bottom: 2rem;
       max-width: 600px;
       opacity: 0;
       transform: translateY(20px);
       animation: fadeInUp 0.8s ease-out 0.4s forwards;
+      text-shadow: 0 1px 6px rgba(0, 0, 0, 0.25);
     }
 
     .hero .btn {
@@ -99,7 +110,7 @@
       text-decoration: none;
       display: inline-block;
       transition: all 0.3s ease;
-      box-shadow: 0 4px 15px rgba(142, 68, 173, 0.2);
+      box-shadow: 0 4px 18px rgba(0, 0, 0, 0.3);
       opacity: 0;
       transform: translateY(20px);
       animation: fadeInUp 0.8s ease-out 0.6s forwards;
@@ -108,14 +119,14 @@
     .hero .btn:hover {
       background: linear-gradient(45deg, #ffca28, #ffb300);
       transform: translateY(-2px);
-      box-shadow: 0 6px 20px rgba(142, 68, 173, 0.3);
+      box-shadow: 0 6px 22px rgba(0, 0, 0, 0.35);
     }
 
     .hero .terms-link {
       margin-top: 1rem;
       display: block;
       font-size: 0.95rem;
-      color: #4b5e8e;
+      color: #e4e8ff;
       text-decoration: underline;
       opacity: 0;
       transform: translateY(20px);
@@ -123,7 +134,7 @@
     }
 
     .hero .terms-link:hover {
-      color: #8e44ad;
+      color: #ffca28;
     }
 
     @keyframes shine {
