@@ -8,23 +8,26 @@ apiInstance.setApiKey(
 );
 
 async function sendEmail({ to, subject, html }) {
-  const email = new brevo.SendSmtpEmail();
+  const sendSmtpEmail = new brevo.SendSmtpEmail();
 
-  email.sender = {
+  sendSmtpEmail.subject = subject;
+
+  sendSmtpEmail.sender = {
     name: "Delicute",
     email: process.env.EMAIL_USER,
   };
 
-  email.to = [
+  sendSmtpEmail.to = [
     {
       email: to,
     },
   ];
 
-  email.subject = subject;
-  email.htmlContent = html;
+  sendSmtpEmail.htmlContent = html;
 
-  return apiInstance.sendTransacEmail(email);
+  return await apiInstance.sendTransacEmail(sendSmtpEmail);
 }
 
-module.exports = { sendEmail };
+module.exports = {
+  sendEmail,
+};
