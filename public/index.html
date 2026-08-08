@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
   <title>Delicute | Every Bite Tells a Story</title>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Great+Vibes&family=Cormorant+Garamond:wght@500;600&display=swap" rel="stylesheet" />
   <style>
@@ -10,6 +10,11 @@
       box-sizing: border-box;
       margin: 0;
       padding: 0;
+    }
+
+    html, body {
+      width: 100%;
+      overflow-x: hidden;
     }
 
     :root {
@@ -25,19 +30,19 @@
       font-family: 'Cormorant Garamond', serif;
       background: linear-gradient(135deg, #d8b7d2 0%, #e0e7fa 100%);
       color: var(--ink);
-      overflow-x: hidden;
       line-height: 1.6;
       min-height: 100vh;
     }
 
     /* ---------- Hero ---------- */
     .hero {
+      width: 100%;
       min-height: 100vh;
       display: flex;
       flex-direction: column;
       justify-content: center;
       align-items: center;
-      padding: 2rem;
+      padding: 2rem 1rem;
       text-align: center;
       position: relative;
       overflow: hidden;
@@ -62,45 +67,67 @@
       left: -100%;
       width: 100%;
       height: 100%;
-      background: linear-gradient(90deg, transparent, rgba(142, 68, 173, 0.3), transparent);
-      animation: shine 4s infinite;
+      background: linear-gradient(90deg, transparent, rgba(142, 68, 173, 0.25), transparent);
+      animation: shine 5s infinite;
       z-index: 0;
+      pointer-events: none;
     }
 
-    /* decorative corner frame */
+    /* decorative inner frame — clamps to viewport so it never overflows */
     .hero::after {
       content: '';
       position: absolute;
-      inset: 18px;
-      border: 1px solid rgba(217, 169, 76, 0.55);
+      top: 14px; left: 14px; right: 14px; bottom: 14px;
+      border: 1px solid rgba(217, 169, 76, 0.5);
       pointer-events: none;
       z-index: 0;
     }
 
     .corner-flourish {
       position: absolute;
-      width: 130px;
-      height: 130px;
-      opacity: 0.35;
+      width: 110px;
+      height: 110px;
+      opacity: 0.3;
       z-index: 0;
       pointer-events: none;
     }
-    .corner-flourish.tl { top: 6px; left: 6px; transform: rotate(0deg); }
+    .corner-flourish.tl { top: 6px; left: 6px; }
     .corner-flourish.br { bottom: 6px; right: 6px; transform: rotate(180deg); }
 
+    .sparkle {
+      position: absolute;
+      font-size: 1.1rem;
+      opacity: 0.55;
+      z-index: 0;
+      animation: floatSparkle 6s ease-in-out infinite;
+      pointer-events: none;
+    }
+    .sparkle.s1 { top: 12%; left: 10%; animation-delay: 0s; }
+    .sparkle.s2 { top: 22%; right: 9%; animation-delay: 1.5s; }
+    .sparkle.s3 { bottom: 18%; left: 8%; animation-delay: 3s; }
+    .sparkle.s4 { bottom: 10%; right: 12%; animation-delay: 2s; }
+
+    @keyframes floatSparkle {
+      0%, 100% { transform: translateY(0) rotate(0deg); opacity: 0.35; }
+      50%      { transform: translateY(-12px) rotate(15deg); opacity: 0.75; }
+    }
+
+    /* ---------- Content container: hard clamp so nothing spills on any screen ---------- */
     .hero-content {
       position: relative;
       z-index: 1;
-      max-width: 900px;
+      width: 100%;
+      max-width: 640px;
+      margin: 0 auto;
       display: flex;
       flex-direction: column;
       align-items: center;
     }
 
     .hero img.logo {
-      width: 180px;
-      max-width: 50%;
-      margin-bottom: 1.25rem;
+      width: 170px;
+      max-width: 45%;
+      margin-bottom: 1.1rem;
       filter: drop-shadow(0 3px 8px rgba(0, 0, 0, 0.2));
       opacity: 0;
       transform: scale(0.8);
@@ -108,10 +135,9 @@
     }
 
     .eyebrow {
-      font-family: 'Cormorant Garamond', serif;
       letter-spacing: 4px;
       text-transform: uppercase;
-      font-size: 0.9rem;
+      font-size: 0.85rem;
       font-weight: 600;
       color: var(--mauve);
       margin-bottom: 0.5rem;
@@ -121,81 +147,106 @@
 
     .hero h1 {
       font-family: 'Playfair Display', serif;
-      font-size: 3.6rem;
+      font-size: clamp(2rem, 7vw, 3.5rem);
       font-weight: 800;
       margin-bottom: 0.5rem;
       color: var(--plum);
-      text-shadow: 0 2px 6px rgba(255, 167, 38, 0.35);
+      text-shadow: 0 2px 6px rgba(255, 167, 38, 0.3);
       opacity: 0;
       transform: translateY(20px);
       animation: fadeInUp 0.8s ease-out 0.2s forwards;
-      letter-spacing: 1px;
+      letter-spacing: 0.5px;
     }
 
     .hero p.tagline {
-      font-size: 1.35rem;
+      font-size: clamp(1rem, 3.6vw, 1.3rem);
       font-style: italic;
       font-weight: 600;
       color: #4b5e8e;
-      margin-bottom: 1.75rem;
-      max-width: 600px;
+      margin-bottom: 1.6rem;
+      max-width: 92%;
       opacity: 0;
       transform: translateY(20px);
       animation: fadeInUp 0.8s ease-out 0.4s forwards;
     }
 
-    /* ---------- Anniversary / Today's Special Banner ---------- */
+    /* ---------- Today's Special banner ---------- */
     .anniversary-banner {
       position: relative;
       z-index: 1;
       width: 100%;
-      max-width: 640px;
-      margin: 0 auto 2rem;
-      padding: 1.6rem 1.75rem;
+      max-width: 100%;
+      margin: 0 auto 1.75rem;
+      padding: 1.5rem 1.25rem;
       border-radius: 20px;
-      background: linear-gradient(160deg, rgba(255,255,255,0.55), rgba(255,255,255,0.25));
+      background: linear-gradient(160deg, rgba(255,255,255,0.62), rgba(255,255,255,0.3));
       backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
       border: 1px solid rgba(217, 169, 76, 0.6);
-      box-shadow: 0 10px 30px rgba(92, 58, 82, 0.18);
+      box-shadow: 0 10px 30px rgba(92, 58, 82, 0.18), 0 0 0 1px rgba(255,255,255,0.4) inset;
       opacity: 0;
       transform: translateY(20px);
       animation: fadeInUp 0.8s ease-out 0.5s forwards;
+      overflow: hidden;
     }
 
     .anniversary-banner .ribbon {
       display: inline-block;
-      font-size: 0.75rem;
+      position: relative;
+      font-size: 0.7rem;
       letter-spacing: 2px;
       text-transform: uppercase;
       font-weight: 700;
-      font-family: 'Cormorant Garamond', serif;
       color: #fff;
       background: linear-gradient(45deg, var(--mauve), var(--plum));
       padding: 5px 16px;
       border-radius: 30px;
       margin-bottom: 0.75rem;
       box-shadow: 0 4px 12px rgba(142, 68, 173, 0.35);
+      overflow: hidden;
+    }
+
+    .anniversary-banner .ribbon::after {
+      content: '';
+      position: absolute;
+      top: 0; left: -60%;
+      width: 40%; height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.55), transparent);
+      animation: ribbonShine 2.8s ease-in-out infinite;
+    }
+
+    @keyframes ribbonShine {
+      0%   { left: -60%; }
+      60%  { left: 130%; }
+      100% { left: 130%; }
     }
 
     .anniversary-banner h2 {
       font-family: 'Playfair Display', serif;
       color: var(--plum);
-      font-size: 1.9rem;
-      margin-bottom: 0.35rem;
+      font-size: clamp(1.3rem, 5vw, 1.8rem);
+      margin-bottom: 0.2rem;
     }
 
     .anniversary-banner .script {
       font-family: 'Great Vibes', cursive;
-      font-size: 2.4rem;
+      font-size: clamp(1.8rem, 8vw, 2.3rem);
       color: var(--gold);
-      line-height: 1;
-      margin: 0.15rem 0 0.5rem;
+      line-height: 1.2;
+      margin: 0.1rem 0 0.6rem;
+    }
+
+    .banner-divider {
+      width: 60px;
+      height: 2px;
+      margin: 0 auto 0.75rem;
+      background: linear-gradient(90deg, transparent, var(--gold), transparent);
     }
 
     .anniversary-banner p.detail {
-      font-size: 1.05rem;
+      font-size: clamp(0.92rem, 3vw, 1.05rem);
       color: var(--ink);
-      max-width: 480px;
+      max-width: 460px;
       margin: 0 auto 0.9rem;
     }
 
@@ -205,19 +256,23 @@
       gap: 0.5rem;
       font-family: 'Playfair Display', serif;
       font-weight: 700;
-      font-size: 1rem;
+      font-size: clamp(0.85rem, 3vw, 1rem);
       color: var(--plum);
       background: var(--cream);
       border: 1px solid var(--gold-light);
       padding: 0.5rem 1.1rem;
       border-radius: 30px;
+      max-width: 100%;
     }
 
+    /* ---------- CTA ---------- */
     .hero .btn {
+      position: relative;
+      z-index: 1;
       background: linear-gradient(45deg, #ffa726, #ffca28);
       color: #1a1a1a;
       padding: 1rem 2.5rem;
-      font-size: 1.1rem;
+      font-size: clamp(0.95rem, 3.4vw, 1.1rem);
       font-weight: 700;
       font-family: 'Playfair Display', serif;
       border: none;
@@ -225,13 +280,13 @@
       cursor: pointer;
       text-decoration: none;
       display: inline-block;
+      width: auto;
+      max-width: 100%;
       transition: all 0.3s ease;
       box-shadow: 0 4px 15px rgba(142, 68, 173, 0.25);
       opacity: 0;
       transform: translateY(20px);
       animation: fadeInUp 0.8s ease-out 0.7s forwards, pulseGlow 2.4s ease-in-out 1.6s infinite;
-      position: relative;
-      z-index: 1;
     }
 
     .hero .btn:hover {
@@ -243,23 +298,6 @@
     @keyframes pulseGlow {
       0%, 100% { box-shadow: 0 4px 15px rgba(142, 68, 173, 0.25); }
       50%      { box-shadow: 0 4px 26px rgba(217, 169, 76, 0.55); }
-    }
-
-    .hero .terms-link {
-      margin-top: 1rem;
-      display: block;
-      font-size: 0.95rem;
-      color: #4b5e8e;
-      text-decoration: underline;
-      opacity: 0;
-      transform: translateY(20px);
-      animation: fadeInUp 0.8s ease-out 0.9s forwards;
-      position: relative;
-      z-index: 1;
-    }
-
-    .hero .terms-link:hover {
-      color: var(--mauve);
     }
 
     @keyframes shine {
@@ -357,33 +395,19 @@
       z-index: 2;
     }
 
-    @media (max-width: 768px) {
-      .hero h1 { font-size: 2.5rem; }
-      .hero p.tagline { font-size: 1.1rem; }
-      .hero img.logo { width: 140px; }
-      .hero .btn { padding: 0.9rem 2rem; font-size: 1rem; }
-      .hero .terms-link { font-size: 0.9rem; }
-      .offer-modal { max-width: 90vw; border-radius: 14px; }
-      .anniversary-banner h2 { font-size: 1.5rem; }
-      .anniversary-banner .script { font-size: 1.9rem; }
-      .corner-flourish { width: 90px; height: 90px; }
+    /* ---------- Responsive breakpoints ---------- */
+    @media (min-width: 1024px) {
+      .hero-content { max-width: 680px; }
+      .anniversary-banner { padding: 2rem 2.25rem; }
     }
 
     @media (max-width: 480px) {
-      .hero h1 { font-size: 2rem; }
-      .hero p.tagline { font-size: 1rem; }
-      .hero img.logo { width: 120px; }
-      .hero .btn {
-        padding: 0.8rem 1.8rem;
-        font-size: 0.95rem;
-        width: 100%;
-        max-width: 280px;
-      }
-      .hero .terms-link { font-size: 0.85rem; }
-      .offer-modal { max-width: 94vw; border-radius: 12px; }
-      .offer-close { width: 30px; height: 30px; font-size: 1.1rem; top: 8px; right: 8px; }
-      .anniversary-banner { padding: 1.2rem; }
-      .corner-flourish { display: none; }
+      .hero { padding: 1.5rem 0.9rem; }
+      .hero img.logo { width: 110px; }
+      .anniversary-banner { padding: 1.25rem 1rem; border-radius: 16px; }
+      .hero .btn { width: 100%; max-width: 300px; padding: 0.85rem 1.5rem; }
+      .corner-flourish { width: 70px; height: 70px; opacity: 0.22; }
+      .sparkle { font-size: 0.9rem; }
     }
   </style>
 </head>
@@ -402,6 +426,12 @@
       <circle cx="12" cy="30" r="2" fill="#8e44ad"/>
     </svg>
 
+    <!-- floating sparkles -->
+    <span class="sparkle s1">✦</span>
+    <span class="sparkle s2">✧</span>
+    <span class="sparkle s3">✦</span>
+    <span class="sparkle s4">✧</span>
+
     <div class="hero-content">
       <img class="logo" src="https://i.postimg.cc/W3pgQx9q/DELICUTE-Imgur-1-modified.png" alt="Delicute Logo" />
       <div class="eyebrow">Every Bite Tells a Story</div>
@@ -413,6 +443,7 @@
         <span class="ribbon">Today's Special</span>
         <h2>Celebrating Our</h2>
         <div class="script">1st Year Anniversary</div>
+        <div class="banner-divider"></div>
         <p class="detail">
           One year of flavour, warmth, and every bite telling a story. Today only —
           join us for special anniversary treats and an exclusive offer waiting inside.
@@ -423,7 +454,6 @@
       </div>
 
       <a href="#" id="exploreBtn" class="btn">Explore Our Menu</a>
-      <a href="terms.html" class="terms-link">Terms & Conditions</a>
     </div>
   </section>
 
@@ -483,7 +513,6 @@
 
     offerClose.addEventListener('click', closeOfferPopup);
 
-    // Optional: clicking outside the image also closes + navigates
     offerOverlay.addEventListener('click', (e) => {
       if (e.target === offerOverlay) closeOfferPopup();
     });
