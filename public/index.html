@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Delicute | Every Bite Tells a Story</title>
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Great+Vibes&family=Cormorant+Garamond:wght@500;600&display=swap" rel="stylesheet" />
   <style>
     * {
       box-sizing: border-box;
@@ -12,15 +12,25 @@
       padding: 0;
     }
 
+    :root {
+      --plum: #5c3a52;
+      --mauve: #8e44ad;
+      --gold: #d9a94c;
+      --gold-light: #f2d49b;
+      --cream: #fbf6ee;
+      --ink: #2a1f26;
+    }
+
     body {
-      font-family: 'Playfair Display', serif;
+      font-family: 'Cormorant Garamond', serif;
       background: linear-gradient(135deg, #d8b7d2 0%, #e0e7fa 100%);
-      color: #1a1a1a;
+      color: var(--ink);
       overflow-x: hidden;
       line-height: 1.6;
       min-height: 100vh;
     }
 
+    /* ---------- Hero ---------- */
     .hero {
       min-height: 100vh;
       display: flex;
@@ -31,6 +41,18 @@
       text-align: center;
       position: relative;
       overflow: hidden;
+      background:
+        radial-gradient(circle at 15% 20%, rgba(217, 169, 76, 0.18), transparent 45%),
+        radial-gradient(circle at 85% 80%, rgba(142, 68, 173, 0.25), transparent 50%),
+        linear-gradient(135deg, #e9d5e3 0%, #dfe6fa 55%, #f3e6d8 100%);
+      background-size: 200% 200%;
+      animation: bgFlow 14s ease infinite;
+    }
+
+    @keyframes bgFlow {
+      0%   { background-position: 0% 0%; }
+      50%  { background-position: 100% 100%; }
+      100% { background-position: 0% 0%; }
     }
 
     .hero::before {
@@ -45,6 +67,27 @@
       z-index: 0;
     }
 
+    /* decorative corner frame */
+    .hero::after {
+      content: '';
+      position: absolute;
+      inset: 18px;
+      border: 1px solid rgba(217, 169, 76, 0.55);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .corner-flourish {
+      position: absolute;
+      width: 130px;
+      height: 130px;
+      opacity: 0.35;
+      z-index: 0;
+      pointer-events: none;
+    }
+    .corner-flourish.tl { top: 6px; left: 6px; transform: rotate(0deg); }
+    .corner-flourish.br { bottom: 6px; right: 6px; transform: rotate(180deg); }
+
     .hero-content {
       position: relative;
       z-index: 1;
@@ -57,34 +100,117 @@
     .hero img.logo {
       width: 180px;
       max-width: 50%;
-      margin-bottom: 1.5rem;
+      margin-bottom: 1.25rem;
       filter: drop-shadow(0 3px 8px rgba(0, 0, 0, 0.2));
       opacity: 0;
       transform: scale(0.8);
       animation: fadeInScale 1s ease-out forwards;
     }
 
+    .eyebrow {
+      font-family: 'Cormorant Garamond', serif;
+      letter-spacing: 4px;
+      text-transform: uppercase;
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--mauve);
+      margin-bottom: 0.5rem;
+      opacity: 0;
+      animation: fadeInUp 0.8s ease-out 0.1s forwards;
+    }
+
     .hero h1 {
-      font-size: 3.5rem;
+      font-family: 'Playfair Display', serif;
+      font-size: 3.6rem;
       font-weight: 800;
-      margin-bottom: 0.75rem;
-      color: #8e44ad;
-      text-shadow: 0 2px 6px rgba(255, 167, 38, 0.4);
+      margin-bottom: 0.5rem;
+      color: var(--plum);
+      text-shadow: 0 2px 6px rgba(255, 167, 38, 0.35);
       opacity: 0;
       transform: translateY(20px);
       animation: fadeInUp 0.8s ease-out 0.2s forwards;
       letter-spacing: 1px;
     }
 
-    .hero p {
-      font-size: 1.25rem;
+    .hero p.tagline {
+      font-size: 1.35rem;
+      font-style: italic;
       font-weight: 600;
       color: #4b5e8e;
-      margin-bottom: 2rem;
+      margin-bottom: 1.75rem;
       max-width: 600px;
       opacity: 0;
       transform: translateY(20px);
       animation: fadeInUp 0.8s ease-out 0.4s forwards;
+    }
+
+    /* ---------- Anniversary / Today's Special Banner ---------- */
+    .anniversary-banner {
+      position: relative;
+      z-index: 1;
+      width: 100%;
+      max-width: 640px;
+      margin: 0 auto 2rem;
+      padding: 1.6rem 1.75rem;
+      border-radius: 20px;
+      background: linear-gradient(160deg, rgba(255,255,255,0.55), rgba(255,255,255,0.25));
+      backdrop-filter: blur(8px);
+      border: 1px solid rgba(217, 169, 76, 0.6);
+      box-shadow: 0 10px 30px rgba(92, 58, 82, 0.18);
+      opacity: 0;
+      transform: translateY(20px);
+      animation: fadeInUp 0.8s ease-out 0.5s forwards;
+    }
+
+    .anniversary-banner .ribbon {
+      display: inline-block;
+      font-size: 0.75rem;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      font-weight: 700;
+      font-family: 'Cormorant Garamond', serif;
+      color: #fff;
+      background: linear-gradient(45deg, var(--mauve), var(--plum));
+      padding: 5px 16px;
+      border-radius: 30px;
+      margin-bottom: 0.75rem;
+      box-shadow: 0 4px 12px rgba(142, 68, 173, 0.35);
+    }
+
+    .anniversary-banner h2 {
+      font-family: 'Playfair Display', serif;
+      color: var(--plum);
+      font-size: 1.9rem;
+      margin-bottom: 0.35rem;
+    }
+
+    .anniversary-banner .script {
+      font-family: 'Great Vibes', cursive;
+      font-size: 2.4rem;
+      color: var(--gold);
+      line-height: 1;
+      margin: 0.15rem 0 0.5rem;
+    }
+
+    .anniversary-banner p.detail {
+      font-size: 1.05rem;
+      color: var(--ink);
+      max-width: 480px;
+      margin: 0 auto 0.9rem;
+    }
+
+    .anniversary-banner .date-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-family: 'Playfair Display', serif;
+      font-weight: 700;
+      font-size: 1rem;
+      color: var(--plum);
+      background: var(--cream);
+      border: 1px solid var(--gold-light);
+      padding: 0.5rem 1.1rem;
+      border-radius: 30px;
     }
 
     .hero .btn {
@@ -93,22 +219,30 @@
       padding: 1rem 2.5rem;
       font-size: 1.1rem;
       font-weight: 700;
+      font-family: 'Playfair Display', serif;
       border: none;
       border-radius: 50px;
       cursor: pointer;
       text-decoration: none;
       display: inline-block;
       transition: all 0.3s ease;
-      box-shadow: 0 4px 15px rgba(142, 68, 173, 0.2);
+      box-shadow: 0 4px 15px rgba(142, 68, 173, 0.25);
       opacity: 0;
       transform: translateY(20px);
-      animation: fadeInUp 0.8s ease-out 0.6s forwards;
+      animation: fadeInUp 0.8s ease-out 0.7s forwards, pulseGlow 2.4s ease-in-out 1.6s infinite;
+      position: relative;
+      z-index: 1;
     }
 
     .hero .btn:hover {
       background: linear-gradient(45deg, #ffca28, #ffb300);
       transform: translateY(-2px);
-      box-shadow: 0 6px 20px rgba(142, 68, 173, 0.3);
+      box-shadow: 0 6px 20px rgba(142, 68, 173, 0.35);
+    }
+
+    @keyframes pulseGlow {
+      0%, 100% { box-shadow: 0 4px 15px rgba(142, 68, 173, 0.25); }
+      50%      { box-shadow: 0 4px 26px rgba(217, 169, 76, 0.55); }
     }
 
     .hero .terms-link {
@@ -119,11 +253,13 @@
       text-decoration: underline;
       opacity: 0;
       transform: translateY(20px);
-      animation: fadeInUp 0.8s ease-out 0.8s forwards;
+      animation: fadeInUp 0.8s ease-out 0.9s forwards;
+      position: relative;
+      z-index: 1;
     }
 
     .hero .terms-link:hover {
-      color: #8e44ad;
+      color: var(--mauve);
     }
 
     @keyframes shine {
@@ -223,16 +359,19 @@
 
     @media (max-width: 768px) {
       .hero h1 { font-size: 2.5rem; }
-      .hero p { font-size: 1.1rem; }
+      .hero p.tagline { font-size: 1.1rem; }
       .hero img.logo { width: 140px; }
       .hero .btn { padding: 0.9rem 2rem; font-size: 1rem; }
       .hero .terms-link { font-size: 0.9rem; }
       .offer-modal { max-width: 90vw; border-radius: 14px; }
+      .anniversary-banner h2 { font-size: 1.5rem; }
+      .anniversary-banner .script { font-size: 1.9rem; }
+      .corner-flourish { width: 90px; height: 90px; }
     }
 
     @media (max-width: 480px) {
       .hero h1 { font-size: 2rem; }
-      .hero p { font-size: 1rem; }
+      .hero p.tagline { font-size: 1rem; }
       .hero img.logo { width: 120px; }
       .hero .btn {
         padding: 0.8rem 1.8rem;
@@ -243,15 +382,46 @@
       .hero .terms-link { font-size: 0.85rem; }
       .offer-modal { max-width: 94vw; border-radius: 12px; }
       .offer-close { width: 30px; height: 30px; font-size: 1.1rem; top: 8px; right: 8px; }
+      .anniversary-banner { padding: 1.2rem; }
+      .corner-flourish { display: none; }
     }
   </style>
 </head>
 <body>
   <section class="hero">
+
+    <!-- decorative floral corners -->
+    <svg class="corner-flourish tl" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M5 5 Q40 5 40 40 Q40 5 90 10" stroke="#d9a94c" stroke-width="1.5"/>
+      <circle cx="30" cy="15" r="3" fill="#d9a94c"/>
+      <circle cx="12" cy="30" r="2" fill="#8e44ad"/>
+    </svg>
+    <svg class="corner-flourish br" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M5 5 Q40 5 40 40 Q40 5 90 10" stroke="#d9a94c" stroke-width="1.5"/>
+      <circle cx="30" cy="15" r="3" fill="#d9a94c"/>
+      <circle cx="12" cy="30" r="2" fill="#8e44ad"/>
+    </svg>
+
     <div class="hero-content">
       <img class="logo" src="https://i.postimg.cc/W3pgQx9q/DELICUTE-Imgur-1-modified.png" alt="Delicute Logo" />
+      <div class="eyebrow">Every Bite Tells a Story</div>
       <h1>Welcome to Delicute</h1>
-      <p>Every Bite Tells a Story</p>
+      <p class="tagline">Where every dish is crafted with love, and every visit becomes a memory.</p>
+
+      <!-- Today's Special / Anniversary Banner -->
+      <div class="anniversary-banner">
+        <span class="ribbon">Today's Special</span>
+        <h2>Celebrating Our</h2>
+        <div class="script">1st Year Anniversary</div>
+        <p class="detail">
+          One year of flavour, warmth, and every bite telling a story. Today only —
+          join us for special anniversary treats and an exclusive offer waiting inside.
+        </p>
+        <div class="date-pill">
+          🎉 8th August 2026 · Saturday
+        </div>
+      </div>
+
       <a href="#" id="exploreBtn" class="btn">Explore Our Menu</a>
       <a href="terms.html" class="terms-link">Terms & Conditions</a>
     </div>
