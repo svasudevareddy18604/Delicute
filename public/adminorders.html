@@ -450,7 +450,7 @@
         <thead>
           <tr>
             <th>Customer</th>
-            <th>Phone</th>
+            <th>Table</th>
             <th>Items (Qty)</th>
             <th>Total</th>
             <th>Coupon</th>
@@ -646,7 +646,7 @@
             <span class="order-id">Order #${order.id}</span>
             <span class="customer-name">${order.customer_name}</span>
           </td>
-          <td data-label="Phone">${order.table_number}</td>
+          <td data-label="Table">${order.table_number}</td>
           <td data-label="Items" class="cell-items"><div class="items-list">${items}</div></td>
           <td data-label="Total"><span class="total-price">₹${order.total.toFixed(2)}</span></td>
           <td data-label="Coupon" class="cell-coupon"><span class="coupon-info ${hasCoupon ? "has-coupon" : ""}">${couponInfo}</span></td>
