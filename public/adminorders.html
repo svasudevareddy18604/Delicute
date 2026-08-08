@@ -287,7 +287,8 @@
       text-align: center;
     }
     .status-pill.Pending    { background: var(--pending); }
-    .status-pill.Preparing  { background: var(--preparing); }
+    .status-pill.Accepted { background: var(--preparing); }
+    .status-pill.Cooking { background: #6A5ACD; }
     .status-pill.Delivered  { background: var(--delivered); }
     .status-pill.Cancelled  { background: var(--cancelled); }
 
@@ -777,7 +778,13 @@
 
       elements.ordersTable.querySelector(".no-orders-row")?.remove();
 
-      const statusPriority = { Pending: 1, Preparing: 2, Delivered: 3, Cancelled: 4 };
+      const statusPriority = {
+  Pending: 1,
+  Accepted: 2,
+  Cooking: 3,
+  Delivered: 4,
+  Cancelled: 5
+};
       serverOrders.sort((a, b) => statusPriority[a.status] - statusPriority[b.status]);
 
       const incomingIds = new Set(serverOrders.map(o => o.id));
@@ -925,11 +932,12 @@
             <div class="status-dropdown">
               <div class="status-selected status-pill ${order.status}" onclick="toggleDropdownStatus(event, ${order.id})">${order.status}</div>
               <ul class="status-options" id="dropdown-${order.id}">
-                <li onclick="updateStatus(${order.id}, 'Pending')">Pending</li>
-                <li onclick="updateStatus(${order.id}, 'Preparing')">Preparing</li>
-                <li onclick="updateStatus(${order.id}, 'Delivered')">Delivered</li>
-                <li onclick="updateStatus(${order.id}, 'Cancelled')">Cancelled</li>
-              </ul>
+  <li onclick="updateStatus(${order.id}, 'Pending')">Pending</li>
+  <li onclick="updateStatus(${order.id}, 'Accepted')">Accepted</li>
+  <li onclick="updateStatus(${order.id}, 'Cooking')">Cooking</li>
+  <li onclick="updateStatus(${order.id}, 'Delivered')">Delivered</li>
+  <li onclick="updateStatus(${order.id}, 'Cancelled')">Cancelled</li>
+</ul>
             </div>
           </td>
           <td class="cell-actions">
