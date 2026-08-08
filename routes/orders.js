@@ -198,7 +198,7 @@ router.put("/:id/status", authenticate, async (req, res) => {
   const { id } = req.params;
   const { status } = req.body;
 
-  const allowed = ["Pending", "Preparing", "Delivered", "Cancelled"];
+  const allowed = ["Pending", "Accepted", "Cooking", "Delivered", "Cancelled"];
   if (!allowed.includes(status)) {
     return res.status(400).json({ success: false, message: "Invalid status" });
   }

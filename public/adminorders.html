@@ -20,6 +20,7 @@
       --preparing: #6A5ACD;
       --delivered: #2E8B57;
       --cancelled: #C0392B;
+      --gold: #D9A94C;
       --radius: 10px;
       --shadow-sm: 0 1px 3px rgba(60, 40, 100, 0.08);
       --shadow-md: 0 4px 14px rgba(60, 40, 100, 0.12);
@@ -50,6 +51,33 @@
     header img { height: 50px; border-radius: 50%; box-shadow: 0 2px 8px rgba(0,0,0,0.25); }
     header h1 { font-family: 'Playfair Display', serif; font-size: 1.8rem; margin-top: 0.4rem; }
     header span { font-size: 0.8rem; opacity: 0.85; }
+
+    .live-indicator {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      margin-top: 0.35rem;
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.03em;
+      text-transform: uppercase;
+      opacity: 0.9;
+    }
+    .live-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #4CD964;
+      box-shadow: 0 0 0 0 rgba(76, 217, 100, 0.6);
+      animation: livePulse 1.6s ease-out infinite;
+    }
+    .live-dot.offline { background: var(--cancelled); animation: none; box-shadow: none; }
+    @keyframes livePulse {
+      0%   { box-shadow: 0 0 0 0 rgba(76, 217, 100, 0.55); }
+      70%  { box-shadow: 0 0 0 7px rgba(76, 217, 100, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(76, 217, 100, 0); }
+    }
+    #last-updated { opacity: 0.75; font-weight: 500; text-transform: none; letter-spacing: normal; }
 
     .top-actions {
       position: absolute;
@@ -214,6 +242,24 @@
     .order-id { font-weight: 600; color: var(--muted); font-size: 0.75rem; display: block; margin-bottom: 2px; }
     .customer-name { font-weight: 600; }
 
+    .new-flag {
+      display: inline-block;
+      margin-left: 0.4rem;
+      background: linear-gradient(45deg, var(--gold), #f2d49b);
+      color: #4a3300;
+      font-size: 0.62rem;
+      font-weight: 800;
+      letter-spacing: 0.04em;
+      padding: 1px 7px;
+      border-radius: 10px;
+      vertical-align: middle;
+      animation: newFlagPop 0.4s ease-out;
+    }
+    @keyframes newFlagPop {
+      0% { transform: scale(0.4); opacity: 0; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+
     .items-list { font-size: 0.85rem; }
     .items-list div { padding: 1px 0; }
 
@@ -313,6 +359,29 @@
     .btn-delete { background: var(--cancelled); }
 
     .no-orders { font-size: 0.95rem; color: var(--muted); text-align: center; padding: 2.5rem 1rem; }
+
+    /* New order row highlight — fades out on its own */
+    tr.order-row-new {
+      animation: rowGlow 2.6s ease-out;
+    }
+    @keyframes rowGlow {
+      0%   { background: #FFF3D6; box-shadow: 0 0 0 2px var(--gold); }
+      100% { background: transparent; box-shadow: none; }
+    }
+    @media (max-width: 860px) {
+      tr.order-row-new { animation: rowGlowCard 2.6s ease-out; }
+      @keyframes rowGlowCard {
+        0%   { background: #FFF3D6; box-shadow: 0 0 0 2px var(--gold); }
+        100% { background: white; box-shadow: var(--shadow-sm); }
+      }
+    }
+
+    tr.order-row-removing {
+      animation: rowFadeOut 0.35s ease forwards;
+    }
+    @keyframes rowFadeOut {
+      to { opacity: 0; transform: scaleY(0); }
+    }
 
     #toast {
       visibility: hidden;
@@ -432,6 +501,11 @@
       <h1>DELICUTE</h1>
       <span>Every Bite Tells A Story</span>
     </div>
+    <div class="live-indicator">
+      <span class="live-dot" id="live-dot"></span>
+      <span id="live-text">Live · Auto-updating</span>
+      <span id="last-updated"></span>
+    </div>
   </header>
 
   <nav>
@@ -482,7 +556,10 @@
       notificationIcon: document.getElementById("notification-icon"),
       ordersTable: document.getElementById("ordersTable"),
       toast: document.getElementById("toast"),
-      enableSoundBtn: document.getElementById("enable-sound-btn")
+      enableSoundBtn: document.getElementById("enable-sound-btn"),
+      liveDot: document.getElementById("live-dot"),
+      liveText: document.getElementById("live-text"),
+      lastUpdated: document.getElementById("last-updated")
     };
 
     let notifications = JSON.parse(localStorage.getItem("notifications") || "[]");
@@ -574,8 +651,9 @@
       try {
         const res = await fetch("/api/auth/check", { credentials: "include" });
         if (!res.ok) { window.location.href = "/admin.html"; return; }
-        await fetchOrders();
+        await fetchOrders();      // full initial render
         renderNotifications();
+        startAutoRefresh();       // begin 1-second smart sync
       } catch (err) {
         console.error("Auth check error:", err);
         showToast("Authentication failed", false);
@@ -585,20 +663,21 @@
 
     const socket = io({ auth: { token: getCookie("token") } });
 
-    socket.on("connect", () => showToast("Connected to notifications"));
-
-    socket.on("new-order", (order) => {
-      playNotificationSound();
-      showToast(`New Order #${order.id} by ${order.customer_name} for ₹${order.total.toFixed(2)}`);
-      notifications.unshift(order);
-      localStorage.setItem("notifications", JSON.stringify(notifications));
-      renderNotifications();
-      prependOrder(order);
+    socket.on("connect", () => {
+      showToast("Connected to notifications");
+      setLive(true);
     });
 
+    socket.on("new-order", (order) => {
+      // Socket push handles the instant case; polling below will simply
+      // see it's already known and skip re-notifying.
+      handleIncomingOrder(order, true);
+    });
+
+    socket.on("disconnect", () => setLive(false, true));
     socket.on("connect_error", (error) => {
       console.error("WebSocket error:", error);
-      showToast("Notification service unavailable", false);
+      setLive(false, true);
     });
 
     elements.notificationIcon.addEventListener("click", toggleDropdown);
@@ -609,11 +688,197 @@
       }
     });
 
+    /* ================= LIVE STATE / SYNC ENGINE ================= */
+
+    // Tracks id -> status for every order currently rendered.
+    let knownOrders = new Map();
+    let isFetching = false;
+    let pollTimer = null;
+    let pollDelay = 1000;              // starts at 1s as requested
+    const POLL_DELAY_MIN = 1000;
+    const POLL_DELAY_MAX = 8000;       // backs off up to 8s on repeated failures
+    let consecutiveErrors = 0;
+
+    function setLive(online, isSocketIssue = false) {
+      elements.liveDot.classList.toggle("offline", !online);
+      elements.liveText.textContent = online ? "Live · Auto-updating" : "Reconnecting…";
+      if (!online && isSocketIssue) {
+        // Socket dropped, but 1s polling below keeps data fresh regardless.
+      }
+    }
+
+    function touchLastUpdated() {
+      const t = new Date();
+      elements.lastUpdated.textContent = "· updated " + t.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+    }
+
+    function startAutoRefresh() {
+      if (pollTimer) clearInterval(pollTimer);
+      pollTimer = setInterval(runPollTick, pollDelay);
+      document.addEventListener("visibilitychange", () => {
+        if (document.hidden) {
+          if (pollTimer) { clearInterval(pollTimer); pollTimer = null; }
+        } else {
+          // Refresh instantly when the tab regains focus, then resume ticking.
+          runPollTick();
+          if (!pollTimer) pollTimer = setInterval(runPollTick, pollDelay);
+        }
+      });
+    }
+
+    function reschedulePoll(newDelay) {
+      pollDelay = Math.max(POLL_DELAY_MIN, Math.min(POLL_DELAY_MAX, newDelay));
+      if (pollTimer) clearInterval(pollTimer);
+      if (!document.hidden) pollTimer = setInterval(runPollTick, pollDelay);
+    }
+
+    async function runPollTick() {
+      if (isFetching) return;   // never let requests stack up under load
+      isFetching = true;
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 6000);
+
+      try {
+        const res = await fetch("/api/orders", { credentials: "include", signal: controller.signal });
+        clearTimeout(timeoutId);
+        if (!res.ok) throw new Error("HTTP " + res.status);
+        const data = await res.json();
+        if (!data.success) throw new Error(data.message || "Bad response");
+
+        syncOrders(data.data || []);
+        setLive(true);
+        touchLastUpdated();
+
+        if (consecutiveErrors > 0) {
+          consecutiveErrors = 0;
+          reschedulePoll(1000); // recovered — back to full 1s speed
+        }
+      } catch (err) {
+        clearTimeout(timeoutId);
+        consecutiveErrors++;
+        setLive(false);
+        // Back off gradually so a slow/down server never gets hammered
+        // by every open admin tab at once.
+        reschedulePoll(pollDelay * 1.6);
+        console.warn("Auto-refresh tick failed:", err.message || err);
+      } finally {
+        isFetching = false;
+      }
+    }
+
+    // Diff-based sync: only touches rows that actually changed.
+    function syncOrders(serverOrders) {
+      if (serverOrders.length === 0 && knownOrders.size === 0) {
+        if (!elements.ordersTable.querySelector(".no-orders")) {
+          elements.ordersTable.innerHTML = "<tr class='no-orders-row'><td colspan='9' class='no-orders'>No orders found</td></tr>";
+        }
+        return;
+      }
+
+      elements.ordersTable.querySelector(".no-orders-row")?.remove();
+
+      const statusPriority = { Pending: 1, Preparing: 2, Delivered: 3, Cancelled: 4 };
+      serverOrders.sort((a, b) => statusPriority[a.status] - statusPriority[b.status]);
+
+      const incomingIds = new Set(serverOrders.map(o => o.id));
+
+      // Removed orders (deleted elsewhere) — fade out & drop.
+      for (const [id] of knownOrders) {
+        if (!incomingIds.has(id)) {
+          const row = document.getElementById(`order-row-${id}`);
+          if (row) {
+            row.classList.add("order-row-removing");
+            setTimeout(() => row.remove(), 350);
+          }
+          knownOrders.delete(id);
+        }
+      }
+
+      serverOrders.forEach((order, idx) => {
+        const existingStatus = knownOrders.get(order.id);
+
+        if (existingStatus === undefined) {
+          // Brand new order — this only fires on the FIRST tick after load
+          // for orders that predate the page open; genuinely new ones during
+          // the session arrive via handleIncomingOrder() with a sound.
+          if (knownOrders.size > 0) {
+            handleIncomingOrder(order, false);
+          } else {
+            insertOrderRow(order, false);
+          }
+          knownOrders.set(order.id, order.status);
+        } else if (existingStatus !== order.status) {
+          updateRowStatus(order);
+          knownOrders.set(order.id, order.status);
+        }
+
+        reorderRowIfNeeded(order.id, idx);
+      });
+    }
+
+    // Called for orders confirmed brand-new (via socket push or first-seen-mid-session)
+    function handleIncomingOrder(order, viaSocket) {
+      if (knownOrders.has(order.id)) return; // already rendered, avoid duplicate sound
+      knownOrders.set(order.id, order.status);
+      insertOrderRow(order, true);
+      playNotificationSound();
+      showToast(`New Order #${order.id} by ${order.customer_name} for ₹${order.total.toFixed(2)}`);
+      notifications.unshift(order);
+      localStorage.setItem("notifications", JSON.stringify(notifications));
+      renderNotifications();
+    }
+
+    function insertOrderRow(order, isNew) {
+      const html = buildOrderRow(order, isNew);
+      elements.ordersTable.insertAdjacentHTML("afterbegin", html);
+      if (isNew) {
+        const row = document.getElementById(`order-row-${order.id}`);
+        row?.classList.add("order-row-new");
+        setTimeout(() => {
+          row?.classList.remove("order-row-new");
+          row?.querySelector(".new-flag")?.remove();
+        }, 6000);
+      }
+    }
+
+    function updateRowStatus(order) {
+      const row = document.getElementById(`order-row-${order.id}`);
+      if (!row) return;
+      const pill = row.querySelector(".status-selected");
+      if (pill) {
+        pill.className = `status-selected status-pill ${order.status}`;
+        pill.textContent = order.status;
+        pill.setAttribute("onclick", `toggleDropdownStatus(event, ${order.id})`);
+      }
+      const cancelBtn = row.querySelector(".btn-cancel");
+      const actionBtns = row.querySelector(".action-btns");
+      if (actionBtns && (order.status === "Cancelled" || order.status === "Delivered")) {
+        cancelBtn?.remove();
+      }
+      row.classList.remove("order-row-removing");
+      row.style.animation = "none";
+      requestAnimationFrame(() => { row.style.animation = ""; row.classList.add("order-row-new"); });
+      setTimeout(() => row.classList.remove("order-row-new"), 2600);
+    }
+
+    // Keeps DOM order matching server sort without a full rebuild.
+    function reorderRowIfNeeded(orderId, targetIndex) {
+      const row = document.getElementById(`order-row-${orderId}`);
+      if (!row) return;
+      const currentRow = elements.ordersTable.children[targetIndex];
+      if (currentRow !== row) {
+        elements.ordersTable.insertBefore(row, currentRow || null);
+      }
+    }
+
+    /* ================= RENDER HELPERS ================= */
+
     async function fetchOrders() {
       try {
         const res = await fetch("/api/orders", { credentials: "include" });
         const data = await res.json();
         elements.ordersTable.innerHTML = "";
+        knownOrders.clear();
 
         if (!data.success || data.data.length === 0) {
           elements.ordersTable.innerHTML = "<tr class='no-orders-row'><td colspan='9' class='no-orders'>No orders found</td></tr>";
@@ -623,14 +888,18 @@
         const statusPriority = { Pending: 1, Preparing: 2, Delivered: 3, Cancelled: 4 };
         data.data.sort((a, b) => statusPriority[a.status] - statusPriority[b.status]);
 
-        data.data.forEach(order => elements.ordersTable.insertAdjacentHTML("beforeend", buildOrderRow(order)));
+        data.data.forEach(order => {
+          elements.ordersTable.insertAdjacentHTML("beforeend", buildOrderRow(order, false));
+          knownOrders.set(order.id, order.status);
+        });
+        touchLastUpdated();
       } catch (err) {
         showToast("Error loading orders", false);
         console.error("Orders Load Error:", err);
       }
     }
 
-    function buildOrderRow(order) {
+    function buildOrderRow(order, isNew) {
       const items = Array.isArray(order.items)
         ? order.items.map(i => `<div>${i.name} (x${i.qty ?? 1})</div>`).join("")
         : `<div>${order.items}</div>`;
@@ -641,10 +910,10 @@
         : "No coupon used";
 
       return `
-        <tr>
+        <tr id="order-row-${order.id}">
           <td class="cell-customer">
             <span class="order-id">Order #${order.id}</span>
-            <span class="customer-name">${order.customer_name}</span>
+            <span class="customer-name">${order.customer_name}${isNew ? '<span class="new-flag">NEW</span>' : ''}</span>
           </td>
           <td data-label="Table">${order.table_number}</td>
           <td data-label="Items" class="cell-items"><div class="items-list">${items}</div></td>
@@ -677,10 +946,6 @@
       `;
     }
 
-    function prependOrder(order) {
-      elements.ordersTable.insertAdjacentHTML("afterbegin", buildOrderRow(order));
-    }
-
     function toggleDropdownStatus(event, id) {
       event.stopPropagation();
       const dropdown = document.getElementById(`dropdown-${id}`);
@@ -702,7 +967,8 @@
         if (data.success) {
           showToast(`Order #${id} marked as ${status}!`);
           document.querySelectorAll(".status-options").forEach(d => d.classList.remove("show"));
-          await fetchOrders();
+          knownOrders.set(id, status);
+          updateRowStatus({ id, status });
         } else {
           showToast("Failed: " + data.message, false);
         }
@@ -724,7 +990,8 @@
         const data = await res.json();
         if (data.success) {
           showToast(`Order #${id} cancelled!`);
-          await fetchOrders();
+          knownOrders.set(id, "Cancelled");
+          updateRowStatus({ id, status: "Cancelled" });
         } else {
           showToast("Failed: " + (data.message || "Unable to cancel order"), false);
         }
@@ -745,7 +1012,12 @@
         const data = await res.json();
         if (data.success) {
           showToast(`Order #${id} deleted!`);
-          await fetchOrders();
+          const row = document.getElementById(`order-row-${id}`);
+          if (row) {
+            row.classList.add("order-row-removing");
+            setTimeout(() => row.remove(), 350);
+          }
+          knownOrders.delete(id);
         } else {
           showToast("Failed: " + (data.message || "Unable to delete order"), false);
         }
