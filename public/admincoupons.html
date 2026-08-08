@@ -99,6 +99,19 @@
     }
     .section-title:first-of-type { margin-top: 0; }
 
+    .banner {
+      grid-column: 1 / -1;
+      background: linear-gradient(45deg, #6B4FA0, #8B6BC9);
+      color: white;
+      padding: 0.7rem 0.9rem;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
     /* ---- Form ---- */
     .form-card {
       background: white;
@@ -131,17 +144,6 @@
     textarea { resize: vertical; min-height: 70px; }
     input[type="file"] { background: white; padding: 0.5rem; }
 
-    .conditional-group {
-      grid-column: 1 / -1;
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 1rem 1.25rem;
-      padding: 0.9rem;
-      background: var(--bg-lilac);
-      border-radius: 8px;
-      border: 1px dashed var(--border);
-    }
-
     .form-actions { grid-column: 1 / -1; display: flex; justify-content: flex-end; }
 
     button[type="submit"] {
@@ -157,6 +159,61 @@
     }
     button[type="submit"]:hover { background: #5A3F8A; }
 
+    /* ---- Tier builder (new) ---- */
+    .tier-section {
+      grid-column: 1 / -1;
+      background: var(--bg-lilac);
+      border: 1px dashed var(--border);
+      border-radius: 8px;
+      padding: 0.9rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.6rem;
+    }
+    .tier-section-label {
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: var(--muted);
+    }
+    .tier-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr auto;
+      gap: 0.6rem;
+      align-items: center;
+    }
+    .tier-row input {
+      background: white;
+    }
+    .tier-row .btn-remove-tier {
+      border: none;
+      background: var(--cancelled);
+      color: white;
+      width: 34px;
+      height: 34px;
+      border-radius: 7px;
+      cursor: pointer;
+      font-size: 0.85rem;
+      flex-shrink: 0;
+    }
+    .tier-row .btn-remove-tier:hover { opacity: 0.85; }
+    #addTierBtn {
+      align-self: flex-start;
+      border: 1px solid var(--primary-purple);
+      background: white;
+      color: var(--primary-purple-dark);
+      padding: 0.5rem 0.9rem;
+      border-radius: 7px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    #addTierBtn:hover { background: var(--bg-lilac); }
+    .tier-hint {
+      font-size: 0.76rem;
+      color: var(--muted);
+      grid-column: 1 / -1;
+    }
+
     /* ---- Table (desktop) ---- */
     .table-wrapper {
       background: white;
@@ -165,7 +222,7 @@
       overflow-x: auto;
     }
 
-    table { width: 100%; border-collapse: collapse; min-width: 920px; }
+    table { width: 100%; border-collapse: collapse; min-width: 720px; }
 
     th {
       background: var(--primary-purple-dark);
@@ -207,8 +264,9 @@
       font-weight: 600;
       background: var(--bg-lilac);
       color: var(--primary-purple-dark);
-      text-transform: capitalize;
     }
+    .tier-list { display: flex; flex-direction: column; gap: 0.15rem; font-size: 0.8rem; }
+    .tier-list span { white-space: nowrap; }
 
     .action-btns { display: flex; gap: 0.4rem; }
     .btn { border: none; border-radius: 7px; cursor: pointer; width: 32px; height: 32px; display: inline-flex; align-items: center; justify-content: center; font-size: 0.82rem; color: white; transition: opacity 0.2s ease; }
@@ -242,7 +300,6 @@
     /* ================= TABLET ================= */
     @media (max-width: 900px) {
       form { grid-template-columns: 1fr; }
-      .conditional-group { grid-template-columns: 1fr; }
     }
 
     /* ================= MOBILE CARD TABLE ================= */
@@ -254,6 +311,7 @@
       .container { margin: 1rem auto; padding: 0 0.9rem 1.5rem; }
       .section-title { font-size: 1.2rem; }
       .form-card { padding: 1rem; }
+      .tier-row { grid-template-columns: 1fr 1fr auto; }
 
       .table-wrapper { overflow: visible; background: none; box-shadow: none; border-radius: 0; }
       table, thead, tbody, th, td, tr { display: block; width: 100%; min-width: 0; }
@@ -301,6 +359,7 @@
       .action-btns { width: 100%; justify-content: flex-end; }
 
       .coupon-desc { max-width: 60%; text-align: right; }
+      .tier-list { align-items: flex-end; }
     }
 
     @media (max-width: 420px) {
@@ -335,24 +394,26 @@
       <form id="couponForm" novalidate>
         <input type="hidden" id="couponId">
 
-        <div class="field">
-          <label for="code">Coupon Code</label>
-          <input type="text" id="code" required>
+        <div class="field full banner">
+          <i class="fas fa-fire"></i> Two coupon types available right now: a flat storewide % off, or cart-amount tiers (e.g. ₹1000+ → 25%, ₹2000+ → 50%).
         </div>
 
         <div class="field">
-          <label for="type">Type</label>
+          <label for="code">Coupon Code</label>
+          <input type="text" id="code" required placeholder="e.g., FLAT50">
+        </div>
+
+        <div class="field">
+          <label for="type">Coupon Type</label>
           <select id="type" required>
-            <option value="buy_x">Buy X</option>
-            <option value="date_range">Date Range</option>
-            <option value="min_cart_amount">Min Cart Amount</option>
-            <option value="bogo">Buy One Get One Free</option>
+            <option value="min_cart_amount">Storewide Flat % Off</option>
+            <option value="cart_tier">Cart Amount Tiers</option>
           </select>
         </div>
 
         <div class="field full">
           <label for="description">Description</label>
-          <textarea id="description" required></textarea>
+          <textarea id="description" required placeholder="e.g., Flat 50% off dine-in, today only"></textarea>
         </div>
 
         <div class="field">
@@ -360,48 +421,28 @@
           <input type="file" id="image" accept="image/*">
         </div>
 
-        <div class="field">
-          <label for="discount">Discount Amount (% for Buy_X / Min_Cart_Amount, ₹ for Date Range)</label>
-          <input type="number" id="discount" min="0">
+        <!-- ============ STOREWIDE FLAT % FIELDS ============ -->
+        <div class="field" id="discountField">
+          <label for="discount">Discount % (all items, all categories)</label>
+          <input type="number" id="discount" min="0" max="100" placeholder="e.g., 50">
         </div>
 
-        <div class="field">
-          <label for="quantity">Quantity</label>
-          <input type="number" id="quantity" min="1">
+        <div class="field" id="minCartField">
+          <label for="min_cart_amount">Minimum Cart Amount (₹) — optional</label>
+          <input type="number" id="min_cart_amount" min="0" placeholder="Leave blank = no minimum">
         </div>
 
-        <div class="field">
-          <label for="category">Category</label>
-          <select id="category"></select>
+        <div class="field full" id="freeItemField">
+          <label for="free_item">Free Item (optional — use instead of a % discount)</label>
+          <input type="text" id="free_item" placeholder="e.g., Free Coffee">
         </div>
 
-        <div class="conditional-group" id="buyXFields">
-          <div class="field full">
-            <label for="buy_x">Buy_X (Minimum Quantity)</label>
-            <input type="number" id="buy_x" min="1">
-          </div>
-        </div>
-
-        <div class="conditional-group" id="dateFields" style="display:none;">
-          <div class="field">
-            <label for="valid_from">Valid From</label>
-            <input type="date" id="valid_from">
-          </div>
-          <div class="field">
-            <label for="valid_to">Valid To</label>
-            <input type="date" id="valid_to">
-          </div>
-        </div>
-
-        <div class="conditional-group" id="minCartFields" style="display:none;">
-          <div class="field">
-            <label for="min_cart_amount">Minimum Cart Amount (₹)</label>
-            <input type="number" id="min_cart_amount" min="1">
-          </div>
-          <div class="field">
-            <label for="free_item">Free Item (Optional)</label>
-            <input type="text" id="free_item" placeholder="e.g., Free Pizza of Our Choice">
-          </div>
+        <!-- ============ CART TIER FIELDS (new) ============ -->
+        <div class="tier-section" id="tierSection" style="display:none;">
+          <div class="tier-section-label">Cart Amount Tiers — customer gets the highest tier their cart total qualifies for</div>
+          <div id="tierRows"></div>
+          <button type="button" id="addTierBtn"><i class="fas fa-plus"></i> Add Tier</button>
+          <div class="tier-hint">Example: ₹1000 → 25%, ₹2000 → 50%. Order doesn't matter, they'll be sorted automatically.</div>
         </div>
 
         <div class="form-actions">
@@ -418,17 +459,14 @@
             <th>Image</th>
             <th>Code</th>
             <th>Description</th>
-            <th>Discount</th>
-            <th>Qty</th>
-            <th>Category</th>
             <th>Type</th>
-            <th>Validity</th>
+            <th>Discount</th>
             <th>Min Cart</th>
             <th>Actions</th>
           </tr>
         </thead>
         <tbody id="couponTable">
-          <tr class="no-coupons-row"><td colspan="10" class="no-coupons">Loading coupons...</td></tr>
+          <tr class="no-coupons-row"><td colspan="7" class="no-coupons">Loading coupons...</td></tr>
         </tbody>
       </table>
     </div>
@@ -438,6 +476,7 @@
 
   <script>
     const API_URL = "/api/coupons";
+    let tierIndex = 0;
 
     function showToast(msg, success = true) {
       const toast = document.getElementById("toast");
@@ -447,30 +486,69 @@
       setTimeout(() => toast.className = toast.className.replace("show", ""), 3000);
     }
 
-    function toggleRequiredFields() {
-      const type = document.getElementById("type").value;
-      const quantityInput = document.getElementById("quantity");
-      const categorySelect = document.getElementById("category");
-      const discountInput = document.getElementById("discount");
-      const minCartAmountInput = document.getElementById("min_cart_amount");
-      const freeItemInput = document.getElementById("free_item");
+    // ================= TIER ROW HELPERS =================
+    function addTierRow(amount = "", discount = "") {
+      const wrapper = document.createElement("div");
+      wrapper.className = "tier-row";
+      wrapper.dataset.tierId = tierIndex++;
+      wrapper.innerHTML = `
+        <input type="number" class="tier-amount" min="0" placeholder="Cart Amount (₹) e.g. 1000" value="${amount}">
+        <input type="number" class="tier-discount" min="0" max="100" placeholder="Discount % e.g. 25" value="${discount}">
+        <button type="button" class="btn-remove-tier" title="Remove tier"><i class="fas fa-times"></i></button>
+      `;
+      wrapper.querySelector(".btn-remove-tier").addEventListener("click", () => {
+        // Always keep at least one row while the tier section is visible
+        if (document.querySelectorAll("#tierRows .tier-row").length > 1) {
+          wrapper.remove();
+        } else {
+          wrapper.querySelector(".tier-amount").value = "";
+          wrapper.querySelector(".tier-discount").value = "";
+        }
+      });
+      document.getElementById("tierRows").appendChild(wrapper);
+    }
 
-      if (type === "min_cart_amount") {
-        quantityInput.removeAttribute("required");
-        categorySelect.removeAttribute("required");
-        discountInput.removeAttribute("required");
-        if (minCartAmountInput) minCartAmountInput.setAttribute("required", "required");
-        if (freeItemInput) freeItemInput.removeAttribute("required");
-      } else if (type === "bogo") {
-        quantityInput.setAttribute("required", "required");
-        categorySelect.setAttribute("required", "required");
-        discountInput.removeAttribute("required");
+    function resetTierRows(tiers = []) {
+      document.getElementById("tierRows").innerHTML = "";
+      if (tiers.length === 0) {
+        addTierRow();
+        addTierRow();
       } else {
-        quantityInput.setAttribute("required", "required");
-        categorySelect.setAttribute("required", "required");
-        discountInput.setAttribute("required", "required");
+        tiers.forEach(t => addTierRow(t.min_cart_amount ?? t.amount ?? "", t.discount ?? ""));
       }
     }
+
+    function collectTiers() {
+      const rows = document.querySelectorAll("#tierRows .tier-row");
+      const tiers = [];
+      for (const row of rows) {
+        const amount = row.querySelector(".tier-amount").value;
+        const discount = row.querySelector(".tier-discount").value;
+        if (amount === "" && discount === "") continue; // skip fully empty rows
+        tiers.push({ amount: Number(amount), discount: Number(discount) });
+      }
+      return tiers.sort((a, b) => a.amount - b.amount);
+    }
+
+    // ================= TYPE TOGGLE =================
+    function toggleTypeFields() {
+      const type = document.getElementById("type").value;
+      const isStorewide = type === "min_cart_amount";
+      const isTiered = type === "cart_tier";
+
+      document.getElementById("discountField").style.display = isStorewide ? "flex" : "none";
+      document.getElementById("minCartField").style.display = isStorewide ? "flex" : "none";
+      document.getElementById("freeItemField").style.display = isStorewide ? "flex" : "none";
+      document.getElementById("tierSection").style.display = isTiered ? "flex" : "none";
+
+      document.getElementById("discount").toggleAttribute("required", false); // discount is optional if free_item set — validated in JS, not HTML
+      if (isTiered && document.querySelectorAll("#tierRows .tier-row").length === 0) {
+        resetTierRows();
+      }
+    }
+
+    document.getElementById("type").addEventListener("change", toggleTypeFields);
+    document.getElementById("addTierBtn").addEventListener("click", () => addTierRow());
 
     window.addEventListener("DOMContentLoaded", async () => {
       try {
@@ -479,50 +557,34 @@
           window.location.href = "/admin.html";
           return;
         }
-        await loadCategories();
+        resetTierRows();
+        toggleTypeFields();
         await fetchCoupons();
-        toggleRequiredFields();
       } catch (err) {
         window.location.href = "/admin.html";
         console.error("Auth Check Error:", err);
       }
     });
 
-    document.getElementById("type").addEventListener("change", (e) => {
-      const type = e.target.value;
-      const discountInput = document.getElementById("discount");
-      const discountLabel = discountInput.closest(".field").querySelector("label");
-      const discountField = discountInput.closest(".field");
-
-      document.getElementById("buyXFields").style.display = type === "buy_x" ? "grid" : "none";
-      document.getElementById("dateFields").style.display = type === "date_range" ? "grid" : "none";
-      document.getElementById("minCartFields").style.display = type === "min_cart_amount" ? "grid" : "none";
-
-      const isDiscountVisible = type !== "bogo";
-      discountField.style.display = isDiscountVisible ? "flex" : "none";
-
-      toggleRequiredFields();
-    });
-
-    async function loadCategories() {
-      try {
-        const res = await fetch("/api/categories");
-        const data = await res.json();
-        const categorySelect = document.getElementById("category");
-        categorySelect.innerHTML = '<option value="">All Categories</option>';
-        if (data.success && data.data.length > 0) {
-          data.data.forEach(cat => {
-            categorySelect.innerHTML += `<option value="${cat.name}">${cat.name}</option>`;
-          });
-        } else {
-          categorySelect.innerHTML += `<option value="" disabled>No categories available</option>`;
-        }
-      } catch (err) {
-        showToast("Error loading categories", false);
-        console.error("Category Load Error:", err);
+    // ================= DISPLAY HELPERS =================
+    function discountCellHTML(coupon) {
+      if (coupon.type === "cart_tier") {
+        let tiers = [];
+        try { tiers = typeof coupon.tiers === "string" ? JSON.parse(coupon.tiers) : (coupon.tiers || []); } catch { tiers = []; }
+        if (tiers.length === 0) return "-";
+        return `<div class="tier-list">${tiers.map(t => `<span>₹${t.amount ?? t.min_cart_amount}+ → ${t.discount}%</span>`).join("")}</div>`;
       }
+      if (coupon.discount && Number(coupon.discount) > 0) return `${coupon.discount}%`;
+      if (coupon.free_item) return coupon.free_item;
+      return `${coupon.discount || 0}%`;
     }
 
+    function minCartCellHTML(coupon) {
+      if (coupon.type === "cart_tier") return "Tiered (see left)";
+      return coupon.min_cart_amount ? `₹${coupon.min_cart_amount}` : "No minimum";
+    }
+
+    // ================= FETCH & RENDER LIST =================
     async function fetchCoupons() {
       try {
         const res = await fetch(API_URL);
@@ -531,18 +593,11 @@
         table.innerHTML = "";
 
         if (!data.success || data.data.length === 0) {
-          table.innerHTML = "<tr class='no-coupons-row'><td colspan='10' class='no-coupons'>No coupons found</td></tr>";
+          table.innerHTML = "<tr class='no-coupons-row'><td colspan='7' class='no-coupons'>No coupons found</td></tr>";
           return;
         }
 
         data.data.forEach(coupon => {
-          const quantityDisplay = coupon.type === "buy_x" ? coupon.buy_x : coupon.quantity;
-          const minCartDisplay = coupon.type === "min_cart_amount" ? `₹${coupon.min_cart_amount}` : "-";
-          const discountDisplay = coupon.type === "bogo" ? "BOGO" :
-                                coupon.type === "date_range" ? `₹${coupon.discount}` :
-                                coupon.type === "min_cart_amount" && coupon.discount === 0 && coupon.free_item ? coupon.free_item :
-                                `${coupon.discount}%`;
-
           table.innerHTML += `
             <tr>
               <td class="cell-image" data-label="Image">
@@ -550,12 +605,9 @@
               </td>
               <td data-label="Code"><span class="coupon-code">${coupon.code}</span></td>
               <td data-label="Description"><span class="coupon-desc">${coupon.description}</span></td>
-              <td data-label="Discount">${discountDisplay}</td>
-              <td data-label="Qty">${quantityDisplay || '-'}</td>
-              <td data-label="Category">${coupon.category || 'All'}</td>
-              <td data-label="Type"><span class="type-badge">${coupon.type.replace(/_/g, " ")}</span></td>
-              <td data-label="Validity">${coupon.valid_from ? coupon.valid_from.split("T")[0] : "-"} → ${coupon.valid_to ? coupon.valid_to.split("T")[0] : "-"}</td>
-              <td data-label="Min Cart">${minCartDisplay}</td>
+              <td data-label="Type"><span class="type-badge">${coupon.type === "cart_tier" ? "Cart Tiers" : "Storewide"}</span></td>
+              <td data-label="Discount">${discountCellHTML(coupon)}</td>
+              <td data-label="Min Cart">${minCartCellHTML(coupon)}</td>
               <td class="cell-actions" data-label="Actions">
                 <div class="action-btns">
                   <button class="btn btn-edit" onclick="editCoupon(${coupon.id})" title="Edit"><i class="fas fa-pen"></i></button>
@@ -571,35 +623,40 @@
       }
     }
 
+    // ================= SUBMIT =================
     document.getElementById("couponForm").addEventListener("submit", async (e) => {
       e.preventDefault();
 
+      const type = document.getElementById("type").value;
       const formData = new FormData();
       formData.append("code", document.getElementById("code").value);
       formData.append("description", document.getElementById("description").value);
-      const type = document.getElementById("type").value;
       formData.append("type", type);
 
-      if (type !== "bogo") {
+      if (type === "min_cart_amount") {
         const discount = document.getElementById("discount").value;
-        formData.append("discount", discount || 0);
-      }
-
-      const quantity = document.getElementById("quantity").value;
-      if (quantity) formData.append("quantity", quantity);
-
-      const category = document.getElementById("category").value;
-      if (category) formData.append("category", category);
-
-      if (type === "buy_x") {
-        formData.append("buy_x", document.getElementById("buy_x").value || null);
-      } else if (type === "date_range") {
-        formData.append("valid_from", document.getElementById("valid_from").value || null);
-        formData.append("valid_to", document.getElementById("valid_to").value || null);
-      } else if (type === "min_cart_amount") {
-        formData.append("min_cart_amount", document.getElementById("min_cart_amount").value || null);
         const freeItem = document.getElementById("free_item").value;
+        if (!discount && !freeItem) {
+          showToast("Enter a discount % or a free item", false);
+          return;
+        }
+        formData.append("discount", discount || 0);
+        const minCartAmount = document.getElementById("min_cart_amount").value;
+        if (minCartAmount) formData.append("min_cart_amount", minCartAmount);
         if (freeItem) formData.append("free_item", freeItem);
+      } else if (type === "cart_tier") {
+        const tiers = collectTiers();
+        if (tiers.length === 0) {
+          showToast("Add at least one cart tier", false);
+          return;
+        }
+        for (const t of tiers) {
+          if (isNaN(t.amount) || t.amount < 0 || isNaN(t.discount) || t.discount < 0 || t.discount > 100) {
+            showToast("Every tier needs a valid cart amount and a discount between 0–100%", false);
+            return;
+          }
+        }
+        formData.append("tiers", JSON.stringify(tiers));
       }
 
       const imageFile = document.getElementById("image").files[0];
@@ -616,12 +673,9 @@
           showToast(data.message || (id ? "Coupon updated!" : "Coupon added!"), true);
           document.getElementById("couponForm").reset();
           document.getElementById("couponId").value = "";
-          document.getElementById("type").value = "buy_x";
-          document.getElementById("buyXFields").style.display = "grid";
-          document.getElementById("dateFields").style.display = "none";
-          document.getElementById("minCartFields").style.display = "none";
-          document.getElementById("discount").closest(".field").style.display = "flex";
-          toggleRequiredFields();
+          document.getElementById("type").value = "min_cart_amount";
+          resetTierRows();
+          toggleTypeFields();
           fetchCoupons();
         } else {
           showToast(data.message || "Error saving coupon", false);
@@ -632,6 +686,7 @@
       }
     });
 
+    // ================= EDIT =================
     async function editCoupon(id) {
       try {
         const res = await fetch(`${API_URL}/${id}`);
@@ -641,24 +696,20 @@
           document.getElementById("couponId").value = c.id;
           document.getElementById("code").value = c.code;
           document.getElementById("description").value = c.description;
-          document.getElementById("discount").value = c.discount || "";
-          document.getElementById("quantity").value = c.quantity || "";
-          document.getElementById("category").value = c.category || "";
-          document.getElementById("type").value = c.type;
-          document.getElementById("buy_x").value = c.buy_x || "";
-          document.getElementById("valid_from").value = c.valid_from?.split("T")[0] || "";
-          document.getElementById("valid_to").value = c.valid_to?.split("T")[0] || "";
-          document.getElementById("min_cart_amount").value = c.min_cart_amount || "";
-          document.getElementById("free_item").value = c.free_item || "";
+          document.getElementById("type").value = c.type === "cart_tier" ? "cart_tier" : "min_cart_amount";
 
-          document.getElementById("buyXFields").style.display = c.type === "buy_x" ? "grid" : "none";
-          document.getElementById("dateFields").style.display = c.type === "date_range" ? "grid" : "none";
-          document.getElementById("minCartFields").style.display = c.type === "min_cart_amount" ? "grid" : "none";
+          if (c.type === "cart_tier") {
+            let tiers = [];
+            try { tiers = typeof c.tiers === "string" ? JSON.parse(c.tiers) : (c.tiers || []); } catch { tiers = []; }
+            resetTierRows(tiers);
+          } else {
+            document.getElementById("discount").value = c.discount || "";
+            document.getElementById("min_cart_amount").value = c.min_cart_amount || "";
+            document.getElementById("free_item").value = c.free_item || "";
+            resetTierRows();
+          }
 
-          const discountField = document.getElementById("discount").closest(".field");
-          discountField.style.display = c.type !== "bogo" ? "flex" : "none";
-
-          toggleRequiredFields();
+          toggleTypeFields();
           window.scrollTo({ top: 0, behavior: "smooth" });
         } else {
           showToast("Error loading coupon data", false);

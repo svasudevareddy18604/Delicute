@@ -1105,6 +1105,45 @@ h2::after {
       renderCart();
     }
 
+    // ================= CART TIER HELPER (new) =================
+    // Given a coupon's raw `tiers` (JSON string or array) and the current
+    // cart subtotal, returns the highest tier the cart qualifies for, or
+    // null if the cart doesn't meet even the lowest tier.
+    function getQualifyingTier(rawTiers, subtotal) {
+      let tiers = [];
+      try {
+        tiers = typeof rawTiers === "string" ? JSON.parse(rawTiers) : (rawTiers || []);
+      } catch {
+        tiers = [];
+      }
+      if (!Array.isArray(tiers) || tiers.length === 0) return null;
+
+      const normalized = tiers
+        .map(t => ({ amount: Number(t.amount ?? t.min_cart_amount), discount: Number(t.discount) }))
+        .filter(t => Number.isFinite(t.amount) && Number.isFinite(t.discount))
+        .sort((a, b) => a.amount - b.amount);
+
+      if (normalized.length === 0) return null;
+
+      const qualifying = normalized.filter(t => subtotal >= t.amount);
+      if (qualifying.length === 0) return null;
+
+      // Highest amount tier the cart qualifies for
+      return qualifying[qualifying.length - 1];
+    }
+
+    function lowestTierAmount(rawTiers) {
+      let tiers = [];
+      try {
+        tiers = typeof rawTiers === "string" ? JSON.parse(rawTiers) : (rawTiers || []);
+      } catch {
+        tiers = [];
+      }
+      if (!Array.isArray(tiers) || tiers.length === 0) return null;
+      const amounts = tiers.map(t => Number(t.amount ?? t.min_cart_amount)).filter(Number.isFinite);
+      return amounts.length ? Math.min(...amounts) : null;
+    }
+
     async function calculateDiscount(subtotal) {
       if (!appliedCoupon || !subtotal) return 0;
       try {
@@ -1116,7 +1155,11 @@ h2::after {
         const eligibleItems = cart.filter(i => i && catIds.includes(i.id));
         const categoryQty = eligibleItems.reduce((sum, i) => sum + (i.qty || 0), 0);
         const categorySubtotal = eligibleItems.reduce((sum, i) => sum + ((i.price || 0) * (i.qty || 0)), 0);
-        if (appliedCoupon.type === "min_cart_amount") {
+        if (appliedCoupon.type === "cart_tier") {
+          const tier = getQualifyingTier(appliedCoupon.tiers, subtotal);
+          if (!tier) return 0; // cart dropped below the lowest tier since applying
+          return (subtotal * tier.discount) / 100;
+        } else if (appliedCoupon.type === "min_cart_amount") {
           if (subtotal >= (appliedCoupon.min_cart_amount || 0)) {
             return (subtotal * (appliedCoupon.discount || 0)) / 100;
           }
@@ -1266,7 +1309,26 @@ h2::after {
           return;
         }
         const subtotal = cart.reduce((sum, i) => sum + ((i?.price || 0) * (i?.qty || 0)), 0);
-        if (coupon.type === "min_cart_amount") {
+        if (coupon.type === "cart_tier") {
+          const tier = getQualifyingTier(coupon.tiers, subtotal);
+          if (!tier) {
+            const minNeeded = lowestTierAmount(coupon.tiers);
+            if (minNeeded != null) {
+              const shortBy = Math.max(0, minNeeded - subtotal);
+              showToast(`Add ₹${shortBy.toFixed(2)} more to unlock this coupon (min ₹${minNeeded})`, false);
+            } else {
+              showToast(`Coupon ${couponCode} is invalid`, false);
+            }
+            couponInput.value = "";
+            localStorage.removeItem("appliedCoupon");
+            return;
+          }
+          appliedCoupon = coupon;
+          couponInput.value = couponCode;
+          localStorage.setItem("appliedCoupon", couponCode);
+          showToast(`Coupon ${couponCode} applied! ${tier.discount}% off`, true);
+          renderCart();
+        } else if (coupon.type === "min_cart_amount") {
           if (subtotal < (coupon.min_cart_amount || 0)) {
             showToast(`Coupon requires minimum ₹${coupon.min_cart_amount} (current: ₹${subtotal.toFixed(2)})`, false);
             couponInput.value = "";
@@ -1321,6 +1383,10 @@ h2::after {
           localStorage.setItem("appliedCoupon", couponCode);
           showToast(`Coupon ${couponCode} applied for ${coupon.category}!`, true);
           renderCart();
+        } else {
+          showToast(`Coupon ${couponCode} is invalid`, false);
+          couponInput.value = "";
+          localStorage.removeItem("appliedCoupon");
         }
       } catch (err) {
         showToast(`Error applying coupon: ${err.message}`, false);
