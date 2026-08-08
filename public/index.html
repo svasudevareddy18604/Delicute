@@ -54,7 +54,7 @@
       align-items: center;
     }
 
-    .hero img {
+    .hero img.logo {
       width: 180px;
       max-width: 50%;
       margin-bottom: 1.5rem;
@@ -140,56 +140,183 @@
       to { opacity: 1; transform: translateY(0); }
     }
 
+    /* ---------- Offer Popup ---------- */
+    .offer-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.65);
+      z-index: 999;
+      align-items: center;
+      justify-content: center;
+      padding: 1.5rem;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    .offer-overlay.show {
+      display: flex;
+      opacity: 1;
+    }
+
+    .offer-modal {
+      position: relative;
+      max-width: 420px;
+      width: 100%;
+      background: #fff;
+      border-radius: 18px;
+      overflow: hidden;
+      box-shadow: 0 15px 40px rgba(0, 0, 0, 0.35);
+      transform: scale(0.85);
+      transition: transform 0.3s ease;
+    }
+
+    .offer-overlay.show .offer-modal {
+      transform: scale(1);
+    }
+
+    .offer-modal img {
+      display: block;
+      width: 100%;
+      height: auto;
+      max-height: 82vh;
+      object-fit: contain;
+      background: #fff;
+    }
+
+    .offer-close {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      background: rgba(0, 0, 0, 0.6);
+      color: #fff;
+      border: none;
+      font-size: 1.3rem;
+      line-height: 1;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.2s ease;
+      z-index: 2;
+    }
+
+    .offer-close:hover {
+      background: rgba(0, 0, 0, 0.85);
+    }
+
+    .offer-timer {
+      position: absolute;
+      bottom: 10px;
+      right: 12px;
+      background: rgba(0, 0, 0, 0.55);
+      color: #fff;
+      font-family: sans-serif;
+      font-size: 0.75rem;
+      padding: 3px 9px;
+      border-radius: 20px;
+      z-index: 2;
+    }
+
     @media (max-width: 768px) {
-      .hero h1 {
-        font-size: 2.5rem;
-      }
-      .hero p {
-        font-size: 1.1rem;
-      }
-      .hero img {
-        width: 140px;
-      }
-      .hero .btn {
-        padding: 0.9rem 2rem;
-        font-size: 1rem;
-      }
-      .hero .terms-link {
-        font-size: 0.9rem;
-      }
+      .hero h1 { font-size: 2.5rem; }
+      .hero p { font-size: 1.1rem; }
+      .hero img.logo { width: 140px; }
+      .hero .btn { padding: 0.9rem 2rem; font-size: 1rem; }
+      .hero .terms-link { font-size: 0.9rem; }
+      .offer-modal { max-width: 90vw; border-radius: 14px; }
     }
 
     @media (max-width: 480px) {
-      .hero h1 {
-        font-size: 2rem;
-      }
-      .hero p {
-        font-size: 1rem;
-      }
-      .hero img {
-        width: 120px;
-      }
+      .hero h1 { font-size: 2rem; }
+      .hero p { font-size: 1rem; }
+      .hero img.logo { width: 120px; }
       .hero .btn {
         padding: 0.8rem 1.8rem;
         font-size: 0.95rem;
         width: 100%;
         max-width: 280px;
       }
-      .hero .terms-link {
-        font-size: 0.85rem;
-      }
+      .hero .terms-link { font-size: 0.85rem; }
+      .offer-modal { max-width: 94vw; border-radius: 12px; }
+      .offer-close { width: 30px; height: 30px; font-size: 1.1rem; top: 8px; right: 8px; }
     }
   </style>
 </head>
 <body>
   <section class="hero">
     <div class="hero-content">
-      <img src="https://i.postimg.cc/W3pgQx9q/DELICUTE-Imgur-1-modified.png" alt="Delicute Logo" />
+      <img class="logo" src="https://i.postimg.cc/W3pgQx9q/DELICUTE-Imgur-1-modified.png" alt="Delicute Logo" />
       <h1>Welcome to Delicute</h1>
       <p>Every Bite Tells a Story</p>
-      <a href="customermenu.html" class="btn">Explore Our Menu</a>
+      <a href="#" id="exploreBtn" class="btn">Explore Our Menu</a>
       <a href="terms.html" class="terms-link">Terms & Conditions</a>
     </div>
   </section>
+
+  <!-- Offer Popup -->
+  <div class="offer-overlay" id="offerOverlay">
+    <div class="offer-modal">
+      <button class="offer-close" id="offerClose" aria-label="Close">&times;</button>
+      <span class="offer-timer" id="offerTimer">10</span>
+      <img src="assests/offer.png" alt="Delicute Anniversary Offer" />
+    </div>
+  </div>
+
+  <script>
+    const exploreBtn   = document.getElementById('exploreBtn');
+    const offerOverlay = document.getElementById('offerOverlay');
+    const offerClose    = document.getElementById('offerClose');
+    const offerTimer    = document.getElementById('offerTimer');
+    const MENU_PAGE      = 'customermenu.html';
+    const AUTO_CLOSE_SECS = 10;
+
+    let countdownInterval;
+    let autoCloseTimeout;
+
+    function goToMenu() {
+      window.location.href = MENU_PAGE;
+    }
+
+    function openOfferPopup() {
+      offerOverlay.classList.add('show');
+      document.body.style.overflow = 'hidden';
+
+      let secondsLeft = AUTO_CLOSE_SECS;
+      offerTimer.textContent = secondsLeft;
+
+      countdownInterval = setInterval(() => {
+        secondsLeft -= 1;
+        if (secondsLeft >= 0) offerTimer.textContent = secondsLeft;
+      }, 1000);
+
+      autoCloseTimeout = setTimeout(() => {
+        closeOfferPopup();
+      }, AUTO_CLOSE_SECS * 1000);
+    }
+
+    function closeOfferPopup() {
+      clearInterval(countdownInterval);
+      clearTimeout(autoCloseTimeout);
+      offerOverlay.classList.remove('show');
+      document.body.style.overflow = '';
+      goToMenu();
+    }
+
+    exploreBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      openOfferPopup();
+    });
+
+    offerClose.addEventListener('click', closeOfferPopup);
+
+    // Optional: clicking outside the image also closes + navigates
+    offerOverlay.addEventListener('click', (e) => {
+      if (e.target === offerOverlay) closeOfferPopup();
+    });
+  </script>
 </body>
 </html>
