@@ -142,14 +142,33 @@
       align-items: center;
     }
 
+    /* ---------- Logo: rolls in from the left like a wheel, settles in center ---------- */
     .hero img.logo {
       width: 170px;
       max-width: 45%;
       margin-bottom: 1.1rem;
       filter: drop-shadow(0 4px 14px rgba(0, 0, 0, 0.45));
       opacity: 0;
-      transform: scale(0.8);
-      animation: fadeInScale 1s ease-out forwards;
+      will-change: transform, opacity;
+      animation: logoRollIn 1.4s cubic-bezier(0.22, 0.61, 0.36, 1) forwards;
+    }
+
+    @keyframes logoRollIn {
+      0% {
+        opacity: 0;
+        transform: translateX(-220px) rotate(-540deg) scale(0.7);
+      }
+      60% {
+        opacity: 1;
+        transform: translateX(12px) rotate(20deg) scale(1.05);
+      }
+      80% {
+        transform: translateX(-4px) rotate(-8deg) scale(0.98);
+      }
+      100% {
+        opacity: 1;
+        transform: translateX(0) rotate(0deg) scale(1);
+      }
     }
 
     .eyebrow {
@@ -160,7 +179,7 @@
       color: var(--gold-light);
       margin-bottom: 0.5rem;
       opacity: 0;
-      animation: fadeInUp 0.8s ease-out 0.1s forwards;
+      animation: fadeInUp 0.8s ease-out 1.2s forwards;
     }
 
     .hero h1 {
@@ -172,7 +191,7 @@
       text-shadow: 0 3px 14px rgba(0, 0, 0, 0.55), 0 0 24px rgba(217, 169, 76, 0.35);
       opacity: 0;
       transform: translateY(20px);
-      animation: fadeInUp 0.8s ease-out 0.2s forwards;
+      animation: fadeInUp 0.8s ease-out 1.3s forwards;
       letter-spacing: 0.5px;
     }
 
@@ -186,7 +205,7 @@
       max-width: 92%;
       opacity: 0;
       transform: translateY(20px);
-      animation: fadeInUp 0.8s ease-out 0.4s forwards;
+      animation: fadeInUp 0.8s ease-out 1.5s forwards;
     }
 
     /* ---------- Anniversary Note (simplified) ---------- */
@@ -200,7 +219,7 @@
       margin: 0 auto 1.8rem;
       opacity: 0;
       transform: translateY(20px);
-      animation: fadeInUp 0.8s ease-out 0.5s forwards;
+      animation: fadeInUp 0.8s ease-out 1.6s forwards;
     }
 
     .anniversary-note .script {
@@ -267,7 +286,7 @@
       box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
       opacity: 0;
       transform: translateY(20px);
-      animation: fadeInUp 0.8s ease-out 0.7s forwards, pulseGlow 2.4s ease-in-out 1.6s infinite;
+      animation: fadeInUp 0.8s ease-out 1.8s forwards, pulseGlow 2.4s ease-in-out 2.8s infinite;
     }
 
     .hero .btn:hover {
@@ -285,10 +304,6 @@
       0% { left: -100%; }
       50% { left: 100%; }
       100% { left: 100%; }
-    }
-
-    @keyframes fadeInScale {
-      to { opacity: 1; transform: scale(1); }
     }
 
     @keyframes fadeInUp {
@@ -389,6 +404,25 @@
       .corner-flourish { width: 70px; height: 70px; opacity: 0.3; }
       .sparkle { font-size: 0.9rem; }
       .hero-bg { background-position: 60% center; } /* keeps the subject in frame on tall phones */
+
+      /* Shorter roll distance on small screens so it doesn't clip on narrow viewports */
+      @keyframes logoRollIn {
+        0% {
+          opacity: 0;
+          transform: translateX(-140px) rotate(-540deg) scale(0.7);
+        }
+        60% {
+          opacity: 1;
+          transform: translateX(10px) rotate(20deg) scale(1.05);
+        }
+        80% {
+          transform: translateX(-3px) rotate(-8deg) scale(0.98);
+        }
+        100% {
+          opacity: 1;
+          transform: translateX(0) rotate(0deg) scale(1);
+        }
+      }
     }
   </style>
 </head>
