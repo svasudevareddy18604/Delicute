@@ -1,3 +1,4 @@
+// routes/auth.js
 const express = require("express");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
@@ -66,8 +67,9 @@ router.post("/login", async (req, res) => {
     res.cookie("token", token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
-      sameSite: "strict",
-      maxAge: 2 * 60 * 60 * 1000, // 2 hours
+      sameSite: "lax",
+      path: "/",                       // FIX: cookie must be valid site-wide, not just /api/auth
+      maxAge: 2 * 60 * 60 * 1000,      // 2 hours
     });
 
     res.json({ message: "Login successful" });
@@ -92,7 +94,7 @@ router.get("/check", (req, res) => {
 
 // ------------------ LOGOUT ------------------
 router.post("/logout", (req, res) => {
-  res.clearCookie("token");
+  res.clearCookie("token", { path: "/" });  // FIX: path must match the cookie's path to clear it
   res.json({ message: "Logged out" });
 });
 

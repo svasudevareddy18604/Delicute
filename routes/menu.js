@@ -30,6 +30,19 @@ async function uploadToCloudinary(fileBuffer, filename) {
   });
 }
 
+// ✅ Helper: normalize + validate size (now works for ANY category)
+const VALID_SIZES = ["SMALL", "REGULAR", "MEDIUM", "LARGE"];
+function normalizeSize(size) {
+  if (!size) return null;
+  const upper = String(size).toUpperCase();
+  return VALID_SIZES.includes(upper) ? upper : null;
+}
+
+// ✅ Helper: normalize + validate food_type
+function normalizeFoodType(food_type) {
+  return food_type === "nonveg" ? "nonveg" : "veg"; // defaults to veg if missing/invalid
+}
+
 /* ================================
    GET all menu items
 ================================ */
@@ -47,6 +60,7 @@ router.get("/", async (req, res) => {
         c.name AS category,
         m.image,
         m.size,
+        m.food_type,
         m.is_top_pick
       FROM menu_items m
       JOIN categories c ON m.category_id = c.id
@@ -67,7 +81,7 @@ router.get("/:id", async (req, res) => {
   try {
     const { id } = req.params;
     const [rows] = await pool.query(
-      `SELECT id, name, description, price, original_price, saved_price, category_id, image, size, is_top_pick 
+      `SELECT id, name, description, price, original_price, saved_price, category_id, image, size, food_type, is_top_pick 
        FROM menu_items WHERE id = ?`,
       [id]
     );
@@ -88,7 +102,8 @@ router.get("/:id", async (req, res) => {
 ================================ */
 router.post("/", upload.single("image"), async (req, res) => {
   try {
-    const { name, description, original_price, saved_price, category_id, size } = req.body;
+    const { name, description, original_price, saved_price, category_id, size, food_type } = req.body;
+
     if (!name || !original_price || !category_id) {
       return res.status(400).json({ success: false, message: "Missing required fields" });
     }
@@ -101,18 +116,16 @@ router.post("/", upload.single("image"), async (req, res) => {
 
     const finalPrice = parseFloat(original_price) - parseFloat(saved_price || 0);
 
-    // Validate size (only for VEG PIZZAS and NON-VEG PIZZAS)
-    const [category] = await pool.query("SELECT name FROM categories WHERE id = ?", [category_id]);
-    const validSizes = ["REGULAR", "MEDIUM", "LARGE"];
-    const sizeValue = category.length > 0 && category[0].name.toLowerCase().includes("pizza") && validSizes.includes(size?.toUpperCase())
-      ? size.toUpperCase()
-      : null;
+    // Size is now optional for ANY category — not restricted to "pizza" anymore.
+    // If the admin ticked "has sizes" on the frontend, `size` will be present; otherwise it's omitted.
+    const sizeValue = normalizeSize(size);
+    const foodTypeValue = normalizeFoodType(food_type);
 
     await pool.query(
       `INSERT INTO menu_items 
-       (name, description, price, original_price, saved_price, category_id, image, size, is_top_pick) 
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, 0)`,
-      [name, description || null, finalPrice, original_price, saved_price || 0, category_id, imageUrl, sizeValue]
+       (name, description, price, original_price, saved_price, category_id, image, size, food_type, is_top_pick) 
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 0)`,
+      [name, description || null, finalPrice, original_price, saved_price || 0, category_id, imageUrl, sizeValue, foodTypeValue]
     );
 
     res.json({ success: true, message: "Menu item added successfully" });
@@ -124,34 +137,27 @@ router.post("/", upload.single("image"), async (req, res) => {
 
 /* ================================
    UPDATE menu item
+   (partial update — only touches fields actually sent;
+   image stays untouched unless a new file is uploaded)
 ================================ */
 router.put("/:id", upload.single("image"), async (req, res) => {
   try {
     const { id } = req.params;
-    const { name, description, original_price, saved_price, category_id, size } = req.body;
+    const { name, description, original_price, saved_price, category_id, size, food_type } = req.body;
 
-    // Calculate price
+    // Recalculate price only if original_price was sent
     const finalPrice = original_price
       ? parseFloat(original_price) - parseFloat(saved_price || 0)
       : null;
 
-    // If new image uploaded
+    // Only upload a new image if one was actually sent —
+    // the frontend deliberately omits "image" from FormData when unchanged.
     let imageUrl;
     if (req.file) {
       imageUrl = await uploadToCloudinary(req.file.buffer, req.file.originalname);
     }
 
-    // Validate size (only for VEG PIZZAS and NON-VEG PIZZAS)
-    let sizeValue = null;
-    if (category_id) {
-      const [category] = await pool.query("SELECT name FROM categories WHERE id = ?", [category_id]);
-      const validSizes = ["REGULAR", "MEDIUM", "LARGE"];
-      sizeValue = category.length > 0 && category[0].name.toLowerCase().includes("pizza") && validSizes.includes(size?.toUpperCase())
-        ? size.toUpperCase()
-        : null;
-    }
-
-    // Build update query dynamically
+    // Build update query dynamically — only include fields present in the request
     const fields = [];
     const values = [];
 
@@ -162,7 +168,16 @@ router.put("/:id", upload.single("image"), async (req, res) => {
     if (finalPrice !== null) { fields.push("price = ?"); values.push(finalPrice); }
     if (category_id) { fields.push("category_id = ?"); values.push(category_id); }
     if (imageUrl) { fields.push("image = ?"); values.push(imageUrl); }
-    fields.push("size = ?"); values.push(sizeValue);
+    if (food_type !== undefined) { fields.push("food_type = ?"); values.push(normalizeFoodType(food_type)); }
+
+    // Size: only overwrite if the field was actually sent in this request.
+    // If the admin's edit form had "has sizes" unchecked, `size` won't be
+    // in the body at all — in that case we still explicitly clear it,
+    // since unchecking is a deliberate choice to remove the size.
+    if (size !== undefined) {
+      fields.push("size = ?");
+      values.push(normalizeSize(size));
+    }
 
     if (fields.length === 0) {
       return res.status(400).json({ success: false, message: "No fields to update" });
@@ -207,7 +222,7 @@ router.post("/top-picks/:id", async (req, res) => {
     res.json({ success: true, message: "Item added to Top Picks" });
   } catch (err) {
     console.error("Top Pick Add Error:", err);
-    res.status(500). Promisedjson({ success: false, message: "Failed to add top pick" });
+    res.status(500).json({ success: false, message: "Failed to add top pick" });
   }
 });
 

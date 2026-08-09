@@ -1,413 +1,460 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Admin | Manage Menu</title>
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&display=swap" rel="stylesheet">
-  <style>
-   * {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-}
-body {
-  font-family: 'Playfair Display', serif;
-  background: linear-gradient(135deg, #D8BFD8 0%, #E6E6FA 100%);
-  color: #1a1a1a;
-  min-height: 100vh;
-  line-height: 1.6;
-  overflow-x: hidden;
-}
-header {
-  background: linear-gradient(90deg, #9370DB, #D8BFD8);
-  color: #fff;
-  padding: 1.5rem 2rem;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 4px 16px rgba(142, 68, 173, 0.15);
-  position: relative;
-  overflow: hidden;
-}
-header::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(240, 230, 140, 0.3), transparent);
-  animation: shine 3s infinite;
-}
-header img {
-  height: 60px;
-  filter: drop-shadow(0 3px 8px rgba(0, 0, 0, 0.2));
-  animation: fadeInScale 0.8s ease-out;
-  transition: transform 0.3s ease;
-}
-header img:hover {
-  transform: scale(1.15);
-}
-header h1 {
-  font-size: 2.2rem;
-  font-weight: 800;
-  margin-top: 0.5rem;
-  text-shadow: 0 2px 6px rgba(240, 230, 140, 0.4);
-  animation: fadeInUp 0.6s ease-out 0.2s forwards;
-}
-header span {
-  font-size: 0.9rem;
-  font-weight: 600;
-  opacity: 0.9;
-  color: #F0E68C;
-  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
-  animation: fadeInUp 0.6s ease-out 0.4s forwards;
-}
-nav {
-  background: #1a1a1a;
-  display: flex;
-  justify-content: center;
-  box-shadow: 0 2px 8px rgba(142, 68, 173, 0.15);
-}
-nav a {
-  flex: 0 1 150px;
-  padding: 1rem;
-  text-align: center;
-  color: #fff;
-  text-decoration: none;
-  font-size: 1.1rem;
-  font-weight: 600;
-  transition: background 0.3s ease, transform 0.2s ease, color 0.3s ease;
-}
-nav a:hover {
-  background: #8A2BE2;
-  color: #F0E68C;
-  transform: translateY(-3px);
-  box-shadow: 0 3px 8px rgba(142, 68, 173, 0.2);
-}
-.logout {
-  background: linear-gradient(45deg, #9370DB, #D8BFD8);
-  border: none;
-  padding: 0.6rem 1.5rem;
-  color: #1a1a1a;
-  font-weight: 700;
-  font-size: 1rem;
-  border-radius: 10px;
-  cursor: pointer;
-  position: absolute;
-  top: 1rem;
-  right: 1rem;
-  transition: background 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
-  box-shadow: 0 3px 8px rgba(142, 68, 173, 0.1);
-}
-.logout:hover {
-  background: linear-gradient(45deg, #8A2BE2, #D8BFD8);
-  transform: translateY(-3px);
-  box-shadow: 0 5px 12px rgba(142, 68, 173, 0.2);
-}
-.content {
-  max-width: 1200px;
-  margin: 2rem auto;
-  padding: 1.5rem;
-  background: rgba(255, 255, 255, 0.98);
-  border-radius: 16px;
-  box-shadow: 0 6px 20px rgba(142, 68, 173, 0.1);
-  animation: slideUp 0.6s ease-out;
-}
-.content h2, .content h3 {
-  font-size: 2rem;
-  font-weight: 700;
-  color: #9370DB;
-  margin-bottom: 1rem;
-  text-align: center;
-  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-}
-.content h3 {
-  font-size: 1.5rem;
-  margin: 1.5rem 0 0.5rem;
-  text-align: left;
-}
-.search-bar {
-  display: flex;
-  align-items: center;
-  max-width: 100%;
-  margin: 1rem 0;
-  background: #F0F8FF;
-  border-radius: 8px;
-  padding: 0.3rem;
-  box-shadow: 0 2px 6px rgba(142, 68, 173, 0.1);
-  transition: box-shadow 0.3s ease;
-}
-.search-bar:hover {
-  box-shadow: 0 3px 8px rgba(142, 68, 173, 0.15);
-}
-.search-bar input {
-  flex: 1;
-  border: none;
-  padding: 0.6rem;
-  font-size: 1rem;
-  font-family: 'Playfair Display', serif;
-  color: #1a1a1a;
-  outline: none;
-  background: transparent;
-}
-.search-bar button {
-  background: transparent;
-  border: none;
-  padding: 0.6rem;
-  cursor: pointer;
-  color: #9370DB;
-  font-size: 1rem;
-  transition: color 0.3s ease;
-}
-.search-bar button:hover {
-  color: #8A2BE2;
-}
-.category-section {
-  margin-top: 1rem;
-}
-.category-header {
-  background: linear-gradient(45deg, #9370DB, #D8BFD8);
-  color: #fff;
-  padding: 0.8rem;
-  border-radius: 8px 8px 0 0;
-  cursor: pointer;
-  font-weight: 700;
-  font-size: 1.2rem;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
-}
-.category-items {
-  display: block;
-}
-.category-items.collapsed {
-  display: none;
-}
-table {
-  width: 100%;
-  border-collapse: separate;
-  border-spacing: 0;
-  background: #fff;
-  border-radius: 0 0 12px 12px;
-  overflow: hidden;
-  box-shadow: 0 4px 12px rgba(142, 68, 173, 0.05);
-  margin-top: -1px;
-}
-table th, table td {
-  padding: 0.8rem;
-  text-align: left;
-  vertical-align: middle;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
-}
-table th {
-  background: linear-gradient(45deg, #9370DB, #D8BFD8);
-  color: #fff;
-  font-weight: 700;
-  font-size: 1.1rem;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
-}
-table td {
-  font-size: 1rem;
-  color: #1a1a1a;
-}
-table img {
-  width: 50px;
-  height: 50px;
-  object-fit: cover;
-  border-radius: 8px;
-  transition: transform 0.3s ease;
-}
-table img:hover {
-  transform: scale(1.1);
-}
-table tr:hover {
-  background: rgba(147, 112, 219, 0.05);
-}
-form {
-  background: #fff;
-  padding: 1.5rem;
-  border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(142, 68, 173, 0.05);
-  margin-top: 1.5rem;
-}
-form input, form textarea, form select {
-  width: 100%;
-  padding: 0.8rem;
-  margin: 0.5rem 0;
-  border: 1px solid #D8BFD8;
-  border-radius: 8px;
-  font-family: 'Playfair Display', serif;
-  font-size: 1rem;
-  background: #F0F8FF;
-  transition: border-color 0.3s ease, box-shadow 0.3s ease;
-}
-form input:focus, form textarea:focus, form select:focus {
-  border-color: #9370DB;
-  box-shadow: 0 0 0 2px rgba(147, 112, 219, 0.2);
-  outline: none;
-}
-form textarea {
-  resize: vertical;
-  min-height: 80px;
-}
-form button {
-  background: linear-gradient(45deg, #9370DB, #D8BFD8);
-  border: none;
-  padding: 0.8rem 1.5rem;
-  color: #1a1a1a;
-  font-weight: 700;
-  font-size: 1rem;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: background 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
-  box-shadow: 0 3px 8px rgba(142, 68, 173, 0.1);
-}
-form button:hover {
-  background: linear-gradient(45deg, #8A2BE2, #D8BFD8);
-  transform: translateY(-2px);
-  box-shadow: 0 5px 12px rgba(142, 68, 173, 0.2);
-}
-.btn {
-  padding: 0.5rem 1rem;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  font-size: 0.95rem;
-  font-weight: 600;
-  transition: background 0.3s ease, transform 0.2s ease;
-}
-.btn-edit {
-  background: linear-gradient(45deg, #9370DB, #D8BFD8);
-  color: #fff;
-  margin-right: 0.5rem;
-}
-.btn-edit:hover {
-  background: linear-gradient(45deg, #8A2BE2, #9370DB);
-  transform: translateY(-2px);
-}
-.btn-del {
-  background: linear-gradient(45deg, #8A2BE2, #D8BFD8);
-  color: #fff;
-}
-.btn-del:hover {
-  background: linear-gradient(45deg, #6A0DAD, #8A2BE2);
-  transform: translateY(-2px);
-}
-.modal {
-  display: none;
-  position: fixed;
-  z-index: 2000;
-  left: 0;
-  top: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.6);
-  justify-content: center;
-  align-items: center;
-}
-.modal-content {
-  background: #fff;
-  padding: 1.5rem;
-  border-radius: 16px;
-  width: 100%;
-  max-width: 450px;
-  box-shadow: 0 6px 20px rgba(142, 68, 173, 0.2);
-  animation: modalScaleIn 0.3s ease-out;
-}
-.modal-content h3 {
-  font-size: 1.5rem;
-  font-weight: 700;
-  color: #9370DB;
-  margin: 0 0 1rem;
-  text-align: center;
-}
-.close {
-  float: right;
-  font-size: 1.5rem;
-  color: #4B5E8E;
-  cursor: pointer;
-  transition: color 0.3s ease;
-}
-.close:hover {
-  color: #1a1a1a;
-}
-#toast {
-  visibility: hidden;
-  min-width: 250px;
-  background: linear-gradient(45deg, #9370DB, #D8BFD8);
-  color: #fff;
-  text-align: center;
-  border-radius: 12px;
-  padding: 1rem;
-  position: fixed;
-  z-index: 1000;
-  left: 50%;
-  bottom: 30px;
-  transform: translateX(-50%);
-  font-size: 0.95rem;
-  box-shadow: 0 4px 12px rgba(142, 68, 173, 0.2);
-}
-#toast.show {
-  visibility: visible;
-  animation: slideDown 0.5s ease-out, slideUp 0.5s ease-in 2.5s forwards;
-}
-.size-field {
-  display: none;
-}
-.size-field.visible {
-  display: block;
-}
-@keyframes shine {
-  0% { left: -100%; }
-  50% { left: 100%; }
-  100% { left: 100%; }
-}
-@keyframes fadeInScale {
-  from { opacity: 0; transform: scale(0.9); }
-  to { opacity: 1; transform: scale(1); }
-}
-@keyframes fadeInUp {
-  from { opacity: 0; transform: translateY(15px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-@keyframes slideUp {
-  from { opacity: 0; transform: translateY(20px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-@keyframes slideDown {
-  from { opacity: 0; transform: translate(-50%, -100%); }
-  to { opacity: 1; transform: translate(-50%, 0); }
-}
-@keyframes modalScaleIn {
-  from { opacity: 0; transform: scale(0.9); }
-  to { opacity: 1; transform: scale(1); }
-}
-@media (max-width: 480px) {
-  header img { height: 45px; }
-  header h1 { font-size: 1.8rem; }
-  header span { font-size: 0.8rem; }
-  nav a { font-size: 0.9rem; padding: 0.8rem; flex: 0 1 100px; }
-  .logout { padding: 0.5rem 1rem; font-size: 0.9rem; }
-  .content { margin: 1rem; padding: 1rem; }
-  .content h2 { font-size: 1.6rem; }
-  .search-bar input { font-size: 0.9rem; padding: 0.5rem; }
-  .search-bar button { font-size: 0.9rem; padding: 0.5rem; }
-  table th, table td { font-size: 0.9rem; padding: 0.6rem; }
-  table img { width: 40px; height: 40px; }
-  .modal-content { max-width: 90%; padding: 1rem; }
-  .modal-content h3 { font-size: 1.3rem; }
-  .category-header { font-size: 1rem; padding: 0.6rem; }
-}
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin | Manage Menu</title>
+<link rel="icon" href="https://i.postimg.cc/W3pgQx9q/DELICUTE-Imgur-1-modified.png">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+<style>
+  :root {
+    --primary-purple: #8B6BC9;
+    --primary-purple-dark: #6B4FA0;
+    --bg-lilac: #F3EEFA;
+    --dark: #2B2B33;
+    --muted: #6B6B76;
+    --border: #E7E1F2;
+    --delivered: #2E8B57;
+    --cancelled: #C0392B;
+    --veg: #2E8B57;
+    --nonveg: #B23A2E;
+    --radius: 10px;
+    --shadow-sm: 0 1px 3px rgba(60, 40, 100, 0.08);
+    --shadow-md: 0 4px 14px rgba(60, 40, 100, 0.12);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+  body {
+    font-family: 'Roboto', sans-serif;
+    background: var(--bg-lilac);
+    color: var(--dark);
+    min-height: 100vh;
+    line-height: 1.5;
+    overscroll-behavior: contain;
+  }
+
+  header {
+    background: linear-gradient(90deg, var(--primary-purple-dark), var(--primary-purple));
+    color: white;
+    padding: 1rem 1.25rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    box-shadow: var(--shadow-md);
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    text-align: center;
+  }
+  header img { height: 50px; border-radius: 50%; box-shadow: 0 2px 8px rgba(0,0,0,0.25); }
+  header h1 { font-family: 'Playfair Display', serif; font-size: 1.8rem; margin-top: 0.4rem; }
+  header span { font-size: 0.8rem; opacity: 0.85; }
+
+  .logout {
+    background: white;
+    color: var(--primary-purple-dark);
+    border: none;
+    padding: 0 0.9rem;
+    height: 38px;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 0.85rem;
+    cursor: pointer;
+    position: absolute;
+    top: 0.8rem;
+    right: 0.8rem;
+  }
+
+  nav {
+    background: #1E1E24;
+    display: flex;
+    justify-content: center;
+    overflow-x: auto;
+  }
+  nav a {
+    flex: 0 0 auto;
+    padding: 0.85rem 1.1rem;
+    color: #ddd;
+    text-decoration: none;
+    font-size: 0.9rem;
+    font-weight: 500;
+    white-space: nowrap;
+    transition: color 0.2s ease, background 0.2s ease;
+  }
+  nav a:hover { background: rgba(139, 107, 201, 0.25); color: #fff; }
+
+  .container {
+    max-width: 1200px;
+    margin: 1.5rem auto;
+    padding: 0 1.25rem 2rem;
+  }
+
+  .section-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.4rem;
+    color: var(--primary-purple-dark);
+    margin: 1.5rem 0 0.9rem;
+    text-align: center;
+  }
+  .section-title:first-of-type { margin-top: 0; }
+
+  /* ---- Add item form ---- */
+  .form-card {
+    background: white;
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-sm);
+    padding: 1.25rem;
+  }
+
+  form.item-form { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem 1.25rem; }
+  .field { display: flex; flex-direction: column; gap: 0.35rem; }
+  .field.full { grid-column: 1 / -1; }
+  .field label { font-size: 0.82rem; font-weight: 600; color: var(--muted); }
+
+  input, textarea, select {
+    padding: 0.65rem 0.75rem;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-family: 'Roboto', sans-serif;
+    font-size: 0.9rem;
+    background: var(--bg-lilac);
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    width: 100%;
+  }
+  input:focus, textarea:focus, select:focus {
+    border-color: var(--primary-purple);
+    box-shadow: 0 0 0 2px rgba(139, 107, 201, 0.2);
+    outline: none;
+  }
+  textarea { resize: vertical; min-height: 70px; }
+  input[type="file"] { background: white; padding: 0.5rem; }
+
+  /* ---- Veg / Non-Veg selector ---- */
+  .veg-toggle {
+    display: flex;
+    gap: 0.6rem;
+  }
+  .veg-option {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.45rem;
+    padding: 0.6rem 0.5rem;
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--muted);
+    background: var(--bg-lilac);
+    transition: border-color 0.2s ease, background 0.2s ease, color 0.2s ease;
+  }
+  .veg-option input { display: none; }
+  .veg-option.selected-veg { border-color: var(--veg); background: rgba(46, 139, 87, 0.08); color: var(--veg); }
+  .veg-option.selected-nonveg { border-color: var(--nonveg); background: rgba(178, 58, 46, 0.08); color: var(--nonveg); }
+
+  .food-mark { width: 14px; height: 14px; border: 2px solid currentColor; border-radius: 3px; display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .food-mark::after { content: ''; width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+  .food-mark.veg-mark { color: var(--veg); }
+  .food-mark.nonveg-mark { color: var(--nonveg); }
+
+  /* ---- Has Sizes checkbox block ---- */
+  .size-toggle-row {
+    grid-column: 1 / -1;
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    background: var(--bg-lilac);
+    border: 1px dashed var(--border);
+    border-radius: 8px;
+    padding: 0.7rem 0.9rem;
+  }
+  .size-toggle-row input[type="checkbox"] { width: 18px; height: 18px; accent-color: var(--primary-purple-dark); cursor: pointer; }
+  .size-toggle-row label { font-size: 0.85rem; font-weight: 600; color: var(--dark); cursor: pointer; }
+  .size-field-wrap { display: none; }
+  .size-field-wrap.visible { display: flex; }
+
+  /* current image preview (edit modal) */
+  .current-img-preview {
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+    background: var(--bg-lilac);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 0.5rem 0.7rem;
+  }
+  .current-img-preview img { width: 48px; height: 48px; object-fit: cover; border-radius: 6px; }
+  .current-img-preview span { font-size: 0.78rem; color: var(--muted); }
+
+  .form-actions { grid-column: 1 / -1; display: flex; justify-content: flex-end; }
+  button[type="submit"] {
+    background: var(--primary-purple-dark);
+    border: none;
+    padding: 0.75rem 1.6rem;
+    color: white;
+    font-weight: 600;
+    font-size: 0.92rem;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.2s ease;
+  }
+  button[type="submit"]:hover { background: #5A3F8A; }
+
+  /* ---- Search + filter bar ---- */
+  .toolbar {
+    display: flex;
+    gap: 0.75rem;
+    margin: 1.5rem 0 1rem;
+    flex-wrap: wrap;
+  }
+  .search-bar {
+    flex: 1 1 240px;
+    display: flex;
+    align-items: center;
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    box-shadow: var(--shadow-sm);
+    padding: 0 0.6rem;
+  }
+  .search-bar i { color: var(--muted); font-size: 0.9rem; }
+  .search-bar input {
+    border: none;
+    background: transparent;
+    box-shadow: none;
+    padding: 0.65rem 0.6rem;
+  }
+  .search-bar input:focus { box-shadow: none; }
+
+  .filter-pills {
+    display: flex;
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    box-shadow: var(--shadow-sm);
+    overflow: hidden;
+    flex: 0 0 auto;
+  }
+  .filter-pill {
+    padding: 0.65rem 0.9rem;
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: var(--muted);
+    cursor: pointer;
+    border-right: 1px solid var(--border);
+    white-space: nowrap;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    transition: background 0.2s ease, color 0.2s ease;
+  }
+  .filter-pill:last-child { border-right: none; }
+  .filter-pill:hover { background: var(--bg-lilac); }
+  .filter-pill.active { background: var(--primary-purple-dark); color: white; }
+  .filter-pill.active .food-mark { color: white; }
+
+  /* ---- Category sections ---- */
+  .category-section { margin-bottom: 1.2rem; }
+  .category-header {
+    background: var(--primary-purple-dark);
+    color: white;
+    padding: 0.75rem 1rem;
+    border-radius: 8px 8px 0 0;
+    cursor: pointer;
+    font-weight: 700;
+    font-size: 1rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .category-header .count { font-weight: 500; font-size: 0.78rem; opacity: 0.85; }
+  .category-items { display: block; }
+  .category-items.collapsed { display: none; }
+
+  .table-wrapper {
+    background: white;
+    border-radius: 0 0 var(--radius) var(--radius);
+    box-shadow: var(--shadow-sm);
+    overflow-x: auto;
+  }
+  table { width: 100%; border-collapse: collapse; min-width: 760px; }
+  th {
+    background: #FAF8FE;
+    color: var(--primary-purple-dark);
+    text-align: left;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+    padding: 0.7rem 0.8rem;
+    white-space: nowrap;
+    border-bottom: 1px solid var(--border);
+  }
+  td {
+    padding: 0.7rem 0.8rem;
+    font-size: 0.86rem;
+    border-bottom: 1px solid var(--border);
+    color: var(--dark);
+    vertical-align: middle;
+  }
+  tbody tr:last-child td { border-bottom: none; }
+  tbody tr:hover { background: #FAF8FE; }
+
+  .item-thumb { width: 44px; height: 44px; object-fit: cover; border-radius: 6px; display: block; }
+  .item-name { font-weight: 700; color: var(--dark); }
+  .item-desc { color: var(--muted); font-size: 0.8rem; max-width: 220px; }
+  .price-orig { color: var(--muted); }
+  .price-saved { color: var(--delivered); font-weight: 700; }
+  .price-cut { text-decoration: line-through; color: var(--muted); font-size: 0.78rem; margin-right: 0.3rem; }
+
+  .veg-badge { display: inline-flex; align-items: center; gap: 0.35rem; font-size: 0.78rem; font-weight: 600; }
+  .veg-badge.is-veg { color: var(--veg); }
+  .veg-badge.is-nonveg { color: var(--nonveg); }
+
+  .size-chip {
+    display: inline-block;
+    padding: 0.15rem 0.5rem;
+    border-radius: 20px;
+    font-size: 0.72rem;
+    font-weight: 600;
+    background: var(--bg-lilac);
+    color: var(--primary-purple-dark);
+  }
+
+  .action-btns { display: flex; gap: 0.4rem; }
+  .btn { border: none; border-radius: 7px; cursor: pointer; width: 32px; height: 32px; display: inline-flex; align-items: center; justify-content: center; font-size: 0.82rem; color: white; transition: opacity 0.2s ease; }
+  .btn:hover { opacity: 0.85; }
+  .btn-edit { background: var(--primary-purple); }
+  .btn-delete { background: var(--cancelled); }
+
+  .no-items { text-align: center; padding: 2rem 1rem; color: var(--muted); font-size: 0.9rem; }
+
+  /* ---- Edit modal ---- */
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(43, 43, 51, 0.55);
+    z-index: 2000;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+  }
+  .modal-overlay.open { display: flex; }
+  .modal-box {
+    background: white;
+    width: 100%;
+    max-width: 520px;
+    max-height: 90vh;
+    overflow-y: auto;
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-md);
+    padding: 1.25rem;
+  }
+  .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
+  .modal-header h3 { font-family: 'Playfair Display', serif; color: var(--primary-purple-dark); font-size: 1.25rem; }
+  .modal-close { border: none; background: var(--bg-lilac); color: var(--muted); width: 30px; height: 30px; border-radius: 50%; cursor: pointer; font-size: 0.9rem; }
+  .modal-hint { grid-column: 1 / -1; font-size: 0.76rem; color: var(--muted); background: var(--bg-lilac); border-radius: 6px; padding: 0.5rem 0.7rem; }
+
+  #toast {
+    visibility: hidden;
+    min-width: 200px;
+    max-width: 300px;
+    background: var(--delivered);
+    color: white;
+    text-align: center;
+    border-radius: 10px;
+    padding: 0.8rem 1rem;
+    position: fixed;
+    z-index: 3000;
+    top: 20px;
+    right: 20px;
+    font-size: 0.85rem;
+    box-shadow: var(--shadow-md);
+  }
+  #toast.show { visibility: visible; animation: slideIn 0.4s ease-out, slideOut 0.4s ease-in 2.6s forwards; }
+  @keyframes slideIn { from { opacity: 0; transform: translateY(-15px); } to { opacity: 1; transform: translateY(0); } }
+  @keyframes slideOut { from { opacity: 1; transform: translateY(0); } to { opacity: 0; transform: translateY(-15px); } }
+
+  /* ================= TABLET ================= */
+  @media (max-width: 900px) {
+    form.item-form { grid-template-columns: 1fr; }
+  }
+
+  /* ================= MOBILE CARD TABLE ================= */
+  @media (max-width: 760px) {
+    header h1 { font-size: 1.5rem; }
+    header img { height: 42px; }
+    .logout { height: 34px; padding: 0 0.7rem; font-size: 0.8rem; top: 0.6rem; right: 0.6rem; }
+    nav a { font-size: 0.82rem; padding: 0.7rem 0.85rem; }
+    .container { margin: 1rem auto; padding: 0 0.9rem 1.5rem; }
+    .section-title { font-size: 1.2rem; }
+    .form-card { padding: 1rem; }
+    .toolbar { flex-direction: column; }
+    .filter-pills { width: 100%; }
+    .filter-pill { flex: 1; justify-content: center; }
+
+    .table-wrapper { overflow: visible; background: none; box-shadow: none; border-radius: 0; }
+    table, thead, tbody, th, td, tr { display: block; width: 100%; min-width: 0; }
+    thead { display: none; }
+    tbody { display: flex; flex-direction: column; gap: 0.75rem; padding: 0.75rem; background: white; border-radius: 0 0 var(--radius) var(--radius); box-shadow: var(--shadow-sm); }
+
+    tr {
+      background: var(--bg-lilac);
+      border-radius: 8px;
+      padding: 0.85rem 0.9rem;
+      border: 1px solid var(--border);
+    }
+    tr.no-items-row { box-shadow: none; border: none; background: none; padding: 0; }
+
+    td {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.4rem 0;
+      border-bottom: 1px dashed var(--border);
+      font-size: 0.85rem;
+      text-align: right;
+    }
+    td:last-child { border-bottom: none; padding-bottom: 0; }
+    td:first-child { padding-top: 0; }
+
+    td::before {
+      content: attr(data-label);
+      font-size: 0.7rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      color: var(--muted);
+      letter-spacing: 0.02em;
+      text-align: left;
+    }
+    td.cell-image::before { display: none; }
+    td.cell-image { justify-content: flex-start; padding-top: 0; }
+    td.cell-actions::before { display: none; }
+    td.cell-actions { padding-top: 0.6rem; }
+    .action-btns { width: 100%; justify-content: flex-end; }
+    .item-desc { max-width: 60%; text-align: right; }
+  }
+
+  @media (max-width: 420px) {
+    .field label, input, textarea, select { font-size: 0.85rem; }
+    td { font-size: 0.82rem; }
+  }
+</style>
 </head>
 <body>
   <header>
+    <button class="logout" onclick="logout()">Logout</button>
     <img src="https://i.postimg.cc/W3pgQx9q/DELICUTE-Imgur-1-modified.png" alt="DELICUTE Logo">
     <div>
       <h1>DELICUTE</h1>
       <span>Every Bite Tells A Story</span>
     </div>
-    <button class="logout" onclick="logout()">Logout</button>
   </header>
 
   <nav>
@@ -418,70 +465,240 @@ form button:hover {
     <a href="admintoppicks.html">Top Picks</a>
   </nav>
 
-  <div class="content">
-    <h2>Manage Menu Items 🍽️</h2>
-    <h3>Add New Item</h3>
-    <form id="addMenuForm" enctype="multipart/form-data">
-      <input type="text" name="name" placeholder="Item Name" required>
-      <textarea name="description" placeholder="Description"></textarea>
-      <input type="number" step="0.01" name="original_price" placeholder="Original Price" required>
-      <input type="number" step="0.01" name="saved_price" placeholder="Saved Price (Discounted)">
-      <select name="category_id" id="categorySelect" required></select>
-      <select name="size" id="addSizeSelect" class="size-field">
-        <option value="" disabled selected>Select Size</option>
-        <option value="REGULAR">REGULAR</option>
-        <option value="MEDIUM">MEDIUM</option>
-        <option value="LARGE">LARGE</option>
-      </select>
-      <input type="file" name="image" accept="image/*" required>
-      <button type="submit">Add Item</button>
-    </form>
-    <div class="search-bar">
-      <input type="text" id="searchInput" placeholder="Search by name or category...">
-      <button onclick="filterMenu()"><i class="fas fa-search"></i></button>
+  <div class="container">
+    <h2 class="section-title">Manage Menu Items 🍽️</h2>
+
+    <!-- ============ ADD ITEM FORM ============ -->
+    <div class="form-card">
+      <form id="addMenuForm" class="item-form" enctype="multipart/form-data">
+        <div class="field">
+          <label for="name">Item Name</label>
+          <input type="text" id="name" name="name" placeholder="e.g., Margherita Pizza" required>
+        </div>
+
+        <div class="field">
+          <label for="categorySelect">Category</label>
+          <select id="categorySelect" name="category_id" required></select>
+        </div>
+
+        <div class="field full">
+          <label for="description">Description</label>
+          <textarea id="description" name="description" placeholder="Short description"></textarea>
+        </div>
+
+        <div class="field">
+          <label for="original_price">Original Price (₹)</label>
+          <input type="number" step="0.01" id="original_price" name="original_price" placeholder="e.g., 299" required>
+        </div>
+
+        <div class="field">
+          <label for="saved_price">Discounted Price (₹) — optional</label>
+          <input type="number" step="0.01" id="saved_price" name="saved_price" placeholder="Leave blank if no offer">
+        </div>
+
+        <div class="field full">
+          <label>Veg / Non-Veg</label>
+          <div class="veg-toggle" id="addVegToggle">
+            <label class="veg-option selected-veg" data-value="veg">
+              <input type="radio" name="food_type" value="veg" checked>
+              <span class="food-mark veg-mark"></span> Veg
+            </label>
+            <label class="veg-option" data-value="nonveg">
+              <input type="radio" name="food_type" value="nonveg">
+              <span class="food-mark nonveg-mark"></span> Non-Veg
+            </label>
+          </div>
+        </div>
+
+        <!-- Has Sizes — works for ANY category, not just pizza. Off by default. -->
+        <div class="size-toggle-row">
+          <input type="checkbox" id="addHasSize">
+          <label for="addHasSize">This item comes in multiple sizes</label>
+        </div>
+        <div class="field size-field-wrap" id="addSizeFieldWrap">
+          <label for="addSizeSelect">Size</label>
+          <select id="addSizeSelect" name="size">
+            <option value="SMALL">SMALL</option>
+            <option value="REGULAR" selected>REGULAR</option>
+            <option value="MEDIUM">MEDIUM</option>
+            <option value="LARGE">LARGE</option>
+          </select>
+        </div>
+
+        <div class="field full">
+          <label for="image">Image</label>
+          <input type="file" id="image" name="image" accept="image/*" required>
+        </div>
+
+        <div class="form-actions">
+          <button type="submit"><i class="fas fa-plus"></i> Add Item</button>
+        </div>
+      </form>
     </div>
-    <div id="menuCategories" class="category-section"></div>
+
+    <!-- ============ SEARCH + FILTER ============ -->
+    <div class="toolbar">
+      <div class="search-bar">
+        <i class="fas fa-search"></i>
+        <input type="text" id="searchInput" placeholder="Search by name, category or description...">
+      </div>
+      <div class="filter-pills" id="vegFilterPills">
+        <div class="filter-pill active" data-filter="all">All</div>
+        <div class="filter-pill" data-filter="veg"><span class="food-mark veg-mark"></span> Veg</div>
+        <div class="filter-pill" data-filter="nonveg"><span class="food-mark nonveg-mark"></span> Non-Veg</div>
+      </div>
+    </div>
+
+    <div id="menuCategories"></div>
   </div>
 
-  <!-- Edit Modal -->
-  <div id="editModal" class="modal">
-    <div class="modal-content">
-      <span class="close" onclick="closeModal()">&times;</span>
-      <h3>Edit Menu Item</h3>
-      <form id="editMenuForm" enctype="multipart/form-data">
+  <!-- ============ EDIT MODAL ============ -->
+  <div class="modal-overlay" id="editModal">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h3>Edit Menu Item</h3>
+        <button class="modal-close" onclick="closeModal()"><i class="fas fa-times"></i></button>
+      </div>
+      <form id="editMenuForm" class="item-form" enctype="multipart/form-data">
         <input type="hidden" name="id" id="editId">
-        <input type="text" name="name" id="editName" placeholder="Item Name" required>
-        <textarea name="description" id="editDescription" placeholder="Description"></textarea>
-        <input type="number" step="0.01" name="original_price" id="editOriginalPrice" placeholder="Original Price" required>
-        <input type="number" step="0.01" name="saved_price" id="editSavedPrice" placeholder="Saved Price">
-        <select name="category_id" id="editCategorySelect" required></select>
-        <select name="size" id="editSizeSelect" class="size-field">
-          <option value="" disabled selected>Select Size</option>
-          <option value="REGULAR">REGULAR</option>
-          <option value="MEDIUM">MEDIUM</option>
-          <option value="LARGE">LARGE</option>
-        </select>
-        <input type="file" name="image" accept="image/*">
-        <button type="submit">Update Item</button>
+
+        <div class="field modal-hint full">
+          Only change the field(s) you want. If you don't pick a new image, the current one is kept exactly as is.
+        </div>
+
+        <div class="field">
+          <label for="editName">Item Name</label>
+          <input type="text" id="editName" name="name" required>
+        </div>
+
+        <div class="field">
+          <label for="editCategorySelect">Category</label>
+          <select id="editCategorySelect" name="category_id" required></select>
+        </div>
+
+        <div class="field full">
+          <label for="editDescription">Description</label>
+          <textarea id="editDescription" name="description"></textarea>
+        </div>
+
+        <div class="field">
+          <label for="editOriginalPrice">Original Price (₹)</label>
+          <input type="number" step="0.01" id="editOriginalPrice" name="original_price" required>
+        </div>
+
+        <div class="field">
+          <label for="editSavedPrice">Discounted Price (₹)</label>
+          <input type="number" step="0.01" id="editSavedPrice" name="saved_price">
+        </div>
+
+        <div class="field full">
+          <label>Veg / Non-Veg</label>
+          <div class="veg-toggle" id="editVegToggle">
+            <label class="veg-option" data-value="veg">
+              <input type="radio" name="food_type_edit" value="veg">
+              <span class="food-mark veg-mark"></span> Veg
+            </label>
+            <label class="veg-option" data-value="nonveg">
+              <input type="radio" name="food_type_edit" value="nonveg">
+              <span class="food-mark nonveg-mark"></span> Non-Veg
+            </label>
+          </div>
+        </div>
+
+        <div class="size-toggle-row">
+          <input type="checkbox" id="editHasSize">
+          <label for="editHasSize">This item comes in multiple sizes</label>
+        </div>
+        <div class="field size-field-wrap" id="editSizeFieldWrap">
+          <label for="editSizeSelect">Size</label>
+          <select id="editSizeSelect" name="size">
+            <option value="SMALL">SMALL</option>
+            <option value="REGULAR">REGULAR</option>
+            <option value="MEDIUM">MEDIUM</option>
+            <option value="LARGE">LARGE</option>
+          </select>
+        </div>
+
+        <div class="field full">
+          <label>Current Image</label>
+          <div class="current-img-preview">
+            <img id="editCurrentImg" src="" alt="Current image">
+            <span>Leave the field below empty to keep this image</span>
+          </div>
+        </div>
+
+        <div class="field full">
+          <label for="editImage">Replace Image (optional)</label>
+          <input type="file" id="editImage" name="image" accept="image/*">
+        </div>
+
+        <div class="form-actions">
+          <button type="submit"><i class="fas fa-check"></i> Update Item</button>
+        </div>
       </form>
     </div>
   </div>
 
-  <!-- Toast -->
   <div id="toast"></div>
 
   <script>
     let menuData = [];
     let categories = [];
+    let vegFilter = "all";
 
+    // ================= TOAST =================
     function showToast(msg, success = true) {
       const toast = document.getElementById("toast");
       toast.textContent = msg;
-      toast.style.background = success ? "linear-gradient(45deg, #26a69a, #4dd0e1)" : "linear-gradient(45deg, #ef5350, #e53935)";
+      toast.style.background = success ? "#2E8B57" : "#C0392B";
       toast.className = "show";
       setTimeout(() => toast.className = toast.className.replace("show", ""), 3000);
     }
 
+    // ================= VEG TOGGLE (visual state) =================
+    function wireVegToggle(containerId) {
+      const container = document.getElementById(containerId);
+      const options = container.querySelectorAll(".veg-option");
+      options.forEach(opt => {
+        opt.addEventListener("click", () => {
+          options.forEach(o => o.classList.remove("selected-veg", "selected-nonveg"));
+          opt.querySelector("input").checked = true;
+          opt.classList.add(opt.dataset.value === "veg" ? "selected-veg" : "selected-nonveg");
+        });
+      });
+    }
+    function setVegToggle(containerId, value) {
+      const container = document.getElementById(containerId);
+      const options = container.querySelectorAll(".veg-option");
+      options.forEach(opt => {
+        opt.classList.remove("selected-veg", "selected-nonveg");
+        const isMatch = opt.dataset.value === value;
+        opt.querySelector("input").checked = isMatch;
+        if (isMatch) opt.classList.add(value === "veg" ? "selected-veg" : "selected-nonveg");
+      });
+    }
+    function getVegValue(containerId) {
+      return document.querySelector(`#${containerId} input:checked`).value;
+    }
+
+    // ================= HAS-SIZE TOGGLE (works for any category) =================
+    function wireSizeToggle(checkboxId, wrapId) {
+      document.getElementById(checkboxId).addEventListener("change", (e) => {
+        document.getElementById(wrapId).classList.toggle("visible", e.target.checked);
+      });
+    }
+
+    // ================= FILTER PILLS =================
+    document.getElementById("vegFilterPills").addEventListener("click", (e) => {
+      const pill = e.target.closest(".filter-pill");
+      if (!pill) return;
+      document.querySelectorAll("#vegFilterPills .filter-pill").forEach(p => p.classList.remove("active"));
+      pill.classList.add("active");
+      vegFilter = pill.dataset.filter;
+      filterMenu();
+    });
+
+    // ================= SEARCH =================
     function debounce(func, wait) {
       let timeout;
       return function (...args) {
@@ -489,22 +706,48 @@ form button:hover {
         timeout = setTimeout(() => func.apply(this, args), wait);
       };
     }
-
     function filterMenu() {
       const query = document.getElementById("searchInput").value.toLowerCase().trim();
-      const filtered = query
-        ? menuData.filter(item =>
-            item.name.toLowerCase().includes(query) ||
-            item.category.toLowerCase().includes(query))
-        : menuData;
+      let filtered = menuData;
+
+      if (vegFilter !== "all") {
+        filtered = filtered.filter(item => (item.food_type || "veg") === vegFilter);
+      }
+      if (query) {
+        filtered = filtered.filter(item =>
+          (item.name || "").toLowerCase().includes(query) ||
+          (item.category || "").toLowerCase().includes(query) ||
+          (item.description || "").toLowerCase().includes(query)
+        );
+      }
       renderMenu(filtered);
     }
+    document.getElementById("searchInput").addEventListener("input", debounce(filterMenu, 250));
 
+    // ================= DISPLAY HELPERS =================
+    function vegBadgeHTML(item) {
+      const isVeg = (item.food_type || "veg") === "veg";
+      return `<span class="veg-badge ${isVeg ? "is-veg" : "is-nonveg"}">
+        <span class="food-mark ${isVeg ? "veg-mark" : "nonveg-mark"}"></span>${isVeg ? "Veg" : "Non-Veg"}
+      </span>`;
+    }
+    function priceCellHTML(item) {
+      if (item.saved_price && Number(item.saved_price) > 0) {
+        return `<span class="price-cut">₹${item.original_price}</span><span class="price-saved">₹${item.saved_price}</span>`;
+      }
+      return `<span class="price-orig">₹${item.original_price}</span>`;
+    }
+    function sizeCellHTML(item) {
+      return item.size ? `<span class="size-chip">${item.size}</span>` : "-";
+    }
+
+    // ================= RENDER =================
     function renderMenu(data) {
-      const categoriesEl = document.getElementById("menuCategories");
-      categoriesEl.innerHTML = "";
+      const wrap = document.getElementById("menuCategories");
+      wrap.innerHTML = "";
+
       if (!Array.isArray(data) || data.length === 0) {
-        categoriesEl.innerHTML = "<p style='text-align:center;color:#4b5e8e;font-size:1rem;'>No menu items available</p>";
+        wrap.innerHTML = `<div class="no-items">No menu items found</div>`;
         return;
       }
 
@@ -516,97 +759,77 @@ form button:hover {
       });
 
       Object.keys(grouped).sort().forEach(category => {
-        const isPizzaCategory = category.toLowerCase().includes("pizza");
-        categoriesEl.innerHTML += `
+        const safeId = category.replace(/[^a-zA-Z0-9]/g, "-");
+        wrap.innerHTML += `
           <div class="category-section">
-            <div class="category-header" onclick="toggleCategory('${category}')">${category} <span>▼</span></div>
-            <div class="category-items" id="category-${category.replace(/ /g, '-')}" data-expanded="true">
-              <table>
-                <thead>
-                  <tr>
-                    <th>Name</th>
-                    <th>Description</th>
-                    <th>Original Price</th>
-                    <th>Saved Price</th>
-                    ${isPizzaCategory ? "<th>Size</th>" : ""}
-                    <th>Image</th>
-                    <th>Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  ${grouped[category].map(item => `
+            <div class="category-header" onclick="toggleCategory('${safeId}')">
+              <span>${category}</span>
+              <span class="count">${grouped[category].length} item(s) <i class="fas fa-chevron-down"></i></span>
+            </div>
+            <div class="category-items" id="cat-${safeId}">
+              <div class="table-wrapper">
+                <table>
+                  <thead>
                     <tr>
-                      <td>${item.name}</td>
-                      <td>${item.description || ""}</td>
-                      <td>₹${item.original_price}</td>
-                      <td>${item.saved_price > 0 ? "₹" + item.saved_price : "-"}</td>
-                      ${isPizzaCategory ? `<td>${item.size || "-"}</td>` : ""}
-                      <td><img src="${item.image}" alt="${item.name}"></td>
-                      <td>
-                        <button class="btn btn-edit" onclick="openEditModal(${item.id})">Edit</button>
-                        <button class="btn btn-del" onclick="deleteItem(${item.id})">Delete</button>
-                      </td>
+                      <th>Image</th>
+                      <th>Name</th>
+                      <th>Description</th>
+                      <th>Price</th>
+                      <th>Size</th>
+                      <th>Veg / Non-Veg</th>
+                      <th>Actions</th>
                     </tr>
-                  `).join("")}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody>
+                    ${grouped[category].map(item => `
+                      <tr>
+                        <td class="cell-image" data-label="Image">
+                          <img class="item-thumb" src="${item.image}" alt="${item.name}" onerror="this.src='https://i.postimg.cc/W3pgQx9q/DELICUTE-Imgur-1-modified.png'">
+                        </td>
+                        <td data-label="Name"><span class="item-name">${item.name}</span></td>
+                        <td data-label="Description"><span class="item-desc">${item.description || ""}</span></td>
+                        <td data-label="Price">${priceCellHTML(item)}</td>
+                        <td data-label="Size">${sizeCellHTML(item)}</td>
+                        <td data-label="Veg / Non-Veg">${vegBadgeHTML(item)}</td>
+                        <td class="cell-actions" data-label="Actions">
+                          <div class="action-btns">
+                            <button class="btn btn-edit" onclick="openEditModal(${item.id})" title="Edit"><i class="fas fa-pen"></i></button>
+                            <button class="btn btn-delete" onclick="deleteItem(${item.id})" title="Delete"><i class="fas fa-trash"></i></button>
+                          </div>
+                        </td>
+                      </tr>
+                    `).join("")}
+                  </tbody>
+                </table>
+              </div>
             </div>
           </div>
         `;
       });
     }
 
-    function toggleCategory(category) {
-      const categoryDiv = document.getElementById(`category-${category.replace(/ /g, '-')}`);
-      const isExpanded = categoryDiv.getAttribute("data-expanded") === "true";
-      categoryDiv.classList.toggle("collapsed", isExpanded);
-      categoryDiv.setAttribute("data-expanded", !isExpanded);
-      const header = categoryDiv.previousElementSibling;
-      header.innerHTML = `${category} <span>${isExpanded ? "▶" : "▼"}</span>`;
+    function toggleCategory(safeId) {
+      document.getElementById(`cat-${safeId}`).classList.toggle("collapsed");
     }
 
-    function toggleSizeField(selectElement, sizeElementId) {
-      const sizeField = document.getElementById(sizeElementId);
-      const selectedCategoryId = selectElement.value;
-      const selectedCategory = categories.find(cat => cat.id == selectedCategoryId);
-      const isPizza = selectedCategory && selectedCategory.name.toLowerCase().includes("pizza");
-      sizeField.classList.toggle("visible", isPizza);
-      if (!isPizza) {
-        sizeField.value = "";
-      }
-    }
-
+    // ================= INIT =================
     window.addEventListener("DOMContentLoaded", async () => {
       try {
         const res = await fetch("/api/auth/check", { credentials: "include" });
-        if (!res.ok) {
-          window.location.href = "/admin.html";
-          return;
-        }
+        if (!res.ok) { window.location.href = "/admin.html"; return; }
+
+        wireVegToggle("addVegToggle");
+        wireVegToggle("editVegToggle");
+        wireSizeToggle("addHasSize", "addSizeFieldWrap");
+        wireSizeToggle("editHasSize", "editSizeFieldWrap");
+
         await loadCategories();
         await loadMenu();
-        document.getElementById("categorySelect").addEventListener("change", (e) => toggleSizeField(e.target, "addSizeSelect"));
-        document.getElementById("editCategorySelect").addEventListener("change", (e) => toggleSizeField(e.target, "editSizeSelect"));
       } catch (err) {
         window.location.href = "/admin.html";
+        console.error("Auth Check Error:", err);
       }
     });
-
-    async function loadMenu() {
-      try {
-        const res = await fetch("/api/menu");
-        const data = await res.json();
-        if (data.success) {
-          menuData = data.data;
-          renderMenu(menuData);
-        } else {
-          showToast("Failed to load menu", false);
-        }
-      } catch (err) {
-        showToast("Error loading menu", false);
-        console.error("Menu Load Error:", err);
-      }
-    }
 
     async function loadCategories() {
       try {
@@ -614,13 +837,13 @@ form button:hover {
         const data = await res.json();
         if (data.success) {
           categories = data.data;
-          const categorySelect = document.getElementById("categorySelect");
-          const editSelect = document.getElementById("editCategorySelect");
-          categorySelect.innerHTML = "";
-          editSelect.innerHTML = "";
-          data.data.forEach(cat => {
-            categorySelect.innerHTML += `<option value="${cat.id}">${cat.name}</option>`;
-            editSelect.innerHTML += `<option value="${cat.id}">${cat.name}</option>`;
+          const addSel = document.getElementById("categorySelect");
+          const editSel = document.getElementById("editCategorySelect");
+          addSel.innerHTML = "";
+          editSel.innerHTML = "";
+          categories.forEach(cat => {
+            addSel.innerHTML += `<option value="${cat.id}">${cat.name}</option>`;
+            editSel.innerHTML += `<option value="${cat.id}">${cat.name}</option>`;
           });
         } else {
           showToast("Failed to load categories", false);
@@ -631,21 +854,40 @@ form button:hover {
       }
     }
 
+    async function loadMenu() {
+      try {
+        const res = await fetch("/api/menu");
+        const data = await res.json();
+        if (data.success) {
+          menuData = data.data;
+          filterMenu();
+        } else {
+          showToast("Failed to load menu", false);
+        }
+      } catch (err) {
+        showToast("Error loading menu", false);
+        console.error("Menu Load Error:", err);
+      }
+    }
+
+    // ================= ADD ITEM =================
     document.getElementById("addMenuForm").addEventListener("submit", async (e) => {
       e.preventDefault();
       const formData = new FormData(e.target);
-      const selectedCategoryId = formData.get("category_id");
-      const selectedCategory = categories.find(cat => cat.id == selectedCategoryId);
-      if (selectedCategory && !selectedCategory.name.toLowerCase().includes("pizza")) {
-        formData.delete("size");
-      }
+      formData.set("food_type", getVegValue("addVegToggle"));
+
+      const hasSize = document.getElementById("addHasSize").checked;
+      if (!hasSize) formData.delete("size");
+
       try {
         const res = await fetch("/api/menu", { method: "POST", body: formData });
         if (res.ok) {
           showToast("Menu item added!");
-          await loadMenu();
           e.target.reset();
-          document.getElementById("addSizeSelect").classList.remove("visible");
+          setVegToggle("addVegToggle", "veg");
+          document.getElementById("addHasSize").checked = false;
+          document.getElementById("addSizeFieldWrap").classList.remove("visible");
+          await loadMenu();
         } else {
           showToast("Error adding item", false);
         }
@@ -655,24 +897,31 @@ form button:hover {
       }
     });
 
+    // ================= EDIT =================
     async function openEditModal(id) {
       try {
         const res = await fetch(`/api/menu/${id}`);
         const { data } = await res.json();
-        if (data) {
-          document.getElementById("editId").value = data.id;
-          document.getElementById("editName").value = data.name;
-          document.getElementById("editDescription").value = data.description || "";
-          document.getElementById("editOriginalPrice").value = data.original_price;
-          document.getElementById("editSavedPrice").value = data.saved_price || "";
-          document.getElementById("editCategorySelect").value = data.category_id;
-          document.getElementById("editSizeSelect").value = data.size || "";
-          const selectedCategory = categories.find(cat => cat.id == data.category_id);
-          document.getElementById("editSizeSelect").classList.toggle("visible", selectedCategory && selectedCategory.name.toLowerCase().includes("pizza"));
-          document.getElementById("editModal").style.display = "flex";
-        } else {
-          showToast("Failed to load item details", false);
-        }
+        if (!data) { showToast("Failed to load item details", false); return; }
+
+        document.getElementById("editId").value = data.id;
+        document.getElementById("editName").value = data.name;
+        document.getElementById("editDescription").value = data.description || "";
+        document.getElementById("editOriginalPrice").value = data.original_price;
+        document.getElementById("editSavedPrice").value = data.saved_price || "";
+        document.getElementById("editCategorySelect").value = data.category_id;
+
+        setVegToggle("editVegToggle", data.food_type === "nonveg" ? "nonveg" : "veg");
+
+        const hasSize = !!data.size;
+        document.getElementById("editHasSize").checked = hasSize;
+        document.getElementById("editSizeFieldWrap").classList.toggle("visible", hasSize);
+        if (hasSize) document.getElementById("editSizeSelect").value = data.size;
+
+        document.getElementById("editCurrentImg").src = data.image;
+        document.getElementById("editImage").value = "";
+
+        document.getElementById("editModal").classList.add("open");
       } catch (err) {
         showToast("Error loading item", false);
         console.error("Edit Modal Error:", err);
@@ -680,25 +929,31 @@ form button:hover {
     }
 
     function closeModal() {
-      document.getElementById("editModal").style.display = "none";
-      document.getElementById("editSizeSelect").classList.remove("visible");
+      document.getElementById("editModal").classList.remove("open");
     }
 
     document.getElementById("editMenuForm").addEventListener("submit", async (e) => {
       e.preventDefault();
+      const id = document.getElementById("editId").value;
       const formData = new FormData(e.target);
-      const id = formData.get("id");
-      const selectedCategoryId = formData.get("category_id");
-      const selectedCategory = categories.find(cat => cat.id == selectedCategoryId);
-      if (selectedCategory && !selectedCategory.name.toLowerCase().includes("pizza")) {
-        formData.delete("size");
+      formData.set("food_type", getVegValue("editVegToggle"));
+
+      const hasSize = document.getElementById("editHasSize").checked;
+      if (!hasSize) formData.delete("size");
+
+      // Only send the image field if a new file was actually chosen —
+      // this is what keeps the existing image untouched.
+      const imageInput = document.getElementById("editImage");
+      if (!imageInput.files || imageInput.files.length === 0) {
+        formData.delete("image");
       }
+
       try {
         const res = await fetch(`/api/menu/${id}`, { method: "PUT", body: formData });
         if (res.ok) {
           showToast("Menu item updated!");
-          await loadMenu();
           closeModal();
+          await loadMenu();
         } else {
           showToast("Error updating item", false);
         }
@@ -708,6 +963,7 @@ form button:hover {
       }
     });
 
+    // ================= DELETE =================
     async function deleteItem(id) {
       if (!confirm("Delete this item?")) return;
       try {
@@ -733,8 +989,6 @@ form button:hover {
         console.error("Logout Error:", err);
       }
     }
-
-    document.getElementById("searchInput").addEventListener("input", debounce(filterMenu, 300));
   </script>
 </body>
 </html>
