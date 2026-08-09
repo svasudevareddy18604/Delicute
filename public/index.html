@@ -345,13 +345,51 @@
       transform: scale(1);
     }
 
-    .offer-modal img {
+    /* Carousel track — one slide wide, slides pinned side by side and translated */
+    .offer-carousel {
+      position: relative;
+      width: 100%;
+      overflow: hidden;
+      background: #fff;
+    }
+
+    .offer-track {
+      display: flex;
+      transition: transform 0.35s ease;
+    }
+
+    .offer-slide {
+      flex: 0 0 100%;
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .offer-slide img {
       display: block;
       width: 100%;
       height: auto;
-      max-height: 82vh;
+      max-height: 72vh;
       object-fit: contain;
       background: #fff;
+    }
+
+    .offer-slide-caption {
+      padding: 0.9rem 1.1rem 1.1rem;
+      text-align: center;
+      font-family: 'Cormorant Garamond', serif;
+    }
+    .offer-slide-caption .offer-title {
+      font-family: 'Playfair Display', serif;
+      font-weight: 700;
+      font-size: 1.15rem;
+      color: var(--plum);
+      margin-bottom: 0.2rem;
+    }
+    .offer-slide-caption .offer-desc {
+      font-size: 0.95rem;
+      color: #6b5a66;
+      line-height: 1.4;
     }
 
     .offer-close {
@@ -371,7 +409,7 @@
       align-items: center;
       justify-content: center;
       transition: background 0.2s ease;
-      z-index: 2;
+      z-index: 3;
     }
 
     .offer-close:hover {
@@ -380,15 +418,64 @@
 
     .offer-timer {
       position: absolute;
-      bottom: 10px;
-      right: 12px;
+      top: 10px;
+      left: 10px;
       background: rgba(0, 0, 0, 0.55);
       color: #fff;
       font-family: sans-serif;
       font-size: 0.75rem;
       padding: 3px 9px;
       border-radius: 20px;
-      z-index: 2;
+      z-index: 3;
+    }
+
+    /* Prev/next arrows — only shown when there's more than one active promo */
+    .offer-nav {
+      position: absolute;
+      top: 40%;
+      transform: translateY(-50%);
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      background: rgba(0, 0, 0, 0.45);
+      color: #fff;
+      border: none;
+      font-size: 1.1rem;
+      line-height: 1;
+      cursor: pointer;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 3;
+      transition: background 0.2s ease;
+    }
+    .offer-nav:hover { background: rgba(0, 0, 0, 0.75); }
+    .offer-nav.prev { left: 10px; }
+    .offer-nav.next { right: 10px; }
+    .offer-carousel.has-multiple .offer-nav { display: flex; }
+
+    /* Dot indicators — only shown when there's more than one active promo */
+    .offer-dots {
+      display: none;
+      justify-content: center;
+      gap: 6px;
+      padding: 0.7rem 0 0.9rem;
+      background: #fff;
+    }
+    .offer-carousel.has-multiple + .offer-dots { display: flex; }
+    .offer-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--border, #ecdfe8);
+      border: none;
+      cursor: pointer;
+      padding: 0;
+      transition: background 0.2s ease, transform 0.2s ease;
+    }
+    .offer-dot.active {
+      background: var(--mauve);
+      transform: scale(1.25);
     }
 
     /* ---------- Responsive breakpoints ---------- */
@@ -473,25 +560,39 @@
     </div>
   </section>
 
-  <!-- Offer Popup -->
+  <!-- Offer Popup — slides are built dynamically from /api/promotions/active -->
   <div class="offer-overlay" id="offerOverlay">
     <div class="offer-modal">
       <button class="offer-close" id="offerClose" aria-label="Close">&times;</button>
       <span class="offer-timer" id="offerTimer">10</span>
-      <img src="assests/offer.png" alt="Delicute Anniversary Offer" />
+      <div class="offer-carousel" id="offerCarousel">
+        <button class="offer-nav prev" id="offerPrev" aria-label="Previous">&#8249;</button>
+        <div class="offer-track" id="offerTrack"><!-- slides injected here --></div>
+        <button class="offer-nav next" id="offerNext" aria-label="Next">&#8250;</button>
+      </div>
+      <div class="offer-dots" id="offerDots"><!-- dots injected here --></div>
     </div>
   </div>
 
   <script>
-    const exploreBtn   = document.getElementById('exploreBtn');
-    const offerOverlay = document.getElementById('offerOverlay');
+    const exploreBtn    = document.getElementById('exploreBtn');
+    const offerOverlay  = document.getElementById('offerOverlay');
     const offerClose    = document.getElementById('offerClose');
     const offerTimer    = document.getElementById('offerTimer');
-    const MENU_PAGE      = 'customermenu.html';
+    const offerCarousel = document.getElementById('offerCarousel');
+    const offerTrack    = document.getElementById('offerTrack');
+    const offerDots     = document.getElementById('offerDots');
+    const offerPrev     = document.getElementById('offerPrev');
+    const offerNext     = document.getElementById('offerNext');
+
+    const MENU_PAGE       = 'customermenu.html';
     const AUTO_CLOSE_SECS = 10;
+    const PROMOTIONS_ENDPOINT = '/api/promotions/active';
 
     let countdownInterval;
     let autoCloseTimeout;
+    let activePromotions = [];
+    let currentSlide = 0;
 
     /* =========================================================
        TABLE DETECTION
@@ -520,7 +621,78 @@
         : MENU_PAGE;
     }
 
+    /* =========================================================
+       Fetch active promotions in the background as soon as the
+       page loads, so they're already ready by the time the user
+       taps "Explore Our Menu" — no waiting on click.
+       ========================================================= */
+    async function loadActivePromotions() {
+      try {
+        const response = await fetch(PROMOTIONS_ENDPOINT, { cache: 'no-store' });
+        if (!response.ok) throw new Error('Request failed');
+        const { success, data } = await response.json();
+        if (success && Array.isArray(data)) {
+          // Only keep promotions that actually have an image to show
+          activePromotions = data.filter(p => p.image);
+        }
+      } catch (err) {
+        console.error('Active Promotions Fetch Error:', err);
+        activePromotions = []; // fail quietly — just skip the popup
+      }
+    }
+    loadActivePromotions();
+
+    function escapeHtml(text) {
+      const div = document.createElement('div');
+      div.textContent = text || '';
+      return div.innerHTML;
+    }
+
+    function buildSlides() {
+      offerTrack.innerHTML = activePromotions.map(p => `
+        <div class="offer-slide">
+          <img src="${escapeHtml(p.image)}" alt="${escapeHtml(p.title || 'Delicute Offer')}" />
+          ${(p.title || p.description) ? `
+            <div class="offer-slide-caption">
+              ${p.title ? `<div class="offer-title">${escapeHtml(p.title)}</div>` : ''}
+              ${p.description ? `<div class="offer-desc">${escapeHtml(p.description)}</div>` : ''}
+            </div>` : ''}
+        </div>
+      `).join('');
+
+      offerDots.innerHTML = activePromotions.map((_, i) =>
+        `<button class="offer-dot${i === 0 ? ' active' : ''}" data-index="${i}" aria-label="Go to offer ${i + 1}"></button>`
+      ).join('');
+
+      offerCarousel.classList.toggle('has-multiple', activePromotions.length > 1);
+      currentSlide = 0;
+      updateTrackPosition();
+
+      offerDots.querySelectorAll('.offer-dot').forEach(dot => {
+        dot.addEventListener('click', () => {
+          goToSlide(parseInt(dot.dataset.index, 10));
+        });
+      });
+    }
+
+    function updateTrackPosition() {
+      offerTrack.style.transform = `translateX(-${currentSlide * 100}%)`;
+      offerDots.querySelectorAll('.offer-dot').forEach((dot, i) => {
+        dot.classList.toggle('active', i === currentSlide);
+      });
+    }
+
+    function goToSlide(index) {
+      if (activePromotions.length === 0) return;
+      currentSlide = (index + activePromotions.length) % activePromotions.length;
+      updateTrackPosition();
+    }
+
+    offerPrev.addEventListener('click', () => goToSlide(currentSlide - 1));
+    offerNext.addEventListener('click', () => goToSlide(currentSlide + 1));
+
     function openOfferPopup() {
+      buildSlides();
       offerOverlay.classList.add('show');
       document.body.style.overflow = 'hidden';
 
@@ -547,6 +719,11 @@
 
     exploreBtn.addEventListener('click', (e) => {
       e.preventDefault();
+      // If there are no active promotions with an image, skip the popup entirely
+      if (!activePromotions.length) {
+        goToMenu();
+        return;
+      }
       openOfferPopup();
     });
 

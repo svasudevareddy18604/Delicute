@@ -44,9 +44,13 @@ async function uploadToCloudinary(fileBuffer, filename) {
   });
 }
 
-// Helper to format date to YYYY-MM-DD
+// Helper to format date to YYYY-MM-DD. Returns null for empty/invalid input
+// instead of throwing, since dates are now optional everywhere.
 function formatToDateOnly(date) {
-  return new Date(date).toISOString().split('T')[0];
+  if (!date || `${date}`.trim() === "") return null;
+  const d = new Date(date);
+  if (isNaN(d.getTime())) return null;
+  return d.toISOString().split("T")[0];
 }
 
 /* ================================
@@ -63,6 +67,30 @@ router.get("/", authenticate, async (req, res) => {
   } catch (err) {
     console.error("Promotions Fetch Error:", err);
     res.status(500).json({ success: false, message: "Failed to fetch promotions" });
+  }
+});
+
+/* ================================
+   GET active promotions (PUBLIC — no auth)
+   Used by the customer-facing welcome page popup.
+   "Active" = has an image AND (no start_date or start_date <= today)
+   AND (no end_date or end_date >= today). Promotions with no dates
+   at all are always considered active.
+================================ */
+router.get("/active", async (req, res) => {
+  try {
+    const [rows] = await pool.query(`
+      SELECT id, title, description, image, DATE(start_date) as start_date, DATE(end_date) as end_date, created_at
+      FROM promotions
+      WHERE image IS NOT NULL
+        AND (start_date IS NULL OR start_date <= CURDATE())
+        AND (end_date IS NULL OR end_date >= CURDATE())
+      ORDER BY created_at DESC
+    `);
+    res.json({ success: true, data: rows });
+  } catch (err) {
+    console.error("Active Promotions Fetch Error:", err);
+    res.status(500).json({ success: false, message: "Failed to fetch active promotions" });
   }
 });
 
@@ -91,34 +119,46 @@ router.get("/:id", authenticate, async (req, res) => {
 
 /* ================================
    ADD new promotion
+   Every field is optional now — title, description, image, start_date,
+   end_date can each be left out. We only require that AT LEAST ONE
+   field is provided so an entirely blank row can't be created.
 ================================ */
 router.post("/", authenticate, upload.single("image"), async (req, res) => {
   try {
     const { title, description, start_date, end_date } = req.body;
-    if (!title || !description || !start_date || !end_date || !req.file) {
-      return res.status(400).json({ success: false, message: "All fields are required" });
+    const hasFile = !!req.file;
+
+    const trimmedTitle = title && title.trim() !== "" ? title.trim() : null;
+    const trimmedDescription = description && description.trim() !== "" ? description.trim() : null;
+
+    if (!trimmedTitle && !trimmedDescription && !start_date && !end_date && !hasFile) {
+      return res.status(400).json({ success: false, message: "Please provide at least one field" });
     }
 
     const formattedStartDate = formatToDateOnly(start_date);
     const formattedEndDate = formatToDateOnly(end_date);
 
-    if (new Date(formattedEndDate) < new Date(formattedStartDate)) {
+    // Only validate ordering when BOTH dates were actually supplied
+    if (formattedStartDate && formattedEndDate && new Date(formattedEndDate) < new Date(formattedStartDate)) {
       return res.status(400).json({ success: false, message: "End date must be after start date" });
     }
 
-    // Upload image to Cloudinary
-    const imageUrl = await uploadToCloudinary(req.file.buffer, req.file.originalname);
+    // Upload image to Cloudinary only if one was provided
+    let imageUrl = null;
+    if (hasFile) {
+      imageUrl = await uploadToCloudinary(req.file.buffer, req.file.originalname);
+    }
 
     const [result] = await pool.query(
       `INSERT INTO promotions (title, description, image, start_date, end_date)
        VALUES (?, ?, ?, ?, ?)`,
-      [title, description, imageUrl, formattedStartDate, formattedEndDate]
+      [trimmedTitle, trimmedDescription, imageUrl, formattedStartDate, formattedEndDate]
     );
 
     const newPromotion = {
       id: result.insertId,
-      title,
-      description,
+      title: trimmedTitle,
+      description: trimmedDescription,
       image: imageUrl,
       start_date: formattedStartDate,
       end_date: formattedEndDate,
@@ -138,37 +178,62 @@ router.post("/", authenticate, upload.single("image"), async (req, res) => {
 
 /* ================================
    UPDATE promotion
+   Every field is optional. Sending an empty string for title/description/
+   start_date/end_date explicitly CLEARS that field (sets it to NULL).
+   Omitting a field entirely leaves it untouched.
 ================================ */
 router.put("/:id", authenticate, upload.single("image"), async (req, res) => {
   try {
     const { id } = req.params;
     const { title, description, start_date, end_date } = req.body;
 
-    // Build update query dynamically
+    // Fetch the existing row first so we can validate date ordering even
+    // when only one of start_date/end_date is being changed this request.
+    const [existingRows] = await pool.query(
+      `SELECT id, title, description, image, DATE(start_date) as start_date, DATE(end_date) as end_date
+       FROM promotions WHERE id = ?`,
+      [id]
+    );
+    if (existingRows.length === 0) {
+      return res.status(404).json({ success: false, message: "Promotion not found" });
+    }
+    const existing = existingRows[0];
+
     const fields = [];
     const values = [];
 
-    if (title) {
+    if (title !== undefined) {
+      const trimmedTitle = title.trim() === "" ? null : title.trim();
       fields.push("title = ?");
-      values.push(title);
+      values.push(trimmedTitle);
     }
+
     if (description !== undefined) {
+      const trimmedDescription = description.trim() === "" ? null : description.trim();
       fields.push("description = ?");
-      values.push(description);
+      values.push(trimmedDescription);
     }
-    if (start_date) {
-      const formattedStartDate = formatToDateOnly(start_date);
+
+    let effectiveStart = existing.start_date;
+    let effectiveEnd = existing.end_date;
+
+    if (start_date !== undefined) {
+      effectiveStart = formatToDateOnly(start_date); // null if cleared/blank
       fields.push("start_date = ?");
-      values.push(formattedStartDate);
+      values.push(effectiveStart);
     }
-    if (end_date) {
-      const formattedEndDate = formatToDateOnly(end_date);
-      if (start_date && new Date(formattedEndDate) < new Date(formatToDateOnly(start_date))) {
-        return res.status(400).json({ success: false, message: "End date must be after start date" });
-      }
+
+    if (end_date !== undefined) {
+      effectiveEnd = formatToDateOnly(end_date); // null if cleared/blank
       fields.push("end_date = ?");
-      values.push(formattedEndDate);
+      values.push(effectiveEnd);
     }
+
+    // Validate ordering using the EFFECTIVE dates (existing + incoming merged)
+    if (effectiveStart && effectiveEnd && new Date(effectiveEnd) < new Date(effectiveStart)) {
+      return res.status(400).json({ success: false, message: "End date must be after start date" });
+    }
+
     if (req.file) {
       const imageUrl = await uploadToCloudinary(req.file.buffer, req.file.originalname);
       fields.push("image = ?");
@@ -199,7 +264,7 @@ router.put("/:id", authenticate, upload.single("image"), async (req, res) => {
     );
     io.emit("update-promotion", updatedPromotion[0]);
 
-    res.json({ success: true, message: "Promotion updated successfully" });
+    res.json({ success: true, data: updatedPromotion[0], message: "Promotion updated successfully" });
   } catch (err) {
     console.error("Promotion Update Error:", err);
     res.status(500).json({ success: false, message: "Failed to update promotion" });
