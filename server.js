@@ -70,7 +70,15 @@ const ordersRoutes = require("./routes/orders");
 const couponsRoutes = require("./routes/coupons");
 const customerMenuRoutes = require("./routes/customermenu");
 const promotionsRoutes = require("./routes/promotions");
+const superadminAuthRoutes = require("./routes/superadmin"); // NEW — separate superadmin auth system
+const superadminMaintenanceRoutes = require("./routes/superadmin-maintenance");
 
+const superadminDashboardRoutes = require("./routes/superadmin-dashboard");
+const superadminOrdersRoutes = require("./routes/superadmin-orders");
+const maintenanceGate = require("./middleware/maintenanceGate");
+
+
+app.use(maintenanceGate);
 app.use("/api/auth", authRoutes);
 app.use("/api/menu", menuRoutes);
 app.use("/api/categories", categoriesRoutes);
@@ -78,6 +86,10 @@ app.use("/api/orders", ordersRoutes);
 app.use("/api/coupons", couponsRoutes);
 app.use("/api", customerMenuRoutes);
 app.use("/api/promotions", promotionsRoutes);
+app.use("/api/superadmin/auth", superadminAuthRoutes); // NEW
+app.use("/api/superadmin/maintenance", superadminMaintenanceRoutes);
+app.use("/api/superadmin/dashboard", superadminDashboardRoutes);
+app.use("/api/superadmin/orders", superadminOrdersRoutes);
 
 // ================== TEST EMAIL ROUTE ==================
 app.get("/test-email", async (req, res) => {
@@ -134,6 +146,15 @@ app.get("/coupons", (_, res) =>
 
 app.get("/promotions", (_, res) =>
   res.redirect("/adminpromotions.html")
+);
+
+// NEW — superadmin console redirects
+app.get("/superadmin", (_, res) =>
+  res.redirect("/superadminlogin.html")
+);
+
+app.get("/superadmindashboard", (_, res) =>
+  res.redirect("/superadmindashboard.html")
 );
 
 // ================== HOME ==================
