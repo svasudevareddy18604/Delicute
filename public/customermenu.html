@@ -32,6 +32,15 @@
     --toast-success-2: #3CB371;
     --toast-error-1: #C0392B;
     --toast-error-2: #E74C3C;
+    /* ---- New: distinct action colors for cart buttons ---- */
+    --apply-1: #2E8B57;
+    --apply-2: #43B77B;
+    --remove-1: #C0392B;
+    --remove-2: #E05B4A;
+    --clear-1: #B23A2E;
+    --clear-2: #D9483A;
+    --coupon-gold-1: #E8A93B;
+    --coupon-gold-2: #F2C464;
   }
 
   * {
@@ -527,32 +536,66 @@
     font-family: Arial, sans-serif;
   }
 
-  .coupon-box { margin: 0.6rem 0; display: flex; flex-wrap: wrap; gap: 0.3rem; align-items: center; }
+  /* ---------- Coupon box: Apply (green) + Remove (red outline) ---------- */
+  .coupon-box { margin: 0.6rem 0; display: flex; flex-wrap: wrap; gap: 0.4rem; align-items: center; }
   .coupon-box input {
-    flex: 1; padding: 0.6rem;
+    flex: 1; min-width: 140px; padding: 0.6rem;
     border: 1px solid var(--primary-purple); border-radius: 6px;
     font-size: clamp(0.75rem, 1.8vw, 0.85rem); color: var(--dark);
     background: #FFFFFF; outline: none; font-family: Arial, sans-serif;
   }
-  .coupon-box button {
-    background: linear-gradient(45deg, var(--primary-purple), var(--lilac));
+
+  .apply-btn {
+    background: linear-gradient(45deg, var(--apply-1), var(--apply-2));
     color: #FFFFFF; border: none;
     padding: 0.6rem 0.9rem; border-radius: 6px; cursor: pointer;
-    font-size: clamp(0.75rem, 1.8vw, 0.85rem); font-weight: 600;
-    transition: background 0.2s ease;
+    font-size: clamp(0.75rem, 1.8vw, 0.85rem); font-weight: 700;
+    transition: background 0.2s ease, transform 0.15s ease;
+    box-shadow: 0 2px 6px rgba(46, 139, 87, 0.3);
+    display: inline-flex; align-items: center; gap: 0.3rem;
   }
-  .coupon-box button:hover { background: linear-gradient(45deg, var(--primary-purple-dark), var(--lilac)); }
+  .apply-btn:hover { background: linear-gradient(45deg, #256E46, var(--apply-1)); transform: translateY(-1px); }
+
+  .remove-btn {
+    background: #FFFFFF;
+    color: var(--remove-1);
+    border: 1.5px solid var(--remove-1);
+    padding: 0.55rem 0.9rem; border-radius: 6px; cursor: pointer;
+    font-size: clamp(0.75rem, 1.8vw, 0.85rem); font-weight: 700;
+    transition: background 0.2s ease, color 0.2s ease, transform 0.15s ease;
+    display: inline-flex; align-items: center; gap: 0.3rem;
+  }
+  .remove-btn:hover { background: var(--remove-1); color: #FFFFFF; transform: translateY(-1px); }
+
+  /* Clear Cart — red, clearly a destructive action */
+  .clear-cart-btn {
+    width: 100%;
+    background: linear-gradient(45deg, var(--clear-1), var(--clear-2));
+    color: #FFFFFF; border: none;
+    padding: 0.65rem; border-radius: 6px; cursor: pointer;
+    font-size: clamp(0.75rem, 1.8vw, 0.85rem); font-weight: 700;
+    margin-top: 0.5rem; transition: background 0.2s ease, transform 0.15s ease;
+    box-shadow: 0 3px 8px rgba(178, 58, 46, 0.35);
+    display: flex; align-items: center; justify-content: center; gap: 0.4rem;
+    letter-spacing: 0.3px;
+  }
+  .clear-cart-btn:hover { background: linear-gradient(45deg, #8F2E24, var(--clear-1)); transform: translateY(-1px); }
+
+  /* View Available Coupons — gold, feels like a reward/offer link */
   .coupon-btn {
     width: 100%;
-    background: linear-gradient(45deg, var(--lilac), var(--primary-purple));
-    color: #1A1A1A; border: none;
-    padding: 0.6rem; border-radius: 6px; cursor: pointer;
-    font-size: clamp(0.75rem, 1.8vw, 0.85rem); font-weight: 600;
+    background: linear-gradient(45deg, var(--coupon-gold-1), var(--coupon-gold-2));
+    color: #4A2E00; border: none;
+    padding: 0.65rem; border-radius: 6px; cursor: pointer;
+    font-size: clamp(0.75rem, 1.8vw, 0.85rem); font-weight: 700;
     margin-top: 0.3rem;
-    box-shadow: 0 2px 5px rgba(216, 183, 210, 0.1);
-    display: flex; align-items: center; justify-content: center; gap: 0.3rem;
+    box-shadow: 0 3px 8px rgba(232, 169, 59, 0.4);
+    display: flex; align-items: center; justify-content: center; gap: 0.4rem;
+    text-decoration: none;
+    transition: background 0.2s ease, transform 0.15s ease;
+    letter-spacing: 0.3px;
   }
-  .coupon-btn:hover { background: linear-gradient(45deg, var(--lilac), var(--primary-purple-dark)); }
+  .coupon-btn:hover { background: linear-gradient(45deg, #D89425, var(--coupon-gold-1)); transform: translateY(-1px); }
 
   .total-box { margin-top: 0.6rem; border-top: 1px solid var(--lilac); padding-top: 0.6rem; font-family: Arial, sans-serif; }
   .line { display: flex; justify-content: space-between; margin: 0.3rem 0; font-size: clamp(0.8rem, 1.8vw, 0.9rem); }
@@ -575,15 +618,6 @@
     box-shadow: 0 2px 5px rgba(216, 183, 210, 0.1);
   }
   .order-form button:hover { background: linear-gradient(45deg, var(--lilac), var(--primary-purple-dark)); }
-  .clear-cart-btn {
-    width: 100%; background: linear-gradient(45deg, var(--primary-purple), var(--lilac));
-    color: #FFFFFF; border: none;
-    padding: 0.6rem; border-radius: 6px; cursor: pointer;
-    font-size: clamp(0.75rem, 1.8vw, 0.85rem); font-weight: 600;
-    margin-top: 0.5rem; transition: background 0.2s ease;
-    box-shadow: 0 2px 5px rgba(142, 68, 173, 0.1);
-  }
-  .clear-cart-btn:hover { background: linear-gradient(45deg, var(--primary-purple-dark), var(--lilac)); }
 
   .table-detect-banner {
     font-family: Arial, sans-serif;
@@ -664,7 +698,7 @@
     .qty-controls span { font-size: 0.75rem; }
     .cart-item .line-total { font-size: 0.75rem; min-width: 35px; }
     .coupon-box input { font-size: 0.7rem; padding: 0.5rem; }
-    .coupon-box button { font-size: 0.7rem; padding: 0.5rem 0.7rem; }
+    .apply-btn, .remove-btn { font-size: 0.7rem; padding: 0.5rem 0.7rem; }
     .coupon-btn { font-size: 0.7rem; padding: 0.5rem; }
     .order-form input, .order-form textarea { font-size: 0.7rem; padding: 0.5rem; }
     .order-form button { font-size: 0.75rem; padding: 0.6rem; }
@@ -719,11 +753,11 @@
     <div id="cartItems"></div>
     <div class="coupon-box">
       <input type="text" id="couponCode" placeholder="Enter coupon code">
-      <button onclick="applyCoupon()">Apply</button>
-      <button onclick="removeCoupon()">Remove</button>
-      <button class="clear-cart-btn" onclick="clearCart()">Clear Cart</button>
-      <a href="customercoupons.html" class="coupon-btn"><i class="fas fa-ticket-alt"></i> View Available Coupons</a>
+      <button class="apply-btn" onclick="applyCoupon()"><i class="fas fa-check"></i> Apply</button>
+      <button class="remove-btn" onclick="removeCoupon()"><i class="fas fa-times"></i> Remove</button>
     </div>
+    <button class="clear-cart-btn" onclick="clearCart()"><i class="fas fa-trash-alt"></i> Clear Cart</button>
+    <a href="customercoupons.html" class="coupon-btn"><i class="fas fa-ticket-alt"></i> View Available Coupons</a>
     <div class="total-box">
       <div class="line"><span>Subtotal:</span><span id="subtotal">₹0</span></div>
       <div class="line"><span>Discount:</span><span id="discount">₹0</span></div>
