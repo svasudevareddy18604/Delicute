@@ -585,6 +585,26 @@
   }
   .clear-cart-btn:hover { background: linear-gradient(45deg, var(--primary-purple-dark), var(--lilac)); }
 
+  /* ---------- Table detect banner (shown above the Table Number field) ---------- */
+  .table-detect-banner {
+    font-family: Arial, sans-serif;
+    font-size: 0.75rem;
+    font-weight: 600;
+    margin-bottom: 0.35rem;
+    padding: 0.4rem 0.6rem;
+    border-radius: 6px;
+  }
+  .table-detect-banner.success { color: #fff; background: linear-gradient(45deg, var(--delivered), #3CB371); }
+  .table-detect-banner.error { color: #fff; background: linear-gradient(45deg, var(--cancelled), #E74C3C); }
+
+  .order-form input#tableNum[readonly] {
+    background: var(--bg-lavender);
+    font-weight: 700;
+    color: var(--primary-purple-dark);
+    cursor: not-allowed;
+    border-color: var(--delivered);
+  }
+
   #toast {
     visibility: hidden;
     min-width: 180px; max-width: 90%;
@@ -712,6 +732,7 @@
     </div>
     <div class="order-form">
       <input type="text" id="custName" placeholder="Your Name">
+      <div id="tableDetectBanner"></div>
       <input type="number" id="tableNum" placeholder="Table Number" min="1">
       <textarea id="instructions" placeholder="Instructions"></textarea>
       <button onclick="placeOrder()">Place Order</button>
@@ -744,6 +765,9 @@
     let menuPollInterval = null;
     let isPolling = false;
     let toastTimeoutHandle = null;
+
+    // Set once a QR-scanned table has been verified against the backend.
+    let scannedTableNumber = null;
 
     function setupCategoryAnimations() {
       const headers = document.querySelectorAll('h2');
@@ -821,6 +845,54 @@
       localStorage.removeItem("appliedCoupon");
       showToast("Cart cleared!", true);
       renderCart();
+    }
+
+    /* =========================================================
+       TABLE DETECTION — hit the moment a customer arrives here
+       from a scanned QR (via index.html?table=5 -> forwarded, or
+       directly if the QR ever points straight at this page).
+       Verifies the table against the backend before trusting it,
+       then locks the Table Number field so it can't be edited.
+       ========================================================= */
+
+    async function detectScannedTable() {
+      const urlParams = new URLSearchParams(window.location.search);
+      let tableParam = urlParams.get('table');
+
+      if (!tableParam) {
+        // fall back to what index.html stashed on the way here
+        tableParam = sessionStorage.getItem('delicute_table');
+      } else {
+        sessionStorage.setItem('delicute_table', tableParam);
+      }
+
+      const tableNumInput = document.getElementById('tableNum');
+      if (!tableParam || !tableNumInput) return;
+
+      try {
+        const res = await fetch(`/api/tables/scan/${encodeURIComponent(tableParam)}`);
+        const data = await res.json();
+
+        if (res.ok && data.success) {
+          scannedTableNumber = data.table.number;
+          tableNumInput.value = scannedTableNumber;
+          tableNumInput.readOnly = true;
+          showTableBanner(`✓ Table ${scannedTableNumber} detected — you're all set`, true);
+        } else {
+          showTableBanner(data.message || 'Could not verify this table — please enter it manually', false);
+          sessionStorage.removeItem('delicute_table');
+        }
+      } catch (err) {
+        console.error('Table detection error:', err);
+        // network hiccup — don't block ordering, just leave the field editable
+      }
+    }
+
+    function showTableBanner(msg, success) {
+      const banner = document.getElementById('tableDetectBanner');
+      if (!banner) return;
+      banner.textContent = msg;
+      banner.className = 'table-detect-banner ' + (success ? 'success' : 'error');
     }
 
     async function loadMenu() {
@@ -1435,7 +1507,8 @@
           cart = [];
           appliedCoupon = null;
           if (custNameInput) custNameInput.value = "";
-          if (tableNumInput) tableNumInput.value = "";
+          // Keep the table number if it was scanned/verified — reset only if it was manually typed.
+          if (!scannedTableNumber && tableNumInput) tableNumInput.value = "";
           if (document.getElementById("instructions")) document.getElementById("instructions").value = "";
           if (document.getElementById("couponCode")) document.getElementById("couponCode").value = "";
           localStorage.removeItem("cart");
@@ -1536,6 +1609,7 @@
 
     window.addEventListener("load", () => {
       loadCart();
+      detectScannedTable();
       const openCart = localStorage.getItem("openCart");
       const couponCode = localStorage.getItem("appliedCoupon");
       if (openCart === "true" && cartSection) {

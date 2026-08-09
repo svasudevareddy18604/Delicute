@@ -1,0 +1,936 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Manage Tables | DELICUTE</title>
+  <link rel="icon" href="https://i.postimg.cc/W3pgQx9q/DELICUTE-Imgur-1-modified.png">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <style>
+    :root {
+      --primary-purple: #8e44ad;
+      --primary-purple-dark: #5c3a52;
+      --nav-dark: #3f2838;
+      --bg-lilac: #fbf6ee;
+      --dark: #2a1f26;
+      --muted: #8a7688;
+      --border: #ecdfe8;
+      --gold: #d9a94c;
+      --gold-light: #f2d49b;
+      --delivered: #2e9e6b;
+      --cancelled: #d64545;
+      --radius: 14px;
+      --shadow-sm: 0 2px 12px rgba(92, 58, 82, 0.08);
+      --shadow-md: 0 10px 28px rgba(92, 58, 82, 0.16);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Roboto', sans-serif;
+      background: var(--bg-lilac);
+      color: var(--dark);
+      min-height: 100vh;
+      line-height: 1.5;
+      overscroll-behavior: contain;
+    }
+
+    header {
+      background: linear-gradient(90deg, var(--primary-purple-dark), var(--primary-purple));
+      color: #fff;
+      padding: 1rem 1.25rem 1.2rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      box-shadow: var(--shadow-md);
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      text-align: center;
+      overflow: hidden;
+    }
+
+    header::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 55%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.12), transparent);
+      animation: shine 6s ease-in-out infinite;
+      pointer-events: none;
+    }
+
+    @keyframes shine { 0% { left: -60%; } 55% { left: 130%; } 100% { left: 130%; } }
+
+    header img { height: 50px; width: 50px; object-fit: contain; border-radius: 50%; background: #fff; box-shadow: 0 2px 8px rgba(0,0,0,0.25); position: relative; z-index: 1; }
+    header h1 { font-family: 'Playfair Display', serif; font-weight: 800; font-size: 1.8rem; letter-spacing: 0.3px; margin-top: 0.4rem; position: relative; z-index: 1; }
+    header span.tagline { font-size: 0.8rem; opacity: 0.85; position: relative; z-index: 1; }
+
+    .top-actions { position: absolute; top: 0.8rem; right: 0.8rem; display: flex; align-items: center; gap: 0.5rem; z-index: 2; }
+
+    .logout-btn {
+      background: #fff; color: var(--primary-purple-dark);
+      border: none; padding: 0 0.9rem; height: 38px;
+      border-radius: 8px; font-weight: 700; font-size: 0.85rem; cursor: pointer;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      box-shadow: 0 3px 10px rgba(0,0,0,0.15);
+    }
+    .logout-btn:hover { transform: translateY(-1px); box-shadow: 0 5px 14px rgba(0,0,0,0.22); }
+
+    nav { background: var(--nav-dark); display: flex; justify-content: center; overflow-x: auto; }
+    nav a {
+      flex: 0 0 auto; padding: 0.85rem 1.1rem; color: #ddd; text-decoration: none;
+      font-size: 0.9rem; font-weight: 500; white-space: nowrap;
+      transition: color 0.2s ease, background 0.2s ease;
+    }
+    nav a:hover { background: rgba(139, 107, 201, 0.25); color: #fff; }
+    nav a.active { color: var(--gold-light); background: rgba(217, 169, 76, 0.12); }
+
+    .content-wrapper { max-width: 1100px; margin: 0 auto; padding: 1.25rem 1.25rem 2.2rem; }
+
+    .dev-notice {
+      background: #fff7e6; border: 1px solid var(--gold-light); border-radius: 10px;
+      padding: 0.65rem 1rem; font-size: 0.8rem; color: #7a5c1e; margin-bottom: 1.2rem;
+      display: flex; align-items: center; gap: 0.55rem;
+    }
+    .dev-notice i { color: var(--gold); }
+    .dev-notice.err { background: #fdecec; border-color: #f3b9b9; color: #7a1e1e; }
+    .dev-notice.err i { color: var(--cancelled); }
+
+    .page-title-row {
+      display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.8rem;
+      margin-bottom: 1.2rem;
+    }
+    .page-title-row h2 {
+      font-family: 'Playfair Display', serif; font-weight: 700; font-size: 1.4rem; color: var(--primary-purple-dark);
+      display: flex; align-items: center; gap: 0.55rem;
+    }
+    .page-title-row h2 i { color: var(--gold); }
+
+    .add-table-btn {
+      background: linear-gradient(135deg, var(--primary-purple), var(--primary-purple-dark));
+      color: #fff; border: none; padding: 0.7rem 1.2rem; border-radius: 10px;
+      font-weight: 700; font-size: 0.88rem; cursor: pointer; display: flex; align-items: center; gap: 0.5rem;
+      box-shadow: var(--shadow-sm); transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .add-table-btn:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); }
+    .add-table-btn:disabled, .logout-btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+
+    .settings-bar {
+      background: #fff; border: 1px solid var(--border); border-radius: 12px; box-shadow: var(--shadow-sm);
+      padding: 0.9rem 1rem; margin-bottom: 1.2rem;
+    }
+    .settings-bar label {
+      font-size: 0.78rem; font-weight: 700; color: var(--primary-purple-dark);
+      display: flex; align-items: center; gap: 0.4rem; margin-bottom: 0.4rem;
+    }
+    .settings-row { display: flex; gap: 0.6rem; flex-wrap: wrap; }
+    .settings-row input {
+      flex: 1 1 260px; padding: 0.6rem 0.8rem; border: 1px solid var(--border); border-radius: 8px;
+      font-family: 'Roboto', sans-serif; font-size: 0.85rem; background: var(--bg-lilac); color: var(--dark);
+      outline: none; transition: border-color 0.2s ease;
+    }
+    .settings-row input:focus { border-color: var(--primary-purple); }
+    .settings-row button {
+      padding: 0.6rem 1.1rem; border-radius: 8px; border: none; background: var(--primary-purple-dark);
+      color: #fff; font-weight: 700; font-size: 0.82rem; cursor: pointer;
+    }
+    .settings-hint { font-size: 0.72rem; color: var(--muted); margin-top: 0.4rem; }
+
+    .toolbar {
+      background: #fff; border: 1px solid var(--border); border-radius: 12px; box-shadow: var(--shadow-sm);
+      padding: 0.85rem 1rem; display: flex; flex-wrap: wrap; gap: 0.75rem; align-items: center; margin-bottom: 1.4rem;
+    }
+    .search-box { flex: 1 1 220px; position: relative; }
+    .search-box i { position: absolute; left: 0.8rem; top: 50%; transform: translateY(-50%); color: var(--muted); font-size: 0.85rem; }
+    .search-box input {
+      width: 100%; padding: 0.6rem 0.8rem 0.6rem 2.1rem; border: 1px solid var(--border); border-radius: 8px;
+      font-family: 'Roboto', sans-serif; font-size: 0.88rem; background: var(--bg-lilac); color: var(--dark);
+      outline: none; transition: border-color 0.2s ease;
+    }
+    .search-box input:focus { border-color: var(--primary-purple); }
+
+    .filter-pills { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+    .filter-pill {
+      padding: 0.5rem 0.9rem; border-radius: 20px; border: 1px solid var(--border); background: var(--bg-lilac);
+      font-size: 0.8rem; font-weight: 700; color: var(--muted); cursor: pointer; transition: all 0.2s ease;
+      white-space: nowrap;
+    }
+    .filter-pill.active { background: var(--primary-purple); color: #fff; border-color: var(--primary-purple); }
+
+    .stats-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.9rem; margin-bottom: 1.4rem; }
+    .stat-card {
+      background: #fff; border: 1px solid var(--border); border-radius: 12px; padding: 0.9rem 1rem;
+      box-shadow: var(--shadow-sm); text-align: center;
+    }
+    .stat-card .num { font-family: 'Playfair Display', serif; font-weight: 800; font-size: 1.5rem; color: var(--primary-purple-dark); }
+    .stat-card .label { font-size: 0.75rem; color: var(--muted); font-weight: 600; margin-top: 0.15rem; }
+    .stat-card.active .num { color: var(--delivered); }
+    .stat-card.inactive .num { color: var(--cancelled); }
+
+    .table-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; }
+
+    .table-card {
+      background: #fff; border: 1px solid var(--border); border-radius: 14px; padding: 1.1rem;
+      box-shadow: var(--shadow-sm); position: relative; transition: transform 0.2s ease, box-shadow 0.2s ease;
+      display: flex; flex-direction: column;
+    }
+    .table-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-md); }
+
+    .table-card-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.7rem; }
+    .table-card-top h3 { font-family: 'Playfair Display', serif; font-size: 1.15rem; color: var(--dark); }
+
+    .status-badge {
+      font-size: 0.62rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.4px;
+      padding: 3px 9px; border-radius: 20px; color: #fff; white-space: nowrap;
+    }
+    .status-badge.active-badge { background: var(--delivered); }
+    .status-badge.inactive-badge { background: var(--muted); }
+
+    .qr-preview {
+      width: 100%; aspect-ratio: 1/1; max-width: 150px; margin: 0 auto 0.7rem;
+      display: flex; align-items: center; justify-content: center; background: var(--bg-lilac);
+      border-radius: 10px; border: 1px solid var(--border); padding: 0.5rem;
+    }
+    .qr-preview img, .qr-preview canvas { width: 100% !important; height: 100% !important; }
+
+    .table-card .meta { font-size: 0.8rem; color: var(--muted); margin-bottom: 0.15rem; text-align: center; }
+    .table-card .meta i { width: 16px; color: var(--primary-purple); }
+    .table-card .meta.empty { font-style: italic; opacity: 0.6; }
+
+    .table-card-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 0.45rem; margin-top: 0.9rem; }
+    .table-card-actions button {
+      padding: 0.5rem; border-radius: 8px; border: 1px solid var(--border); background: var(--bg-lilac);
+      font-family: 'Roboto', sans-serif; font-size: 0.74rem; font-weight: 700; color: var(--primary-purple-dark);
+      cursor: pointer; transition: background 0.2s ease;
+      display: flex; align-items: center; justify-content: center; gap: 0.3rem;
+    }
+    .table-card-actions button:hover { background: var(--border); }
+    .table-card-actions button.danger { color: var(--cancelled); }
+    .table-card-actions button.danger:hover { background: #fbe4e4; }
+    .table-card-actions button.full { grid-column: 1 / -1; background: var(--primary-purple); color: #fff; border-color: var(--primary-purple); }
+    .table-card-actions button.full:hover { background: var(--primary-purple-dark); }
+    .table-card-actions button:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    .empty-state { text-align: center; padding: 3.5rem 1rem; color: var(--muted); grid-column: 1/-1; }
+    .empty-state i { font-size: 2.4rem; color: var(--border); margin-bottom: 0.9rem; display: block; }
+    .empty-state p { font-size: 0.9rem; margin-bottom: 1rem; }
+    .empty-state.loading i { animation: spin 1s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .modal-overlay {
+      display: none; position: fixed; inset: 0; background: rgba(42, 31, 38, 0.6);
+      z-index: 2000; align-items: center; justify-content: center; padding: 1rem;
+    }
+    .modal-overlay.show { display: flex; }
+    .modal-box {
+      background: #fff; border-radius: 16px; width: 100%; max-width: 440px; padding: 1.5rem;
+      box-shadow: var(--shadow-md); max-height: 92vh; overflow-y: auto;
+    }
+    .modal-box h3 {
+      font-family: 'Playfair Display', serif; color: var(--primary-purple-dark); font-size: 1.2rem;
+      margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;
+    }
+    .form-group { margin-bottom: 0.9rem; }
+    .form-group label {
+      display: flex; justify-content: space-between; font-size: 0.8rem; font-weight: 700;
+      color: var(--dark); margin-bottom: 0.35rem;
+    }
+    .form-group label .optional-tag { font-weight: 500; color: var(--muted); font-size: 0.7rem; }
+    .form-group input, .form-group select {
+      width: 100%; padding: 0.6rem 0.75rem; border: 1px solid var(--border); border-radius: 8px;
+      font-family: 'Roboto', sans-serif; font-size: 0.88rem; background: var(--bg-lilac); outline: none;
+      transition: border-color 0.2s ease;
+    }
+    .form-group input:focus, .form-group select:focus { border-color: var(--primary-purple); }
+    .modal-actions { display: flex; gap: 0.6rem; margin-top: 1.2rem; }
+    .modal-actions button {
+      flex: 1; padding: 0.7rem; border-radius: 8px; font-weight: 700; font-size: 0.88rem; cursor: pointer; border: none;
+    }
+    .modal-actions .cancel-btn { background: var(--bg-lilac); color: var(--muted); border: 1px solid var(--border); }
+    .modal-actions .save-btn { background: linear-gradient(135deg, var(--primary-purple), var(--primary-purple-dark)); color: #fff; }
+    .modal-actions .save-btn:disabled { opacity: 0.65; cursor: not-allowed; }
+
+    /* QR preview modal */
+    .qr-modal-box { max-width: 360px; text-align: center; }
+    .qr-modal-box .big-qr {
+      width: 220px; height: 220px; margin: 0.5rem auto 1rem; background: var(--bg-lilac);
+      border: 1px solid var(--border); border-radius: 12px; display: flex; align-items: center; justify-content: center; padding: 0.7rem;
+    }
+    .qr-modal-box .big-qr img, .qr-modal-box .big-qr canvas { width: 100% !important; height: 100% !important; }
+    .qr-modal-box .qr-url {
+      font-size: 0.72rem; color: var(--muted); word-break: break-all; background: var(--bg-lilac);
+      padding: 0.5rem 0.7rem; border-radius: 8px; border: 1px solid var(--border); margin-bottom: 1rem;
+    }
+    .qr-modal-actions { display: flex; gap: 0.5rem; }
+    .qr-modal-actions button {
+      flex: 1; padding: 0.65rem; border-radius: 8px; border: none; font-weight: 700; font-size: 0.82rem; cursor: pointer;
+    }
+    .qr-modal-actions .dl-btn { background: var(--primary-purple); color: #fff; }
+    .qr-modal-actions .pr-btn { background: var(--gold); color: #4a370f; }
+    .qr-modal-actions .close-btn { background: var(--bg-lilac); color: var(--muted); border: 1px solid var(--border); }
+
+    #toast {
+      visibility: hidden; min-width: 200px; max-width: 300px; background: var(--delivered);
+      color: white; text-align: center; border-radius: 10px; padding: 0.8rem 1rem;
+      position: fixed; z-index: 3000; top: 20px; right: 20px; font-weight: 500; font-size: 0.85rem;
+      box-shadow: var(--shadow-md);
+    }
+    #toast.show { visibility: visible; animation: slideDown 0.4s ease-out, slideUp 0.4s ease-in 1.9s forwards; }
+    @keyframes slideDown { from { opacity: 0; transform: translateY(-15px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes slideUp { from { opacity: 1; transform: translateY(0); } to { opacity: 0; transform: translateY(-15px); } }
+
+    .site-footer { text-align: center; padding: 1.1rem 1rem 1.6rem; font-size: 0.85rem; color: var(--muted); font-weight: 600; }
+
+    @media (max-width: 980px) { .table-grid { grid-template-columns: repeat(3, 1fr); } }
+    @media (max-width: 760px) { .table-grid { grid-template-columns: repeat(2, 1fr); } .stats-row { grid-template-columns: repeat(3, 1fr); } }
+
+    @media (max-width: 600px) {
+      header h1 { font-size: 1.5rem; }
+      header img { height: 42px; width: 42px; }
+      .top-actions { right: 0.6rem; }
+      .logout-btn { height: 34px; padding: 0 0.7rem; font-size: 0.8rem; }
+      nav a { font-size: 0.82rem; padding: 0.7rem 0.85rem; }
+      .content-wrapper { padding: 1rem 0.9rem 1.6rem; }
+      .stats-row { grid-template-columns: repeat(3, 1fr); gap: 0.6rem; }
+      .table-grid { grid-template-columns: repeat(2, 1fr); gap: 0.7rem; }
+      .page-title-row h2 { font-size: 1.15rem; }
+      .add-table-btn { width: 100%; justify-content: center; }
+      .table-card-actions { grid-template-columns: 1fr 1fr; }
+    }
+
+    @media (max-width: 420px) { .table-grid { grid-template-columns: 1fr; } }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation-duration: 0.001ms !important; animation-iteration-count: 1 !important; transition-duration: 0.001ms !important; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="top-actions">
+      <button class="logout-btn" onclick="logout()">Logout</button>
+    </div>
+    <img src="https://i.postimg.cc/W3pgQx9q/DELICUTE-Imgur-1-modified.png" alt="DELICUTE Logo">
+    <div>
+      <h1>DELICUTE</h1>
+      <span class="tagline">Every Bite Tells A Story</span>
+    </div>
+  </header>
+
+  <nav>
+    <a href="admindashboard.html">Dashboard</a>
+    <a href="adminorders.html">Orders</a>
+    <a href="adminmenu.html">Menu</a>
+    <a href="admincoupons.html">Coupons</a>
+    <a href="admincategories.html">Categories</a>
+    <a href="admintoppicks.html">Top Picks</a>
+    <a href="adminpromotions.html">Promotions</a>
+    <a href="admintablemanage.html" class="active">Tables</a>
+  </nav>
+
+  <div class="content-wrapper">
+
+
+    <div class="page-title-row">
+      <h2><i class="fas fa-qrcode"></i>Manage Tables &amp; QR Codes</h2>
+      <button class="add-table-btn" id="add-table-btn" onclick="openModal()"><i class="fas fa-plus"></i>Add Table</button>
+    </div>
+
+    <div class="settings-bar">
+      <label><i class="fas fa-link"></i>Ordering Page URL (used to generate every table's QR code)</label>
+      <div class="settings-row">
+        <input type="url" id="base-url-input" placeholder="https://delicute-kxc9.onrender.com/menu.html">
+        <button onclick="saveBaseUrl()"><i class="fas fa-check"></i> Save</button>
+      </div>
+      <div class="settings-hint">Each QR will link to: <span id="url-example">yourdomain.com/menu.html?table=5</span> — scanning it auto-loads that exact table, no typing needed for the customer.</div>
+    </div>
+
+    <div class="stats-row">
+      <div class="stat-card">
+        <div class="num" id="stat-total">0</div>
+        <div class="label">Total Tables</div>
+      </div>
+      <div class="stat-card active">
+        <div class="num" id="stat-active">0</div>
+        <div class="label">Active</div>
+      </div>
+      <div class="stat-card inactive">
+        <div class="num" id="stat-inactive">0</div>
+        <div class="label">Inactive</div>
+      </div>
+    </div>
+
+    <div class="toolbar">
+      <div class="search-box">
+        <i class="fas fa-search"></i>
+        <input type="text" id="search-input" placeholder="Search table number or location..." oninput="renderTables()">
+      </div>
+      <div class="filter-pills" id="filter-pills">
+        <div class="filter-pill active" data-filter="all" onclick="setFilter('all')">All</div>
+        <div class="filter-pill" data-filter="active" onclick="setFilter('active')">Active</div>
+        <div class="filter-pill" data-filter="inactive" onclick="setFilter('inactive')">Inactive</div>
+        <div class="filter-pill" data-filter="Indoor" onclick="setFilter('Indoor')">Indoor</div>
+        <div class="filter-pill" data-filter="Outdoor" onclick="setFilter('Outdoor')">Outdoor</div>
+      </div>
+    </div>
+
+    <div class="table-grid" id="table-grid"></div>
+  </div>
+
+  <footer class="site-footer">
+    &copy; 2025 Delicute. All rights reserved.
+  </footer>
+
+  <!-- Add/Edit Table Modal -->
+  <div class="modal-overlay" id="modal-overlay">
+    <div class="modal-box">
+      <h3 id="modal-title"><i class="fas fa-chair"></i>Add Table</h3>
+      <form id="table-form" onsubmit="saveTable(event)">
+        <input type="hidden" id="table-id">
+
+        <div class="form-group">
+          <label>Table Number</label>
+          <input type="text" id="table-number" placeholder="e.g. 1 or T-01" required>
+        </div>
+
+        <div class="form-group">
+          <label>Seating Capacity <span class="optional-tag">optional</span></label>
+          <input type="number" id="table-capacity" min="1" max="20" placeholder="e.g. 4">
+        </div>
+
+        <div class="form-group">
+          <label>Location <span class="optional-tag">optional</span></label>
+          <select id="table-location">
+            <option value="">Not specified</option>
+            <option value="Indoor">Indoor</option>
+            <option value="Outdoor">Outdoor</option>
+            <option value="Balcony">Balcony</option>
+            <option value="Private Room">Private Room</option>
+            <option value="Rooftop">Rooftop</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Status</label>
+          <select id="table-status">
+            <option value="active" selected>Active</option>
+            <option value="inactive">Inactive</option>
+          </select>
+        </div>
+
+        <div class="modal-actions">
+          <button type="button" class="cancel-btn" onclick="closeModal()">Cancel</button>
+          <button type="submit" class="save-btn" id="save-table-btn">Save Table</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- QR View Modal -->
+  <div class="modal-overlay" id="qr-modal-overlay">
+    <div class="modal-box qr-modal-box">
+      <h3 id="qr-modal-title" style="justify-content:center;"><i class="fas fa-qrcode"></i>Table QR</h3>
+      <div class="big-qr" id="qr-modal-canvas"></div>
+      <div class="qr-url" id="qr-modal-url"></div>
+      <div class="qr-modal-actions">
+        <button class="dl-btn" onclick="downloadCurrentQR()"><i class="fas fa-download"></i> Download</button>
+        <button class="pr-btn" onclick="printCurrentQR()"><i class="fas fa-print"></i> Print</button>
+      </div>
+      <div class="qr-modal-actions" style="margin-top:0.5rem;">
+        <button class="close-btn" onclick="closeQrModal()" style="flex:1;">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast"></div>
+
+  <script>
+    /* =========================================================
+       CONFIG
+       ========================================================= */
+    const API_BASE = "/api/tables"; // relative — same origin as this page
+
+    /* =========================================================
+       DATA LAYER — talks to routes/tables.js
+       Backend fields: id, table_number, capacity, location, status
+       Frontend uses the shorter `number` internally — mapped here.
+       ========================================================= */
+
+    function fromServer(row) {
+      return {
+        id: row.id,
+        number: row.table_number,
+        capacity: row.capacity,
+        location: row.location,
+        status: row.status,
+      };
+    }
+
+    async function apiRequest(path, options = {}) {
+      const res = await fetch(`${API_BASE}${path}`, {
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        ...options,
+      });
+
+      let data = null;
+      try { data = await res.json(); } catch (_) { /* no body */ }
+
+      if (res.status === 401 || res.status === 403) {
+        showToast("Session expired — please log in again", false);
+        setTimeout(() => window.location.href = "/admin.html", 1200);
+        throw new Error("Unauthorized");
+      }
+
+      if (!res.ok || !data || data.success === false) {
+        throw new Error((data && data.message) || `Request failed (${res.status})`);
+      }
+      return data;
+    }
+
+    async function fetchTables() {
+      const data = await apiRequest("/", { method: "GET" });
+      return (data.tables || []).map(fromServer);
+    }
+
+    async function createTable(payload) {
+      const data = await apiRequest("/", { method: "POST", body: JSON.stringify(payload) });
+      return fromServer(data.table);
+    }
+
+    async function updateTableApi(id, payload) {
+      const data = await apiRequest(`/${id}`, { method: "PUT", body: JSON.stringify(payload) });
+      return fromServer(data.table);
+    }
+
+    async function deleteTableApi(id) {
+      await apiRequest(`/${id}`, { method: "DELETE" });
+    }
+
+    /* ========================================================= */
+
+    let tables = [];
+    let currentFilter = "all";
+    let activeQrTableId = null;
+
+    const DEFAULT_BASE_URL = "https://delicute-kxc9.onrender.com/menu.html";
+
+    function getBaseUrl() {
+      return localStorage.getItem("delicute_base_url") || DEFAULT_BASE_URL;
+    }
+
+    function saveBaseUrl() {
+      const val = document.getElementById("base-url-input").value.trim();
+      if (!val) {
+        showToast("Please enter a valid URL", false);
+        return;
+      }
+      localStorage.setItem("delicute_base_url", val);
+      showToast("Ordering page URL saved!", true);
+      renderTables();
+    }
+
+    function buildQrUrl(tableNumber) {
+      const base = getBaseUrl();
+      const sep = base.includes("?") ? "&" : "?";
+      return `${base}${sep}table=${encodeURIComponent(tableNumber)}`;
+    }
+
+    function showToast(msg, success = true) {
+      const toast = document.getElementById("toast");
+      toast.textContent = msg;
+      toast.style.background = success ? "#2e9e6b" : "#d64545";
+      toast.className = "show";
+      setTimeout(() => toast.className = toast.className.replace("show", ""), 2200);
+    }
+
+    function showLoadError(msg) {
+      const notice = document.getElementById("dev-notice");
+      notice.classList.add("err");
+      notice.innerHTML = `<i class="fas fa-triangle-exclamation"></i><span>Couldn't reach the server: ${escapeHtml(msg)}. Check that you're logged in and the backend is running.</span>`;
+    }
+
+    function escapeHtml(text) {
+      const div = document.createElement("div");
+      div.textContent = text ?? "";
+      return div.innerHTML;
+    }
+
+    /* ---------- Filtering / rendering ---------- */
+
+    function setFilter(filter) {
+      currentFilter = filter;
+      document.querySelectorAll(".filter-pill").forEach(p => p.classList.remove("active"));
+      document.querySelector(`.filter-pill[data-filter="${filter}"]`).classList.add("active");
+      renderTables();
+    }
+
+    function renderStats() {
+      document.getElementById("stat-total").textContent = tables.length;
+      document.getElementById("stat-active").textContent = tables.filter(t => t.status === "active").length;
+      document.getElementById("stat-inactive").textContent = tables.filter(t => t.status === "inactive").length;
+    }
+
+    function renderTables() {
+      const grid = document.getElementById("table-grid");
+      const search = document.getElementById("search-input").value.trim().toLowerCase();
+
+      let filtered = tables.filter(t => {
+        let matchesFilter = true;
+        if (currentFilter === "active" || currentFilter === "inactive") {
+          matchesFilter = t.status === currentFilter;
+        } else if (currentFilter === "Indoor" || currentFilter === "Outdoor") {
+          matchesFilter = t.location === currentFilter;
+        }
+        const matchesSearch = !search ||
+          String(t.number).toLowerCase().includes(search) ||
+          (t.location || "").toLowerCase().includes(search);
+        return matchesFilter && matchesSearch;
+      });
+
+      renderStats();
+
+      if (!filtered.length) {
+        grid.innerHTML = `
+          <div class="empty-state">
+            <i class="fas fa-qrcode"></i>
+            <p>${tables.length ? "No tables match your search or filter." : "No tables yet. Add your first table to generate its QR code."}</p>
+            ${tables.length ? "" : '<button class="add-table-btn" style="margin:0 auto;" onclick="openModal()"><i class="fas fa-plus"></i>Add Table</button>'}
+          </div>`;
+        return;
+      }
+
+      grid.innerHTML = filtered.map(t => `
+        <div class="table-card">
+          <div class="table-card-top">
+            <h3>Table ${escapeHtml(t.number)}</h3>
+            <span class="status-badge ${t.status === 'active' ? 'active-badge' : 'inactive-badge'}">${t.status}</span>
+          </div>
+          <div class="qr-preview" id="qr-thumb-${t.id}"></div>
+          ${t.capacity ? `<div class="meta"><i class="fas fa-users"></i> Seats ${t.capacity}</div>` : `<div class="meta empty">Capacity not set</div>`}
+          ${t.location ? `<div class="meta"><i class="fas fa-location-dot"></i> ${escapeHtml(t.location)}</div>` : `<div class="meta empty">Location not set</div>`}
+          <div class="table-card-actions">
+            <button class="full" onclick="viewQr(${t.id})"><i class="fas fa-expand"></i>View QR</button>
+            <button onclick="editTable(${t.id})"><i class="fas fa-pen"></i>Edit</button>
+            <button class="danger" onclick="deleteTable(${t.id})"><i class="fas fa-trash"></i>Delete</button>
+            <button onclick="downloadQr(${t.id})"><i class="fas fa-download"></i>Download</button>
+            <button onclick="printQr(${t.id})"><i class="fas fa-print"></i>Print</button>
+          </div>
+        </div>
+      `).join("");
+
+      // render QR thumbnails after DOM is in place
+      filtered.forEach(t => {
+        const el = document.getElementById(`qr-thumb-${t.id}`);
+        if (el) renderQrInto(el, buildQrUrl(t.number), 120);
+      });
+    }
+
+    function renderQrInto(container, text, size) {
+      container.innerHTML = "";
+      new QRCode(container, {
+        text: text,
+        width: size,
+        height: size,
+        colorDark: "#2a1f26",
+        colorLight: "#ffffff",
+        correctLevel: QRCode.CorrectLevel.M
+      });
+    }
+
+    /* ---------- Add / Edit modal ---------- */
+
+    function openModal() {
+      document.getElementById("modal-title").innerHTML = '<i class="fas fa-chair"></i>Add Table';
+      document.getElementById("table-form").reset();
+      document.getElementById("table-id").value = "";
+      document.getElementById("table-status").value = "active";
+      document.getElementById("modal-overlay").classList.add("show");
+    }
+
+    function editTable(id) {
+      const t = tables.find(x => x.id === id);
+      if (!t) return;
+      document.getElementById("modal-title").innerHTML = '<i class="fas fa-pen"></i>Edit Table';
+      document.getElementById("table-id").value = t.id;
+      document.getElementById("table-number").value = t.number;
+      document.getElementById("table-capacity").value = t.capacity || "";
+      document.getElementById("table-location").value = t.location || "";
+      document.getElementById("table-status").value = t.status || "active";
+      document.getElementById("modal-overlay").classList.add("show");
+    }
+
+    function closeModal() {
+      document.getElementById("modal-overlay").classList.remove("show");
+    }
+
+    async function saveTable(e) {
+      e.preventDefault();
+      const id = document.getElementById("table-id").value;
+      const number = document.getElementById("table-number").value.trim();
+      const capacityRaw = document.getElementById("table-capacity").value;
+      const capacity = capacityRaw ? parseInt(capacityRaw, 10) : null;
+      const location = document.getElementById("table-location").value || null;
+      const status = document.getElementById("table-status").value;
+
+      if (!number) {
+        showToast("Table number is required", false);
+        return;
+      }
+
+      const payload = { table_number: number, capacity, location, status };
+      const saveBtn = document.getElementById("save-table-btn");
+      saveBtn.disabled = true;
+      saveBtn.textContent = "Saving...";
+
+      try {
+        if (id) {
+          const updated = await updateTableApi(id, payload);
+          const idx = tables.findIndex(x => x.id === updated.id);
+          if (idx !== -1) tables[idx] = updated;
+          showToast("Table updated successfully!", true);
+        } else {
+          const created = await createTable(payload);
+          tables.push(created);
+          showToast("Table added — QR code generated!", true);
+        }
+        closeModal();
+        renderTables();
+      } catch (err) {
+        console.error("Save Table Error:", err);
+        showToast(err.message || "Failed to save table", false);
+      } finally {
+        saveBtn.disabled = false;
+        saveBtn.textContent = "Save Table";
+      }
+    }
+
+    async function deleteTable(id) {
+      const t = tables.find(x => x.id === id);
+      if (!t) return;
+      if (!confirm(`Delete Table ${t.number}? Its QR code will stop working immediately.`)) return;
+
+      try {
+        await deleteTableApi(id);
+        tables = tables.filter(x => x.id !== id);
+        renderTables();
+        showToast("Table deleted.", false);
+      } catch (err) {
+        console.error("Delete Table Error:", err);
+        showToast(err.message || "Failed to delete table", false);
+      }
+    }
+
+    /* ---------- QR view ---------- */
+
+    function viewQr(id) {
+      const t = tables.find(x => x.id === id);
+      if (!t) return;
+      activeQrTableId = id;
+      document.getElementById("qr-modal-title").innerHTML = `<i class="fas fa-qrcode"></i>Table ${escapeHtml(t.number)} QR`;
+      const url = buildQrUrl(t.number);
+      document.getElementById("qr-modal-url").textContent = url;
+      const canvasHolder = document.getElementById("qr-modal-canvas");
+      renderQrInto(canvasHolder, url, 220);
+      document.getElementById("qr-modal-overlay").classList.add("show");
+    }
+
+    function closeQrModal() {
+      document.getElementById("qr-modal-overlay").classList.remove("show");
+      activeQrTableId = null;
+    }
+
+    function getQrImageData(container) {
+      const canvas = container.querySelector("canvas");
+      const img = container.querySelector("img");
+      if (canvas) return canvas.toDataURL("image/png");
+      if (img) return img.src;
+      return null;
+    }
+
+    /* ---------- Labeled QR image (used by both download & print) ----------
+       Draws the raw QR onto a taller canvas with the table number (and
+       capacity/location if set) printed underneath, so the exported PNG
+       is a self-contained, ready-to-stick-on-the-table label — not just
+       a bare QR code. ---------------------------------------------------- */
+
+    function buildLabeledQrCanvas(table, qrDataUrl, qrSize = 480) {
+      return new Promise((resolve, reject) => {
+        const qrImg = new Image();
+        qrImg.onload = () => {
+          const padding = 36;
+          const labelHeight = 150;
+          const canvas = document.createElement("canvas");
+          canvas.width = qrSize + padding * 2;
+          canvas.height = qrSize + padding * 2 + labelHeight;
+          const ctx = canvas.getContext("2d");
+
+          // background
+          ctx.fillStyle = "#ffffff";
+          ctx.fillRect(0, 0, canvas.width, canvas.height);
+          ctx.strokeStyle = "#ecdfe8";
+          ctx.lineWidth = 2;
+          ctx.strokeRect(1, 1, canvas.width - 2, canvas.height - 2);
+
+          // brand line
+          ctx.fillStyle = "#5c3a52";
+          ctx.font = "bold 26px 'Playfair Display', 'Georgia', serif";
+          ctx.textAlign = "center";
+          ctx.fillText("DELICUTE", canvas.width / 2, padding + 6);
+
+          // QR image
+          const qrY = padding + 34;
+          ctx.drawImage(qrImg, padding, qrY, qrSize, qrSize);
+
+          // table number — the big label
+          const textY = qrY + qrSize + 44;
+          ctx.fillStyle = "#2a1f26";
+          ctx.font = "bold 34px 'Roboto', 'Segoe UI', sans-serif";
+          ctx.fillText(`Table ${table.number}`, canvas.width / 2, textY);
+
+          // capacity / location sub-line
+          const subParts = [];
+          if (table.capacity) subParts.push(`Seats ${table.capacity}`);
+          if (table.location) subParts.push(table.location);
+          if (subParts.length) {
+            ctx.fillStyle = "#8a7688";
+            ctx.font = "18px 'Roboto', 'Segoe UI', sans-serif";
+            ctx.fillText(subParts.join("  ·  "), canvas.width / 2, textY + 30);
+          }
+
+          // scan hint
+          ctx.fillStyle = "#8a7688";
+          ctx.font = "italic 15px 'Roboto', 'Segoe UI', sans-serif";
+          ctx.fillText("Scan to view the menu & order", canvas.width / 2, canvas.height - 20);
+
+          resolve(canvas.toDataURL("image/png"));
+        };
+        qrImg.onerror = reject;
+        qrImg.src = qrDataUrl;
+      });
+    }
+
+    async function getLabeledQrDataUrl(table, size = 480) {
+      const temp = document.createElement("div");
+      temp.style.display = "none";
+      document.body.appendChild(temp);
+      renderQrInto(temp, buildQrUrl(table.number), size);
+      await new Promise(r => setTimeout(r, 150)); // let qrcode.js finish drawing
+      const rawDataUrl = getQrImageData(temp);
+      document.body.removeChild(temp);
+      if (!rawDataUrl) throw new Error("Could not generate QR image");
+      return buildLabeledQrCanvas(table, rawDataUrl, size);
+    }
+
+    /* ---------- Download ---------- */
+
+    function downloadCurrentQR() {
+      if (activeQrTableId == null) return;
+      downloadQr(activeQrTableId);
+    }
+
+    async function downloadQr(id) {
+      const t = tables.find(x => x.id === id);
+      if (!t) return;
+      try {
+        const labeledDataUrl = await getLabeledQrDataUrl(t, 480);
+        const a = document.createElement("a");
+        a.href = labeledDataUrl;
+        a.download = `table-${t.number}-qr.png`;
+        a.click();
+        showToast(`QR for Table ${t.number} downloaded`, true);
+      } catch (err) {
+        console.error("Download QR Error:", err);
+        showToast("Could not generate QR image", false);
+      }
+    }
+
+    /* ---------- Print ---------- */
+
+    function printCurrentQR() {
+      if (activeQrTableId == null) return;
+      printQr(activeQrTableId);
+    }
+
+    async function printQr(id) {
+      const t = tables.find(x => x.id === id);
+      if (!t) return;
+      try {
+        const labeledDataUrl = await getLabeledQrDataUrl(t, 500);
+        const win = window.open("", "_blank", "width=520,height=700");
+        win.document.write(`
+          <!DOCTYPE html>
+          <html>
+          <head>
+            <title>Table ${escapeHtml(t.number)} - DELICUTE</title>
+            <style>
+              body { font-family: 'Segoe UI', sans-serif; text-align: center; padding: 30px 20px; }
+              img { width: 320px; max-width: 90vw; border-radius: 8px; }
+            </style>
+          </head>
+          <body>
+            <img src="${labeledDataUrl}" alt="Table ${escapeHtml(t.number)} QR label" />
+          </body>
+          </html>
+        `);
+        win.document.close();
+        win.onload = () => { win.focus(); win.print(); };
+      } catch (err) {
+        console.error("Print QR Error:", err);
+        showToast("Could not generate QR image", false);
+      }
+    }
+
+    /* ---------- misc ---------- */
+
+    document.getElementById("modal-overlay").addEventListener("click", (e) => {
+      if (e.target.id === "modal-overlay") closeModal();
+    });
+    document.getElementById("qr-modal-overlay").addEventListener("click", (e) => {
+      if (e.target.id === "qr-modal-overlay") closeQrModal();
+    });
+
+    async function logout() {
+      try {
+        const response = await fetch("/api/auth/logout", { method: "POST", credentials: "include", cache: "no-store" });
+        if (response.ok) {
+          showToast("Logged out successfully!", true);
+          setTimeout(() => window.location.href = "/admin.html", 1000);
+        } else {
+          throw new Error("Logout failed");
+        }
+      } catch (error) {
+        console.error("Logout Error:", error);
+        showToast("Logout failed: " + error.message, false);
+      }
+    }
+
+    /* ---------- init ---------- */
+
+    async function init() {
+      document.getElementById("base-url-input").value = getBaseUrl();
+
+      const grid = document.getElementById("table-grid");
+      grid.innerHTML = `<div class="empty-state loading"><i class="fas fa-spinner"></i><p>Loading tables...</p></div>`;
+
+      try {
+        tables = await fetchTables();
+        renderTables();
+      } catch (err) {
+        console.error("Load Tables Error:", err);
+        showLoadError(err.message || "unknown error");
+        tables = [];
+        renderTables();
+      }
+    }
+
+    init();
+  </script>
+</body>
+</html>

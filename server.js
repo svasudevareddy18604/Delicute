@@ -69,6 +69,7 @@ const categoriesRoutes = require("./routes/categories");
 const ordersRoutes = require("./routes/orders");
 const couponsRoutes = require("./routes/coupons");
 const customerMenuRoutes = require("./routes/customermenu");
+const tablesRoutes = require("./routes/tables");
 const promotionsRoutes = require("./routes/promotions");
 const superadminAuthRoutes = require("./routes/superadmin"); // NEW — separate superadmin auth system
 const superadminMaintenanceRoutes = require("./routes/superadmin-maintenance");
@@ -77,7 +78,7 @@ const superadminDashboardRoutes = require("./routes/superadmin-dashboard");
 const superadminOrdersRoutes = require("./routes/superadmin-orders");
 const maintenanceGate = require("./middleware/maintenanceGate");
 
-
+app.use("/api/tables", tablesRoutes);
 app.use(maintenanceGate);
 app.use("/api/auth", authRoutes);
 app.use("/api/menu", menuRoutes);

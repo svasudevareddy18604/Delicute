@@ -265,6 +265,25 @@
       max-width: 100%;
     }
 
+    /* ---------- Table detected badge (shown only when QR ?table= is present) ---------- */
+    .table-detected-badge {
+      display: none;
+      align-items: center;
+      gap: 0.4rem;
+      position: relative;
+      z-index: 1;
+      font-family: 'Playfair Display', serif;
+      font-weight: 700;
+      font-size: clamp(0.8rem, 3vw, 0.95rem);
+      color: #fff;
+      background: linear-gradient(45deg, var(--mauve), var(--plum));
+      padding: 0.5rem 1.1rem;
+      border-radius: 30px;
+      margin-bottom: 1.2rem;
+      box-shadow: 0 4px 12px rgba(142, 68, 173, 0.3);
+    }
+    .table-detected-badge.show { display: inline-flex; }
+
     /* ---------- CTA ---------- */
     .hero .btn {
       position: relative;
@@ -438,6 +457,12 @@
       <h1>Welcome to Delicute</h1>
       <p class="tagline">Where every dish is crafted with love, and every visit becomes a memory.</p>
 
+      <!-- Shown only when a valid table QR is scanned -->
+      <div class="table-detected-badge" id="tableDetectedBadge">
+        <span>🍽️</span>
+        <span id="tableDetectedText">Table Detected</span>
+      </div>
+
       <!-- Today's Special / Anniversary Banner -->
       <div class="anniversary-banner">
         <span class="ribbon">Today's Special</span>
@@ -477,8 +502,31 @@
     let countdownInterval;
     let autoCloseTimeout;
 
+    /* =========================================================
+       TABLE DETECTION
+       QR encodes: https://yourdomain.com/index.html?table=5
+       Stash it the instant this page loads (so it survives even
+       if the visitor lingers here or the popup runs its course),
+       then forward it to customermenu.html on "Explore Our Menu".
+       ========================================================= */
+    const urlParams = new URLSearchParams(window.location.search);
+    const scannedTable = urlParams.get('table');
+
+    if (scannedTable) {
+      sessionStorage.setItem('delicute_table', scannedTable);
+      const badge = document.getElementById('tableDetectedBadge');
+      const badgeText = document.getElementById('tableDetectedText');
+      if (badge && badgeText) {
+        badgeText.textContent = `Table ${scannedTable} Detected`;
+        badge.classList.add('show');
+      }
+    }
+
     function goToMenu() {
-      window.location.href = MENU_PAGE;
+      const table = sessionStorage.getItem('delicute_table');
+      window.location.href = table
+        ? `${MENU_PAGE}?table=${encodeURIComponent(table)}`
+        : MENU_PAGE;
     }
 
     function openOfferPopup() {
