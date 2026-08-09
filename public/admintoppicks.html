@@ -1,377 +1,510 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Admin | Manage Top Picks</title>
-  <link rel="icon" href="https://i.postimg.cc/W3pgQx9q/DELICUTE-Imgur-1-modified.png">
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&display=swap" rel="stylesheet">
-  <style>
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
-    body {
-      font-family: 'Playfair Display', serif;
-      background: linear-gradient(135deg, #D8BFD8 0%, #E6E6FA 100%);
-      color: #1a1a1a;
-      min-height: 100vh;
-      line-height: 1.6;
-      overflow-x: hidden;
-    }
-    header {
-      background: linear-gradient(90deg, #9370DB, #D8BFD8);
-      color: #fff;
-      padding: 1.5rem 2rem;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      box-shadow: 0 4px 16px rgba(142, 68, 173, 0.15);
-      position: relative;
-      overflow: hidden;
-    }
-    header::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: -100%;
-      width: 100%;
-      height: 100%;
-      background: linear-gradient(90deg, transparent, rgba(240, 230, 140, 0.3), transparent);
-      animation: shine 3s infinite;
-    }
-    header img {
-      height: 60px;
-      filter: drop-shadow(0 3px 8px rgba(0, 0, 0, 0.2));
-      animation: fadeInScale 0.8s ease-out;
-      transition: transform 0.3s ease;
-    }
-    header img:hover {
-      transform: scale(1.15);
-    }
-    header h1 {
-      font-size: 2.2rem;
-      font-weight: 800;
-      margin-top: 0.5rem;
-      text-shadow: 0 2px 6px rgba(240, 230, 140, 0.4);
-      animation: fadeInUp 0.6s ease-out 0.2s forwards;
-    }
-    header span {
-      font-size: 0.9rem;
-      font-weight: 600;
-      opacity: 0.9;
-      color: #F0E68C;
-      text-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
-      animation: fadeInUp 0.6s ease-out 0.4s forwards;
-    }
-    nav {
-      background: #1a1a1a;
-      display: flex;
-      justify-content: center;
-      box-shadow: 0 2px 8px rgba(142, 68, 173, 0.15);
-      flex-wrap: wrap;
-    }
-    nav a {
-      flex: 0 1 150px;
-      padding: 1rem;
-      text-align: center;
-      color: #fff;
-      text-decoration: none;
-      font-size: 1.1rem;
-      font-weight: 600;
-      transition: background 0.3s ease, transform 0.2s ease, color 0.3s ease;
-    }
-    nav a:hover {
-      background: #8A2BE2;
-      color: #F0E68C;
-      transform: translateY(-3px);
-      box-shadow: 0 3px 8px rgba(142, 68, 173, 0.2);
-    }
-    .logout {
-      background: linear-gradient(45deg, #9370DB, #D8BFD8);
-      border: none;
-      padding: 0.6rem 1.5rem;
-      color: #1a1a1a;
-      font-weight: 700;
-      font-size: 1rem;
-      border-radius: 10px;
-      cursor: pointer;
-      position: absolute;
-      top: 1rem;
-      right: 1rem;
-      transition: background 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
-      box-shadow: 0 3px 8px rgba(142, 68, 173, 0.1);
-    }
-    .logout:hover {
-      background: linear-gradient(45deg, #8A2BE2, #D8BFD8);
-      transform: translateY(-3px);
-      box-shadow: 0 5px 12px rgba(142, 68, 173, 0.2);
-    }
-    .container {
-      max-width: 1200px;
-      margin: 2rem auto;
-      padding: 1.5rem;
-      background: rgba(255, 255, 255, 0.98);
-      border-radius: 16px;
-      box-shadow: 0 6px 20px rgba(142, 68, 173, 0.1);
-      animation: slideUp 0.6s ease-out;
-    }
-    .container h2 {
-      font-size: 2rem;
-      font-weight: 700;
-      color: #9370DB;
-      margin-bottom: 1rem;
-      text-align: center;
-      text-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-    }
-    .search-container {
-      display: flex;
-      justify-content: center;
-      margin-bottom: 1.5rem;
-    }
-    .search-container input {
-      padding: 0.8rem;
-      width: 100%;
-      max-width: 400px;
-      border: 2px solid #9370DB;
-      border-radius: 8px;
-      font-size: 1rem;
-      font-family: 'Playfair Display', serif;
-      outline: none;
-      transition: border-color 0.3s ease, box-shadow 0.3s ease;
-    }
-    .search-container input:focus {
-      border-color: #8A2BE2;
-      box-shadow: 0 0 8px rgba(142, 68, 173, 0.2);
-    }
-    .grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-      gap: 1.5rem;
-      padding: 1rem;
-    }
-    .card {
-      background: #fff;
-      border-radius: 12px;
-      padding: 1.2rem;
-      text-align: center;
-      box-shadow: 0 4px 12px rgba(142, 68, 173, 0.05);
-      transition: transform 0.3s ease, box-shadow 0.3s ease;
-    }
-    .card:hover {
-      transform: translateY(-5px);
-      box-shadow: 0 6px 16px rgba(142, 68, 173, 0.15);
-    }
-    .card img {
-      width: 100%;
-      height: 160px;
-      object-fit: cover;
-      border-radius: 8px;
-      transition: transform 0.3s ease;
-    }
-    .card img:hover {
-      transform: scale(1.05);
-    }
-    .card h3 {
-      font-size: 1.3rem;
-      font-weight: 700;
-      color: #9370DB;
-      margin: 0.5rem 0;
-    }
-    .price {
-      color: #9370DB;
-      font-weight: 700;
-      font-size: 1.1rem;
-      margin: 0.5rem 0;
-    }
-    .card p {
-      font-size: 0.95rem;
-      color: #4B5E8E;
-      margin-bottom: 0.5rem;
-    }
-    .btn {
-      padding: 0.6rem 1.2rem;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-      font-size: 0.95rem;
-      font-weight: 600;
-      transition: background 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
-      box-shadow: 0 3px 8px rgba(142, 68, 173, 0.1);
-    }
-    .btn-top {
-      background: linear-gradient(45deg, #9370DB, #D8BFD8);
-      color: #1a1a1a;
-    }
-    .btn-top:hover {
-      background: linear-gradient(45deg, #8A2BE2, #D8BFD8);
-      transform: translateY(-2px);
-      box-shadow: 0 5px 12px rgba(142, 68, 173, 0.2);
-    }
-    .btn-remove {
-      background: linear-gradient(45deg, #8A2BE2, #D8BFD8);
-      color: #fff;
-    }
-    .btn-remove:hover {
-      background: linear-gradient(45deg, #6A0DAD, #8A2BE2);
-      transform: translateY(-2px);
-      box-shadow: 0 5px 12px rgba(142, 68, 173, 0.2);
-    }
-    #toast {
-      visibility: hidden;
-      min-width: 250px;
-      background: linear-gradient(45deg, #9370DB, #D8BFD8);
-      color: #fff;
-      text-align: center;
-      border-radius: 12px;
-      padding: 1rem;
-      position: fixed;
-      z-index: 1000;
-      left: 50%;
-      bottom: 30px;
-      transform: translateX(-50%);
-      font-size: 0.95rem;
-      box-shadow: 0 4px 12px rgba(142, 68, 173, 0.2);
-    }
-    #toast.show {
-      visibility: visible;
-      animation: slideDown 0.5s ease-out, slideUp 0.5s ease-in 2.5s forwards;
-    }
-    .no-items {
-      font-size: 1.1rem;
-      color: #4B5E8E;
-      text-align: center;
-      padding: 2rem;
-    }
-    @keyframes shine {
-      0% { left: -100%; }
-      50% { left: 100%; }
-      100% { left: 100%; }
-    }
-    @keyframes fadeInScale {
-      from { opacity: 0; transform: scale(0.9); }
-      to { opacity: 1; transform: scale(1); }
-    }
-    @keyframes fadeInUp {
-      from { opacity: 0; transform: translateY(15px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-    @keyframes slideUp {
-      from { opacity: 0; transform: translateY(20px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-    @keyframes slideDown {
-      from { opacity: 0; transform: translate(-50%, -100%); }
-      to { opacity: 1; transform: translate(-50%, 0); }
-    }
-    @media (max-width: 768px) {
-      header img { height: 50px; }
-      header h1 { font-size: 2rem; }
-      header span { font-size: 0.85rem; }
-      nav { flex-wrap: wrap; }
-      nav a { flex: 0 1 100px; font-size: 1rem; padding: 0.8rem; }
-      .logout { padding: 0.5rem 1.2rem; font-size: 0.9rem; }
-      .container { margin: 1.5rem; padding: 1.2rem; }
-      .container h2 { font-size: 1.8rem; }
-      .search-container input { max-width: 100%; }
-      .grid { grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 1.2rem; }
-      .card img { height: 140px; }
-      .card h3 { font-size: 1.2rem; }
-      .price { font-size: 1rem; }
-      .btn { font-size: 0.9rem; padding: 0.5rem 1rem; }
-    }
-    @media (max-width: 480px) {
-      header img { height: 45px; }
-      header h1 { font-size: 1.8rem; }
-      header span { font-size: 0.8rem; }
-      nav a { flex: 0 1 80px; font-size: 0.9rem; padding: 0.6rem; }
-      .logout { padding: 0.5rem 1rem; font-size: 0.85rem; top: 0.8rem; right: 0.8rem; }
-      .container { margin: 1rem; padding: 1rem; }
-      .container h2 { font-size: 1.6rem; }
-      .search-container { padding: 0 0.5rem; }
-      .search-container input { font-size: 0.9rem; padding: 0.6rem; }
-      .grid { grid-template-columns: 1fr; gap: 1rem; }
-      .card img { height: 120px; }
-      .card h3 { font-size: 1.1rem; }
-      .price { font-size: 0.95rem; }
-      .btn { font-size: 0.85rem; padding: 0.5rem 0.8rem; }
-      #toast { min-width: 200px; font-size: 0.9rem; bottom: 20px; }
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin | Manage Top Picks</title>
+<link rel="icon" href="https://i.postimg.cc/W3pgQx9q/DELICUTE-Imgur-1-modified.png">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+<style>
+  :root {
+    --primary-purple: #8e44ad;
+    --primary-purple-dark: #5c3a52;
+    --nav-dark: #3f2838;
+    --bg-lilac: #fbf6ee;
+    --dark: #2a1f26;
+    --muted: #8a7688;
+    --border: #ecdfe8;
+    --delivered: #2e9e6b;
+    --cancelled: #d64545;
+    --gold: #d9a441;
+    --radius: 10px;
+    --shadow-sm: 0 1px 3px rgba(92, 58, 82, 0.08);
+    --shadow-md: 0 4px 14px rgba(92, 58, 82, 0.12);
+    --shadow-lg: 0 10px 28px rgba(92, 58, 82, 0.18);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+  body {
+    font-family: 'Roboto', sans-serif;
+    background: var(--bg-lilac);
+    color: var(--dark);
+    min-height: 100vh;
+    line-height: 1.5;
+    overscroll-behavior: contain;
+  }
+
+  header {
+    background: linear-gradient(90deg, var(--primary-purple-dark), var(--primary-purple));
+    color: white;
+    padding: 1rem 1.25rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    box-shadow: var(--shadow-md);
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    text-align: center;
+  }
+  header img { height: 50px; border-radius: 50%; box-shadow: 0 2px 8px rgba(0,0,0,0.25); }
+  header h1 { font-family: 'Playfair Display', serif; font-size: 1.8rem; margin-top: 0.4rem; }
+  header span { font-size: 0.8rem; opacity: 0.85; }
+
+  .logout {
+    background: white;
+    color: var(--primary-purple-dark);
+    border: none;
+    padding: 0 0.9rem;
+    height: 38px;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 0.85rem;
+    cursor: pointer;
+    position: absolute;
+    top: 0.8rem;
+    right: 0.8rem;
+  }
+
+  nav {
+    background: var(--nav-dark);
+    display: flex;
+    justify-content: center;
+    overflow-x: auto;
+  }
+  nav a {
+    flex: 0 0 auto;
+    padding: 0.85rem 1.1rem;
+    color: #ddd;
+    text-decoration: none;
+    font-size: 0.9rem;
+    font-weight: 500;
+    white-space: nowrap;
+    transition: color 0.2s ease, background 0.2s ease;
+  }
+  nav a:hover { background: rgba(139, 107, 201, 0.25); color: #fff; }
+
+  .container {
+    max-width: 1200px;
+    margin: 1.5rem auto;
+    padding: 0 1.25rem 2.5rem;
+  }
+
+  .section-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.4rem;
+    color: var(--primary-purple-dark);
+    margin: 0 0 1rem;
+    text-align: center;
+  }
+
+  /* ---- Stat strip ---- */
+  .stat-strip {
+    display: flex;
+    gap: 0.9rem;
+    margin-bottom: 1.25rem;
+    flex-wrap: wrap;
+  }
+  .stat-card {
+    flex: 1 1 160px;
+    background: white;
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-sm);
+    padding: 0.9rem 1.1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+  }
+  .stat-card .icon {
+    width: 42px;
+    height: 42px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.1rem;
+    color: white;
+    flex-shrink: 0;
+  }
+  .stat-card.total .icon { background: linear-gradient(135deg, var(--primary-purple), var(--primary-purple-dark)); }
+  .stat-card.picked .icon { background: linear-gradient(135deg, var(--gold), #b9812c); }
+  .stat-card .num { font-size: 1.3rem; font-weight: 700; color: var(--dark); line-height: 1.1; }
+  .stat-card .label { font-size: 0.75rem; color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.02em; }
+
+  /* ---- Toolbar ---- */
+  .toolbar {
+    display: flex;
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+  }
+  .search-bar {
+    flex: 1 1 240px;
+    display: flex;
+    align-items: center;
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    box-shadow: var(--shadow-sm);
+    padding: 0 0.6rem;
+  }
+  .search-bar i { color: var(--muted); font-size: 0.9rem; }
+  .search-bar input {
+    border: none;
+    background: transparent;
+    padding: 0.7rem 0.6rem;
+    font-family: 'Roboto', sans-serif;
+    font-size: 0.9rem;
+    width: 100%;
+    outline: none;
+    color: var(--dark);
+  }
+
+  .filter-pills {
+    display: flex;
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    box-shadow: var(--shadow-sm);
+    overflow: hidden;
+    flex: 0 0 auto;
+  }
+  .filter-pill {
+    padding: 0.7rem 0.95rem;
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: var(--muted);
+    cursor: pointer;
+    border-right: 1px solid var(--border);
+    white-space: nowrap;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    transition: background 0.2s ease, color 0.2s ease;
+  }
+  .filter-pill:last-child { border-right: none; }
+  .filter-pill:hover { background: var(--bg-lilac); }
+  .filter-pill.active { background: var(--primary-purple-dark); color: white; }
+
+  /* ---- Grid & cards ---- */
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 1.25rem;
+  }
+
+  .card {
+    background: white;
+    border-radius: 14px;
+    overflow: hidden;
+    box-shadow: var(--shadow-sm);
+    border: 1px solid var(--border);
+    transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+  }
+  .card:hover {
+    transform: translateY(-6px);
+    box-shadow: var(--shadow-lg);
+  }
+  .card.is-top {
+    border-color: var(--gold);
+    box-shadow: 0 6px 20px rgba(217, 164, 65, 0.25);
+  }
+  .card.is-top:hover {
+    box-shadow: 0 12px 28px rgba(217, 164, 65, 0.35);
+  }
+
+  .card-img-wrap { position: relative; overflow: hidden; height: 160px; }
+  .card-img-wrap img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    transition: transform 0.4s ease;
+  }
+  .card:hover .card-img-wrap img { transform: scale(1.08); }
+
+  .top-ribbon {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    background: linear-gradient(135deg, var(--gold), #b9812c);
+    color: white;
+    font-size: 0.7rem;
+    font-weight: 700;
+    padding: 0.3rem 0.65rem;
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+    box-shadow: 0 3px 8px rgba(0,0,0,0.2);
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+  }
+  .top-ribbon i { font-size: 0.7rem; }
+
+  .card-body {
+    padding: 0.9rem 1rem 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+    flex: 1;
+  }
+  .card-cat {
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--primary-purple);
+  }
+  .card h3 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.15rem;
+    color: var(--dark);
+    font-weight: 700;
+  }
+  .card .price {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--primary-purple-dark);
+    margin: 0.15rem 0 0.5rem;
+  }
+
+  .btn {
+    margin-top: auto;
+    border: none;
+    border-radius: 8px;
+    padding: 0.65rem 0.8rem;
+    font-size: 0.85rem;
+    font-weight: 700;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4rem;
+    transition: opacity 0.2s ease, transform 0.15s ease;
+  }
+  .btn:hover { opacity: 0.9; }
+  .btn:active { transform: scale(0.97); }
+  .btn-top {
+    background: linear-gradient(135deg, var(--primary-purple), var(--primary-purple-dark));
+    color: white;
+  }
+  .btn-remove {
+    background: white;
+    color: var(--cancelled);
+    border: 1.5px solid var(--cancelled);
+  }
+  .btn-remove:hover { background: rgba(214, 69, 69, 0.08); }
+
+  .no-items {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 3rem 1rem;
+    color: var(--muted);
+    font-size: 0.95rem;
+  }
+  .no-items i { font-size: 1.8rem; display: block; margin-bottom: 0.6rem; color: var(--border); }
+
+  #toast {
+    visibility: hidden;
+    min-width: 200px;
+    max-width: 300px;
+    background: var(--delivered);
+    color: white;
+    text-align: center;
+    border-radius: 10px;
+    padding: 0.8rem 1rem;
+    position: fixed;
+    z-index: 3000;
+    top: 20px;
+    right: 20px;
+    font-size: 0.85rem;
+    box-shadow: var(--shadow-md);
+  }
+  #toast.show { visibility: visible; animation: slideIn 0.4s ease-out, slideOut 0.4s ease-in 2.6s forwards; }
+  @keyframes slideIn { from { opacity: 0; transform: translateY(-15px); } to { opacity: 1; transform: translateY(0); } }
+  @keyframes slideOut { from { opacity: 1; transform: translateY(0); } to { opacity: 0; transform: translateY(-15px); } }
+
+  /* ================= MOBILE ================= */
+  @media (max-width: 760px) {
+    header h1 { font-size: 1.5rem; }
+    header img { height: 42px; }
+    .logout { height: 34px; padding: 0 0.7rem; font-size: 0.8rem; top: 0.6rem; right: 0.6rem; }
+    nav a { font-size: 0.82rem; padding: 0.7rem 0.85rem; }
+    .container { margin: 1rem auto; padding: 0 0.9rem 1.5rem; }
+    .section-title { font-size: 1.2rem; }
+    .toolbar { flex-direction: column; }
+    .filter-pills { width: 100%; }
+    .filter-pill { flex: 1; justify-content: center; }
+    .grid { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 0.9rem; }
+    .card-img-wrap { height: 130px; }
+    .card h3 { font-size: 1rem; }
+  }
+
+  @media (max-width: 420px) {
+    .grid { grid-template-columns: 1fr 1fr; }
+    .stat-card { padding: 0.75rem 0.9rem; }
+    .stat-card .num { font-size: 1.1rem; }
+  }
+</style>
 </head>
 <body>
   <header>
+    <button class="logout" onclick="logout()">Logout</button>
     <img src="https://i.postimg.cc/W3pgQx9q/DELICUTE-Imgur-1-modified.png" alt="DELICUTE Logo">
     <div>
       <h1>DELICUTE</h1>
       <span>Every Bite Tells A Story</span>
     </div>
-    <button class="logout" onclick="logout()">Logout</button>
   </header>
 
   <nav>
+    <a href="admindashboard.html">Dashboard</a>
     <a href="adminorders.html">Orders</a>
     <a href="adminmenu.html">Menu</a>
     <a href="admincoupons.html">Coupons</a>
     <a href="admincategories.html">Categories</a>
     <a href="admintoppicks.html">Top Picks</a>
+    <a href="adminpromotions.html">Promotions</a>
   </nav>
 
   <div class="container">
-    <h2>Manage Top Picks ⭐</h2>
-    <div class="search-container">
-      <input type="text" id="searchInput" placeholder="Search by name or category..." oninput="searchMenu()">
+    <h2 class="section-title">Manage Top Picks ⭐</h2>
+
+    <div class="stat-strip">
+      <div class="stat-card total">
+        <div class="icon"><i class="fas fa-utensils"></i></div>
+        <div>
+          <div class="num" id="totalCount">0</div>
+          <div class="label">Total Items</div>
+        </div>
+      </div>
+      <div class="stat-card picked">
+        <div class="icon"><i class="fas fa-star"></i></div>
+        <div>
+          <div class="num" id="pickedCount">0</div>
+          <div class="label">Top Picks</div>
+        </div>
+      </div>
     </div>
+
+    <div class="toolbar">
+      <div class="search-bar">
+        <i class="fas fa-search"></i>
+        <input type="text" id="searchInput" placeholder="Search by name or category...">
+      </div>
+      <div class="filter-pills" id="filterPills">
+        <div class="filter-pill active" data-filter="all">All</div>
+        <div class="filter-pill" data-filter="top"><i class="fas fa-star"></i> Top Picks</div>
+        <div class="filter-pill" data-filter="notop">Not Picked</div>
+      </div>
+    </div>
+
     <div id="menuList" class="grid"></div>
   </div>
 
-  <!-- Toast -->
   <div id="toast"></div>
 
   <script>
     let menuData = [];
+    let activeFilter = "all";
 
     function showToast(msg, success = true) {
       const toast = document.getElementById("toast");
       toast.textContent = msg;
-      toast.style.background = success ? "linear-gradient(45deg, #26a69a, #4dd0e1)" : "linear-gradient(45deg, #ef5350, #e53935)";
+      toast.style.background = success ? "#2e9e6b" : "#d64545";
       toast.className = "show";
       setTimeout(() => toast.className = toast.className.replace("show", ""), 3000);
+    }
+
+    function debounce(func, wait) {
+      let timeout;
+      return function (...args) {
+        clearTimeout(timeout);
+        timeout = setTimeout(() => func.apply(this, args), wait);
+      };
     }
 
     window.addEventListener("DOMContentLoaded", async () => {
       try {
         const res = await fetch("/api/auth/check", { credentials: "include" });
-        if (!res.ok) {
-          window.location.href = "/admin.html";
-          return;
-        }
+        if (!res.ok) { window.location.href = "/admin.html"; return; }
         await fetchMenu();
       } catch (err) {
         window.location.href = "/admin.html";
+        console.error("Auth Check Error:", err);
       }
+    });
+
+    document.getElementById("searchInput").addEventListener("input", debounce(applyFilters, 200));
+
+    document.getElementById("filterPills").addEventListener("click", (e) => {
+      const pill = e.target.closest(".filter-pill");
+      if (!pill) return;
+      document.querySelectorAll("#filterPills .filter-pill").forEach(p => p.classList.remove("active"));
+      pill.classList.add("active");
+      activeFilter = pill.dataset.filter;
+      applyFilters();
     });
 
     async function fetchMenu() {
       try {
         const res = await fetch("/api/menu");
         const data = await res.json();
-        const container = document.getElementById("menuList");
-        container.innerHTML = "";
 
-        if (!data.success || data.data.length === 0) {
-          container.innerHTML = "<p class='no-items'>No menu items found</p>";
+        if (!data.success) {
+          showToast("Failed to load menu", false);
           return;
         }
 
-        menuData = data.data;
-        renderMenu(menuData);
+        menuData = data.data || [];
+        updateStats();
+        applyFilters();
       } catch (err) {
         showToast("Error loading menu items", false);
         console.error("Menu Load Error:", err);
       }
+    }
+
+    function updateStats() {
+      document.getElementById("totalCount").textContent = menuData.length;
+      document.getElementById("pickedCount").textContent =
+        menuData.filter(item => item.is_top_pick === 1).length;
+    }
+
+    // ---- Sort: Top Picks always first, then alphabetical within each group ----
+    function sortWithTopFirst(items) {
+      return [...items].sort((a, b) => {
+        const aTop = a.is_top_pick === 1 ? 1 : 0;
+        const bTop = b.is_top_pick === 1 ? 1 : 0;
+        if (aTop !== bTop) return bTop - aTop;
+        return (a.name || "").localeCompare(b.name || "");
+      });
+    }
+
+    function applyFilters() {
+      const query = document.getElementById("searchInput").value.toLowerCase().trim();
+      let filtered = menuData;
+
+      if (activeFilter === "top") {
+        filtered = filtered.filter(item => item.is_top_pick === 1);
+      } else if (activeFilter === "notop") {
+        filtered = filtered.filter(item => item.is_top_pick !== 1);
+      }
+
+      if (query) {
+        filtered = filtered.filter(item =>
+          (item.name || "").toLowerCase().includes(query) ||
+          (item.category || "").toLowerCase().includes(query)
+        );
+      }
+
+      renderMenu(sortWithTopFirst(filtered));
     }
 
     function renderMenu(items) {
@@ -379,34 +512,34 @@
       container.innerHTML = "";
 
       if (items.length === 0) {
-        container.innerHTML = "<p class='no-items'>No matching items found</p>";
+        container.innerHTML = `
+          <div class="no-items">
+            <i class="fas fa-star-half-alt"></i>
+            No matching items found
+          </div>`;
         return;
       }
 
       items.forEach(item => {
         const isTop = item.is_top_pick === 1;
         container.innerHTML += `
-          <div class="card">
-            <img src="${item.image}" alt="${item.name}">
-            <h3>${item.name}</h3>
-            <p class="price">₹${item.original_price || item.price}</p>
-            <p>${item.category}</p>
-            <button class="btn ${isTop ? "btn-remove" : "btn-top"}"
-              onclick="toggleTopPick(${item.id}, ${isTop})">
-              ${isTop ? "Remove from Top Picks" : "Add to Top Picks"}
-            </button>
+          <div class="card ${isTop ? "is-top" : ""}">
+            <div class="card-img-wrap">
+              ${isTop ? `<div class="top-ribbon"><i class="fas fa-star"></i> Top Pick</div>` : ""}
+              <img src="${item.image}" alt="${item.name}" onerror="this.src='https://i.postimg.cc/W3pgQx9q/DELICUTE-Imgur-1-modified.png'">
+            </div>
+            <div class="card-body">
+              <span class="card-cat">${item.category || ""}</span>
+              <h3>${item.name}</h3>
+              <span class="price">₹${item.original_price || item.price}</span>
+              <button class="btn ${isTop ? "btn-remove" : "btn-top"}" onclick="toggleTopPick(${item.id}, ${isTop})">
+                <i class="fas ${isTop ? "fa-times" : "fa-star"}"></i>
+                ${isTop ? "Remove from Top Picks" : "Add to Top Picks"}
+              </button>
+            </div>
           </div>
         `;
       });
-    }
-
-    function searchMenu() {
-      const searchTerm = document.getElementById("searchInput").value.toLowerCase();
-      const filteredItems = menuData.filter(item =>
-        item.name.toLowerCase().includes(searchTerm) ||
-        item.category.toLowerCase().includes(searchTerm)
-      );
-      renderMenu(filteredItems);
     }
 
     async function toggleTopPick(id, isTop) {
@@ -417,9 +550,9 @@
 
         if (data.success) {
           showToast(data.message || (isTop ? "Removed from Top Picks" : "Added to Top Picks"));
-          fetchMenu();
+          await fetchMenu();
         } else {
-          showToast("Failed: " + data.message, false);
+          showToast("Failed: " + (data.message || "Unknown error"), false);
         }
       } catch (err) {
         showToast("Error toggling Top Pick", false);
@@ -428,8 +561,13 @@
     }
 
     async function logout() {
-      await fetch("/api/auth/logout", { method: "POST", credentials: "include" });
-      window.location.href = "/admin.html";
+      try {
+        await fetch("/api/auth/logout", { method: "POST", credentials: "include" });
+        window.location.href = "/admin.html";
+      } catch (err) {
+        showToast("Error logging out", false);
+        console.error("Logout Error:", err);
+      }
     }
   </script>
 </body>

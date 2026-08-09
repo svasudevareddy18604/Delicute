@@ -45,6 +45,44 @@ router.post("/", async (req, res) => {
 });
 
 /**
+ * PUT /api/categories/:id
+ * Edit/update an existing category
+ */
+router.put("/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { name } = req.body;
+
+    if (!name || !name.trim()) {
+      return res.status(400).json({ success: false, message: "Category name is required" });
+    }
+
+    const trimmedName = name.trim();
+
+    // Check if category exists
+    const [rows] = await pool.query("SELECT id FROM categories WHERE id = ?", [id]);
+    if (rows.length === 0) {
+      return res.status(404).json({ success: false, message: "Category not found" });
+    }
+
+    // Check if another category already has this name (avoid duplicates)
+    const [existing] = await pool.query(
+      "SELECT id FROM categories WHERE name = ? AND id != ?",
+      [trimmedName, id]
+    );
+    if (existing.length > 0) {
+      return res.status(400).json({ success: false, message: "Another category with this name already exists" });
+    }
+
+    await pool.query("UPDATE categories SET name = ? WHERE id = ?", [trimmedName, id]);
+    res.json({ success: true, message: "Category updated successfully" });
+  } catch (err) {
+    console.error("❌ Category Update Error:", err);
+    res.status(500).json({ success: false, message: "Failed to update category" });
+  }
+});
+
+/**
  * DELETE /api/categories/:id
  * Delete a category
  */

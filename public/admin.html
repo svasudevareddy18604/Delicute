@@ -1,357 +1,591 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>DELICUTE | Admin Portal</title>
-  <link rel="icon" href="https://i.postimg.cc/W3pgQx9q/DELICUTE-Imgur-1-modified.png">
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&display=swap" rel="stylesheet">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+  <title>Delicute | Admin Portal</title>
+  <link rel="icon" href="https://i.postimg.cc/W3pgQx9q/DELICUTE-Imgur-1-modified.png" />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Cormorant+Garamond:wght@500;600&display=swap" rel="stylesheet" />
   <style>
     * {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-}
-body {
-  font-family: 'Playfair Display', serif;
-  background: linear-gradient(135deg, #D8BFD8 0%, #E6E6FA 100%);
-  color: #1A1A1A;
-  min-height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  overflow-x: hidden;
-}
-.container {
-  background: rgba(255, 255, 255, 0.98);
-  padding: 2rem;
-  border-radius: 16px;
-  box-shadow: 0 6px 20px rgba(142, 68, 173, 0.15);
-  width: 90%;
-  max-width: 450px;
-  text-align: center;
-  animation: slideUp 0.8s ease-out;
-  position: relative;
-  overflow: hidden;
-}
-.container::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(240, 230, 140, 0.3), transparent);
-  animation: shine 4s infinite;
-}
-.logo-section {
-  margin-bottom: 1.5rem;
-}
-.logo {
-  width: 100px;
-  height: 100px;
-  object-fit: contain;
-  display: block;
-  margin: 0 auto 0.5rem auto;
-  filter: drop-shadow(0 3px 8px rgba(0, 0, 0, 0.2));
-  animation: fadeInScale 0.8s ease-out;
-  transition: transform 0.3s ease;
-}
-.logo:hover {
-  transform: scale(1.15);
-}
-.logo-section h1 {
-  font-size: 2.5rem;
-  font-weight: 800;
-  color: #1A1A1A;
-  text-shadow: 0 2px 6px rgba(240, 230, 140, 0.3);
-  animation: fadeInUp 0.6s ease-out 0.2s forwards;
-}
-.tagline {
-  font-size: 1rem;
-  font-weight: 600;
-  color: #4B5E8E;
-  font-style: italic;
-  animation: fadeInUp 0.6s ease-out 0.4s forwards;
-}
-.tab-buttons {
-  display: flex;
-  justify-content: center;
-  margin: 1.5rem 0;
-  background: #1A1A1A;
-  border-radius: 12px;
-  padding: 0.3rem;
-  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1);
-}
-.tab-button {
-  flex: 1;
-  padding: 0.8rem;
-  background: transparent;
-  border: none;
-  color: #FFFFFF;
-  font-size: 1.1rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background 0.3s ease, color 0.3s ease, transform 0.2s ease;
-}
-.tab-button:hover {
-  background: #8A2BE2;
-  color: #F0E68C;
-  transform: translateY(-2px);
-}
-.tab-button.active {
-  background: linear-gradient(45deg, #9370DB, #8A2BE2);
-  color: #FFFFFF;
-  border-radius: 10px;
-  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.2);
-}
-.form {
-  display: none;
-  flex-direction: column;
-  opacity: 0;
-  transform: translateY(20px);
-  animation: formFadeIn 0.5s ease-out forwards;
-}
-.form.active {
-  display: flex;
-}
-.form h2 {
-  font-size: 1.8rem;
-  font-weight: 700;
-  color: #9370DB;
-  margin-bottom: 1rem;
-  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-}
-.form input {
-  margin: 0.6rem 0;
-  padding: 0.8rem;
-  border: 1px solid #D8BFD8;
-  border-radius: 8px;
-  font-family: 'Playfair Display', serif;
-  font-size: 1rem;
-  background: #F0F8FF;
-  transition: border-color 0.3s ease, box-shadow 0.3s ease;
-}
-.form input:focus {
-  border-color: #9370DB;
-  box-shadow: 0 0 0 2px rgba(147, 112, 219, 0.2);
-  outline: none;
-}
-.form button {
-  margin-top: 1rem;
-  padding: 0.8rem;
-  border: none;
-  border-radius: 8px;
-  background: linear-gradient(45deg, #9370DB, #D8BFD8);
-  color: #1A1A1A;
-  font-weight: 700;
-  font-size: 1rem;
-  cursor: pointer;
-  transition: background 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
-  box-shadow: 0 3px 8px rgba(142, 68, 173, 0.1);
-}
-.form button:hover {
-  background: linear-gradient(45deg, #8A2BE2, #D8BFD8);
-  transform: translateY(-2px);
-  box-shadow: 0 5px 12px rgba(142, 68, 173, 0.2);
-}
-.message {
-  margin-top: 0.8rem;
-  font-size: 0.95rem;
-  font-weight: 600;
-}
-.error {
-  color: #8A2BE2;
-  background: rgba(138, 43, 226, 0.1);
-  padding: 0.5rem;
-  border-radius: 8px;
-}
-.success {
-  color: #9370DB;
-  background: rgba(147, 112, 219, 0.1);
-  padding: 0.5rem;
-  border-radius: 8px;
-}
-#toast {
-  visibility: hidden;
-  min-width: 250px;
-  background: linear-gradient(45deg, #9370DB, #D8BFD8);
-  color: #FFFFFF;
-  text-align: center;
-  border-radius: 12px;
-  padding: 1rem;
-  position: fixed;
-  z-index: 1000;
-  left: 50%;
-  bottom: 30px;
-  transform: translateX(-50%);
-  font-size: 0.95rem;
-  box-shadow: 0 4px 12px rgba(142, 68, 173, 0.2);
-}
-#toast.show {
-  visibility: visible;
-  animation: slideDown 0.5s ease-out, slideUp 0.5s ease-in 2.5s forwards;
-}
-@keyframes shine {
-  0% { left: -100%; }
-  50% { left: 100%; }
-  100% { left: 100%; }
-}
-@keyframes fadeInScale {
-  from { opacity: 0; transform: scale(0.9); }
-  to { opacity: 1; transform: scale(1); }
-}
-@keyframes fadeInUp {
-  from { opacity: 0; transform: translateY(15px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-@keyframes slideUp {
-  from { opacity: 0; transform: translateY(20px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-@keyframes slideDown {
-  from { opacity: 0; G: translate(-50%, -100%); }
-  to { opacity: 1; transform: translate(-50%, 0); }
-}
-@keyframes formFadeIn {
-  from { opacity: 0; transform: translateY(20px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-@media (max-width: 480px) {
-  .container { margin: 1rem; padding: 1.5rem; max-width: 90%; }
-  .logo { width: 80px; height: 80px; }
-  .logo-section h1 { font-size: 2rem; }
-  .tagline { font-size: 0.9rem; }
-  .tab-button { font-size: 1rem; padding: 0.6rem; }
-  .form h2 { font-size: 1.6rem; }
-  .form input, .form button { font-size: 0.9rem; padding: 0.7rem; }
-  .message { font-size: 0.85rem; }
-}
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html, body {
+      width: 100%;
+      overflow-x: hidden;
+    }
+
+    :root {
+      --plum: #5c3a52;
+      --mauve: #8e44ad;
+      --gold: #d9a94c;
+      --gold-light: #f2d49b;
+      --cream: #fbf6ee;
+      --ink: #2a1f26;
+    }
+
+    body {
+      font-family: 'Cormorant Garamond', serif;
+      color: var(--ink);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      background-color: #3a2438;
+    }
+
+    .bg-image {
+      position: fixed;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      background-image: url('assests/wallimage.png');
+      background-size: cover;
+      background-position: center 18%;
+      background-repeat: no-repeat;
+      z-index: 0;
+      transform: scale(1.04);
+      animation: bgDrift 18s ease-in-out infinite alternate;
+    }
+
+    @keyframes bgDrift {
+      0%   { transform: scale(1.04) translateY(0); }
+      100% { transform: scale(1.09) translateY(-1%); }
+    }
+
+    .bg-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      background:
+        radial-gradient(circle at 50% 38%, rgba(58, 36, 56, 0.35), rgba(37, 21, 36, 0.72) 60%, rgba(26, 14, 25, 0.88) 100%),
+        linear-gradient(180deg, rgba(92, 58, 82, 0.55) 0%, rgba(58, 36, 56, 0.72) 45%, rgba(30, 17, 29, 0.9) 100%);
+      animation: overlayFlow 16s ease infinite;
+    }
+
+    @keyframes overlayFlow {
+      0%, 100% { opacity: 1; }
+      50%      { opacity: 0.92; }
+    }
+
+    /* ---------- Layout ---------- */
+    .page {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2.5rem 1.25rem 1.5rem;
+      position: relative;
+      z-index: 1;
+    }
+
+    .sparkle {
+      position: fixed;
+      font-size: 1.1rem;
+      color: var(--gold);
+      opacity: 0.5;
+      z-index: 0;
+      animation: floatSparkle 6s ease-in-out infinite;
+      pointer-events: none;
+    }
+    .sparkle.s1 { top: 10%; left: 8%; animation-delay: 0s; }
+    .sparkle.s2 { top: 18%; right: 8%; animation-delay: 1.5s; }
+    .sparkle.s3 { bottom: 16%; left: 6%; animation-delay: 3s; }
+    .sparkle.s4 { bottom: 10%; right: 10%; animation-delay: 2s; }
+
+    @keyframes floatSparkle {
+      0%, 100% { transform: translateY(0) rotate(0deg); opacity: 0.3; }
+      50%      { transform: translateY(-12px) rotate(15deg); opacity: 0.7; }
+    }
+
+    /* ---------- Card ---------- */
+    .container {
+      position: relative;
+      z-index: 1;
+      background: rgba(255, 255, 255, 0.88);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      padding: 2.1rem 2rem 1.85rem;
+      border-radius: 20px;
+      border: 1px solid rgba(217, 169, 76, 0.45);
+      box-shadow: 0 20px 50px rgba(20, 10, 20, 0.45), 0 0 0 1px rgba(255,255,255,0.5) inset;
+      width: 100%;
+      max-width: 360px;
+      text-align: center;
+      opacity: 0;
+      transform: translateY(24px);
+      animation: cardIn 0.7s ease-out forwards;
+      overflow: hidden;
+    }
+
+    .container::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 60%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(217, 169, 76, 0.18), transparent);
+      animation: shine 5s ease-in-out infinite;
+      pointer-events: none;
+    }
+
+    @keyframes shine {
+      0%   { left: -60%; }
+      55%  { left: 130%; }
+      100% { left: 130%; }
+    }
+
+    @keyframes cardIn {
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .logo-section {
+      margin-bottom: 1.2rem;
+      position: relative;
+      z-index: 1;
+    }
+
+    .logo {
+      width: 74px;
+      height: 74px;
+      object-fit: contain;
+      display: block;
+      margin: 0 auto 0.45rem;
+      filter: drop-shadow(0 3px 8px rgba(0, 0, 0, 0.18));
+      opacity: 0;
+      transform: scale(0.85);
+      animation: fadeInScale 0.7s ease-out 0.15s forwards;
+      transition: transform 0.35s ease;
+    }
+    .logo:hover { transform: scale(1.08); }
+
+    .brand-name {
+      font-family: 'Playfair Display', serif;
+      font-weight: 800;
+      font-size: 1.55rem;
+      letter-spacing: 1px;
+      color: var(--plum);
+      text-shadow: 0 2px 6px rgba(217, 169, 76, 0.25);
+      opacity: 0;
+      transform: translateY(14px);
+      animation: fadeInUp 0.6s ease-out 0.3s forwards;
+    }
+
+    .tagline {
+      font-size: 0.88rem;
+      font-weight: 600;
+      font-style: italic;
+      color: #4b5e8e;
+      margin-top: 0.1rem;
+      opacity: 0;
+      transform: translateY(14px);
+      animation: fadeInUp 0.6s ease-out 0.42s forwards;
+    }
+
+    .portal-label {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      margin-top: 0.65rem;
+      font-family: 'Playfair Display', serif;
+      font-weight: 700;
+      font-size: 0.66rem;
+      letter-spacing: 2.2px;
+      text-transform: uppercase;
+      color: #fff;
+      background: linear-gradient(45deg, var(--mauve), var(--plum));
+      padding: 0.32rem 0.9rem;
+      border-radius: 30px;
+      box-shadow: 0 4px 12px rgba(142, 68, 173, 0.3);
+      opacity: 0;
+      animation: fadeInUp 0.6s ease-out 0.54s forwards;
+    }
+
+    /* ---------- Form ---------- */
+    .form {
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      z-index: 1;
+      margin-top: 1.3rem;
+      opacity: 0;
+      transform: translateY(16px);
+      animation: fadeInUp 0.6s ease-out 0.66s forwards;
+    }
+
+    .field {
+      position: relative;
+      margin: 0.42rem 0;
+      text-align: left;
+    }
+
+    .field label {
+      display: block;
+      font-size: 0.78rem;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      color: var(--plum);
+      margin-bottom: 0.28rem;
+      padding-left: 0.2rem;
+    }
+
+    .form input {
+      width: 100%;
+      padding: 0.72rem 0.95rem;
+      border: 1.5px solid rgba(216, 191, 216, 0.9);
+      border-radius: 10px;
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1rem;
+      background: rgba(251, 246, 238, 0.7);
+      color: var(--ink);
+      transition: border-color 0.25s ease, box-shadow 0.25s ease, background 0.25s ease;
+    }
+
+    .form input::placeholder {
+      color: #a894a3;
+    }
+
+    .form input:focus {
+      outline: none;
+      border-color: var(--mauve);
+      background: #fff;
+      box-shadow: 0 0 0 3px rgba(142, 68, 173, 0.15);
+    }
+
+    .form-options {
+      display: flex;
+      justify-content: flex-end;
+      margin: 0.25rem 0 0.35rem;
+    }
+
+    .forgot-link {
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--mauve);
+      text-decoration: none;
+      transition: color 0.2s ease;
+    }
+    .forgot-link:hover { color: var(--plum); text-decoration: underline; }
+
+    .submit-btn {
+      margin-top: 0.75rem;
+      padding: 0.78rem;
+      border: none;
+      border-radius: 10px;
+      background: linear-gradient(45deg, var(--mauve), var(--plum));
+      color: #fff;
+      font-family: 'Playfair Display', serif;
+      font-weight: 700;
+      font-size: 0.98rem;
+      letter-spacing: 0.5px;
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+      transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.3s ease;
+      box-shadow: 0 6px 16px rgba(142, 68, 173, 0.3);
+    }
+
+    .submit-btn:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 9px 22px rgba(142, 68, 173, 0.4);
+      background: linear-gradient(45deg, #9b52b8, var(--plum));
+    }
+
+    .submit-btn:active:not(:disabled) {
+      transform: translateY(0);
+    }
+
+    .submit-btn:disabled {
+      opacity: 0.75;
+      cursor: not-allowed;
+    }
+
+    .spinner {
+      display: inline-block;
+      width: 16px;
+      height: 16px;
+      border: 2px solid rgba(255,255,255,0.4);
+      border-top-color: #fff;
+      border-radius: 50%;
+      vertical-align: -3px;
+      margin-right: 0.5rem;
+      animation: spin 0.7s linear infinite;
+      display: none;
+    }
+
+    .submit-btn.loading .spinner { display: inline-block; }
+    .submit-btn.loading .btn-text { opacity: 0.9; }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    @keyframes fadeInScale {
+      to { opacity: 1; transform: scale(1); }
+    }
+
+    @keyframes fadeInUp {
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ---------- Restricted access notice ---------- */
+    .restricted-notice {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      align-items: flex-start;
+      gap: 0.5rem;
+      margin-top: 1.15rem;
+      padding: 0.7rem 0.85rem;
+      border-radius: 12px;
+      background: rgba(92, 58, 82, 0.06);
+      border: 1px solid rgba(217, 169, 76, 0.35);
+      text-align: left;
+      opacity: 0;
+      transform: translateY(14px);
+      animation: fadeInUp 0.6s ease-out 0.8s forwards;
+    }
+
+    .restricted-notice .lock-icon {
+      flex-shrink: 0;
+      width: 19px;
+      height: 19px;
+      margin-top: 1px;
+      color: var(--mauve);
+    }
+
+    .restricted-notice span {
+      font-size: 0.85rem;
+      line-height: 1.45;
+      font-weight: 600;
+      color: var(--plum);
+      letter-spacing: 0.1px;
+    }
+
+    /* ---------- Footer ---------- */
+    .site-footer {
+      position: relative;
+      z-index: 1;
+      text-align: center;
+      padding: 1.3rem 1rem 1.6rem;
+      font-size: 1.05rem;
+      color: #f2e6ef;
+      opacity: 0.85;
+      font-weight: 700;
+      letter-spacing: 0.3px;
+      text-shadow: 0 2px 6px rgba(20, 10, 20, 0.5);
+    }
+
+    /* ---------- Toast Notifications ---------- */
+    #toast-container {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      z-index: 2000;
+      display: flex;
+      flex-direction: column;
+      gap: 0.6rem;
+      max-width: 90vw;
+    }
+
+    .toast {
+      display: flex;
+      align-items: center;
+      gap: 0.65rem;
+      min-width: 260px;
+      max-width: 340px;
+      background: #fff;
+      border-radius: 12px;
+      padding: 0.9rem 1.1rem;
+      box-shadow: 0 10px 28px rgba(0, 0, 0, 0.18);
+      border-left: 4px solid var(--mauve);
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 0.98rem;
+      font-weight: 600;
+      color: var(--ink);
+      opacity: 0;
+      transform: translateX(40px);
+      animation: toastIn 0.4s ease-out forwards;
+    }
+
+    .toast.success { border-left-color: #2e9e6b; }
+    .toast.error   { border-left-color: #d64545; }
+
+    .toast .icon {
+      flex-shrink: 0;
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.85rem;
+      font-weight: 800;
+      color: #fff;
+    }
+    .toast.success .icon { background: #2e9e6b; }
+    .toast.error .icon { background: #d64545; }
+
+    .toast.hide {
+      animation: toastOut 0.35s ease-in forwards;
+    }
+
+    @keyframes toastIn {
+      to { opacity: 1; transform: translateX(0); }
+    }
+    @keyframes toastOut {
+      to { opacity: 0; transform: translateX(40px); }
+    }
+
+    /* ---------- Responsive ---------- */
+    @media (min-width: 1024px) {
+      .container { max-width: 380px; padding: 2.4rem 2.2rem 2.1rem; }
+      .logo { width: 82px; height: 82px; }
+      .brand-name { font-size: 1.7rem; }
+    }
+
+    @media (max-width: 600px) {
+      .page { padding: 2rem 1rem 1rem; }
+      .container { padding: 1.9rem 1.4rem 1.7rem; border-radius: 18px; max-width: 340px; }
+      .logo { width: 64px; height: 64px; }
+      .brand-name { font-size: 1.35rem; }
+      .tagline { font-size: 0.8rem; }
+      .form input { font-size: 0.95rem; padding: 0.68rem 0.85rem; }
+      .submit-btn { font-size: 0.92rem; padding: 0.72rem; }
+      #toast-container { top: auto; bottom: 16px; right: 16px; left: 16px; max-width: none; }
+      .toast { min-width: 0; max-width: none; width: 100%; }
+      .sparkle { display: none; }
+      .restricted-notice { padding: 0.75rem 0.85rem; }
+      .restricted-notice span { font-size: 0.8rem; }
+      .site-footer { font-size: 0.9rem; padding: 1.1rem 1rem 1.3rem; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.001ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.001ms !important;
+      }
+    }
   </style>
 </head>
 <body>
-  <div class="container">
-    <!-- Logo & Branding -->
-    <div class="logo-section">
-      <img src="https://i.postimg.cc/W3pgQx9q/DELICUTE-Imgur-1-modified.png" alt="DELICUTE Logo" class="logo">
-      <h1>DELICUTE</h1>
-      <p class="tagline">Every Bite Tells A Story</p>
+
+  <div class="bg-image"></div>
+  <div class="bg-overlay"></div>
+
+  <span class="sparkle s1">✦</span>
+  <span class="sparkle s2">✧</span>
+  <span class="sparkle s3">✦</span>
+  <span class="sparkle s4">✧</span>
+
+  <div class="page">
+    <div class="container">
+      <div class="logo-section">
+        <img class="logo" src="https://i.postimg.cc/W3pgQx9q/DELICUTE-Imgur-1-modified.png" alt="Delicute Logo" />
+        <div class="brand-name">DELICUTE</div>
+        <div class="tagline">Every Bite Tells a Story</div>
+        <div class="portal-label">Admin Portal</div>
+      </div>
+
+      <form id="loginForm" class="form" novalidate>
+        <div class="field">
+          <label for="loginEmail">Email</label>
+          <input type="email" id="loginEmail" placeholder="you@delicute.com" required autocomplete="username" />
+        </div>
+        <div class="field">
+          <label for="loginPassword">Password</label>
+          <input type="password" id="loginPassword" placeholder="Enter your password" required autocomplete="current-password" />
+        </div>
+        <div class="form-options">
+          <a href="#" class="forgot-link" id="forgotLink">Forgot password?</a>
+        </div>
+        <button type="submit" class="submit-btn" id="submitBtn">
+          <span class="spinner"></span><span class="btn-text">Log In</span>
+        </button>
+      </form>
+
+      <div class="restricted-notice">
+        <svg class="lock-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect x="5" y="10.5" width="14" height="10" rx="2" stroke="currentColor" stroke-width="1.6"/>
+          <path d="M8 10.5V7.5C8 5.29 9.79 3.5 12 3.5C14.21 3.5 16 5.29 16 7.5V10.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+          <circle cx="12" cy="15" r="1.4" fill="currentColor"/>
+        </svg>
+        <span>This is a secured area. Access is restricted to authorised Delicute administrators only.</span>
+      </div>
     </div>
-
-    <!-- Tabs -->
-    <div class="tab-buttons">
-      <button class="tab-button active" onclick="showForm('login')">Login</button>
-      <button class="tab-button" onclick="showForm('signup')">Signup</button>
-    </div>
-
-    <!-- Login -->
-    <form id="loginForm" class="form active">
-      <h2>Admin Login</h2>
-      <input type="email" id="loginEmail" placeholder="Email" required>
-      <input type="password" id="loginPassword" placeholder="Password" required>
-      <button type="submit">Login</button>
-      <p id="loginMsg" class="message"></p>
-    </form>
-
-    <!-- Signup -->
-    <form id="signupForm" class="form">
-      <h2>Create Account</h2>
-      <input type="text" id="signupName" placeholder="Full Name" required>
-      <input type="email" id="signupEmail" placeholder="Email" required>
-      <input type="password" id="signupPassword" placeholder="Password" required>
-      <button type="submit">Signup</button>
-      <p id="signupMsg" class="message"></p>
-    </form>
-
-    <!-- Toast -->
-    <div id="toast"></div>
   </div>
 
+  <footer class="site-footer">
+    &copy; 2025 Delicute. All rights reserved.
+  </footer>
+
+  <div id="toast-container" aria-live="polite" aria-atomic="true"></div>
+
   <script>
-    function showToast(msg, success = true) {
-      const toast = document.getElementById("toast");
-      toast.textContent = msg;
-      toast.style.background = success ? "linear-gradient(45deg, #26a69a, #4dd0e1)" : "linear-gradient(45deg, #ef5350, #e53935)";
-      toast.className = "show";
-      setTimeout(() => toast.className = toast.className.replace("show", ""), 3000);
+    function showToast(message, type = 'success', duration = 3500) {
+      const container = document.getElementById('toast-container');
+      const toast = document.createElement('div');
+      toast.className = `toast ${type}`;
+      toast.innerHTML = `<span class="icon">${type === 'success' ? '✓' : '!'}</span><span>${message}</span>`;
+      container.appendChild(toast);
+
+      setTimeout(() => {
+        toast.classList.add('hide');
+        toast.addEventListener('animationend', () => toast.remove(), { once: true });
+      }, duration);
     }
 
-    function showForm(formId) {
-      document.querySelectorAll(".form").forEach(form => {
-        form.classList.remove("active");
-        form.style.animation = "none";
-      });
-      document.querySelectorAll(".tab-button").forEach(btn => btn.classList.remove("active"));
-
-      const selectedForm = document.getElementById(`${formId}Form`);
-      selectedForm.classList.add("active");
-      selectedForm.style.animation = "formFadeIn 0.5s ease-out forwards";
-
-      document.querySelector(`button[onclick="showForm('${formId}')"]`).classList.add("active");
-    }
-
-    // Handle Login
-    document.getElementById("loginForm").addEventListener("submit", async (e) => {
+    const forgotLink = document.getElementById('forgotLink');
+    forgotLink.addEventListener('click', (e) => {
       e.preventDefault();
-      const email = document.getElementById("loginEmail").value;
-      const password = document.getElementById("loginPassword").value;
-      const loginMsg = document.getElementById("loginMsg");
+      showToast('Please contact your administrator to reset your password.', 'error');
+    });
+
+    const loginForm = document.getElementById('loginForm');
+    const submitBtn = document.getElementById('submitBtn');
+
+    loginForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const email = document.getElementById('loginEmail').value.trim();
+      const password = document.getElementById('loginPassword').value;
+
+      if (!email || !password) {
+        showToast('Please fill in both fields.', 'error');
+        return;
+      }
+
+      submitBtn.classList.add('loading');
+      submitBtn.disabled = true;
 
       try {
-        const res = await fetch("/api/auth/login", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
+        const res = await fetch('/api/auth/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ email, password }),
-          credentials: "include"
+          credentials: 'include'
         });
 
         const data = await res.json();
 
         if (res.ok) {
-          showToast("Login successful!", true);
+          showToast('Login successful! Redirecting…', 'success');
           setTimeout(() => {
-            window.location.href = "/admindashboard.html";
+            window.location.href = '/admindashboard.html';
           }, 1000);
         } else {
-          loginMsg.className = "message error";
-          loginMsg.innerText = data.message || "Invalid login credentials";
-          showToast(data.message || "Invalid login credentials", false);
+          showToast(data.message || 'Invalid login credentials.', 'error');
         }
       } catch (err) {
-        loginMsg.className = "message error";
-        loginMsg.innerText = "Server error. Please try again.";
-        showToast("Server error. Please try again.", false);
-      }
-    });
-
-    // Handle Signup
-    document.getElementById("signupForm").addEventListener("submit", async (e) => {
-      e.preventDefault();
-      const name = document.getElementById("signupName").value;
-      const email = document.getElementById("signupEmail").value;
-      const password = document.getElementById("signupPassword").value;
-      const signupMsg = document.getElementById("signupMsg");
-
-      try {
-        const res = await fetch("/api/auth/signup", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ name, email, password })
-        });
-        const data = await res.json();
-
-        signupMsg.className = data.success ? "message success" : "message error";
-        signupMsg.innerText = data.message || (data.success ? "Account created!" : "Signup failed");
-        showToast(data.message || (data.success ? "Account created!" : "Signup failed"), data.success);
-
-        if (data.success) {
-          document.getElementById("signupForm").reset();
-          setTimeout(() => showForm("login"), 1000);
-        }
-      } catch (err) {
-        signupMsg.className = "message error";
-        signupMsg.innerText = "Server error. Please try again.";
-        showToast("Server error. Please try again.", false);
+        showToast('Server error. Please try again.', 'error');
+      } finally {
+        submitBtn.classList.remove('loading');
+        submitBtn.disabled = false;
       }
     });
   </script>

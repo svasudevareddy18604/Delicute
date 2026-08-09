@@ -9,19 +9,20 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
 <style>
   :root {
-    --primary-purple: #8B6BC9;
-    --primary-purple-dark: #6B4FA0;
-    --bg-lilac: #F3EEFA;
-    --dark: #2B2B33;
-    --muted: #6B6B76;
-    --border: #E7E1F2;
-    --delivered: #2E8B57;
-    --cancelled: #C0392B;
-    --veg: #2E8B57;
-    --nonveg: #B23A2E;
+    --primary-purple: #8e44ad;
+    --primary-purple-dark: #5c3a52;
+    --nav-dark: #3f2838;
+    --bg-lilac: #fbf6ee;
+    --dark: #2a1f26;
+    --muted: #8a7688;
+    --border: #ecdfe8;
+    --delivered: #2e9e6b;
+    --cancelled: #d64545;
+    --veg: #2e9e6b;
+    --nonveg: #d64545;
     --radius: 10px;
-    --shadow-sm: 0 1px 3px rgba(60, 40, 100, 0.08);
-    --shadow-md: 0 4px 14px rgba(60, 40, 100, 0.12);
+    --shadow-sm: 0 1px 3px rgba(92, 58, 82, 0.08);
+    --shadow-md: 0 4px 14px rgba(92, 58, 82, 0.12);
   }
 
   * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
@@ -68,7 +69,7 @@
   }
 
   nav {
-    background: #1E1E24;
+    background: var(--nav-dark);
     display: flex;
     justify-content: center;
     overflow-x: auto;
@@ -125,7 +126,7 @@
   }
   input:focus, textarea:focus, select:focus {
     border-color: var(--primary-purple);
-    box-shadow: 0 0 0 2px rgba(139, 107, 201, 0.2);
+    box-shadow: 0 0 0 2px rgba(142, 68, 173, 0.2);
     outline: none;
   }
   textarea { resize: vertical; min-height: 70px; }
@@ -153,8 +154,8 @@
     transition: border-color 0.2s ease, background 0.2s ease, color 0.2s ease;
   }
   .veg-option input { display: none; }
-  .veg-option.selected-veg { border-color: var(--veg); background: rgba(46, 139, 87, 0.08); color: var(--veg); }
-  .veg-option.selected-nonveg { border-color: var(--nonveg); background: rgba(178, 58, 46, 0.08); color: var(--nonveg); }
+  .veg-option.selected-veg { border-color: var(--veg); background: rgba(46, 158, 107, 0.08); color: var(--veg); }
+  .veg-option.selected-nonveg { border-color: var(--nonveg); background: rgba(214, 69, 69, 0.08); color: var(--nonveg); }
 
   .food-mark { width: 14px; height: 14px; border: 2px solid currentColor; border-radius: 3px; display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; }
   .food-mark::after { content: ''; width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
@@ -202,7 +203,7 @@
     cursor: pointer;
     transition: background 0.2s ease;
   }
-  button[type="submit"]:hover { background: #5A3F8A; }
+  button[type="submit"]:hover { background: var(--nav-dark); }
 
   /* ---- Search + filter bar ---- */
   .toolbar {
@@ -283,7 +284,7 @@
   }
   table { width: 100%; border-collapse: collapse; min-width: 760px; }
   th {
-    background: #FAF8FE;
+    background: var(--bg-lilac);
     color: var(--primary-purple-dark);
     text-align: left;
     font-size: 0.75rem;
@@ -302,7 +303,7 @@
     vertical-align: middle;
   }
   tbody tr:last-child td { border-bottom: none; }
-  tbody tr:hover { background: #FAF8FE; }
+  tbody tr:hover { background: var(--bg-lilac); }
 
   .item-thumb { width: 44px; height: 44px; object-fit: cover; border-radius: 6px; display: block; }
   .item-name { font-weight: 700; color: var(--dark); }
@@ -338,7 +339,7 @@
     display: none;
     position: fixed;
     inset: 0;
-    background: rgba(43, 43, 51, 0.55);
+    background: rgba(42, 31, 38, 0.55);
     z-index: 2000;
     align-items: center;
     justify-content: center;
@@ -458,11 +459,13 @@
   </header>
 
   <nav>
+    <a href="admindashboard.html">Dashboard</a>
     <a href="adminorders.html">Orders</a>
     <a href="adminmenu.html">Menu</a>
     <a href="admincoupons.html">Coupons</a>
     <a href="admincategories.html">Categories</a>
     <a href="admintoppicks.html">Top Picks</a>
+    <a href="adminpromotions.html">Promotions</a>
   </nav>
 
   <div class="container">
@@ -650,7 +653,7 @@
     function showToast(msg, success = true) {
       const toast = document.getElementById("toast");
       toast.textContent = msg;
-      toast.style.background = success ? "#2E8B57" : "#C0392B";
+      toast.style.background = success ? "#2e9e6b" : "#d64545";
       toast.className = "show";
       setTimeout(() => toast.className = toast.className.replace("show", ""), 3000);
     }

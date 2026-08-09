@@ -5,28 +5,30 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Admin | Manage Orders</title>
   <link rel="icon" href="https://i.postimg.cc/W3pgQx9q/DELICUTE-Imgur-1-modified.png">
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
   <style>
     :root {
-      --primary-purple: #8B6BC9;
-      --primary-purple-dark: #6B4FA0;
-      --secondary-purple: #D8BFD8;
-      --bg-lilac: #F3EEFA;
-      --dark: #2B2B33;
-      --muted: #6B6B76;
-      --border: #E7E1F2;
-      --pending: #9370DB;
-      --preparing: #6A5ACD;
-      --delivered: #2E8B57;
-      --cancelled: #C0392B;
-      --gold: #D9A94C;
-      --radius: 10px;
-      --shadow-sm: 0 1px 3px rgba(60, 40, 100, 0.08);
-      --shadow-md: 0 4px 14px rgba(60, 40, 100, 0.12);
+      --primary-purple: #8e44ad;
+      --primary-purple-dark: #5c3a52;
+      --nav-dark: #3f2838;
+      --bg-lilac: #fbf6ee;
+      --dark: #2a1f26;
+      --muted: #8a7688;
+      --border: #ecdfe8;
+      --gold: #d9a94c;
+      --gold-light: #f2d49b;
+      --pending: #8e44ad;
+      --accepted: #7c5295;
+      --cooking: #5c3a52;
+      --delivered: #2e9e6b;
+      --cancelled: #d64545;
+      --radius: 14px;
+      --shadow-sm: 0 2px 12px rgba(92, 58, 82, 0.08);
+      --shadow-md: 0 10px 28px rgba(92, 58, 82, 0.16);
     }
 
-    * { box-sizing: border-box; margin: 0; padding: 0; }
+    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
 
     body {
       font-family: 'Roboto', sans-serif;
@@ -34,34 +36,38 @@
       color: var(--dark);
       min-height: 100vh;
       line-height: 1.5;
+      overscroll-behavior: contain;
     }
 
+    /* ---------- Header ---------- */
     header {
       background: linear-gradient(90deg, var(--primary-purple-dark), var(--primary-purple));
       color: white;
-      padding: 1rem 1.25rem;
+      padding: 1.1rem 1.25rem 1.3rem;
       display: flex;
       flex-direction: column;
       align-items: center;
       box-shadow: var(--shadow-md);
-      position: relative;
+      position: sticky;
+      top: 0;
+      z-index: 1000;
       text-align: center;
     }
 
-    header img { height: 50px; border-radius: 50%; box-shadow: 0 2px 8px rgba(0,0,0,0.25); }
-    header h1 { font-family: 'Playfair Display', serif; font-size: 1.8rem; margin-top: 0.4rem; }
-    header span { font-size: 0.8rem; opacity: 0.85; }
+    header img { height: 50px; width: 50px; object-fit: contain; border-radius: 50%; background: #fff; box-shadow: 0 2px 8px rgba(0,0,0,0.25); }
+    header h1 { font-family: 'Playfair Display', serif; font-weight: 800; font-size: 1.8rem; margin-top: 0.4rem; letter-spacing: 0.3px; }
+    header span.tagline { font-size: 0.8rem; opacity: 0.85; }
 
     .live-indicator {
       display: inline-flex;
       align-items: center;
-      gap: 0.35rem;
-      margin-top: 0.35rem;
+      gap: 0.4rem;
+      margin-top: 0.4rem;
       font-size: 0.72rem;
-      font-weight: 600;
+      font-weight: 700;
       letter-spacing: 0.03em;
       text-transform: uppercase;
-      opacity: 0.9;
+      opacity: 0.92;
     }
     .live-dot {
       width: 8px;
@@ -89,8 +95,8 @@
     }
 
     .icon-btn {
-      background: rgba(255,255,255,0.15);
-      border: none;
+      background: rgba(255,255,255,0.16);
+      border: 1px solid rgba(255,255,255,0.25);
       color: white;
       width: 38px;
       height: 38px;
@@ -101,9 +107,9 @@
       cursor: pointer;
       font-size: 1rem;
       position: relative;
-      transition: background 0.2s ease;
+      transition: background 0.2s ease, transform 0.2s ease;
     }
-    .icon-btn:hover { background: rgba(255,255,255,0.28); }
+    .icon-btn:hover { background: rgba(255,255,255,0.28); transform: translateY(-1px); }
 
     .notification-badge {
       position: absolute;
@@ -119,6 +125,7 @@
       align-items: center;
       justify-content: center;
       padding: 0 3px;
+      box-shadow: 0 0 0 2px var(--primary-purple-dark);
     }
 
     .logout-btn {
@@ -128,54 +135,56 @@
       padding: 0 0.9rem;
       height: 38px;
       border-radius: 8px;
-      font-weight: 600;
+      font-weight: 700;
       font-size: 0.85rem;
       cursor: pointer;
+      box-shadow: 0 3px 10px rgba(0,0,0,0.15);
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
     }
+    .logout-btn:hover { transform: translateY(-1px); box-shadow: 0 5px 14px rgba(0,0,0,0.22); }
 
     .notification-dropdown {
       display: none;
       position: absolute;
       top: 3rem;
       right: 0;
-      width: 260px;
-      max-height: 320px;
+      width: 270px;
+      max-height: 340px;
       overflow-y: auto;
       background: white;
-      border-radius: 10px;
+      border-radius: 12px;
       box-shadow: var(--shadow-md);
-      z-index: 1000;
+      z-index: 1500;
       padding: 0.6rem;
       color: var(--dark);
       text-align: left;
+      border: 1px solid var(--border);
     }
     .notification-dropdown.show { display: block; }
 
-    .notification-item {
-      padding: 0.6rem;
-      border-bottom: 1px solid var(--border);
-      font-size: 0.82rem;
-    }
+    .notification-item { padding: 0.6rem 0.5rem; border-bottom: 1px solid var(--border); font-size: 0.85rem; }
     .notification-item:last-child { border-bottom: none; }
     .notification-item strong { color: var(--primary-purple-dark); }
-
-    .no-notifications { padding: 0.6rem; font-size: 0.82rem; color: var(--muted); text-align: center; }
+    .no-notifications-msg { padding: 0.65rem; font-size: 0.85rem; color: var(--muted); text-align: center; }
 
     .clear-notifications {
       width: 100%;
       margin-top: 0.4rem;
-      padding: 0.5rem;
+      padding: 0.55rem;
       background: var(--bg-lilac);
       border: 1px solid var(--border);
-      border-radius: 6px;
-      font-size: 0.8rem;
-      font-weight: 600;
+      border-radius: 8px;
+      font-family: 'Roboto', sans-serif;
+      font-size: 0.85rem;
+      font-weight: 700;
       color: var(--primary-purple-dark);
       cursor: pointer;
     }
+    .clear-notifications:hover { background: var(--border); }
 
+    /* ---------- Nav ---------- */
     nav {
-      background: #1E1E24;
+      background: var(--nav-dark);
       display: flex;
       justify-content: center;
       overflow-x: auto;
@@ -192,60 +201,99 @@
     }
     nav a:hover { background: rgba(139, 107, 201, 0.25); color: #fff; }
 
-    .container {
-      max-width: 1200px;
-      margin: 1.5rem auto;
-      padding: 1.25rem;
-    }
+    /* ---------- Container ---------- */
+    .container { max-width: 1200px; margin: 1.5rem auto; padding: 0 1.25rem 2rem; }
 
     .container h2 {
       font-family: 'Playfair Display', serif;
-      font-size: 1.5rem;
+      font-weight: 700;
+      font-size: 1.4rem;
       color: var(--primary-purple-dark);
-      margin-bottom: 1rem;
+      margin-bottom: 1.25rem;
       text-align: center;
     }
 
-    /* ---- Desktop table ---- */
-    .table-wrapper {
-      width: 100%;
-      overflow-x: auto;
-      background: white;
+    /* ---------- Date groups (foldable) ---------- */
+    #ordersContainer { display: flex; flex-direction: column; gap: 1.1rem; }
+
+    .date-group {
+      background: #fff;
       border-radius: var(--radius);
       box-shadow: var(--shadow-sm);
+      border: 1px solid var(--border);
+      overflow: hidden;
     }
 
-    table { width: 100%; border-collapse: collapse; min-width: 900px; }
+    .date-header {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.75rem;
+      padding: 0.9rem 1.2rem;
+      background: linear-gradient(90deg, var(--primary-purple-dark), var(--primary-purple));
+      color: #fff;
+      border: none;
+      cursor: pointer;
+      font-family: 'Roboto', sans-serif;
+      text-align: left;
+      transition: filter 0.15s ease;
+    }
+    .date-header:hover { filter: brightness(1.06); }
+
+    .date-header-left { display: flex; align-items: center; gap: 0.65rem; }
+    .date-chevron { transition: transform 0.25s ease; font-size: 0.9rem; }
+    .date-group.collapsed .date-chevron { transform: rotate(-90deg); }
+
+    .date-label { font-family: 'Playfair Display', serif; font-weight: 700; font-size: 1.05rem; }
+    .date-sub { font-size: 0.78rem; opacity: 0.85; font-weight: 600; margin-left: 0.35rem; }
+
+    .date-count {
+      background: rgba(255,255,255,0.18);
+      padding: 0.3rem 0.8rem;
+      border-radius: 20px;
+      font-size: 0.78rem;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .date-body { display: block; }
+    .date-group.collapsed .date-body { display: none; }
+
+    /* ---- Desktop table ---- */
+    .table-wrapper { width: 100%; overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; min-width: 820px; }
 
     th {
-      background: var(--primary-purple-dark);
-      color: white;
+      background: var(--bg-lilac);
+      color: var(--primary-purple-dark);
       text-align: left;
-      font-size: 0.8rem;
-      font-weight: 600;
+      font-size: 0.75rem;
+      font-weight: 700;
       letter-spacing: 0.02em;
       text-transform: uppercase;
-      padding: 0.75rem 0.9rem;
+      padding: 0.7rem 0.9rem;
+      border-bottom: 1px solid var(--border);
     }
 
     td {
       padding: 0.85rem 0.9rem;
-      font-size: 0.88rem;
+      font-size: 0.86rem;
       border-bottom: 1px solid var(--border);
       vertical-align: top;
       color: var(--dark);
     }
 
-    tbody tr:hover { background: #FAF8FE; }
+    tbody tr:hover { background: var(--bg-lilac); }
     tbody tr:last-child td { border-bottom: none; }
 
-    .order-id { font-weight: 600; color: var(--muted); font-size: 0.75rem; display: block; margin-bottom: 2px; }
-    .customer-name { font-weight: 600; }
+    .order-id { font-weight: 700; color: var(--muted); font-size: 0.72rem; display: block; margin-bottom: 2px; }
+    .customer-name { font-weight: 700; }
 
     .new-flag {
       display: inline-block;
       margin-left: 0.4rem;
-      background: linear-gradient(45deg, var(--gold), #f2d49b);
+      background: linear-gradient(45deg, var(--gold), var(--gold-light));
       color: #4a3300;
       font-size: 0.62rem;
       font-weight: 800;
@@ -255,10 +303,7 @@
       vertical-align: middle;
       animation: newFlagPop 0.4s ease-out;
     }
-    @keyframes newFlagPop {
-      0% { transform: scale(0.4); opacity: 0; }
-      100% { transform: scale(1); opacity: 1; }
-    }
+    @keyframes newFlagPop { 0% { transform: scale(0.4); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
 
     .items-list { font-size: 0.85rem; }
     .items-list div { padding: 1px 0; }
@@ -266,7 +311,7 @@
     .total-price { font-weight: 700; color: var(--primary-purple-dark); }
 
     .coupon-info { font-size: 0.82rem; color: var(--muted); }
-    .coupon-info.has-coupon { color: #B8860B; font-weight: 500; }
+    .coupon-info.has-coupon { color: #B8860B; font-weight: 600; }
 
     .instructions {
       font-size: 0.82rem;
@@ -281,31 +326,26 @@
       display: inline-block;
       padding: 0.3rem 0.75rem;
       border-radius: 20px;
-      font-size: 0.78rem;
-      font-weight: 600;
+      font-size: 0.76rem;
+      font-weight: 700;
       color: white;
       text-align: center;
     }
     .status-pill.Pending    { background: var(--pending); }
-    .status-pill.Accepted { background: var(--preparing); }
-    .status-pill.Cooking { background: #6A5ACD; }
+    .status-pill.Accepted   { background: var(--accepted); }
+    .status-pill.Cooking    { background: var(--cooking); }
     .status-pill.Delivered  { background: var(--delivered); }
     .status-pill.Cancelled  { background: var(--cancelled); }
+    .status-pill.status-syncing { opacity: 0.65; }
 
     .status-dropdown { position: relative; display: inline-block; }
-
-    .status-selected {
-      cursor: pointer;
-      display: inline-flex;
-      align-items: center;
-      gap: 0.35rem;
-    }
+    .status-selected { cursor: pointer; display: inline-flex; align-items: center; gap: 0.35rem; }
     .status-selected::after {
       content: '\f078';
       font-family: 'Font Awesome 6 Free';
       font-weight: 900;
       font-size: 0.65rem;
-      color: var(--muted);
+      color: rgba(255,255,255,0.85);
     }
 
     .status-options {
@@ -326,20 +366,14 @@
     .status-options li {
       padding: 0.55rem 0.9rem;
       font-size: 0.82rem;
-      font-weight: 500;
+      font-weight: 600;
       cursor: pointer;
       color: var(--dark);
       transition: background 0.15s ease;
     }
     .status-options li:hover { background: var(--bg-lilac); }
 
-    .actions-row {
-      display: flex;
-      flex-direction: column;
-      align-items: flex-start;
-      gap: 0.5rem;
-    }
-
+    .actions-row { display: flex; flex-direction: column; align-items: flex-start; gap: 0.5rem; }
     .action-btns { display: flex; gap: 0.4rem; }
 
     .btn {
@@ -351,22 +385,29 @@
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      font-size: 0.85rem;
+      font-size: 0.82rem;
       color: white;
-      transition: opacity 0.2s ease;
+      transition: opacity 0.2s ease, transform 0.2s ease;
     }
-    .btn:hover { opacity: 0.85; }
-    .btn-cancel { background: #B08D57; }
+    .btn:hover { opacity: 0.85; transform: translateY(-1px); }
+    .btn-cancel { background: var(--gold); color: #4a3300; }
     .btn-delete { background: var(--cancelled); }
 
-    .no-orders { font-size: 0.95rem; color: var(--muted); text-align: center; padding: 2.5rem 1rem; }
+    .no-orders {
+      font-size: 0.95rem;
+      color: var(--muted);
+      text-align: center;
+      padding: 3rem 1rem;
+      background: #fff;
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow-sm);
+    }
 
     /* New order row highlight — fades out on its own */
-    tr.order-row-new {
-      animation: rowGlow 2.6s ease-out;
-    }
+    tr.order-row-new { animation: rowGlow 2.6s ease-out; }
     @keyframes rowGlow {
-      0%   { background: #FFF3D6; box-shadow: 0 0 0 2px var(--gold); }
+      0%   { background: #FFF3D6; box-shadow: inset 0 0 0 2px var(--gold); }
       100% { background: transparent; box-shadow: none; }
     }
     @media (max-width: 860px) {
@@ -377,57 +418,54 @@
       }
     }
 
-    tr.order-row-removing {
-      animation: rowFadeOut 0.35s ease forwards;
-    }
-    @keyframes rowFadeOut {
-      to { opacity: 0; transform: scaleY(0); }
-    }
+    tr.order-row-removing { animation: rowFadeOut 0.35s ease forwards; }
+    @keyframes rowFadeOut { to { opacity: 0; transform: scaleY(0); } }
 
     #toast {
       visibility: hidden;
       min-width: 200px;
-      max-width: 300px;
+      max-width: 320px;
       background: var(--delivered);
       color: white;
       text-align: center;
       border-radius: 10px;
-      padding: 0.85rem 1rem;
+      padding: 0.8rem 1rem;
       position: fixed;
-      z-index: 2000;
-      top: 80px;
+      z-index: 3000;
+      top: 20px;
       right: 20px;
+      font-weight: 500;
       font-size: 0.85rem;
       box-shadow: var(--shadow-md);
     }
     #toast.show { visibility: visible; animation: slideDown 0.4s ease-out, slideUp 0.4s ease-in 2.6s forwards; }
-
     @keyframes slideDown { from { opacity: 0; transform: translateY(-15px); } to { opacity: 1; transform: translateY(0); } }
     @keyframes slideUp { from { opacity: 1; transform: translateY(0); } to { opacity: 0; transform: translateY(-15px); } }
 
     /* ================= MOBILE / TABLET CARD LAYOUT ================= */
     @media (max-width: 860px) {
       header h1 { font-size: 1.5rem; }
-      header img { height: 42px; }
-      .container { margin: 1rem; padding: 0; }
-      .container h2 { font-size: 1.3rem; }
+      header img { height: 42px; width: 42px; }
+      .container { margin: 1rem auto; padding: 0 0.9rem 1.5rem; }
+      .container h2 { font-size: 1.2rem; }
 
-      .table-wrapper { overflow: visible; background: none; box-shadow: none; border-radius: 0; }
+      .date-header { padding: 0.8rem 1rem; }
+      .date-label { font-size: 0.96rem; }
+      .date-sub { display: block; margin-left: 0; font-size: 0.7rem; }
 
+      .table-wrapper { overflow: visible; }
       table, thead, tbody, th, td, tr { display: block; width: 100%; min-width: 0; }
       thead { display: none; }
 
-      tbody#ordersTable { display: flex; flex-direction: column; gap: 0.85rem; }
+      tbody { display: flex; flex-direction: column; gap: 0.75rem; padding: 0.85rem; }
 
       tr {
-        background: white;
-        border-radius: var(--radius);
+        background: #fff;
+        border-radius: 12px;
         box-shadow: var(--shadow-sm);
         padding: 0.9rem 1rem;
         border: 1px solid var(--border);
       }
-
-      tr.no-orders-row { box-shadow: none; border: none; background: none; }
 
       td {
         display: flex;
@@ -443,7 +481,7 @@
 
       td::before {
         content: attr(data-label);
-        font-size: 0.72rem;
+        font-size: 0.7rem;
         font-weight: 700;
         text-transform: uppercase;
         color: var(--muted);
@@ -451,33 +489,29 @@
         letter-spacing: 0.02em;
       }
 
-      td.cell-customer::before,
-      td.cell-actions::before { display: none; }
-
+      td.cell-customer::before, td.cell-actions::before { display: none; }
       td.cell-customer { display: block; padding-top: 0; }
-      .customer-name { display: block; font-size: 0.98rem; }
+      .customer-name { display: block; font-size: 0.96rem; }
       .order-id { margin-bottom: 3px; }
 
       td.cell-items .items-list,
       td.cell-instructions .instructions,
       td.cell-coupon .coupon-info { text-align: right; max-width: 65%; }
 
-      td.cell-actions {
-        display: block;
-        padding-top: 0.6rem;
-      }
+      td.cell-actions { display: block; padding-top: 0.6rem; }
       .actions-row { flex-direction: row; align-items: center; justify-content: space-between; flex-wrap: wrap; }
       .status-options { left: auto; right: 0; }
     }
 
     @media (max-width: 480px) {
-      header .top-actions { right: 0.5rem; gap: 0.35rem; }
+      .top-actions { right: 0.5rem; gap: 0.35rem; }
       .icon-btn { width: 34px; height: 34px; font-size: 0.9rem; }
       .logout-btn { height: 34px; padding: 0 0.7rem; font-size: 0.8rem; }
       nav a { font-size: 0.82rem; padding: 0.7rem 0.85rem; }
       td { font-size: 0.82rem; }
       td::before { flex-basis: 78px; font-size: 0.68rem; }
-      .customer-name { font-size: 0.92rem; }
+      .customer-name { font-size: 0.9rem; }
+      .date-count { font-size: 0.72rem; padding: 0.25rem 0.6rem; }
     }
   </style>
 </head>
@@ -500,7 +534,7 @@
     <img src="https://i.postimg.cc/W3pgQx9q/DELICUTE-Imgur-1-modified.png" alt="DELICUTE Logo">
     <div>
       <h1>DELICUTE</h1>
-      <span>Every Bite Tells A Story</span>
+      <span class="tagline">Every Bite Tells A Story</span>
     </div>
     <div class="live-indicator">
       <span class="live-dot" id="live-dot"></span>
@@ -516,29 +550,13 @@
     <a href="admincoupons.html">Coupons</a>
     <a href="admincategories.html">Categories</a>
     <a href="admintoppicks.html">Top Picks</a>
+    <a href="adminpromotions.html">Promotions</a>
   </nav>
 
   <div class="container">
     <h2>Manage Orders 📦</h2>
-    <div class="table-wrapper">
-      <table>
-        <thead>
-          <tr>
-            <th>Customer</th>
-            <th>Table</th>
-            <th>Items (Qty)</th>
-            <th>Total</th>
-            <th>Coupon</th>
-            <th>Address</th>
-            <th>Instructions</th>
-            <th>Status</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody id="ordersTable">
-          <tr class="no-orders-row"><td colspan="9" class="no-orders">Loading orders...</td></tr>
-        </tbody>
-      </table>
+    <div id="ordersContainer">
+      <div class="no-orders">Loading orders...</div>
     </div>
   </div>
 
@@ -555,7 +573,7 @@
       notificationList: document.getElementById("notification-list"),
       notificationDropdown: document.getElementById("notification-dropdown"),
       notificationIcon: document.getElementById("notification-icon"),
-      ordersTable: document.getElementById("ordersTable"),
+      ordersContainer: document.getElementById("ordersContainer"),
       toast: document.getElementById("toast"),
       enableSoundBtn: document.getElementById("enable-sound-btn"),
       liveDot: document.getElementById("live-dot"),
@@ -615,7 +633,7 @@
 
     function showToast(msg, success = true) {
       elements.toast.textContent = msg;
-      elements.toast.style.background = success ? "#2E8B57" : "#C0392B";
+      elements.toast.style.background = success ? "#2e9e6b" : "#d64545";
       elements.toast.className = "show";
       setTimeout(() => elements.toast.className = "", 3000);
     }
@@ -633,7 +651,7 @@
               Table: ${n.table_number} | Total: ₹${n.total.toFixed(2)}
             </div>
           `).join("")
-        : '<div class="no-notifications">No new notifications</div>';
+        : '<div class="no-notifications-msg">No new notifications</div>';
       updateNotificationCount();
     }
 
@@ -652,9 +670,9 @@
       try {
         const res = await fetch("/api/auth/check", { credentials: "include" });
         if (!res.ok) { window.location.href = "/admin.html"; return; }
-        await fetchOrders();      // full initial render
+        await fetchOrders();
         renderNotifications();
-        startAutoRefresh();       // begin 1-second smart sync
+        startAutoRefresh();
       } catch (err) {
         console.error("Auth check error:", err);
         showToast("Authentication failed", false);
@@ -664,48 +682,103 @@
 
     const socket = io({ auth: { token: getCookie("token") } });
 
-    socket.on("connect", () => {
-      showToast("Connected to notifications");
-      setLive(true);
-    });
+    socket.on("connect", () => { showToast("Connected to notifications"); setLive(true); });
 
     socket.on("new-order", (order) => {
-      // Socket push handles the instant case; polling below will simply
-      // see it's already known and skip re-notifying.
-      handleIncomingOrder(order, true);
+      handleIncomingOrder(order);
     });
 
     socket.on("disconnect", () => setLive(false, true));
-    socket.on("connect_error", (error) => {
-      console.error("WebSocket error:", error);
-      setLive(false, true);
-    });
+    socket.on("connect_error", (error) => { console.error("WebSocket error:", error); setLive(false, true); });
 
     elements.notificationIcon.addEventListener("click", toggleDropdown);
     document.addEventListener("click", (e) => {
       if (!e.target.closest(".status-dropdown") && !e.target.closest("#notification-icon")) {
         document.querySelectorAll(".status-options").forEach(d => d.classList.remove("show"));
         elements.notificationDropdown.classList.remove("show");
+        // A dropdown just got closed by an outside click — release any
+        // background render that was queued up while it was open.
+        if (openDropdownOrderId !== null) {
+          openDropdownOrderId = null;
+          flushPendingRender();
+        }
       }
     });
 
+    /* ================= DATE GROUPING ================= */
+
+    function computeDateKey(order) {
+      const raw = order.created_at || order.createdAt || order.order_date || order.date;
+      const d = raw ? new Date(raw) : new Date();
+      const dd = String(d.getDate()).padStart(2, '0');
+      const mm = String(d.getMonth() + 1).padStart(2, '0');
+      const yyyy = d.getFullYear();
+      return `${dd}-${mm}-${yyyy}`;
+    }
+
+    function keyForOffsetDays(offset) {
+      const d = new Date();
+      d.setDate(d.getDate() + offset);
+      const dd = String(d.getDate()).padStart(2, '0');
+      const mm = String(d.getMonth() + 1).padStart(2, '0');
+      const yyyy = d.getFullYear();
+      return `${dd}-${mm}-${yyyy}`;
+    }
+
+    function dateLabelForKey(key) {
+      if (key === keyForOffsetDays(0)) return "Today";
+      if (key === keyForOffsetDays(-1)) return "Yesterday";
+      return null;
+    }
+
+    function parseKeyToTime(key) {
+      const [dd, mm, yyyy] = key.split('-').map(Number);
+      return new Date(yyyy, mm - 1, dd).getTime();
+    }
+
+    const statusPriority = { Pending: 1, Accepted: 2, Cooking: 3, Delivered: 4, Cancelled: 5 };
+
+    function groupOrders() {
+      const groups = new Map();
+      for (const order of ordersById.values()) {
+        const key = order.__dateKey;
+        if (!groups.has(key)) groups.set(key, []);
+        groups.get(key).push(order);
+      }
+      const sortedKeys = [...groups.keys()].sort((a, b) => parseKeyToTime(b) - parseKeyToTime(a));
+      return sortedKeys.map(key => ({
+        key,
+        orders: groups.get(key).sort((a, b) => statusPriority[a.status] - statusPriority[b.status])
+      }));
+    }
+
     /* ================= LIVE STATE / SYNC ENGINE ================= */
 
-    // Tracks id -> status for every order currently rendered.
-    let knownOrders = new Map();
+    let ordersById = new Map();
+    let notifiedIds = new Set();
+    let recentlyNewIds = new Set();
+    let collapsedDates = new Set();
+    let firstLoadDone = false;
     let isFetching = false;
     let pollTimer = null;
-    let pollDelay = 1000;              // starts at 1s as requested
+    let pollDelay = 1000;
     const POLL_DELAY_MIN = 1000;
-    const POLL_DELAY_MAX = 8000;       // backs off up to 8s on repeated failures
+    const POLL_DELAY_MAX = 8000;
     let consecutiveErrors = 0;
 
-    function setLive(online, isSocketIssue = false) {
+    // ---- Status-update race-condition guards ----
+    // Which order's status dropdown is currently open (null if none).
+    let openDropdownOrderId = null;
+    // True if a background poll wanted to re-render while a dropdown was open.
+    let pendingRenderAfterDropdownClose = false;
+    // orderId -> { status, expiresAt } — status changes the user just made,
+    // protected from being overwritten by a stale/slow poll response.
+    let pendingStatusUpdates = new Map();
+    const STATUS_LOCK_MS = 6000;
+
+    function setLive(online) {
       elements.liveDot.classList.toggle("offline", !online);
       elements.liveText.textContent = online ? "Live · Auto-updating" : "Reconnecting…";
-      if (!online && isSocketIssue) {
-        // Socket dropped, but 1s polling below keeps data fresh regardless.
-      }
     }
 
     function touchLastUpdated() {
@@ -720,7 +793,6 @@
         if (document.hidden) {
           if (pollTimer) { clearInterval(pollTimer); pollTimer = null; }
         } else {
-          // Refresh instantly when the tab regains focus, then resume ticking.
           runPollTick();
           if (!pollTimer) pollTimer = setInterval(runPollTick, pollDelay);
         }
@@ -734,11 +806,10 @@
     }
 
     async function runPollTick() {
-      if (isFetching) return;   // never let requests stack up under load
+      if (isFetching) return;
       isFetching = true;
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 6000);
-
       try {
         const res = await fetch("/api/orders", { credentials: "include", signal: controller.signal });
         clearTimeout(timeoutId);
@@ -746,20 +817,15 @@
         const data = await res.json();
         if (!data.success) throw new Error(data.message || "Bad response");
 
-        syncOrders(data.data || []);
+        processServerOrders(data.data || []);
         setLive(true);
         touchLastUpdated();
 
-        if (consecutiveErrors > 0) {
-          consecutiveErrors = 0;
-          reschedulePoll(1000); // recovered — back to full 1s speed
-        }
+        if (consecutiveErrors > 0) { consecutiveErrors = 0; reschedulePoll(1000); }
       } catch (err) {
         clearTimeout(timeoutId);
         consecutiveErrors++;
         setLive(false);
-        // Back off gradually so a slow/down server never gets hammered
-        // by every open admin tab at once.
         reschedulePoll(pollDelay * 1.6);
         console.warn("Auto-refresh tick failed:", err.message || err);
       } finally {
@@ -767,143 +833,172 @@
       }
     }
 
-    // Diff-based sync: only touches rows that actually changed.
-    function syncOrders(serverOrders) {
-      if (serverOrders.length === 0 && knownOrders.size === 0) {
-        if (!elements.ordersTable.querySelector(".no-orders")) {
-          elements.ordersTable.innerHTML = "<tr class='no-orders-row'><td colspan='9' class='no-orders'>No orders found</td></tr>";
-        }
+    // A render triggered by the background poll. If the admin currently has
+    // a status dropdown open, we don't rebuild the table underneath them —
+    // we just remember that a render is owed, and fire it the moment the
+    // dropdown closes.
+    function safeRender() {
+      if (openDropdownOrderId !== null) {
+        pendingRenderAfterDropdownClose = true;
         return;
       }
+      render();
+    }
 
-      elements.ordersTable.querySelector(".no-orders-row")?.remove();
+    function flushPendingRender() {
+      if (pendingRenderAfterDropdownClose) {
+        pendingRenderAfterDropdownClose = false;
+        render();
+      }
+    }
 
-      const statusPriority = {
-  Pending: 1,
-  Accepted: 2,
-  Cooking: 3,
-  Delivered: 4,
-  Cancelled: 5
-};
-      serverOrders.sort((a, b) => statusPriority[a.status] - statusPriority[b.status]);
+    // Merges the latest server snapshot into local state, detects brand-new
+    // orders for notification, then re-renders (safely).
+    function processServerOrders(serverOrders) {
+      const incomingIds = new Set();
+      const newIds = [];
 
-      const incomingIds = new Set(serverOrders.map(o => o.id));
+      serverOrders.forEach(order => {
+        order.__dateKey = computeDateKey(order);
+        incomingIds.add(order.id);
 
-      // Removed orders (deleted elsewhere) — fade out & drop.
-      for (const [id] of knownOrders) {
-        if (!incomingIds.has(id)) {
-          const row = document.getElementById(`order-row-${id}`);
-          if (row) {
-            row.classList.add("order-row-removing");
-            setTimeout(() => row.remove(), 350);
+        // If we just changed this order's status locally, don't let a
+        // slow/stale poll response flip it back before the server catches up.
+        const pending = pendingStatusUpdates.get(order.id);
+        if (pending) {
+          if (order.status === pending.status) {
+            pendingStatusUpdates.delete(order.id); // server has confirmed it
+          } else if (Date.now() < pending.expiresAt) {
+            order.status = pending.status; // keep our optimistic value
+          } else {
+            pendingStatusUpdates.delete(order.id); // gave it long enough, trust server
           }
-          knownOrders.delete(id);
+        }
+
+        if (!ordersById.has(order.id) && firstLoadDone && !notifiedIds.has(order.id)) {
+          newIds.push(order.id);
+        }
+        ordersById.set(order.id, order);
+      });
+
+      for (const id of [...ordersById.keys()]) {
+        if (!incomingIds.has(id)) {
+          ordersById.delete(id);
+          recentlyNewIds.delete(id);
+          pendingStatusUpdates.delete(id);
         }
       }
 
-      serverOrders.forEach((order, idx) => {
-        const existingStatus = knownOrders.get(order.id);
+      if (newIds.length > 0) announceNewOrders(newIds);
 
-        if (existingStatus === undefined) {
-          // Brand new order — this only fires on the FIRST tick after load
-          // for orders that predate the page open; genuinely new ones during
-          // the session arrive via handleIncomingOrder() with a sound.
-          if (knownOrders.size > 0) {
-            handleIncomingOrder(order, false);
-          } else {
-            insertOrderRow(order, false);
-          }
-          knownOrders.set(order.id, order.status);
-        } else if (existingStatus !== order.status) {
-          updateRowStatus(order);
-          knownOrders.set(order.id, order.status);
-        }
-
-        reorderRowIfNeeded(order.id, idx);
-      });
+      firstLoadDone = true;
+      safeRender();
     }
 
-    // Called for orders confirmed brand-new (via socket push or first-seen-mid-session)
-    function handleIncomingOrder(order, viaSocket) {
-      if (knownOrders.has(order.id)) return; // already rendered, avoid duplicate sound
-      knownOrders.set(order.id, order.status);
-      insertOrderRow(order, true);
-      playNotificationSound();
-      showToast(`New Order #${order.id} by ${order.customer_name} for ₹${order.total.toFixed(2)}`);
-      notifications.unshift(order);
+    function announceNewOrders(ids) {
+      ids.forEach(id => {
+        const order = ordersById.get(id);
+        notifiedIds.add(id);
+        recentlyNewIds.add(id);
+        collapsedDates.delete(order.__dateKey); // guarantee it's visible, not folded away
+        playNotificationSound();
+        showToast(`New Order #${order.id} by ${order.customer_name} for ₹${order.total.toFixed(2)}`);
+        notifications.unshift(order);
+        setTimeout(() => { recentlyNewIds.delete(id); safeRender(); }, 6000);
+      });
       localStorage.setItem("notifications", JSON.stringify(notifications));
       renderNotifications();
     }
 
-    function insertOrderRow(order, isNew) {
-      const html = buildOrderRow(order, isNew);
-      elements.ordersTable.insertAdjacentHTML("afterbegin", html);
-      if (isNew) {
-        const row = document.getElementById(`order-row-${order.id}`);
-        row?.classList.add("order-row-new");
-        setTimeout(() => {
-          row?.classList.remove("order-row-new");
-          row?.querySelector(".new-flag")?.remove();
-        }, 6000);
+    function handleIncomingOrder(order) {
+      order.__dateKey = computeDateKey(order);
+      ordersById.set(order.id, order);
+      if (!notifiedIds.has(order.id)) {
+        announceNewOrders([order.id]);
       }
+      safeRender();
     }
 
-    function updateRowStatus(order) {
-      const row = document.getElementById(`order-row-${order.id}`);
-      if (!row) return;
-      const pill = row.querySelector(".status-selected");
-      if (pill) {
-        pill.className = `status-selected status-pill ${order.status}`;
-        pill.textContent = order.status;
-        pill.setAttribute("onclick", `toggleDropdownStatus(event, ${order.id})`);
-      }
-      const cancelBtn = row.querySelector(".btn-cancel");
-      const actionBtns = row.querySelector(".action-btns");
-      if (actionBtns && (order.status === "Cancelled" || order.status === "Delivered")) {
-        cancelBtn?.remove();
-      }
-      row.classList.remove("order-row-removing");
-      row.style.animation = "none";
-      requestAnimationFrame(() => { row.style.animation = ""; row.classList.add("order-row-new"); });
-      setTimeout(() => row.classList.remove("order-row-new"), 2600);
-    }
-
-    // Keeps DOM order matching server sort without a full rebuild.
-    function reorderRowIfNeeded(orderId, targetIndex) {
-      const row = document.getElementById(`order-row-${orderId}`);
-      if (!row) return;
-      const currentRow = elements.ordersTable.children[targetIndex];
-      if (currentRow !== row) {
-        elements.ordersTable.insertBefore(row, currentRow || null);
-      }
-    }
-
-    /* ================= RENDER HELPERS ================= */
+    /* ================= RENDER ================= */
 
     async function fetchOrders() {
       try {
         const res = await fetch("/api/orders", { credentials: "include" });
         const data = await res.json();
-        elements.ordersTable.innerHTML = "";
-        knownOrders.clear();
+        ordersById.clear();
+        collapsedDates.clear();
 
-        if (!data.success || data.data.length === 0) {
-          elements.ordersTable.innerHTML = "<tr class='no-orders-row'><td colspan='9' class='no-orders'>No orders found</td></tr>";
-          return;
+        if (data.success && data.data.length) {
+          data.data.forEach(o => {
+            o.__dateKey = computeDateKey(o);
+            ordersById.set(o.id, o);
+            notifiedIds.add(o.id);
+          });
+          // Default view: Today expanded, every earlier date folded.
+          const todayKey = keyForOffsetDays(0);
+          groupOrders().forEach(g => { if (g.key !== todayKey) collapsedDates.add(g.key); });
         }
-
-        const statusPriority = { Pending: 1, Preparing: 2, Delivered: 3, Cancelled: 4 };
-        data.data.sort((a, b) => statusPriority[a.status] - statusPriority[b.status]);
-
-        data.data.forEach(order => {
-          elements.ordersTable.insertAdjacentHTML("beforeend", buildOrderRow(order, false));
-          knownOrders.set(order.id, order.status);
-        });
+        firstLoadDone = true;
+        render();
         touchLastUpdated();
       } catch (err) {
         showToast("Error loading orders", false);
         console.error("Orders Load Error:", err);
       }
+    }
+
+    function render() {
+      const groups = groupOrders();
+      if (groups.length === 0) {
+        elements.ordersContainer.innerHTML = `<div class="no-orders">No orders found</div>`;
+        return;
+      }
+      elements.ordersContainer.innerHTML = groups.map(buildDateGroupHtml).join("");
+    }
+
+    function buildDateGroupHtml(group) {
+      const label = dateLabelForKey(group.key);
+      const isCollapsed = collapsedDates.has(group.key);
+      const count = group.orders.length;
+      return `
+        <div class="date-group ${isCollapsed ? 'collapsed' : ''}" data-date-key="${group.key}">
+          <button class="date-header" onclick="toggleDateGroup('${group.key}')">
+            <span class="date-header-left">
+              <i class="fas fa-chevron-down date-chevron"></i>
+              ${label
+                ? `<span class="date-label">${label}</span><span class="date-sub">${group.key}</span>`
+                : `<span class="date-label">${group.key}</span>`}
+            </span>
+            <span class="date-count">${count} order${count !== 1 ? 's' : ''}</span>
+          </button>
+          <div class="date-body">
+            <div class="table-wrapper">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Customer</th>
+                    <th>Table</th>
+                    <th>Items (Qty)</th>
+                    <th>Total</th>
+                    <th>Coupon</th>
+                    <th>Instructions</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  ${group.orders.map(o => buildOrderRow(o, recentlyNewIds.has(o.id))).join("")}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    function toggleDateGroup(key) {
+      if (collapsedDates.has(key)) collapsedDates.delete(key); else collapsedDates.add(key);
+      render();
     }
 
     function buildOrderRow(order, isNew) {
@@ -915,9 +1010,10 @@
       const couponInfo = hasCoupon
         ? `${order.coupon_code} · -₹${order.discount.toFixed(2)}`
         : "No coupon used";
+      const isSyncing = pendingStatusUpdates.has(order.id);
 
       return `
-        <tr id="order-row-${order.id}">
+        <tr id="order-row-${order.id}" class="${isNew ? 'order-row-new' : ''}">
           <td class="cell-customer">
             <span class="order-id">Order #${order.id}</span>
             <span class="customer-name">${order.customer_name}${isNew ? '<span class="new-flag">NEW</span>' : ''}</span>
@@ -926,18 +1022,17 @@
           <td data-label="Items" class="cell-items"><div class="items-list">${items}</div></td>
           <td data-label="Total"><span class="total-price">₹${order.total.toFixed(2)}</span></td>
           <td data-label="Coupon" class="cell-coupon"><span class="coupon-info ${hasCoupon ? "has-coupon" : ""}">${couponInfo}</span></td>
-          <td data-label="Address">${order.address || "None"}</td>
           <td data-label="Notes" class="cell-instructions"><span class="instructions">${instructions}</span></td>
           <td data-label="Status">
             <div class="status-dropdown">
-              <div class="status-selected status-pill ${order.status}" onclick="toggleDropdownStatus(event, ${order.id})">${order.status}</div>
+              <div class="status-selected status-pill ${order.status}${isSyncing ? ' status-syncing' : ''}" onclick="toggleDropdownStatus(event, ${order.id})">${order.status}${isSyncing ? ' <i class="fas fa-spinner fa-spin" style="font-size:0.7em;"></i>' : ''}</div>
               <ul class="status-options" id="dropdown-${order.id}">
-  <li onclick="updateStatus(${order.id}, 'Pending')">Pending</li>
-  <li onclick="updateStatus(${order.id}, 'Accepted')">Accepted</li>
-  <li onclick="updateStatus(${order.id}, 'Cooking')">Cooking</li>
-  <li onclick="updateStatus(${order.id}, 'Delivered')">Delivered</li>
-  <li onclick="updateStatus(${order.id}, 'Cancelled')">Cancelled</li>
-</ul>
+                <li onclick="updateStatus(${order.id}, 'Pending')">Pending</li>
+                <li onclick="updateStatus(${order.id}, 'Accepted')">Accepted</li>
+                <li onclick="updateStatus(${order.id}, 'Cooking')">Cooking</li>
+                <li onclick="updateStatus(${order.id}, 'Delivered')">Delivered</li>
+                <li onclick="updateStatus(${order.id}, 'Cancelled')">Cancelled</li>
+              </ul>
             </div>
           </td>
           <td class="cell-actions">
@@ -958,12 +1053,33 @@
       event.stopPropagation();
       const dropdown = document.getElementById(`dropdown-${id}`);
       if (!dropdown) return;
-      const isShown = dropdown.classList.contains("show");
+
+      const isOpening = openDropdownOrderId !== id;
+
       document.querySelectorAll(".status-options").forEach(d => d.classList.remove("show"));
-      if (!isShown) dropdown.classList.add("show");
+
+      if (isOpening) {
+        dropdown.classList.add("show");
+        openDropdownOrderId = id;
+      } else {
+        openDropdownOrderId = null;
+        flushPendingRender();
+      }
     }
 
     async function updateStatus(id, status) {
+      const order = ordersById.get(id);
+      const previousStatus = order ? order.status : null;
+
+      // Optimistic update: reflect the new status immediately, close the
+      // dropdown, and lock this order against being overwritten by a
+      // background poll that hasn't seen the server's update yet.
+      if (order) order.status = status;
+      pendingStatusUpdates.set(id, { status, expiresAt: Date.now() + STATUS_LOCK_MS });
+      openDropdownOrderId = null;
+      document.querySelectorAll(".status-options").forEach(d => d.classList.remove("show"));
+      render();
+
       try {
         const res = await fetch(`/api/orders/${id}/status`, {
           method: "PUT",
@@ -974,20 +1090,30 @@
         const data = await res.json();
         if (data.success) {
           showToast(`Order #${id} marked as ${status}!`);
-          document.querySelectorAll(".status-options").forEach(d => d.classList.remove("show"));
-          knownOrders.set(id, status);
-          updateRowStatus({ id, status });
         } else {
           showToast("Failed: " + data.message, false);
+          if (order) order.status = previousStatus;
+          pendingStatusUpdates.delete(id);
+          render();
         }
       } catch (err) {
         showToast("Error updating status", false);
         console.error("Status Update Error:", err);
+        if (order) order.status = previousStatus;
+        pendingStatusUpdates.delete(id);
+        render();
       }
     }
 
     async function cancelOrder(id) {
       if (!confirm("Are you sure you want to cancel this order?")) return;
+      const order = ordersById.get(id);
+      const previousStatus = order ? order.status : null;
+
+      if (order) order.status = "Cancelled";
+      pendingStatusUpdates.set(id, { status: "Cancelled", expiresAt: Date.now() + STATUS_LOCK_MS });
+      render();
+
       try {
         const res = await fetch(`/api/orders/${id}/cancel`, {
           method: "PUT",
@@ -998,14 +1124,18 @@
         const data = await res.json();
         if (data.success) {
           showToast(`Order #${id} cancelled!`);
-          knownOrders.set(id, "Cancelled");
-          updateRowStatus({ id, status: "Cancelled" });
         } else {
           showToast("Failed: " + (data.message || "Unable to cancel order"), false);
+          if (order) order.status = previousStatus;
+          pendingStatusUpdates.delete(id);
+          render();
         }
       } catch (err) {
         showToast("Error cancelling order", false);
         console.error("Cancel Error:", err);
+        if (order) order.status = previousStatus;
+        pendingStatusUpdates.delete(id);
+        render();
       }
     }
 
@@ -1023,9 +1153,17 @@
           const row = document.getElementById(`order-row-${id}`);
           if (row) {
             row.classList.add("order-row-removing");
-            setTimeout(() => row.remove(), 350);
+            setTimeout(() => {
+              ordersById.delete(id);
+              recentlyNewIds.delete(id);
+              pendingStatusUpdates.delete(id);
+              render();
+            }, 350);
+          } else {
+            ordersById.delete(id);
+            pendingStatusUpdates.delete(id);
+            render();
           }
-          knownOrders.delete(id);
         } else {
           showToast("Failed: " + (data.message || "Unable to delete order"), false);
         }

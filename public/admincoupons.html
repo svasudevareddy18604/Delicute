@@ -9,17 +9,18 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
   <style>
     :root {
-      --primary-purple: #8B6BC9;
-      --primary-purple-dark: #6B4FA0;
-      --bg-lilac: #F3EEFA;
-      --dark: #2B2B33;
-      --muted: #6B6B76;
-      --border: #E7E1F2;
-      --delivered: #2E8B57;
-      --cancelled: #C0392B;
+      --primary-purple: #8e44ad;
+      --primary-purple-dark: #5c3a52;
+      --nav-dark: #3f2838;
+      --bg-lilac: #fbf6ee;
+      --dark: #2a1f26;
+      --muted: #8a7688;
+      --border: #ecdfe8;
+      --delivered: #2e9e6b;
+      --cancelled: #d64545;
       --radius: 10px;
-      --shadow-sm: 0 1px 3px rgba(60, 40, 100, 0.08);
-      --shadow-md: 0 4px 14px rgba(60, 40, 100, 0.12);
+      --shadow-sm: 0 1px 3px rgba(92, 58, 82, 0.08);
+      --shadow-md: 0 4px 14px rgba(92, 58, 82, 0.12);
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
@@ -67,7 +68,7 @@
     }
 
     nav {
-      background: #1E1E24;
+      background: var(--nav-dark);
       display: flex;
       justify-content: center;
       overflow-x: auto;
@@ -101,7 +102,7 @@
 
     .banner {
       grid-column: 1 / -1;
-      background: linear-gradient(45deg, #6B4FA0, #8B6BC9);
+      background: linear-gradient(45deg, var(--primary-purple-dark), var(--primary-purple));
       color: white;
       padding: 0.7rem 0.9rem;
       border-radius: 8px;
@@ -138,7 +139,7 @@
     }
     input:focus, textarea:focus, select:focus {
       border-color: var(--primary-purple);
-      box-shadow: 0 0 0 2px rgba(139, 107, 201, 0.2);
+      box-shadow: 0 0 0 2px rgba(142, 68, 173, 0.2);
       outline: none;
     }
     textarea { resize: vertical; min-height: 70px; }
@@ -157,9 +158,9 @@
       cursor: pointer;
       transition: background 0.2s ease;
     }
-    button[type="submit"]:hover { background: #5A3F8A; }
+    button[type="submit"]:hover { background: var(--nav-dark); }
 
-    /* ---- Tier builder (new) ---- */
+    /* ---- Tier builder ---- */
     .tier-section {
       grid-column: 1 / -1;
       background: var(--bg-lilac);
@@ -225,15 +226,16 @@
     table { width: 100%; border-collapse: collapse; min-width: 720px; }
 
     th {
-      background: var(--primary-purple-dark);
-      color: white;
+      background: var(--bg-lilac);
+      color: var(--primary-purple-dark);
       text-align: left;
       font-size: 0.75rem;
-      font-weight: 600;
+      font-weight: 700;
       letter-spacing: 0.02em;
       text-transform: uppercase;
       padding: 0.7rem 0.8rem;
       white-space: nowrap;
+      border-bottom: 1px solid var(--border);
     }
 
     td {
@@ -244,7 +246,7 @@
       vertical-align: middle;
     }
     tbody tr:last-child td { border-bottom: none; }
-    tbody tr:hover { background: #FAF8FE; }
+    tbody tr:hover { background: var(--bg-lilac); }
 
     .coupon-thumb {
       width: 42px;
@@ -316,23 +318,22 @@
       .table-wrapper { overflow: visible; background: none; box-shadow: none; border-radius: 0; }
       table, thead, tbody, th, td, tr { display: block; width: 100%; min-width: 0; }
       thead { display: none; }
-      tbody#couponTable { display: flex; flex-direction: column; gap: 0.85rem; }
+      tbody#couponTable { display: flex; flex-direction: column; gap: 0.75rem; padding: 0.75rem; background: white; border-radius: 0 0 var(--radius) var(--radius); box-shadow: var(--shadow-sm); }
 
       tr {
-        background: white;
-        border-radius: var(--radius);
-        box-shadow: var(--shadow-sm);
-        padding: 0.9rem 1rem;
+        background: var(--bg-lilac);
+        border-radius: 8px;
+        padding: 0.85rem 0.9rem;
         border: 1px solid var(--border);
       }
-      tr.no-coupons-row { box-shadow: none; border: none; background: none; }
+      tr.no-coupons-row { box-shadow: none; border: none; background: none; padding: 0; }
 
       td {
         display: flex;
         justify-content: space-between;
         align-items: center;
         gap: 0.75rem;
-        padding: 0.5rem 0;
+        padding: 0.4rem 0;
         border-bottom: 1px dashed var(--border);
         font-size: 0.85rem;
         text-align: right;
@@ -342,7 +343,7 @@
 
       td::before {
         content: attr(data-label);
-        font-size: 0.72rem;
+        font-size: 0.7rem;
         font-weight: 700;
         text-transform: uppercase;
         color: var(--muted);
@@ -380,11 +381,13 @@
   </header>
 
   <nav>
+    <a href="admindashboard.html">Dashboard</a>
     <a href="adminorders.html">Orders</a>
     <a href="adminmenu.html">Menu</a>
     <a href="admincoupons.html">Coupons</a>
     <a href="admincategories.html">Categories</a>
     <a href="admintoppicks.html">Top Picks</a>
+    <a href="adminpromotions.html">Promotions</a>
   </nav>
 
   <div class="container">
@@ -437,7 +440,7 @@
           <input type="text" id="free_item" placeholder="e.g., Free Coffee">
         </div>
 
-        <!-- ============ CART TIER FIELDS (new) ============ -->
+        <!-- ============ CART TIER FIELDS ============ -->
         <div class="tier-section" id="tierSection" style="display:none;">
           <div class="tier-section-label">Cart Amount Tiers — customer gets the highest tier their cart total qualifies for</div>
           <div id="tierRows"></div>
@@ -481,7 +484,7 @@
     function showToast(msg, success = true) {
       const toast = document.getElementById("toast");
       toast.textContent = msg;
-      toast.style.background = success ? "#2E8B57" : "#C0392B";
+      toast.style.background = success ? "#2e9e6b" : "#d64545";
       toast.className = "show";
       setTimeout(() => toast.className = toast.className.replace("show", ""), 3000);
     }

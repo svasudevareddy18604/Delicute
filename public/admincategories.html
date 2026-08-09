@@ -9,20 +9,21 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
   <style>
     :root {
-      --primary-purple: #8B6BC9;
-      --primary-purple-dark: #6B4FA0;
-      --bg-lilac: #F3EEFA;
-      --dark: #2B2B33;
-      --muted: #6B6B76;
-      --border: #E7E1F2;
-      --delivered: #2E8B57;
-      --cancelled: #C0392B;
+      --primary-purple: #8e44ad;
+      --primary-purple-dark: #5c3a52;
+      --nav-dark: #3f2838;
+      --bg-lilac: #fbf6ee;
+      --dark: #2a1f26;
+      --muted: #8a7688;
+      --border: #ecdfe8;
+      --delivered: #2e9e6b;
+      --cancelled: #d64545;
       --radius: 10px;
-      --shadow-sm: 0 1px 3px rgba(60, 40, 100, 0.08);
-      --shadow-md: 0 4px 14px rgba(60, 40, 100, 0.12);
+      --shadow-sm: 0 1px 3px rgba(92, 58, 82, 0.08);
+      --shadow-md: 0 4px 14px rgba(92, 58, 82, 0.12);
     }
 
-    * { box-sizing: border-box; margin: 0; padding: 0; }
+    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
 
     body {
       font-family: 'Roboto', sans-serif;
@@ -30,6 +31,7 @@
       color: var(--dark);
       min-height: 100vh;
       line-height: 1.5;
+      overscroll-behavior: contain;
     }
 
     header {
@@ -40,7 +42,9 @@
       flex-direction: column;
       align-items: center;
       box-shadow: var(--shadow-md);
-      position: relative;
+      position: sticky;
+      top: 0;
+      z-index: 1000;
       text-align: center;
     }
 
@@ -64,7 +68,7 @@
     }
 
     nav {
-      background: #1E1E24;
+      background: var(--nav-dark);
       display: flex;
       justify-content: center;
       overflow-x: auto;
@@ -84,28 +88,29 @@
     .container {
       max-width: 700px;
       margin: 1.5rem auto;
-      padding: 1.25rem;
+      padding: 0 1.25rem 2rem;
     }
 
-    .container h2 {
+    .section-title {
       font-family: 'Playfair Display', serif;
-      font-size: 1.5rem;
+      font-size: 1.4rem;
       color: var(--primary-purple-dark);
-      margin-bottom: 1rem;
+      margin: 0 0 1rem;
       text-align: center;
     }
 
-    form {
+    /* ---- Add form ---- */
+    form#categoryForm {
       display: flex;
       gap: 0.6rem;
       margin-bottom: 1.25rem;
       background: white;
-      padding: 0.75rem;
+      padding: 0.9rem;
       border-radius: var(--radius);
       box-shadow: var(--shadow-sm);
     }
 
-    form input {
+    form#categoryForm input {
       flex: 1;
       padding: 0.7rem 0.85rem;
       border: 1px solid var(--border);
@@ -114,14 +119,14 @@
       font-size: 0.95rem;
       background: var(--bg-lilac);
       transition: border-color 0.2s ease, box-shadow 0.2s ease;
-    }
-    form input:focus {
-      border-color: var(--primary-purple);
-      box-shadow: 0 0 0 2px rgba(139, 107, 201, 0.2);
       outline: none;
     }
+    form#categoryForm input:focus {
+      border-color: var(--primary-purple);
+      box-shadow: 0 0 0 2px rgba(142, 68, 173, 0.2);
+    }
 
-    form button {
+    form#categoryForm button {
       background: var(--primary-purple-dark);
       border: none;
       padding: 0 1.3rem;
@@ -132,9 +137,13 @@
       cursor: pointer;
       transition: background 0.2s ease;
       white-space: nowrap;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
     }
-    form button:hover { background: #5A3F8A; }
+    form#categoryForm button:hover { background: var(--nav-dark); }
 
+    /* ---- Table ---- */
     .table-wrapper {
       background: white;
       border-radius: var(--radius);
@@ -145,44 +154,37 @@
     table { width: 100%; border-collapse: collapse; }
 
     th {
-      background: var(--primary-purple-dark);
-      color: white;
+      background: var(--bg-lilac);
+      color: var(--primary-purple-dark);
       text-align: left;
-      font-size: 0.78rem;
-      font-weight: 600;
+      font-size: 0.75rem;
+      font-weight: 700;
       letter-spacing: 0.02em;
       text-transform: uppercase;
       padding: 0.75rem 0.9rem;
+      border-bottom: 1px solid var(--border);
     }
     th:last-child, td:last-child { text-align: right; }
+    th.sno-col, td.sno-col { width: 60px; }
 
     td {
       padding: 0.85rem 0.9rem;
       font-size: 0.92rem;
       border-bottom: 1px solid var(--border);
       color: var(--dark);
+      vertical-align: middle;
     }
     tbody tr:last-child td { border-bottom: none; }
-    tbody tr:hover { background: #FAF8FE; }
+    tbody tr:hover { background: var(--bg-lilac); }
 
-    .cat-id { color: var(--muted); font-size: 0.82rem; }
-    .cat-name { font-weight: 500; }
+    .cat-sno { color: var(--muted); font-size: 0.85rem; font-weight: 600; }
+    .cat-name { font-weight: 600; color: var(--dark); }
 
-    .btn-delete {
-      background: var(--cancelled);
-      border: none;
-      color: white;
-      width: 32px;
-      height: 32px;
-      border-radius: 7px;
-      cursor: pointer;
-      font-size: 0.85rem;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      transition: opacity 0.2s ease;
-    }
-    .btn-delete:hover { opacity: 0.85; }
+    .action-btns { display: inline-flex; gap: 0.4rem; }
+    .btn { border: none; border-radius: 7px; cursor: pointer; width: 32px; height: 32px; display: inline-flex; align-items: center; justify-content: center; font-size: 0.82rem; color: white; transition: opacity 0.2s ease; }
+    .btn:hover { opacity: 0.85; }
+    .btn-edit { background: var(--primary-purple); }
+    .btn-delete { background: var(--cancelled); }
 
     .empty-state {
       text-align: center;
@@ -190,6 +192,60 @@
       color: var(--muted);
       font-size: 0.9rem;
     }
+
+    /* ---- Edit modal ---- */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(42, 31, 38, 0.55);
+      z-index: 2000;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+    }
+    .modal-overlay.open { display: flex; }
+    .modal-box {
+      background: white;
+      width: 100%;
+      max-width: 400px;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow-md);
+      padding: 1.25rem;
+    }
+    .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
+    .modal-header h3 { font-family: 'Playfair Display', serif; color: var(--primary-purple-dark); font-size: 1.2rem; }
+    .modal-close { border: none; background: var(--bg-lilac); color: var(--muted); width: 30px; height: 30px; border-radius: 50%; cursor: pointer; font-size: 0.9rem; }
+
+    .modal-box .field { display: flex; flex-direction: column; gap: 0.35rem; margin-bottom: 1rem; }
+    .modal-box label { font-size: 0.82rem; font-weight: 600; color: var(--muted); }
+    .modal-box input {
+      padding: 0.65rem 0.75rem;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font-family: 'Roboto', sans-serif;
+      font-size: 0.9rem;
+      background: var(--bg-lilac);
+      outline: none;
+      width: 100%;
+    }
+    .modal-box input:focus {
+      border-color: var(--primary-purple);
+      box-shadow: 0 0 0 2px rgba(142, 68, 173, 0.2);
+    }
+    .modal-actions { display: flex; justify-content: flex-end; }
+    .modal-actions button {
+      background: var(--primary-purple-dark);
+      border: none;
+      padding: 0.7rem 1.4rem;
+      color: white;
+      font-weight: 600;
+      font-size: 0.88rem;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.2s ease;
+    }
+    .modal-actions button:hover { background: var(--nav-dark); }
 
     #toast {
       visibility: hidden;
@@ -201,30 +257,29 @@
       border-radius: 10px;
       padding: 0.85rem 1rem;
       position: fixed;
-      z-index: 1000;
-      left: 50%;
-      bottom: 30px;
-      transform: translateX(-50%);
+      z-index: 3000;
+      top: 20px;
+      right: 20px;
       font-size: 0.88rem;
       box-shadow: var(--shadow-md);
     }
     #toast.show {
       visibility: visible;
-      animation: slideDown 0.4s ease-out, slideUp 0.4s ease-in 2.6s forwards;
+      animation: slideIn 0.4s ease-out, slideOut 0.4s ease-in 2.6s forwards;
     }
 
-    @keyframes slideDown { from { opacity: 0; transform: translate(-50%, 15px); } to { opacity: 1; transform: translate(-50%, 0); } }
-    @keyframes slideUp { from { opacity: 1; transform: translate(-50%, 0); } to { opacity: 0; transform: translate(-50%, 15px); } }
+    @keyframes slideIn { from { opacity: 0; transform: translateY(-15px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes slideOut { from { opacity: 1; transform: translateY(0); } to { opacity: 0; transform: translateY(-15px); } }
 
     @media (max-width: 600px) {
       header h1 { font-size: 1.5rem; }
       header img { height: 42px; }
-      .logout { height: 34px; padding: 0 0.7rem; font-size: 0.8rem; }
+      .logout { height: 34px; padding: 0 0.7rem; font-size: 0.8rem; top: 0.6rem; right: 0.6rem; }
       nav a { font-size: 0.82rem; padding: 0.7rem 0.85rem; }
-      .container { margin: 1rem; padding: 0; }
-      .container h2 { font-size: 1.3rem; }
-      form { flex-direction: column; }
-      form button { padding: 0.7rem; }
+      .container { margin: 1rem auto; padding: 0 0.9rem 1.5rem; }
+      .section-title { font-size: 1.2rem; }
+      form#categoryForm { flex-direction: column; }
+      form#categoryForm button { padding: 0.7rem; justify-content: center; }
       th, td { font-size: 0.85rem; padding: 0.7rem 0.75rem; }
     }
   </style>
@@ -240,26 +295,28 @@
   </header>
 
   <nav>
+    <a href="admindashboard.html">Dashboard</a>
     <a href="adminorders.html">Orders</a>
     <a href="adminmenu.html">Menu</a>
     <a href="admincoupons.html">Coupons</a>
     <a href="admincategories.html">Categories</a>
     <a href="admintoppicks.html">Top Picks</a>
+    <a href="adminpromotions.html">Promotions</a>
   </nav>
 
   <div class="container">
-    <h2>Manage Categories 🗂️</h2>
+    <h2 class="section-title">Manage Categories 🗂️</h2>
 
     <form id="categoryForm">
       <input type="text" id="categoryName" placeholder="Enter new category" required>
-      <button type="submit">Add</button>
+      <button type="submit"><i class="fas fa-plus"></i> Add</button>
     </form>
 
     <div class="table-wrapper">
       <table id="categoriesTable">
         <thead>
           <tr>
-            <th>ID</th>
+            <th class="sno-col">S.No</th>
             <th>Category Name</th>
             <th>Actions</th>
           </tr>
@@ -269,17 +326,38 @@
     </div>
   </div>
 
+  <!-- ============ EDIT MODAL ============ -->
+  <div class="modal-overlay" id="editModal">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h3>Edit Category</h3>
+        <button class="modal-close" onclick="closeModal()"><i class="fas fa-times"></i></button>
+      </div>
+      <form id="editCategoryForm">
+        <input type="hidden" id="editCategoryId">
+        <div class="field">
+          <label for="editCategoryName">Category Name</label>
+          <input type="text" id="editCategoryName" required>
+        </div>
+        <div class="modal-actions">
+          <button type="submit"><i class="fas fa-check"></i> Update</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
   <div id="toast"></div>
 
   <script>
     const tableBody = document.querySelector("#categoriesTable tbody");
     const form = document.getElementById("categoryForm");
     const input = document.getElementById("categoryName");
+    const editForm = document.getElementById("editCategoryForm");
 
     function showToast(msg, success = true) {
       const toast = document.getElementById("toast");
       toast.textContent = msg;
-      toast.style.background = success ? "#2E8B57" : "#C0392B";
+      toast.style.background = success ? "#2e9e6b" : "#d64545";
       toast.className = "show";
       setTimeout(() => toast.className = toast.className.replace("show", ""), 3000);
     }
@@ -294,30 +372,43 @@
         await loadCategories();
       } catch (err) {
         window.location.href = "/admin.html";
+        console.error("Auth Check Error:", err);
       }
     });
 
+    // ================= LOAD =================
     async function loadCategories() {
-      const res = await fetch("/api/categories");
-      const data = await res.json();
-      tableBody.innerHTML = "";
-      if (data.success) {
-        if (data.data.length === 0) {
+      try {
+        const res = await fetch("/api/categories");
+        const data = await res.json();
+        tableBody.innerHTML = "";
+
+        if (!data.success || data.data.length === 0) {
           tableBody.innerHTML = `<tr><td colspan="3" class="empty-state">No categories yet — add one above.</td></tr>`;
           return;
         }
-        data.data.forEach(cat => {
+
+        data.data.forEach((cat, index) => {
           const row = document.createElement("tr");
           row.innerHTML = `
-            <td class="cat-id">#${cat.id}</td>
+            <td class="sno-col cat-sno">${index + 1}</td>
             <td class="cat-name">${cat.name}</td>
-            <td><button class="btn-delete" onclick="deleteCategory(${cat.id})" title="Delete"><i class="fas fa-trash"></i></button></td>
+            <td>
+              <div class="action-btns">
+                <button class="btn btn-edit" onclick='openEditModal(${cat.id}, ${JSON.stringify(cat.name)})' title="Edit"><i class="fas fa-pen"></i></button>
+                <button class="btn btn-delete" onclick="deleteCategory(${cat.id})" title="Delete"><i class="fas fa-trash"></i></button>
+              </div>
+            </td>
           `;
           tableBody.appendChild(row);
         });
+      } catch (err) {
+        showToast("Error loading categories", false);
+        console.error("Categories Load Error:", err);
       }
     }
 
+    // ================= ADD =================
     form.addEventListener("submit", async (e) => {
       e.preventDefault();
       const name = input.value.trim();
@@ -341,9 +432,52 @@
         }
       } catch (err) {
         showToast("Error adding category", false);
+        console.error("Add Category Error:", err);
       }
     });
 
+    // ================= EDIT =================
+    function openEditModal(id, name) {
+      document.getElementById("editCategoryId").value = id;
+      document.getElementById("editCategoryName").value = name;
+      document.getElementById("editModal").classList.add("open");
+    }
+
+    function closeModal() {
+      document.getElementById("editModal").classList.remove("open");
+    }
+
+    editForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const id = document.getElementById("editCategoryId").value;
+      const name = document.getElementById("editCategoryName").value.trim();
+
+      if (!name) {
+        showToast("Category name cannot be empty", false);
+        return;
+      }
+
+      try {
+        const res = await fetch(`/api/categories/${id}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ name })
+        });
+        const data = await res.json();
+        if (res.ok) {
+          showToast("Category updated!");
+          closeModal();
+          loadCategories();
+        } else {
+          showToast(data.message || "Error updating category", false);
+        }
+      } catch (err) {
+        showToast("Error updating category", false);
+        console.error("Update Category Error:", err);
+      }
+    });
+
+    // ================= DELETE =================
     async function deleteCategory(id) {
       if (!confirm("Delete this category?")) return;
       try {
@@ -357,12 +491,18 @@
         }
       } catch (err) {
         showToast("Error deleting category", false);
+        console.error("Delete Category Error:", err);
       }
     }
 
     async function logout() {
-      await fetch("/api/auth/logout", { method: "POST", credentials: "include" });
-      window.location.href = "/admin.html";
+      try {
+        await fetch("/api/auth/logout", { method: "POST", credentials: "include" });
+        window.location.href = "/admin.html";
+      } catch (err) {
+        showToast("Error logging out", false);
+        console.error("Logout Error:", err);
+      }
     }
   </script>
 </body>

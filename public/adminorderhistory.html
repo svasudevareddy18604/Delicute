@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin | Order History</title>
+  <link rel="icon" href="https://i.postimg.cc/W3pgQx9q/DELICUTE-Imgur-1-modified.png">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+  <style>
+    :root {
+      --primary-purple: #8e44ad;
+      --primary-purple-dark: #5c3a52;
+      --nav-dark: #3f2838;
+      --bg-lilac: #fbf6ee;
+      --dark: #2a1f26;
+      --muted: #8a7688;
+      --border: #ecdfe8;
+      --gold: #d9a94c;
+      --pending: #8e44ad;
+      --accepted: #7c5295;
+      --cooking: #5c3a52;
+      --delivered: #2e9e6b;
+      --cancelled: #d64545;
+      --radius: 14px;
+      --shadow-sm: 0 2px 12px rgba(92, 58, 82, 0.08);
+      --shadow-md: 0 10px 28px rgba(92, 58, 82, 0.16);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+    body {
+      font-family: 'Roboto', sans-serif;
+      background: var(--bg-lilac);
+      color: var(--dark);
+      min-height: 100vh;
+      line-height: 1.5;
+      overscroll-behavior: contain;
+    }
+
+    header {
+      background: linear-gradient(90deg, var(--primary-purple-dark), var(--primary-purple));
+      color: white;
+      padding: 1rem 1.25rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      box-shadow: var(--shadow-md);
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      text-align: center;
+    }
+    header img { height: 50px; border-radius: 50%; box-shadow: 0 2px 8px rgba(0,0,0,0.25); }
+    header h1 { font-family: 'Playfair Display', serif; font-size: 1.8rem; margin-top: 0.4rem; }
+    header span { font-size: 0.8rem; opacity: 0.85; }
+
+    .logout {
+      background: white; color: var(--primary-purple-dark); border: none;
+      padding: 0 0.9rem; height: 38px; border-radius: 8px; font-weight: 600; font-size: 0.85rem;
+      cursor: pointer; position: absolute; top: 0.8rem; right: 0.8rem;
+    }
+
+    nav { background: var(--nav-dark); display: flex; justify-content: center; overflow-x: auto; }
+    nav a {
+      flex: 0 0 auto; padding: 0.85rem 1.1rem; color: #ddd; text-decoration: none;
+      font-size: 0.9rem; font-weight: 500; white-space: nowrap;
+      transition: color 0.2s ease, background 0.2s ease;
+    }
+    nav a:hover { background: rgba(139, 107, 201, 0.25); color: #fff; }
+    nav a.active { color: #f2d49b; background: rgba(217, 169, 76, 0.12); }
+
+    .container { max-width: 1200px; margin: 1.5rem auto; padding: 0 1.25rem 2.5rem; }
+
+    .section-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.4rem;
+      color: var(--primary-purple-dark);
+      margin: 0 0 1rem;
+      text-align: center;
+    }
+
+    /* ---- Stat strip ---- */
+    .stat-strip { display: flex; gap: 0.9rem; margin-bottom: 1.25rem; flex-wrap: wrap; }
+    .stat-card {
+      flex: 1 1 160px; background: white; border-radius: var(--radius); box-shadow: var(--shadow-sm);
+      padding: 0.9rem 1.1rem; display: flex; align-items: center; gap: 0.8rem;
+    }
+    .stat-card .icon {
+      width: 42px; height: 42px; border-radius: 10px; display: flex; align-items: center; justify-content: center;
+      font-size: 1.1rem; color: white; flex-shrink: 0;
+      background: linear-gradient(135deg, var(--primary-purple), var(--primary-purple-dark));
+    }
+    .stat-card.revenue .icon { background: linear-gradient(135deg, var(--delivered), #227a53); }
+    .stat-card.cancelled .icon { background: linear-gradient(135deg, var(--cancelled), #a53535); }
+    .stat-card .num { font-size: 1.25rem; font-weight: 700; color: var(--dark); line-height: 1.1; }
+    .stat-card .label { font-size: 0.72rem; color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.02em; }
+
+    /* ---- Toolbar ---- */
+    .toolbar {
+      background: white; border-radius: var(--radius); box-shadow: var(--shadow-sm);
+      padding: 1rem; margin-bottom: 1.25rem;
+      display: grid; grid-template-columns: 1.5fr 1fr 1fr 1fr auto; gap: 0.75rem; align-items: end;
+    }
+    .toolbar .field { display: flex; flex-direction: column; gap: 0.3rem; }
+    .toolbar label { font-size: 0.75rem; font-weight: 600; color: var(--muted); }
+    .toolbar input, .toolbar select {
+      padding: 0.6rem 0.7rem; border: 1px solid var(--border); border-radius: 8px;
+      font-family: 'Roboto', sans-serif; font-size: 0.85rem; background: var(--bg-lilac);
+      outline: none; width: 100%;
+    }
+    .toolbar input:focus, .toolbar select:focus { border-color: var(--primary-purple); box-shadow: 0 0 0 2px rgba(142,68,173,0.2); }
+    .toolbar .reset-btn {
+      background: var(--bg-lilac); border: 1px solid var(--border); border-radius: 8px;
+      padding: 0.6rem 0.9rem; font-size: 0.82rem; font-weight: 700; color: var(--primary-purple-dark);
+      cursor: pointer; white-space: nowrap; height: fit-content;
+    }
+    .toolbar .reset-btn:hover { background: var(--border); }
+
+    /* ---- Table ---- */
+    .table-wrapper { background: white; border-radius: var(--radius); box-shadow: var(--shadow-sm); overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; min-width: 820px; }
+    th {
+      background: var(--bg-lilac); color: var(--primary-purple-dark); text-align: left;
+      font-size: 0.75rem; font-weight: 700; letter-spacing: 0.02em; text-transform: uppercase;
+      padding: 0.7rem 0.9rem; border-bottom: 1px solid var(--border); white-space: nowrap;
+    }
+    td { padding: 0.8rem 0.9rem; font-size: 0.86rem; border-bottom: 1px solid var(--border); vertical-align: top; color: var(--dark); }
+    tbody tr:hover { background: var(--bg-lilac); }
+    tbody tr:last-child td { border-bottom: none; }
+
+    .order-id { font-weight: 700; color: var(--muted); font-size: 0.72rem; display: block; margin-bottom: 2px; }
+    .customer-name { font-weight: 700; }
+    .order-date { font-size: 0.78rem; color: var(--muted); }
+    .items-list { font-size: 0.84rem; }
+    .items-list div { padding: 1px 0; }
+    .total-price { font-weight: 700; color: var(--primary-purple-dark); }
+    .coupon-info { font-size: 0.8rem; color: var(--muted); }
+    .coupon-info.has-coupon { color: #B8860B; font-weight: 600; }
+
+    .status-pill {
+      display: inline-block; padding: 0.28rem 0.7rem; border-radius: 20px;
+      font-size: 0.74rem; font-weight: 700; color: white; text-align: center;
+    }
+    .status-pill.Pending { background: var(--pending); }
+    .status-pill.Accepted { background: var(--accepted); }
+    .status-pill.Cooking { background: var(--cooking); }
+    .status-pill.Delivered { background: var(--delivered); }
+    .status-pill.Cancelled { background: var(--cancelled); }
+
+    .no-orders { text-align: center; padding: 3rem 1rem; color: var(--muted); font-size: 0.95rem; }
+    .no-orders i { font-size: 1.8rem; display: block; margin-bottom: 0.6rem; color: var(--border); }
+
+    /* ================= MOBILE ================= */
+    @media (max-width: 900px) {
+      .toolbar { grid-template-columns: 1fr 1fr; }
+    }
+
+    @media (max-width: 760px) {
+      header h1 { font-size: 1.5rem; }
+      header img { height: 42px; }
+      .logout { height: 34px; padding: 0 0.7rem; font-size: 0.8rem; top: 0.6rem; right: 0.6rem; }
+      nav a { font-size: 0.82rem; padding: 0.7rem 0.85rem; }
+      .container { margin: 1rem auto; padding: 0 0.9rem 1.5rem; }
+      .section-title { font-size: 1.2rem; }
+      .toolbar { grid-template-columns: 1fr; }
+
+      .table-wrapper { overflow: visible; background: none; box-shadow: none; }
+      table, thead, tbody, th, td, tr { display: block; width: 100%; min-width: 0; }
+      thead { display: none; }
+      tbody { display: flex; flex-direction: column; gap: 0.75rem; padding: 0.75rem; background: white; border-radius: var(--radius); box-shadow: var(--shadow-sm); }
+
+      tr { background: var(--bg-lilac); border-radius: 8px; padding: 0.85rem 0.9rem; border: 1px solid var(--border); }
+      tr.no-orders-row { box-shadow: none; border: none; background: none; padding: 0; }
+
+      td {
+        display: flex; justify-content: space-between; align-items: flex-start; gap: 0.75rem;
+        padding: 0.4rem 0; border-bottom: 1px dashed var(--border); font-size: 0.85rem; text-align: right;
+      }
+      td:last-child { border-bottom: none; padding-bottom: 0; }
+      td:first-child { padding-top: 0; }
+      td::before {
+        content: attr(data-label); font-size: 0.7rem; font-weight: 700; text-transform: uppercase;
+        color: var(--muted); letter-spacing: 0.02em; text-align: left; flex-shrink: 0;
+      }
+      td.cell-customer { display: block; }
+      td.cell-customer::before { display: none; }
+      .customer-name { display: block; text-align: left; }
+      .items-list, .coupon-info { max-width: 65%; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <button class="logout" onclick="logout()">Logout</button>
+    <img src="https://i.postimg.cc/W3pgQx9q/DELICUTE-Imgur-1-modified.png" alt="DELICUTE Logo">
+    <div>
+      <h1>DELICUTE</h1>
+      <span>Every Bite Tells A Story</span>
+    </div>
+  </header>
+
+  <nav>
+    <a href="admindashboard.html">Dashboard</a>
+    <a href="adminorders.html">Orders</a>
+    <a href="adminmenu.html">Menu</a>
+    <a href="admincoupons.html">Coupons</a>
+    <a href="admincategories.html">Categories</a>
+    <a href="admintoppicks.html">Top Picks</a>
+    <a href="adminpromotions.html">Promotions</a>
+    <a href="adminorderhistory.html" class="active">Order History</a>
+    <a href="adminrevenue.html">Revenue</a>
+    <a href="admininvoices.html">Invoices</a>
+  </nav>
+
+  <div class="container">
+    <h2 class="section-title">Order History 🕘</h2>
+
+    <div class="stat-strip">
+      <div class="stat-card">
+        <div class="icon"><i class="fas fa-receipt"></i></div>
+        <div>
+          <div class="num" id="statTotal">0</div>
+          <div class="label">Orders Shown</div>
+        </div>
+      </div>
+      <div class="stat-card revenue">
+        <div class="icon"><i class="fas fa-indian-rupee-sign"></i></div>
+        <div>
+          <div class="num" id="statRevenue">₹0</div>
+          <div class="label">Revenue (Delivered)</div>
+        </div>
+      </div>
+      <div class="stat-card cancelled">
+        <div class="icon"><i class="fas fa-ban"></i></div>
+        <div>
+          <div class="num" id="statCancelled">0</div>
+          <div class="label">Cancelled</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="toolbar">
+      <div class="field">
+        <label for="searchInput">Search</label>
+        <input type="text" id="searchInput" placeholder="Order #, customer, table...">
+      </div>
+      <div class="field">
+        <label for="statusFilter">Status</label>
+        <select id="statusFilter">
+          <option value="all">All Statuses</option>
+          <option value="Pending">Pending</option>
+          <option value="Accepted">Accepted</option>
+          <option value="Cooking">Cooking</option>
+          <option value="Delivered">Delivered</option>
+          <option value="Cancelled">Cancelled</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="fromDate">From</label>
+        <input type="date" id="fromDate">
+      </div>
+      <div class="field">
+        <label for="toDate">To</label>
+        <input type="date" id="toDate">
+      </div>
+      <button class="reset-btn" onclick="resetFilters()"><i class="fas fa-rotate-left"></i> Reset</button>
+    </div>
+
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>Customer</th>
+            <th>Date</th>
+            <th>Table</th>
+            <th>Items</th>
+            <th>Total</th>
+            <th>Coupon</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody id="historyTable">
+          <tr class="no-orders-row"><td colspan="7" class="no-orders">Loading order history...</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <script>
+    let allOrders = [];
+
+    document.addEventListener("DOMContentLoaded", async () => {
+      try {
+        const res = await fetch("/api/auth/check", { credentials: "include" });
+        if (!res.ok) { window.location.href = "/admin.html"; return; }
+        await fetchHistory();
+      } catch (err) {
+        window.location.href = "/admin.html";
+        console.error("Auth Check Error:", err);
+      }
+    });
+
+    async function fetchHistory() {
+      try {
+        const res = await fetch("/api/orders", { credentials: "include" });
+        const data = await res.json();
+        if (!data.success) throw new Error(data.message || "Failed to load");
+        allOrders = (data.data || []).slice().sort((a, b) => {
+          const da = new Date(a.created_at || a.createdAt || a.order_date || a.date || 0).getTime();
+          const db = new Date(b.created_at || b.createdAt || b.order_date || b.date || 0).getTime();
+          return db - da;
+        });
+        applyFilters();
+      } catch (err) {
+        document.getElementById("historyTable").innerHTML =
+          `<tr class="no-orders-row"><td colspan="7" class="no-orders"><i class="fas fa-triangle-exclamation"></i>Failed to load order history</td></tr>`;
+        console.error("History Load Error:", err);
+      }
+    }
+
+    function debounce(fn, wait) {
+      let t;
+      return (...args) => { clearTimeout(t); t = setTimeout(() => fn(...args), wait); };
+    }
+
+    document.getElementById("searchInput").addEventListener("input", debounce(applyFilters, 200));
+    document.getElementById("statusFilter").addEventListener("change", applyFilters);
+    document.getElementById("fromDate").addEventListener("change", applyFilters);
+    document.getElementById("toDate").addEventListener("change", applyFilters);
+
+    function resetFilters() {
+      document.getElementById("searchInput").value = "";
+      document.getElementById("statusFilter").value = "all";
+      document.getElementById("fromDate").value = "";
+      document.getElementById("toDate").value = "";
+      applyFilters();
+    }
+
+    function orderDate(o) {
+      return new Date(o.created_at || o.createdAt || o.order_date || o.date || Date.now());
+    }
+
+    function applyFilters() {
+      const q = document.getElementById("searchInput").value.toLowerCase().trim();
+      const status = document.getElementById("statusFilter").value;
+      const from = document.getElementById("fromDate").value;
+      const to = document.getElementById("toDate").value;
+
+      let filtered = allOrders;
+
+      if (status !== "all") filtered = filtered.filter(o => o.status === status);
+
+      if (from) {
+        const fromTime = new Date(from + "T00:00:00").getTime();
+        filtered = filtered.filter(o => orderDate(o).getTime() >= fromTime);
+      }
+      if (to) {
+        const toTime = new Date(to + "T23:59:59").getTime();
+        filtered = filtered.filter(o => orderDate(o).getTime() <= toTime);
+      }
+
+      if (q) {
+        filtered = filtered.filter(o =>
+          String(o.id).includes(q) ||
+          (o.customer_name || "").toLowerCase().includes(q) ||
+          String(o.table_number || "").toLowerCase().includes(q)
+        );
+      }
+
+      renderStats(filtered);
+      renderTable(filtered);
+    }
+
+    function renderStats(orders) {
+      document.getElementById("statTotal").textContent = orders.length;
+      const revenue = orders.filter(o => o.status === "Delivered").reduce((sum, o) => sum + (o.total || 0), 0);
+      document.getElementById("statRevenue").textContent = "₹" + revenue.toFixed(2);
+      document.getElementById("statCancelled").textContent = orders.filter(o => o.status === "Cancelled").length;
+    }
+
+    function renderTable(orders) {
+      const body = document.getElementById("historyTable");
+      if (orders.length === 0) {
+        body.innerHTML = `<tr class="no-orders-row"><td colspan="7" class="no-orders"><i class="fas fa-box-open"></i>No matching orders found</td></tr>`;
+        return;
+      }
+
+      body.innerHTML = orders.map(o => {
+        const items = Array.isArray(o.items)
+          ? o.items.map(i => `<div>${i.name} (x${i.qty ?? 1})</div>`).join("")
+          : `<div>${o.items || ""}</div>`;
+        const hasCoupon = !!o.coupon_code;
+        const couponInfo = hasCoupon ? `${o.coupon_code} · -₹${(o.discount || 0).toFixed(2)}` : "No coupon";
+        const dateStr = orderDate(o).toLocaleString([], { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+
+        return `
+          <tr>
+            <td class="cell-customer" data-label="Customer">
+              <span class="order-id">Order #${o.id}</span>
+              <span class="customer-name">${o.customer_name || "-"}</span>
+            </td>
+            <td data-label="Date"><span class="order-date">${dateStr}</span></td>
+            <td data-label="Table">${o.table_number || "-"}</td>
+            <td data-label="Items"><div class="items-list">${items}</div></td>
+            <td data-label="Total"><span class="total-price">₹${(o.total || 0).toFixed(2)}</span></td>
+            <td data-label="Coupon"><span class="coupon-info ${hasCoupon ? "has-coupon" : ""}">${couponInfo}</span></td>
+            <td data-label="Status"><span class="status-pill ${o.status}">${o.status}</span></td>
+          </tr>
+        `;
+      }).join("");
+    }
+
+    async function logout() {
+      try {
+        await fetch("/api/auth/logout", { method: "POST", credentials: "include" });
+        window.location.href = "/admin.html";
+      } catch (err) {
+        console.error("Logout Error:", err);
+      }
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin | Revenue</title>
+  <link rel="icon" href="https://i.postimg.cc/W3pgQx9q/DELICUTE-Imgur-1-modified.png">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+  <style>
+    :root {
+      --primary-purple: #8e44ad;
+      --primary-purple-dark: #5c3a52;
+      --nav-dark: #3f2838;
+      --bg-lilac: #fbf6ee;
+      --dark: #2a1f26;
+      --muted: #8a7688;
+      --border: #ecdfe8;
+      --gold: #d9a94c;
+      --gold-light: #f2d49b;
+      --green: #2e9e5b;
+      --green-light: #e6f6ec;
+      --red: #c0392b;
+      --red-light: #fbe9e7;
+      --radius: 14px;
+      --shadow-sm: 0 2px 12px rgba(92, 58, 82, 0.08);
+      --shadow-md: 0 10px 28px rgba(92, 58, 82, 0.16);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+    body { font-family: 'Roboto', sans-serif; background: var(--bg-lilac); color: var(--dark); min-height: 100vh; }
+
+    header {
+      background: linear-gradient(90deg, var(--primary-purple-dark), var(--primary-purple));
+      color: white; padding: 1rem 1.25rem; display: flex; flex-direction: column; align-items: center;
+      box-shadow: var(--shadow-md); position: sticky; top: 0; z-index: 1000; text-align: center;
+    }
+    header img { height: 50px; border-radius: 50%; box-shadow: 0 2px 8px rgba(0,0,0,0.25); }
+    header h1 { font-family: 'Playfair Display', serif; font-size: 1.8rem; margin-top: 0.4rem; }
+    header span { font-size: 0.8rem; opacity: 0.85; }
+    .logout {
+      background: white; color: var(--primary-purple-dark); border: none; padding: 0 0.9rem; height: 38px;
+      border-radius: 8px; font-weight: 600; font-size: 0.85rem; cursor: pointer;
+      position: absolute; top: 0.8rem; right: 0.8rem;
+    }
+
+    nav { background: var(--nav-dark); display: flex; justify-content: center; overflow-x: auto; }
+    nav a { flex: 0 0 auto; padding: 0.85rem 1.1rem; color: #ddd; text-decoration: none; font-size: 0.9rem; font-weight: 500; white-space: nowrap; }
+    nav a:hover { background: rgba(139, 107, 201, 0.25); color: #fff; }
+    nav a.active { color: var(--gold-light); background: rgba(217, 169, 76, 0.12); }
+
+    .container { max-width: 1100px; margin: 0 auto; padding: 1.5rem 1.25rem 3rem; }
+
+    .status-bar {
+      display: flex; align-items: center; justify-content: center; gap: 0.5rem;
+      font-size: 0.82rem; color: var(--muted); margin-bottom: 1.5rem;
+    }
+    .pulse-dot {
+      width: 9px; height: 9px; border-radius: 50%; background: var(--green);
+      box-shadow: 0 0 0 rgba(46, 158, 91, 0.5); animation: pulse 1s infinite;
+    }
+    @keyframes pulse {
+      0% { box-shadow: 0 0 0 0 rgba(46, 158, 91, 0.5); }
+      70% { box-shadow: 0 0 0 7px rgba(46, 158, 91, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(46, 158, 91, 0); }
+    }
+    .status-bar.error .pulse-dot { background: var(--red); animation: none; }
+    .status-bar.error { color: var(--red); }
+
+    .section-title {
+      font-family: 'Playfair Display', serif; font-size: 1.25rem; color: var(--primary-purple-dark);
+      margin: 2rem 0 1rem; display: flex; align-items: center; gap: 0.5rem;
+    }
+    .section-title:first-of-type { margin-top: 0; }
+
+    .stats-grid {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 1rem;
+    }
+    .stat-card {
+      background: white; border-radius: var(--radius); box-shadow: var(--shadow-sm); border: 1px solid var(--border);
+      padding: 1.3rem 1.4rem; position: relative; overflow: hidden;
+    }
+    .stat-card .stat-icon {
+      width: 42px; height: 42px; border-radius: 10px; display: flex; align-items: center; justify-content: center;
+      font-size: 1.1rem; color: white; margin-bottom: 0.8rem;
+      background: linear-gradient(135deg, var(--primary-purple), var(--primary-purple-dark));
+    }
+    .stat-card.gold .stat-icon { background: linear-gradient(135deg, var(--gold), #b9822f); }
+    .stat-card.green .stat-icon { background: linear-gradient(135deg, var(--green), #1f6e40); }
+    .stat-card .stat-label { font-size: 0.78rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.4px; font-weight: 600; }
+    .stat-card .stat-value { font-family: 'Playfair Display', serif; font-size: 1.7rem; font-weight: 700; color: var(--dark); margin-top: 0.2rem; }
+    .stat-card .stat-sub { font-size: 0.78rem; color: var(--muted); margin-top: 0.3rem; }
+
+    .table-wrap {
+      background: white; border-radius: var(--radius); box-shadow: var(--shadow-sm); border: 1px solid var(--border);
+      overflow-x: auto;
+    }
+    table { width: 100%; border-collapse: collapse; min-width: 560px; }
+    thead th {
+      text-align: left; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.4px;
+      color: white; background: var(--nav-dark); padding: 0.8rem 1rem; white-space: nowrap;
+    }
+    tbody td { padding: 0.75rem 1rem; font-size: 0.88rem; border-bottom: 1px solid var(--border); white-space: nowrap; }
+    tbody tr:last-child td { border-bottom: none; }
+    tbody tr:hover { background: #faf5fb; }
+    tbody tr.today-row { background: var(--green-light); }
+    tbody tr.today-row:hover { background: #ddf2e5; }
+
+    .badge {
+      display: inline-block; padding: 0.2rem 0.6rem; border-radius: 20px; font-size: 0.72rem; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 0.3px;
+    }
+    .badge.dinein { background: #ece0f7; color: var(--primary-purple-dark); }
+    .badge.delivery { background: #fdeecb; color: #7a5410; }
+    .badge.pending { background: #fff2cf; color: #8a6d00; }
+    .badge.accepted { background: #dbeafe; color: #1d4ed8; }
+    .badge.cooking { background: #fde3c8; color: #a3550a; }
+    .badge.delivered { background: var(--green-light); color: #1f6e40; }
+    .badge.cancelled { background: var(--red-light); color: var(--red); }
+
+    .empty-state { text-align: center; padding: 2.5rem 1rem; color: var(--muted); font-size: 0.9rem; }
+
+    .footnote { text-align: center; font-size: 0.78rem; color: var(--muted); margin-top: 1rem; }
+
+    @media (max-width: 600px) {
+      .stat-card .stat-value { font-size: 1.4rem; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <button class="logout" onclick="logout()">Logout</button>
+    <img src="https://i.postimg.cc/W3pgQx9q/DELICUTE-Imgur-1-modified.png" alt="DELICUTE Logo">
+    <div>
+      <h1>DELICUTE</h1>
+      <span>Every Bite Tells A Story</span>
+    </div>
+  </header>
+
+  <nav>
+    <a href="admindashboard.html">Dashboard</a>
+    <a href="adminorders.html">Orders</a>
+    <a href="adminmenu.html">Menu</a>
+    <a href="admincoupons.html">Coupons</a>
+    <a href="admincategories.html">Categories</a>
+    <a href="admintoppicks.html">Top Picks</a>
+    <a href="adminpromotions.html">Promotions</a>
+    <a href="adminorderhistory.html">Order History</a>
+    <a href="adminrevenue.html" class="active">Revenue</a>
+    <a href="admininvoices.html">Invoices</a>
+  </nav>
+
+  <div class="container">
+
+    <div class="status-bar" id="statusBar">
+      <span class="pulse-dot"></span>
+      <span id="statusText">Live • updating every second</span>
+    </div>
+
+    <h2 class="section-title"><i class="fas fa-calendar-day"></i>&nbsp;Today's Summary</h2>
+    <div class="stats-grid">
+      <div class="stat-card green">
+        <div class="stat-icon"><i class="fas fa-indian-rupee-sign"></i></div>
+        <div class="stat-label">Today's Revenue</div>
+        <div class="stat-value" id="todayRevenue">₹0.00</div>
+        <div class="stat-sub" id="todayRevenueSub">Net of discounts, excl. cancelled</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon"><i class="fas fa-receipt"></i></div>
+        <div class="stat-label">Today's Orders</div>
+        <div class="stat-value" id="todayOrders">0</div>
+        <div class="stat-sub" id="todayOrdersSub">Dine-in orders today</div>
+      </div>
+      <div class="stat-card gold">
+        <div class="stat-icon"><i class="fas fa-scale-balanced"></i></div>
+        <div class="stat-label">Avg Order Value</div>
+        <div class="stat-value" id="todayAOV">₹0.00</div>
+        <div class="stat-sub">Per order, today</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon"><i class="fas fa-tags"></i></div>
+        <div class="stat-label">Discounts Given</div>
+        <div class="stat-value" id="todayDiscount">₹0.00</div>
+        <div class="stat-sub" id="todayCouponSub">—</div>
+      </div>
+    </div>
+
+    <h2 class="section-title"><i class="fas fa-chart-column"></i>&nbsp;Daily Dine-In Revenue</h2>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Date</th>
+            <th>Orders</th>
+            <th>Subtotal</th>
+            <th>Discount</th>
+            <th>Net Revenue</th>
+            <th>Avg / Order</th>
+          </tr>
+        </thead>
+        <tbody id="dailyTableBody">
+          <tr><td colspan="6" class="empty-state">Loading revenue data…</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h2 class="section-title"><i class="fas fa-utensils"></i>&nbsp;Today's Orders (Live)</h2>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Time</th>
+            <th>Customer</th>
+            <th>Table</th>
+            <th>Items</th>
+            <th>Subtotal</th>
+            <th>Discount</th>
+            <th>Total</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody id="todayOrdersBody">
+          <tr><td colspan="8" class="empty-state">Loading today's orders…</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p class="footnote" id="lastUpdated">Last updated: —</p>
+  </div>
+
+  <script>
+    // ---- Configuration ----
+    // Change this if your backend exposes orders under a different path.
+    const API_ENDPOINT = "/api/orders";
+    const REFRESH_MS = 1000;
+
+    const rupee = (n) => "₹" + Number(n || 0).toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+    function isSameLocalDay(dateA, dateB) {
+      return dateA.getFullYear() === dateB.getFullYear() &&
+             dateA.getMonth() === dateB.getMonth() &&
+             dateA.getDate() === dateB.getDate();
+    }
+
+    function dayKey(d) {
+      return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
+    }
+
+    function isDineIn(order) {
+      return !!order.table_number && !order.address;
+    }
+
+    function statusBadgeClass(status) {
+      const s = (status || "").toLowerCase();
+      if (["pending", "accepted", "cooking", "delivered", "cancelled"].includes(s)) return s;
+      return "pending";
+    }
+
+    function itemCount(items) {
+      try {
+        const arr = typeof items === "string" ? JSON.parse(items) : items;
+        if (!Array.isArray(arr)) return 0;
+        return arr.reduce((sum, it) => sum + (Number(it.qty) || 1), 0);
+      } catch (e) {
+        return 0;
+      }
+    }
+
+    function renderStats(orders) {
+      const now = new Date();
+      const todayDineIn = orders.filter(o => isDineIn(o) && isSameLocalDay(new Date(o.created_at), now));
+      const todayValid = todayDineIn.filter(o => (o.status || "").toLowerCase() !== "cancelled");
+
+      const revenue = todayValid.reduce((s, o) => s + Number(o.total), 0);
+      const discount = todayValid.reduce((s, o) => s + Number(o.discount || 0), 0);
+      const count = todayValid.length;
+      const aov = count ? revenue / count : 0;
+      const couponOrders = todayValid.filter(o => o.coupon_code);
+
+      document.getElementById("todayRevenue").textContent = rupee(revenue);
+      document.getElementById("todayOrders").textContent = count;
+      document.getElementById("todayOrdersSub").textContent =
+        count ? `${count} dine-in order${count === 1 ? "" : "s"} today` : "No dine-in orders yet today";
+      document.getElementById("todayAOV").textContent = rupee(aov);
+      document.getElementById("todayDiscount").textContent = rupee(discount);
+      document.getElementById("todayCouponSub").textContent =
+        couponOrders.length ? `${couponOrders.length} order${couponOrders.length === 1 ? "" : "s"} used a coupon` : "No coupons used today";
+    }
+
+    function renderDailyTable(orders) {
+      const dineIn = orders.filter(isDineIn);
+      const groups = {};
+      dineIn.forEach(o => {
+        if ((o.status || "").toLowerCase() === "cancelled") return;
+        const d = new Date(o.created_at);
+        const key = dayKey(d);
+        if (!groups[key]) {
+          groups[key] = { date: d, count: 0, subtotal: 0, discount: 0, total: 0 };
+        }
+        groups[key].count += 1;
+        groups[key].subtotal += Number(o.subtotal || 0);
+        groups[key].discount += Number(o.discount || 0);
+        groups[key].total += Number(o.total || 0);
+      });
+
+      const keys = Object.keys(groups).sort().reverse();
+      const tbody = document.getElementById("dailyTableBody");
+
+      if (!keys.length) {
+        tbody.innerHTML = `<tr><td colspan="6" class="empty-state">No dine-in orders yet.</td></tr>`;
+        return;
+      }
+
+      const now = new Date();
+      tbody.innerHTML = keys.map(key => {
+        const g = groups[key];
+        const isToday = isSameLocalDay(g.date, now);
+        const avg = g.count ? g.total / g.count : 0;
+        const label = g.date.toLocaleDateString("en-IN", { weekday: "short", day: "2-digit", month: "short", year: "numeric" });
+        return `
+          <tr class="${isToday ? "today-row" : ""}">
+            <td>${label}${isToday ? ' <span class="badge dinein">Today</span>' : ""}</td>
+            <td>${g.count}</td>
+            <td>${rupee(g.subtotal)}</td>
+            <td>${rupee(g.discount)}</td>
+            <td><strong>${rupee(g.total)}</strong></td>
+            <td>${rupee(avg)}</td>
+          </tr>`;
+      }).join("");
+    }
+
+    function renderTodayOrders(orders) {
+      const now = new Date();
+      const todayDineIn = orders
+        .filter(o => isDineIn(o) && isSameLocalDay(new Date(o.created_at), now))
+        .sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+
+      const tbody = document.getElementById("todayOrdersBody");
+
+      if (!todayDineIn.length) {
+        tbody.innerHTML = `<tr><td colspan="8" class="empty-state">No dine-in orders today yet.</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = todayDineIn.map(o => {
+        const time = new Date(o.created_at).toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit", second: "2-digit" });
+        const cls = statusBadgeClass(o.status);
+        return `
+          <tr>
+            <td>${time}</td>
+            <td>${o.customer_name || "—"}</td>
+            <td>${o.table_number || "—"}</td>
+            <td>${itemCount(o.items)} item${itemCount(o.items) === 1 ? "" : "s"}</td>
+            <td>${rupee(o.subtotal)}</td>
+            <td>${rupee(o.discount)}</td>
+            <td><strong>${rupee(o.total)}</strong></td>
+            <td><span class="badge ${cls}">${o.status || "Pending"}</span></td>
+          </tr>`;
+      }).join("");
+    }
+
+    function setStatus(ok, message) {
+      const bar = document.getElementById("statusBar");
+      const text = document.getElementById("statusText");
+      bar.classList.toggle("error", !ok);
+      text.textContent = message;
+    }
+
+    async function refresh() {
+      try {
+        const res = await fetch(API_ENDPOINT, { credentials: "include", cache: "no-store" });
+        if (!res.ok) throw new Error("HTTP " + res.status);
+        const data = await res.json();
+        const orders = Array.isArray(data) ? data : (data.orders || []);
+
+        renderStats(orders);
+        renderDailyTable(orders);
+        renderTodayOrders(orders);
+
+        setStatus(true, "Live • updating every second");
+        document.getElementById("lastUpdated").textContent =
+          "Last updated: " + new Date().toLocaleTimeString("en-IN");
+      } catch (err) {
+        setStatus(false, "Connection issue — retrying… (" + err.message + ")");
+      }
+    }
+
+    document.addEventListener("DOMContentLoaded", async () => {
+      try {
+        const res = await fetch("/api/auth/check", { credentials: "include" });
+        if (!res.ok) { window.location.href = "/admin.html"; return; }
+      } catch (err) {
+        window.location.href = "/admin.html";
+        return;
+      }
+      refresh();
+      setInterval(refresh, REFRESH_MS);
+    });
+
+    async function logout() {
+      await fetch("/api/auth/logout", { method: "POST", credentials: "include" });
+      window.location.href = "/admin.html";
+    }
+  </script>
+</body>
+</html>
