@@ -262,8 +262,8 @@
     const CAFE_NAME = "DELICUTE";
     const CAFE_TAGLINE = "Every Bite Tells A Story";
     // Update these with your actual cafe details for the invoice header.
-    const CAFE_ADDRESS = "Bengaluru, Karnataka, India";
-    const CAFE_PHONE = "+91-XXXXXXXXXX";
+    const CAFE_ADDRESS = "Royal Sunnyvale Villas, MS Shelters,Anekal near Alliance University";
+    const CAFE_PHONE = "+91-8310290119";
 
     let allOrders = [];
 
@@ -288,8 +288,24 @@
       return parseItems(items).reduce((sum, it) => sum + (Number(it.qty) || 1), 0);
     }
 
+    // MySQL sends timestamps like "2026-08-08 12:38:46" — no "T", no
+    // timezone. Handing that raw string to `new Date(...)` is ambiguous:
+    // some JS engines silently treat it as UTC and shift it when displaying
+    // in local time, which is what was causing wrong times to show. This
+    // parses the numbers directly and builds the Date in local time, so the
+    // clock-face values always match exactly what's stored in the database.
+    function parseMySQLDateTime(ts) {
+      if (!ts) return new Date();
+      if (ts instanceof Date) return ts;
+      const str = String(ts).replace("T", " ").replace("Z", "").trim();
+      const [datePart, timePart = "00:00:00"] = str.split(" ");
+      const [y, mo, d] = datePart.split("-").map(Number);
+      const [h = 0, mi = 0, s = 0] = timePart.split(":").map(Number);
+      return new Date(y, mo - 1, d, h, mi, s);
+    }
+
     function formatDateTime(ts) {
-      const d = new Date(ts);
+      const d = parseMySQLDateTime(ts);
       return d.toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" }) +
         ", " + d.toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit" });
     }
@@ -300,7 +316,7 @@
         tbody.innerHTML = `<tr><td colspan="8" class="empty-state">No orders found.</td></tr>`;
         return;
       }
-      const sorted = [...orders].sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+      const sorted = [...orders].sort((a, b) => parseMySQLDateTime(b.created_at) - parseMySQLDateTime(a.created_at));
       tbody.innerHTML = sorted.map(o => `
         <tr>
           <td>#${o.id}</td>
@@ -426,7 +442,8 @@
         const res = await fetch(API_ENDPOINT, { credentials: "include", cache: "no-store" });
         if (!res.ok) throw new Error("HTTP " + res.status);
         const data = await res.json();
-        allOrders = Array.isArray(data) ? data : (data.orders || []);
+        if (data.success === false) throw new Error(data.message || "Request failed");
+        allOrders = Array.isArray(data) ? data : (data.data || data.orders || []);
         renderOrdersTable(allOrders);
       } catch (err) {
         document.getElementById("ordersBody").innerHTML =
