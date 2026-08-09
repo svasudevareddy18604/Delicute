@@ -3,6 +3,17 @@ const router = express.Router();
 const pool = require("../db"); // centralized pool import
 
 ///////////////////////////
+// Helper: effective per-unit price including selected add-ons
+///////////////////////////
+function unitPriceWithAddons(item) {
+  const base = Number(item.price) || 0;
+  const addonsTotal = Array.isArray(item.addons)
+    ? item.addons.reduce((sum, a) => sum + (Number(a.price) || 0), 0)
+    : 0;
+  return base + addonsTotal;
+}
+
+///////////////////////////
 // GET Menu Items
 ///////////////////////////
 router.get("/menu", async (req, res) => {
@@ -18,6 +29,46 @@ router.get("/menu", async (req, res) => {
   } catch (err) {
     console.error("Menu Fetch Error:", err);
     res.status(500).json({ success: false, message: "Failed to fetch menu" });
+  }
+});
+
+///////////////////////////
+// GET Add-on Groups for a Menu Item (public/customer-facing)
+///////////////////////////
+router.get("/menu-items/:id/addon-groups", async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const [groups] = await pool.query(
+      `SELECT ag.id, ag.name, ag.min_selection, ag.max_selection, ag.is_required
+       FROM menu_item_addon_groups miag
+       JOIN addon_groups ag ON ag.id = miag.addon_group_id
+       WHERE miag.menu_item_id = ?`,
+      [id]
+    );
+
+    if (!groups.length) return res.json([]);
+
+    const groupIds = groups.map(g => g.id);
+    const [addons] = await pool.query(
+      `SELECT id, addon_group_id, name, price, is_veg, is_available
+       FROM addons
+       WHERE addon_group_id IN (?) AND is_available = 1`,
+      [groupIds]
+    );
+
+    const result = groups.map(g => ({
+      ...g,
+      is_required: !!g.is_required,
+      addons: addons
+        .filter(a => a.addon_group_id === g.id)
+        .map(a => ({ ...a, is_veg: !!a.is_veg, is_available: !!a.is_available }))
+    }));
+
+    res.json(result);
+  } catch (err) {
+    console.error("GET /menu-items/:id/addon-groups error:", err);
+    res.status(500).json({ success: false, message: "Failed to fetch add-on groups" });
   }
 });
 
@@ -58,7 +109,8 @@ router.post("/orders", async (req, res) => {
       return res.status(400).json({ success: false, message: "Invalid order data" });
     }
 
-    let subtotal = items.reduce((sum, i) => sum + i.price * i.qty, 0);
+    // ====== Subtotal now includes add-on prices ======
+    let subtotal = items.reduce((sum, i) => sum + unitPriceWithAddons(i) * i.qty, 0);
     let discount = 0;
     let total = subtotal;
 
@@ -109,7 +161,7 @@ router.post("/orders", async (req, res) => {
         );
         const catIds = catItems.map(i => i.id);
         const eligibleItems = items.filter(i => catIds.includes(i.id));
-        eligibleSubtotal = eligibleItems.reduce((sum, i) => sum + i.price * i.qty, 0);
+        eligibleSubtotal = eligibleItems.reduce((sum, i) => sum + unitPriceWithAddons(i) * i.qty, 0);
         eligibleQty = eligibleItems.reduce((sum, i) => sum + i.qty, 0);
 
         if (eligibleSubtotal === 0) {
@@ -166,14 +218,17 @@ router.post("/orders", async (req, res) => {
 
     const orderId = orderResult.insertId;
 
-    // order_items table
-    const values = items.map(i => [
-      orderId,
-      i.id,
-      i.qty,
-      i.price,
-      i.price * i.qty,
-    ]);
+    // order_items table — price_at_order / line_total now include add-ons
+    const values = items.map(i => {
+      const effectivePrice = unitPriceWithAddons(i);
+      return [
+        orderId,
+        i.id,
+        i.qty,
+        effectivePrice,
+        effectivePrice * i.qty,
+      ];
+    });
     await conn.query(
       `INSERT INTO order_items (order_id, menu_item_id, quantity, price_at_order, line_total)
        VALUES ?`,

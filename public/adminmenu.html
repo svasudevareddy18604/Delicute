@@ -178,6 +178,39 @@
   .size-field-wrap { display: none; }
   .size-field-wrap.visible { display: flex; }
 
+  /* ---- Add-on Groups checklist ---- */
+  .addon-group-box {
+    grid-column: 1 / -1;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: var(--bg-lilac);
+    padding: 0.8rem 0.9rem;
+  }
+  .addon-group-box .agb-title {
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: var(--primary-purple-dark);
+    margin-bottom: 0.6rem;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+  }
+  .addon-group-list { display: flex; flex-direction: column; gap: 0.5rem; max-height: 180px; overflow-y: auto; }
+  .addon-group-list.empty { color: var(--muted); font-size: 0.8rem; padding: 0.3rem 0; }
+  .addon-group-check {
+    display: flex;
+    align-items: center;
+    gap: 0.55rem;
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 7px;
+    padding: 0.5rem 0.7rem;
+    cursor: pointer;
+  }
+  .addon-group-check input { width: 16px; height: 16px; accent-color: var(--primary-purple-dark); cursor: pointer; flex-shrink: 0; }
+  .addon-group-check .agc-name { font-size: 0.84rem; font-weight: 600; color: var(--dark); }
+  .addon-group-check .agc-meta { font-size: 0.7rem; color: var(--muted); margin-left: auto; white-space: nowrap; }
+
   /* current image preview (edit modal) */
   .current-img-preview {
     display: flex;
@@ -462,6 +495,7 @@
     <a href="admindashboard.html">Dashboard</a>
     <a href="adminorders.html">Orders</a>
     <a href="adminmenu.html">Menu</a>
+    <a href="adminaddon.html">Add-ons</a>
     <a href="admincoupons.html">Coupons</a>
     <a href="admincategories.html">Categories</a>
     <a href="admintoppicks.html">Top Picks</a>
@@ -526,6 +560,12 @@
             <option value="MEDIUM">MEDIUM</option>
             <option value="LARGE">LARGE</option>
           </select>
+        </div>
+
+        <!-- Add-on Groups checklist -->
+        <div class="addon-group-box">
+          <div class="agb-title"><i class="fas fa-layer-group"></i> Attach Add-on Groups (optional)</div>
+          <div class="addon-group-list" id="addAddonGroupList"></div>
         </div>
 
         <div class="field full">
@@ -622,6 +662,12 @@
           </select>
         </div>
 
+        <!-- Add-on Groups checklist -->
+        <div class="addon-group-box">
+          <div class="agb-title"><i class="fas fa-layer-group"></i> Attach Add-on Groups (optional)</div>
+          <div class="addon-group-list" id="editAddonGroupList"></div>
+        </div>
+
         <div class="field full">
           <label>Current Image</label>
           <div class="current-img-preview">
@@ -648,6 +694,7 @@
     let menuData = [];
     let categories = [];
     let vegFilter = "all";
+    let addonGroups = []; // all available groups from /api/admin/addon-groups
 
     // ================= TOAST =================
     function showToast(msg, success = true) {
@@ -689,6 +736,54 @@
       document.getElementById(checkboxId).addEventListener("change", (e) => {
         document.getElementById(wrapId).classList.toggle("visible", e.target.checked);
       });
+    }
+
+    // ================= ADD-ON GROUPS CHECKLIST =================
+    async function loadAddonGroups() {
+      try {
+        const res = await fetch("/api/admin/addon-groups", { credentials: "include" });
+        if (!res.ok) throw new Error("Failed to load add-on groups");
+        addonGroups = await res.json();
+      } catch (err) {
+        console.error("Addon Groups Load Error:", err);
+        addonGroups = [];
+      }
+      renderAddonChecklist("addAddonGroupList", []);
+    }
+
+    function renderAddonChecklist(containerId, selectedIds) {
+      const container = document.getElementById(containerId);
+      if (!addonGroups.length) {
+        container.className = "addon-group-list empty";
+        container.innerHTML = "No add-on groups created yet. Create some in the Add-ons page first.";
+        return;
+      }
+      container.className = "addon-group-list";
+      container.innerHTML = addonGroups.map(g => `
+        <label class="addon-group-check">
+          <input type="checkbox" value="${g.id}" ${selectedIds.includes(g.id) || selectedIds.includes(String(g.id)) ? "checked" : ""}>
+          <span class="agc-name">${g.name}</span>
+          <span class="agc-meta">${g.is_required ? "Required" : "Optional"} · ${g.min_selection}-${g.max_selection}</span>
+        </label>
+      `).join("");
+    }
+
+    function getSelectedAddonGroupIds(containerId) {
+      return Array.from(document.querySelectorAll(`#${containerId} input:checked`)).map(i => i.value);
+    }
+
+    async function assignAddonGroups(menuItemId, groupIds) {
+      try {
+        await fetch(`/api/admin/menu-items/${menuItemId}/addon-groups`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          credentials: "include",
+          body: JSON.stringify({ addon_group_ids: groupIds })
+        });
+      } catch (err) {
+        console.error("Assign Addon Groups Error:", err);
+        showToast("Item saved, but add-on group assignment failed", false);
+      }
     }
 
     // ================= FILTER PILLS =================
@@ -828,6 +923,7 @@
 
         await loadCategories();
         await loadMenu();
+        await loadAddonGroups();
       } catch (err) {
         window.location.href = "/admin.html";
         console.error("Auth Check Error:", err);
@@ -882,14 +978,22 @@
       const hasSize = document.getElementById("addHasSize").checked;
       if (!hasSize) formData.delete("size");
 
+      const selectedGroupIds = getSelectedAddonGroupIds("addAddonGroupList");
+
       try {
         const res = await fetch("/api/menu", { method: "POST", body: formData });
         if (res.ok) {
+          const result = await res.json().catch(() => ({}));
+          const newId = result?.data?.id || result?.id;
+          if (newId && selectedGroupIds.length) {
+            await assignAddonGroups(newId, selectedGroupIds);
+          }
           showToast("Menu item added!");
           e.target.reset();
           setVegToggle("addVegToggle", "veg");
           document.getElementById("addHasSize").checked = false;
           document.getElementById("addSizeFieldWrap").classList.remove("visible");
+          renderAddonChecklist("addAddonGroupList", []);
           await loadMenu();
         } else {
           showToast("Error adding item", false);
@@ -924,6 +1028,18 @@
         document.getElementById("editCurrentImg").src = data.image;
         document.getElementById("editImage").value = "";
 
+        let assignedIds = [];
+        try {
+          const groupRes = await fetch(`/api/admin/menu-items/${id}/addon-groups`, { credentials: "include" });
+          if (groupRes.ok) {
+            const assigned = await groupRes.json();
+            assignedIds = assigned.map(g => g.id);
+          }
+        } catch (err) {
+          console.error("Fetch assigned groups error:", err);
+        }
+        renderAddonChecklist("editAddonGroupList", assignedIds);
+
         document.getElementById("editModal").classList.add("open");
       } catch (err) {
         showToast("Error loading item", false);
@@ -951,9 +1067,12 @@
         formData.delete("image");
       }
 
+      const selectedGroupIds = getSelectedAddonGroupIds("editAddonGroupList");
+
       try {
         const res = await fetch(`/api/menu/${id}`, { method: "PUT", body: formData });
         if (res.ok) {
+          await assignAddonGroups(id, selectedGroupIds);
           showToast("Menu item updated!");
           closeModal();
           await loadMenu();

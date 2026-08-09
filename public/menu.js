@@ -1,7 +1,8 @@
 /* =========================================================
    MENU MODULE
    Handles: menu data load/poll, rendering, search, category
-   filter, veg filter, top picks, toast helper (shared global).
+   filter, veg filter, top picks, toast helper (shared global),
+   and the Add-on selection modal.
    ========================================================= */
 
 let menuData = [];
@@ -225,7 +226,6 @@ function renderMenu(data) {
   } else {
     const categoriesToShow = selectedCategory === "All" ? sortedCategories : [selectedCategory];
     categoriesToShow.forEach(cat => {
-      // Items within a category still follow order_index/id (kitchen-defined order)
       const items = groupedByCategory[cat].sort((a, b) => (a.order_index || a.id) - (b.order_index || b.id));
       const firstRow = items.slice(0, 9);
       const secondRow = items.slice(9, 18);
@@ -280,9 +280,46 @@ function buildCard(item, isTopPick) {
   `;
 }
 
-/* Calls addToCart() which lives in cart.js — safe since both scripts
-   are loaded and parsed before any user interaction can trigger this. */
-function addToCartFromCard(button, hasSizes, name, category) {
+/* =========================================================
+   SEARCH + CATEGORY + VEG FILTER
+   Filters menuData down to what should be displayed, then
+   hands off to renderMenu(). This is the piece that was
+   being called but never defined in the original file.
+   ========================================================= */
+function filterMenu() {
+  if (!Array.isArray(menuData)) {
+    renderMenu([]);
+    return;
+  }
+
+  const searchTerm = (searchInput?.value || "").trim().toLowerCase();
+
+  const filtered = menuData.filter(item => {
+    if (!item?.name || !item?.category) return false;
+
+    const matchesCategory = selectedCategory === "All" || item.category === selectedCategory;
+
+    const itemFoodType = item.food_type === "nonveg" ? "nonveg" : "veg";
+    const matchesVeg = selectedVegFilter === "all" || itemFoodType === selectedVegFilter;
+
+    const matchesSearch = !searchTerm ||
+      item.name.toLowerCase().includes(searchTerm) ||
+      (item.description || "").toLowerCase().includes(searchTerm);
+
+    return matchesCategory && matchesVeg && matchesSearch;
+  });
+
+  renderMenu(filtered);
+}
+
+/* =========================================================
+   ADD TO CART — now checks for add-on groups before adding.
+   If the item has assigned add-on groups, opens the modal
+   instead of adding directly. Calls addToCart() in cart.js.
+   ========================================================= */
+async function addToCartFromCard(button, hasSizes, name, category) {
+  let itemId, price, size = null, rawItem;
+
   if (hasSizes) {
     const select = button.previousElementSibling;
     if (!select || select.value === "") {
@@ -290,75 +327,201 @@ function addToCartFromCard(button, hasSizes, name, category) {
       return;
     }
     const selectedOption = select.options[select.selectedIndex];
-    const itemId = parseInt(select.value);
-    const price = parseFloat(selectedOption.dataset.price);
-    const size = selectedOption.text.split(' - ')[0];
+    itemId = parseInt(select.value);
+    price = parseFloat(selectedOption.dataset.price);
+    size = selectedOption.text.split(' - ')[0];
     if (!itemId || isNaN(price)) {
       showToast("Invalid item data", false);
       return;
     }
-    const rawItem = menuData.find(m => m.id === itemId) || {};
-    addToCart(itemId, `${name} (${size})`, price, size, rawItem.food_type);
+    rawItem = menuData.find(m => m.id === itemId) || {};
   } else {
-    const item = menuData.find(m => m.name === name && m.category === category);
-    if (item) {
-      addToCart(item.id, name, parseFloat(item.price), null, item.food_type);
-    } else {
+    rawItem = menuData.find(m => m.name === name && m.category === category);
+    if (!rawItem) {
       showToast("Item not found", false);
+      return;
+    }
+    itemId = rawItem.id;
+    price = parseFloat(rawItem.price);
+  }
+
+  const displayName = size ? `${name} (${size})` : name;
+
+  try {
+    const res = await fetch(`/api/menu-items/${itemId}/addon-groups`);
+    const groups = res.ok ? await res.json() : [];
+
+    if (Array.isArray(groups) && groups.length > 0) {
+      openAddonModal(itemId, displayName, price, size, rawItem.food_type, groups);
+    } else {
+      addToCart(itemId, displayName, price, size, rawItem.food_type, []);
+    }
+  } catch (err) {
+    console.error("Addon fetch error:", err);
+    // If add-ons fail to load, don't block ordering — add without add-ons.
+    addToCart(itemId, displayName, price, size, rawItem.food_type, []);
+  }
+}
+
+/* =========================================================
+   ADD-ON MODAL
+   ========================================================= */
+let currentAddonContext = null;      // { itemId, name, price, size, foodType, groups }
+let currentAddonSelections = {};     // groupId -> [addonId, ...]
+
+function openAddonModal(itemId, name, price, size, foodType, groups) {
+  currentAddonContext = { itemId, name, price, size, foodType, groups };
+  currentAddonSelections = {};
+  groups.forEach(g => { currentAddonSelections[g.id] = []; });
+
+  document.getElementById('addonModalTitle').textContent = name;
+  renderAddonModalBody();
+  updateAddonModalTotal();
+  document.getElementById('addonModalOverlay').classList.add('show');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeAddonModal() {
+  document.getElementById('addonModalOverlay').classList.remove('show');
+  document.body.style.overflow = 'auto';
+  currentAddonContext = null;
+  currentAddonSelections = {};
+}
+
+function renderAddonModalBody() {
+  const body = document.getElementById('addonModalBody');
+  const { groups } = currentAddonContext;
+
+  body.innerHTML = groups.map(g => {
+    const selected = currentAddonSelections[g.id] || [];
+    const availableAddons = (g.addons || []).filter(a => a.is_available);
+
+    return `
+      <div class="addon-group-block">
+        <div class="addon-group-title">
+          ${g.name}
+          <span class="addon-group-sub">${g.is_required ? 'Required' : 'Optional'} · Select ${g.min_selection}-${g.max_selection}</span>
+        </div>
+        <div class="addon-option-list">
+          ${availableAddons.map(a => {
+            const isChecked = selected.includes(String(a.id));
+            const atMax = selected.length >= g.max_selection && !isChecked;
+            return `
+              <label class="addon-option-row ${atMax ? 'disabled' : ''}">
+                <input type="checkbox" data-group="${g.id}" data-price="${a.price}" value="${a.id}"
+                  ${isChecked ? 'checked' : ''} ${atMax ? 'disabled' : ''}
+                  onchange="toggleAddonOption(this)">
+                <span class="addon-option-mark ${a.is_veg ? '' : 'nonveg'}"></span>
+                <span class="addon-option-name">${a.name}</span>
+                <span class="addon-option-price">+₹${Number(a.price).toFixed(0)}</span>
+              </label>
+            `;
+          }).join('') || `<p style="font-size:0.8rem;color:var(--muted);">No options available right now.</p>`}
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+function toggleAddonOption(input) {
+  const groupId = input.dataset.group;
+  const addonId = input.value;
+  let selected = currentAddonSelections[groupId] || [];
+
+  if (input.checked) {
+    selected.push(addonId);
+  } else {
+    selected = selected.filter(id => id !== addonId);
+  }
+  currentAddonSelections[groupId] = selected;
+
+  renderAddonModalBody();
+  updateAddonModalTotal();
+}
+
+function updateAddonModalTotal() {
+  const { groups, price } = currentAddonContext;
+  let addonsTotal = 0;
+
+  groups.forEach(g => {
+    const selected = currentAddonSelections[g.id] || [];
+    selected.forEach(id => {
+      const addon = (g.addons || []).find(a => String(a.id) === String(id));
+      if (addon) addonsTotal += Number(addon.price);
+    });
+  });
+
+  document.getElementById('addonModalTotal').textContent = `₹${(price + addonsTotal).toFixed(2)}`;
+}
+
+function confirmAddonSelection() {
+  const { groups, itemId, name, price, size, foodType } = currentAddonContext;
+
+  for (const g of groups) {
+    const selected = currentAddonSelections[g.id] || [];
+    if (g.is_required && selected.length < g.min_selection) {
+      showToast(`Please select at least ${g.min_selection} option(s) for "${g.name}"`, false);
+      return;
     }
   }
-}
 
-function filterMenu() {
-  if (!searchInput) return;
-  const query = searchInput.value.toLowerCase().trim();
-  let filtered = menuData;
-
-  if (selectedCategory !== "All") {
-    filtered = filtered.filter(item => item?.category === selectedCategory);
-  }
-  if (selectedVegFilter !== "all") {
-    filtered = filtered.filter(item => (item?.food_type || "veg") === selectedVegFilter);
-  }
-  if (query) {
-    filtered = filtered.filter(item => item?.name.toLowerCase().includes(query));
-  }
-  renderMenu(filtered);
-}
-
-function toggleFilterDropdown() {
-  if (filterDropdown) filterDropdown.classList.toggle('active');
-}
-
-vegFilterPills.addEventListener("click", (e) => {
-  const pill = e.target.closest(".veg-pill");
-  if (!pill) return;
-  vegFilterPills.querySelectorAll(".veg-pill").forEach(p => p.classList.remove("active"));
-  pill.classList.add("active");
-  selectedVegFilter = pill.dataset.veg;
-  filterMenu();
-});
-
-document.addEventListener('click', (e) => {
-  if (filterDropdown && filterBtn && !filterDropdown.contains(e.target) && !filterBtn.contains(e.target)) {
-    filterDropdown.classList.remove('active');
-  }
-});
-
-searchInput.addEventListener("input", filterMenu);
-if (filterBtn) filterBtn.addEventListener("click", toggleFilterDropdown);
-
-window.addEventListener("load", () => {
-  loadMenu().then(() => {
-    startMenuAutoRefresh();
+  const addons = [];
+  groups.forEach(g => {
+    const selected = currentAddonSelections[g.id] || [];
+    selected.forEach(id => {
+      const addon = (g.addons || []).find(a => String(a.id) === String(id));
+      if (addon) addons.push({ addon_id: addon.id, name: addon.name, price: Number(addon.price) });
+    });
   });
+
+  addToCart(itemId, name, price, size, foodType, addons);
+  closeAddonModal();
+}
+
+// Close the modal when clicking the dark backdrop, but not the modal box itself
+document.getElementById('addonModalOverlay').addEventListener('click', (e) => {
+  if (e.target.id === 'addonModalOverlay') {
+    closeAddonModal();
+  }
 });
 
-document.addEventListener("visibilitychange", () => {
-  if (document.hidden) {
-    stopMenuAutoRefresh();
-  } else {
-    pollMenuForUpdates();
-    startMenuAutoRefresh();
-  }
+/* =========================================================
+   SEARCH / FILTER DROPDOWN / VEG PILL EVENT WIRING
+   ========================================================= */
+if (searchInput) {
+  searchInput.addEventListener('input', () => {
+    filterMenu();
+  });
+}
+
+if (filterBtn && filterDropdown) {
+  filterBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    filterDropdown.classList.toggle('active');
+  });
+
+  document.addEventListener('click', (e) => {
+    if (!filterDropdown.contains(e.target) && e.target !== filterBtn) {
+      filterDropdown.classList.remove('active');
+    }
+  });
+}
+
+if (vegFilterPills) {
+  vegFilterPills.querySelectorAll('[data-veg]').forEach(pill => {
+    pill.addEventListener('click', () => {
+      selectedVegFilter = pill.dataset.veg; // expects "all" | "veg" | "nonveg"
+      vegFilterPills.querySelectorAll('[data-veg]').forEach(p => p.classList.remove('selected'));
+      pill.classList.add('selected');
+      filterMenu();
+    });
+  });
+}
+
+/* =========================================================
+   INIT
+   ========================================================= */
+document.addEventListener('DOMContentLoaded', () => {
+  loadMenu();
+  startMenuAutoRefresh();
 });

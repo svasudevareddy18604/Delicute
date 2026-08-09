@@ -1,7 +1,8 @@
 /* =========================================================
    CART MODULE
    Handles: cart state, drawer toggle/drag, coupon logic,
-   table QR detection, order placement.
+   table QR detection, order placement. Now supports
+   per-item add-ons (extra toppings, sauces, etc).
    Depends on showToast() and menuData from menu.js (globals).
    ========================================================= */
 
@@ -15,6 +16,11 @@ let renderTimeout = null;
 
 // Set once a QR-scanned table has been verified against the backend.
 let scannedTableNumber = null;
+
+/* Effective per-unit price including any selected add-ons */
+function itemUnitPrice(item) {
+  return (item.price || 0) + (item.addonsTotal || 0);
+}
 
 function toggleCart() {
   if (!cartSection) return;
@@ -74,7 +80,6 @@ async function detectScannedTable() {
   let tableParam = urlParams.get('table');
 
   if (!tableParam) {
-    // fall back to what index.html stashed on the way here
     tableParam = sessionStorage.getItem('delicute_table');
   } else {
     sessionStorage.setItem('delicute_table', tableParam);
@@ -98,7 +103,6 @@ async function detectScannedTable() {
     }
   } catch (err) {
     console.error('Table detection error:', err);
-    // network hiccup — don't block ordering, just leave the field editable
   }
 }
 
@@ -109,19 +113,36 @@ function showTableBanner(msg, success) {
   banner.className = 'table-detect-banner ' + (success ? 'success' : 'error');
 }
 
-/* Called from menu.js's addToCartFromCard() */
-function addToCart(id, name, price, size = null, foodType = "veg") {
+/* Called from menu.js's addToCartFromCard() / confirmAddonSelection().
+   addons: [{ addon_id, name, price }, ...] — empty array if item has no add-ons. */
+function addToCart(id, name, price, size = null, foodType = "veg", addons = []) {
   if (!id || !name || isNaN(price)) {
     showToast("Invalid item data", false);
     return;
   }
-  const cartId = size ? `${id}-${size}` : `${id}`;
+
+  const safeAddons = Array.isArray(addons) ? addons : [];
+  const addonsTotal = safeAddons.reduce((sum, a) => sum + (Number(a.price) || 0), 0);
+  const addonSignature = safeAddons.map(a => a.addon_id).sort().join('_');
+  const cartId = `${id}${size ? '-' + size : ''}${addonSignature ? '-' + addonSignature : ''}`;
+
   const existing = cart.find(i => i.cartId === cartId);
   if (existing) {
     existing.qty++;
   } else {
     const menuItem = menuData.find(m => m.id === id) || {};
-    cart.push({ id, cartId, name, price, qty: 1, size, image: menuItem.image || defaultImage, food_type: foodType === "nonveg" ? "nonveg" : "veg" });
+    cart.push({
+      id,
+      cartId,
+      name,
+      price,
+      addons: safeAddons,
+      addonsTotal,
+      qty: 1,
+      size,
+      image: menuItem.image || defaultImage,
+      food_type: foodType === "nonveg" ? "nonveg" : "veg"
+    });
   }
   saveCart();
   showToast(`${name} added to cart!`, true);
@@ -182,7 +203,7 @@ async function calculateDiscount(subtotal) {
       : [];
     const eligibleItems = cart.filter(i => i && catIds.includes(i.id));
     const categoryQty = eligibleItems.reduce((sum, i) => sum + (i.qty || 0), 0);
-    const categorySubtotal = eligibleItems.reduce((sum, i) => sum + ((i.price || 0) * (i.qty || 0)), 0);
+    const categorySubtotal = eligibleItems.reduce((sum, i) => sum + (itemUnitPrice(i) * (i.qty || 0)), 0);
 
     if (appliedCoupon.type === "cart_tier") {
       const tier = getQualifyingTier(appliedCoupon.tiers, subtotal);
@@ -206,9 +227,11 @@ async function calculateDiscount(subtotal) {
     } else if (appliedCoupon.type === "bogo") {
       if (categoryQty >= 2) {
         const pairs = Math.floor(categoryQty / 2);
-        const sortedItems = eligibleItems.flatMap(item => Array(item.qty).fill(item)).sort((a, b) => (a.price || 0) - (b.price || 0));
+        const sortedItems = eligibleItems
+          .flatMap(item => Array(item.qty).fill(item))
+          .sort((a, b) => itemUnitPrice(a) - itemUnitPrice(b));
         let bogoDiscount = 0;
-        for (let i = 0; i < pairs; i++) bogoDiscount += sortedItems[i].price || 0;
+        for (let i = 0; i < pairs; i++) bogoDiscount += itemUnitPrice(sortedItems[i]) || 0;
         return bogoDiscount;
       }
       return 0;
@@ -240,7 +263,6 @@ async function renderCart() {
       return;
     }
 
-    // FIX: remove the "Your cart is empty" message as soon as there's at least one item
     const emptyMsg = cartItemsEl.querySelector('.no-items-msg');
     if (emptyMsg) emptyMsg.remove();
 
@@ -253,7 +275,8 @@ async function renderCart() {
 
     for (const item of cart) {
       if (!item?.id || !item.price || !item.qty || !item.image) continue;
-      subtotal += item.price * item.qty;
+      const unitPrice = itemUnitPrice(item);
+      subtotal += unitPrice * item.qty;
       const cartId = item.cartId;
       let cartItem = existingItems.get(cartId);
 
@@ -261,8 +284,12 @@ async function renderCart() {
         const qtySpan = cartItem.querySelector('.qty-controls span');
         const totalSpan = cartItem.querySelector('.line-total');
         if (qtySpan) qtySpan.textContent = item.qty;
-        if (totalSpan) totalSpan.textContent = `₹${(item.price * item.qty).toFixed(2)}`;
+        if (totalSpan) totalSpan.textContent = `₹${(unitPrice * item.qty).toFixed(2)}`;
       } else {
+        const addonsLine = (item.addons && item.addons.length)
+          ? `<div class="cart-item-addons">+ ${item.addons.map(a => a.name).join(', ')}</div>`
+          : '';
+
         const newItem = document.createElement('div');
         newItem.className = 'cart-item';
         newItem.dataset.cartId = cartId;
@@ -270,13 +297,14 @@ async function renderCart() {
           <img src="${item.image}" alt="${item.name}" loading="lazy" onerror="this.src='${defaultImage}'">
           <div class="cart-item-info">
             <h4>${foodMarkHTML(item.food_type)} ${item.name}</h4>
+            ${addonsLine}
             <div class="qty-controls">
               <button onclick="changeQty('${encodeURIComponent(cartId)}', -1)">-</button>
               <span>${item.qty}</span>
               <button onclick="changeQty('${encodeURIComponent(cartId)}', 1)">+</button>
             </div>
           </div>
-          <span class="line-total">₹${(item.price * item.qty).toFixed(2)}</span>
+          <span class="line-total">₹${(unitPrice * item.qty).toFixed(2)}</span>
         `;
         cartItemsEl.appendChild(newItem);
         existingItems.set(cartId, newItem);
@@ -329,7 +357,7 @@ async function applyCoupon(code = null) {
       localStorage.removeItem("appliedCoupon");
       return;
     }
-    const subtotal = cart.reduce((sum, i) => sum + ((i?.price || 0) * (i?.qty || 0)), 0);
+    const subtotal = cart.reduce((sum, i) => sum + (itemUnitPrice(i) * (i?.qty || 0)), 0);
 
     if (coupon.type === "cart_tier") {
       const tier = getQualifyingTier(coupon.tiers, subtotal);
@@ -380,7 +408,7 @@ async function applyCoupon(code = null) {
       }
       const catIds = menuRespData.data.filter(item => item?.category === coupon.category).map(item => item.id);
       const eligibleItems = cart.filter(i => i && catIds.includes(i.id));
-      const categorySubtotal = eligibleItems.reduce((sum, i) => sum + ((i?.price || 0) * (i?.qty || 0)), 0);
+      const categorySubtotal = eligibleItems.reduce((sum, i) => sum + (itemUnitPrice(i) * (i?.qty || 0)), 0);
       const categoryQty = eligibleItems.reduce((sum, i) => sum + (i?.qty || 0), 0);
       if (categorySubtotal === 0) {
         showToast(`Coupon valid only for ${coupon.category}`, false);
@@ -441,7 +469,7 @@ async function placeOrder() {
     showToast("Enter name and table number", false);
     return;
   }
-  const subtotal = cart.reduce((s, i) => s + ((i?.price || 0) * (i?.qty || 0)), 0);
+  const subtotal = cart.reduce((s, i) => s + (itemUnitPrice(i) * (i?.qty || 0)), 0);
   const discount = await calculateDiscount(subtotal);
   let total = subtotal - discount;
   if (total < 0) total = 0;
@@ -453,7 +481,8 @@ async function placeOrder() {
       name: item.name,
       price: item.price,
       qty: item.qty,
-      size: item.size
+      size: item.size,
+      addons: item.addons || []
     })),
     coupon_code: appliedCoupon ? appliedCoupon.code : null,
     subtotal,
@@ -474,7 +503,6 @@ async function placeOrder() {
       cart = [];
       appliedCoupon = null;
       if (custNameInput) custNameInput.value = "";
-      // Keep the table number if it was scanned/verified — reset only if it was manually typed.
       if (!scannedTableNumber && tableNumInput) tableNumInput.value = "";
       if (document.getElementById("instructions")) document.getElementById("instructions").value = "";
       if (document.getElementById("couponCode")) document.getElementById("couponCode").value = "";

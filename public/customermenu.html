@@ -32,7 +32,6 @@
     --toast-success-2: #3CB371;
     --toast-error-1: #C0392B;
     --toast-error-2: #E74C3C;
-    /* ---- New: distinct action colors for cart buttons ---- */
     --apply-1: #2E8B57;
     --apply-2: #43B77B;
     --remove-1: #C0392B;
@@ -519,6 +518,15 @@
     font-family: Arial, sans-serif;
     display: flex; align-items: center; gap: 0.3rem;
   }
+  .cart-item-addons {
+    font-size: 0.7rem;
+    color: var(--muted);
+    margin-top: 0.15rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 160px;
+  }
   .qty-controls { display: flex; align-items: center; gap: 0.3rem; }
   .qty-controls button {
     background: linear-gradient(45deg, var(--primary-purple), var(--lilac));
@@ -536,7 +544,6 @@
     font-family: Arial, sans-serif;
   }
 
-  /* ---------- Coupon box: Apply (green) + Remove (red outline) ---------- */
   .coupon-box { margin: 0.6rem 0; display: flex; flex-wrap: wrap; gap: 0.4rem; align-items: center; }
   .coupon-box input {
     flex: 1; min-width: 140px; padding: 0.6rem;
@@ -567,7 +574,6 @@
   }
   .remove-btn:hover { background: var(--remove-1); color: #FFFFFF; transform: translateY(-1px); }
 
-  /* Clear Cart — red, clearly a destructive action */
   .clear-cart-btn {
     width: 100%;
     background: linear-gradient(45deg, var(--clear-1), var(--clear-2));
@@ -581,7 +587,6 @@
   }
   .clear-cart-btn:hover { background: linear-gradient(45deg, #8F2E24, var(--clear-1)); transform: translateY(-1px); }
 
-  /* View Available Coupons — gold, feels like a reward/offer link */
   .coupon-btn {
     width: 100%;
     background: linear-gradient(45deg, var(--coupon-gold-1), var(--coupon-gold-2));
@@ -663,6 +668,178 @@
 
   .no-items-msg { text-align: center; color: var(--muted); font-size: clamp(0.8rem, 1.8vw, 0.9rem); padding: 1.5rem 0; }
 
+  /* =====================================================
+     ADD-ON MODAL — "stunner" polish pass
+     ===================================================== */
+  .addon-modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(26, 18, 46, 0.55);
+    backdrop-filter: blur(3px);
+    -webkit-backdrop-filter: blur(3px);
+    z-index: 4000;
+    align-items: flex-end;
+    justify-content: center;
+    padding: 0;
+    opacity: 0;
+    transition: opacity 0.25s ease;
+  }
+  .addon-modal-overlay.show { display: flex; opacity: 1; }
+
+  .addon-modal-box {
+    background: #FFFFFF;
+    width: 100%;
+    max-width: 480px;
+    max-height: 88vh;
+    overflow-y: auto;
+    border-radius: 22px 22px 0 0;
+    box-shadow: 0 -10px 34px rgba(75, 46, 131, 0.32), 0 -2px 8px rgba(0,0,0,0.08);
+    font-family: Arial, sans-serif;
+    animation: addonSlideUp 0.32s cubic-bezier(0.22, 1, 0.36, 1);
+    -webkit-overflow-scrolling: touch;
+  }
+  @keyframes addonSlideUp {
+    from { transform: translateY(40px); opacity: 0; }
+    to   { transform: translateY(0);    opacity: 1; }
+  }
+
+  .addon-modal-header {
+    padding: 1.1rem 1.2rem;
+    background: linear-gradient(90deg, var(--primary-purple) 0%, var(--primary-purple-dark) 55%, var(--lilac) 100%);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 2;
+    border-radius: 22px 22px 0 0;
+    box-shadow: 0 2px 8px rgba(75, 46, 131, 0.15);
+  }
+  .addon-modal-header h3 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #FFFFFF;
+    text-shadow: 0 1px 3px rgba(0,0,0,0.2);
+    padding-right: 0.5rem;
+    line-height: 1.3;
+  }
+  .addon-modal-close {
+    background: rgba(255,255,255,0.22);
+    border: none;
+    color: #FFFFFF;
+    width: 32px; height: 32px;
+    min-width: 32px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s ease, transform 0.2s ease;
+  }
+  .addon-modal-close:hover { background: rgba(255,255,255,0.38); transform: rotate(90deg); }
+
+  .addon-modal-body { padding: 1.1rem 1.2rem 0.4rem; }
+
+  .addon-group-block {
+    margin-bottom: 1.3rem;
+    padding-bottom: 1.1rem;
+    border-bottom: 1px dashed var(--border);
+  }
+  .addon-group-block:last-child { margin-bottom: 0.3rem; border-bottom: none; padding-bottom: 0; }
+
+  .addon-group-title {
+    font-weight: 700;
+    font-size: 0.95rem;
+    color: var(--primary-purple-dark);
+    margin-bottom: 0.2rem;
+    display: flex;
+    flex-direction: column;
+  }
+  .addon-group-sub {
+    font-weight: 600;
+    font-size: 0.7rem;
+    color: var(--muted);
+    margin-top: 0.15rem;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+  }
+
+  .addon-option-list { display: flex; flex-direction: column; gap: 0.5rem; margin-top: 0.6rem; }
+
+  .addon-option-row {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    background: var(--input-bg);
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    padding: 0.6rem 0.8rem;
+    cursor: pointer;
+    transition: border-color 0.15s ease, background 0.15s ease, box-shadow 0.15s ease, opacity 0.15s ease;
+  }
+  .addon-option-row:has(input:checked) {
+    border-color: var(--primary-purple);
+    background: #F3ECFB;
+    box-shadow: 0 2px 8px rgba(147, 112, 219, 0.18);
+  }
+  .addon-option-row.disabled { opacity: 0.45; cursor: not-allowed; }
+  .addon-option-row input {
+    width: 18px; height: 18px;
+    accent-color: var(--primary-purple-dark);
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+  .addon-option-mark {
+    width: 13px; height: 13px;
+    border: 1.6px solid var(--veg);
+    border-radius: 3px;
+    display: inline-flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .addon-option-mark::after { content: ''; width: 6px; height: 6px; border-radius: 50%; background: var(--veg); }
+  .addon-option-mark.nonveg { border-color: var(--nonveg); }
+  .addon-option-mark.nonveg::after { background: var(--nonveg); }
+  .addon-option-name { flex: 1; font-size: 0.87rem; font-weight: 600; color: var(--dark); }
+  .addon-option-price { font-size: 0.82rem; font-weight: 700; color: var(--primary-purple); white-space: nowrap; }
+
+  .addon-modal-footer {
+    padding: 0.9rem 1.2rem;
+    border-top: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.7rem;
+    position: sticky;
+    bottom: 0;
+    background: #FFFFFF;
+    box-shadow: 0 -2px 8px rgba(0,0,0,0.05);
+  }
+  .addon-modal-total { font-size: 1.1rem; font-weight: 800; color: var(--primary-purple-dark); }
+  .addon-modal-add-btn {
+    background: linear-gradient(45deg, var(--primary-purple), var(--primary-purple-dark));
+    color: #FFFFFF;
+    border: none;
+    padding: 0.75rem 1.3rem;
+    border-radius: 10px;
+    cursor: pointer;
+    font-weight: 700;
+    font-size: 0.9rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    box-shadow: 0 3px 10px rgba(138, 43, 226, 0.35);
+    transition: background 0.2s ease, transform 0.15s ease, box-shadow 0.2s ease;
+  }
+  .addon-modal-add-btn:hover {
+    background: linear-gradient(45deg, var(--primary-purple-dark), #6E1FB0);
+    transform: translateY(-1px);
+    box-shadow: 0 5px 14px rgba(138, 43, 226, 0.45);
+  }
+  .addon-modal-add-btn:active { transform: translateY(0); }
+
   @media (min-width: 769px) {
     .container { padding: 0 0.8rem; }
     .category-row { flex-wrap: wrap; gap: 0.8rem; overflow-x: hidden; justify-content: flex-start; }
@@ -671,6 +848,13 @@
     .cart-section { max-width: 400px; right: 0.8rem; border-radius: 18px 18px 0 0; }
     .search-bar { max-width: 700px; }
     .filter-dropdown { min-width: 250px; }
+    .addon-modal-overlay { align-items: center; }
+    .addon-modal-box { border-radius: 18px; max-height: 80vh; animation: addonPopIn 0.28s cubic-bezier(0.22, 1, 0.36, 1); }
+    .addon-modal-header { border-radius: 18px 18px 0 0; }
+    @keyframes addonPopIn {
+      from { transform: translateY(20px) scale(0.97); opacity: 0; }
+      to   { transform: translateY(0) scale(1);       opacity: 1; }
+    }
   }
 
   @media (max-width: 360px) {
@@ -708,6 +892,11 @@
     .filter-dropdown { min-width: 180px; }
     .filter-dropdown div { font-size: 0.8rem; padding: 0.5rem 0.8rem; }
     #toast { font-size: 0.65rem; padding: 0.6rem 0.8rem; }
+    .addon-modal-header h3 { font-size: 0.95rem; }
+    .addon-modal-body { padding: 0.9rem 0.9rem 0.3rem; }
+    .addon-option-name { font-size: 0.8rem; }
+    .addon-modal-total { font-size: 0.95rem; }
+    .addon-modal-add-btn { font-size: 0.8rem; padding: 0.65rem 1rem; }
   }
 </style>
 </head>
@@ -773,6 +962,21 @@
   </div>
 
   <button class="cart-toggle" id="cartToggle" onclick="toggleCart()"><i class="fas fa-shopping-cart"></i></button>
+
+  <!-- Add-on selection modal -->
+  <div class="addon-modal-overlay" id="addonModalOverlay">
+    <div class="addon-modal-box">
+      <div class="addon-modal-header">
+        <h3 id="addonModalTitle">Customize Item</h3>
+        <button class="addon-modal-close" onclick="closeAddonModal()"><i class="fas fa-times"></i></button>
+      </div>
+      <div class="addon-modal-body" id="addonModalBody"></div>
+      <div class="addon-modal-footer">
+        <span class="addon-modal-total" id="addonModalTotal">₹0.00</span>
+        <button class="addon-modal-add-btn" onclick="confirmAddonSelection()"><i class="fas fa-cart-plus"></i> Add to Cart</button>
+      </div>
+    </div>
+  </div>
 
   <div id="toast"></div>
 
