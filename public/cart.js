@@ -240,6 +240,10 @@ async function renderCart() {
       return;
     }
 
+    // FIX: remove the "Your cart is empty" message as soon as there's at least one item
+    const emptyMsg = cartItemsEl.querySelector('.no-items-msg');
+    if (emptyMsg) emptyMsg.remove();
+
     let subtotal = 0;
     const existingItems = new Map();
     cartItemsEl.querySelectorAll('.cart-item').forEach(item => {

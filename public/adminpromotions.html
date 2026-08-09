@@ -112,6 +112,13 @@
     .field { display: flex; flex-direction: column; gap: 0.35rem; }
     .field.full { grid-column: 1 / -1; }
     .field label { font-size: 0.82rem; font-weight: 600; color: var(--muted); }
+    .field label .optional-tag {
+      font-weight: 500;
+      color: var(--muted);
+      opacity: 0.7;
+      text-transform: none;
+      letter-spacing: 0;
+    }
 
     input, textarea {
       padding: 0.65rem 0.75rem;
@@ -195,8 +202,22 @@
     tbody tr:hover { background: var(--bg-lilac); }
 
     .promo-title { font-weight: 700; color: var(--dark); }
+    .promo-title.placeholder, .promo-desc.placeholder { color: var(--muted); font-style: italic; font-weight: 500; }
     .promo-desc { color: var(--muted); font-size: 0.82rem; max-width: 240px; }
     .promotion-image { width: 90px; height: 54px; object-fit: cover; border-radius: 6px; display: block; }
+    .no-image-chip {
+      width: 90px;
+      height: 54px;
+      border-radius: 6px;
+      border: 1px dashed var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--muted);
+      font-size: 0.7rem;
+      background: var(--bg-lilac);
+      text-align: center;
+    }
     .date-chip {
       display: inline-block;
       padding: 0.15rem 0.5rem;
@@ -207,6 +228,7 @@
       color: var(--primary-purple-dark);
       white-space: nowrap;
     }
+    .date-chip.empty { color: var(--muted); font-weight: 500; }
 
     .action-btns { display: flex; gap: 0.4rem; }
     .btn { border: none; border-radius: 7px; cursor: pointer; width: 32px; height: 32px; display: inline-flex; align-items: center; justify-content: center; font-size: 0.82rem; color: white; transition: opacity 0.2s ease; }
@@ -352,34 +374,35 @@
     <h2 class="section-title">Manage Promotions 📢</h2>
 
     <div class="form-card">
-      <form id="promotion-form" enctype="multipart/form-data">
+      <!-- All fields below are OPTIONAL. Fill in just an image, or just dates, or everything — your choice. -->
+      <form id="promotion-form" enctype="multipart/form-data" novalidate>
         <div class="field full">
-          <label for="title">Promotion Title</label>
-          <input type="text" id="title" name="title" required>
+          <label for="title">Promotion Title <span class="optional-tag">(optional)</span></label>
+          <input type="text" id="title" name="title">
           <div class="error-message" id="title-error">Please enter a valid title.</div>
         </div>
 
         <div class="field full">
-          <label for="description">Description</label>
-          <textarea id="description" name="description" required></textarea>
+          <label for="description">Description <span class="optional-tag">(optional)</span></label>
+          <textarea id="description" name="description"></textarea>
           <div class="error-message" id="description-error">Please enter a description.</div>
         </div>
 
         <div class="field full">
-          <label for="image">Promotion Image</label>
-          <input type="file" id="image" name="image" accept="image/*" required>
-          <div class="error-message" id="image-error">Please select an image.</div>
+          <label for="image">Promotion Image <span class="optional-tag">(optional)</span></label>
+          <input type="file" id="image" name="image" accept="image/*">
+          <div class="error-message" id="image-error">Please select a valid image.</div>
         </div>
 
         <div class="field">
-          <label for="start-date">Start Date</label>
-          <input type="date" id="start-date" name="start_date" required>
+          <label for="start-date">Start Date <span class="optional-tag">(optional)</span></label>
+          <input type="date" id="start-date" name="start_date">
           <div class="error-message" id="start-date-error">Please select a valid start date.</div>
         </div>
 
         <div class="field">
-          <label for="end-date">End Date</label>
-          <input type="date" id="end-date" name="end_date" required>
+          <label for="end-date">End Date <span class="optional-tag">(optional)</span></label>
+          <input type="date" id="end-date" name="end_date">
           <div class="error-message" id="end-date-error">Please select a valid end date.</div>
         </div>
 
@@ -416,35 +439,35 @@
         <h3>Edit Promotion</h3>
         <button class="close-btn" onclick="closeEditModal()"><i class="fas fa-times"></i></button>
       </div>
-      <form id="edit-promotion-form" enctype="multipart/form-data">
+      <form id="edit-promotion-form" enctype="multipart/form-data" novalidate>
         <div class="field full" style="margin-bottom: 1rem;">
-          <label for="edit-title">Promotion Title</label>
-          <input type="text" id="edit-title" name="title" required>
+          <label for="edit-title">Promotion Title <span class="optional-tag">(optional)</span></label>
+          <input type="text" id="edit-title" name="title">
           <div class="error-message" id="edit-title-error">Please enter a valid title.</div>
         </div>
 
         <div class="field full" style="margin-bottom: 1rem;">
-          <label for="edit-description">Description</label>
-          <textarea id="edit-description" name="description" required></textarea>
+          <label for="edit-description">Description <span class="optional-tag">(optional)</span></label>
+          <textarea id="edit-description" name="description"></textarea>
           <div class="error-message" id="edit-description-error">Please enter a description.</div>
         </div>
 
         <div class="field full" style="margin-bottom: 1rem;">
-          <label for="edit-image">Promotion Image (leave blank to keep current)</label>
+          <label for="edit-image">Promotion Image (leave blank to keep current) <span class="optional-tag">(optional)</span></label>
           <input type="file" id="edit-image" name="image" accept="image/*">
           <div class="error-message" id="edit-image-error">Please select a valid image.</div>
           <img id="current-image" class="current-image" src="" alt="Current Promotion Image">
         </div>
 
         <div class="field full" style="margin-bottom: 1rem;">
-          <label for="edit-start-date">Start Date</label>
-          <input type="date" id="edit-start-date" name="start_date" required>
+          <label for="edit-start-date">Start Date <span class="optional-tag">(optional)</span></label>
+          <input type="date" id="edit-start-date" name="start_date">
           <div class="error-message" id="edit-start-date-error">Please select a valid start date.</div>
         </div>
 
         <div class="field full" style="margin-bottom: 1rem;">
-          <label for="edit-end-date">End Date</label>
-          <input type="date" id="edit-end-date" name="end_date" required>
+          <label for="edit-end-date">End Date <span class="optional-tag">(optional)</span></label>
+          <input type="date" id="edit-end-date" name="end_date">
           <div class="error-message" id="edit-end-date-error">Please select a valid end date.</div>
         </div>
 
@@ -459,6 +482,8 @@
 
   <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
   <script>
+    const FALLBACK_LOGO = "https://i.postimg.cc/W3pgQx9q/DELICUTE-Imgur-1-modified.png";
+
     // Toast Notification Function
     function showToast(msg, success = true) {
       const toast = document.getElementById("toast");
@@ -529,18 +554,23 @@
       return parts.length === 2 ? parts.pop().split(";").shift() : null;
     }
 
-    // Date Formatting Utility
+    // Date Formatting Utility — returns a friendly dash when there's no date
     function formatDate(date) {
-      return new Date(date).toLocaleDateString('en-US', {
+      if (!date) return null;
+      const d = new Date(date);
+      if (isNaN(d.getTime())) return null;
+      return d.toLocaleDateString('en-US', {
         year: 'numeric',
         month: '2-digit',
         day: '2-digit'
       });
     }
 
-    // Convert date to YYYY-MM-DD format for input
+    // Convert date to YYYY-MM-DD format for input (blank-safe)
     function toDateInputValue(date) {
+      if (!date) return '';
       const d = new Date(date);
+      if (isNaN(d.getTime())) return '';
       return d.toISOString().split('T')[0];
     }
 
@@ -566,22 +596,49 @@
       }
     }
 
-    // Render Promotions
+    // Render Promotions — every field is treated as optional/nullable
     function renderPromotions(promotions) {
       promotionsList.innerHTML = promotions.length
         ? promotions.map(p => {
-            const safeTitle = p.title.replace(/'/g, "\\'").replace(/"/g, '&quot;');
-            const safeDescription = p.description.replace(/'/g, "\\'").replace(/"/g, '&quot;');
+            const rawTitle = (p.title || '').trim();
+            const rawDescription = (p.description || '').trim();
+            const safeTitle = rawTitle.replace(/'/g, "\\'").replace(/"/g, '&quot;');
+            const safeDescription = rawDescription.replace(/'/g, "\\'").replace(/"/g, '&quot;');
+            const safeImage = p.image || '';
+            const safeStart = p.start_date || '';
+            const safeEnd = p.end_date || '';
+
+            const titleHtml = rawTitle
+              ? `<span class="promo-title">${escapeHtml(rawTitle)}</span>`
+              : `<span class="promo-title placeholder">Untitled Promotion</span>`;
+
+            const descHtml = rawDescription
+              ? `<span class="promo-desc">${escapeHtml(rawDescription)}</span>`
+              : `<span class="promo-desc placeholder">No description</span>`;
+
+            const imageHtml = p.image
+              ? `<img src="${escapeHtml(p.image)}" alt="${escapeHtml(rawTitle || 'Promotion')}" class="promotion-image" loading="lazy" onerror="this.src='${FALLBACK_LOGO}'">`
+              : `<div class="no-image-chip">No image</div>`;
+
+            const startFormatted = formatDate(p.start_date);
+            const endFormatted = formatDate(p.end_date);
+            const startHtml = startFormatted
+              ? `<span class="date-chip">${startFormatted}</span>`
+              : `<span class="date-chip empty">Not set</span>`;
+            const endHtml = endFormatted
+              ? `<span class="date-chip">${endFormatted}</span>`
+              : `<span class="date-chip empty">Not set</span>`;
+
             return `
               <tr>
-                <td data-label="Title"><span class="promo-title">${escapeHtml(p.title)}</span></td>
-                <td data-label="Description"><span class="promo-desc">${escapeHtml(p.description)}</span></td>
-                <td class="cell-image" data-label="Image"><img src="${p.image}" alt="${escapeHtml(p.title)}" class="promotion-image" loading="lazy" onerror="this.src='https://i.postimg.cc/W3pgQx9q/DELICUTE-Imgur-1-modified.png'"></td>
-                <td data-label="Start Date"><span class="date-chip">${formatDate(p.start_date)}</span></td>
-                <td data-label="End Date"><span class="date-chip">${formatDate(p.end_date)}</span></td>
+                <td data-label="Title">${titleHtml}</td>
+                <td data-label="Description">${descHtml}</td>
+                <td class="cell-image" data-label="Image">${imageHtml}</td>
+                <td data-label="Start Date">${startHtml}</td>
+                <td data-label="End Date">${endHtml}</td>
                 <td class="cell-actions" data-label="Actions">
                   <div class="action-btns">
-                    <button class="btn btn-edit" onclick="openEditModal(${p.id}, '${safeTitle}', '${safeDescription}', '${p.image}', '${p.start_date}', '${p.end_date}')" title="Edit"><i class="fas fa-pen"></i></button>
+                    <button class="btn btn-edit" onclick="openEditModal(${p.id}, '${safeTitle}', '${safeDescription}', '${safeImage}', '${safeStart}', '${safeEnd}')" title="Edit"><i class="fas fa-pen"></i></button>
                     <button class="btn btn-delete" onclick="deletePromotion(${p.id})" title="Delete"><i class="fas fa-trash"></i></button>
                   </div>
                 </td>
@@ -594,45 +651,54 @@
     // HTML Escape Utility
     function escapeHtml(text) {
       const div = document.createElement("div");
-      div.textContent = text;
+      div.textContent = text || '';
       return div.innerHTML;
     }
 
-    // Add Promotion
+    // Add Promotion — everything optional, only checks end >= start when BOTH are given
     promotionForm.addEventListener("submit", async (e) => {
       e.preventDefault();
       const formData = new FormData(promotionForm);
-      const startDate = new Date(formData.get("start_date"));
-      const endDate = new Date(formData.get("end_date"));
 
-      // Client-side validation
+      const titleVal = (formData.get("title") || "").trim();
+      const descVal = (formData.get("description") || "").trim();
+      const imageFile = formData.get("image");
+      const startVal = formData.get("start_date");
+      const endVal = formData.get("end_date");
+
+      // Clear previous errors
       document.querySelectorAll("#promotion-form .error-message").forEach(el => el.style.display = "none");
       let isValid = true;
-      if (!formData.get("title").trim()) {
-        document.getElementById("title-error").style.display = "block";
-        isValid = false;
+
+      // Only validate relationship between dates if BOTH are provided
+      if (startVal && endVal) {
+        const startDate = new Date(startVal);
+        const endDate = new Date(endVal);
+        if (endDate < startDate) {
+          document.getElementById("end-date-error").textContent = "End date must be after start date.";
+          document.getElementById("end-date-error").style.display = "block";
+          isValid = false;
+        }
       }
-      if (!formData.get("description").trim()) {
-        document.getElementById("description-error").style.display = "block";
-        isValid = false;
+
+      // Require at least one meaningful field so an entirely blank promotion isn't submitted
+      const hasAnyContent = titleVal || descVal || (imageFile && imageFile.size) || startVal || endVal;
+      if (!hasAnyContent) {
+        showToast("Please fill in at least one field.", false);
+        return;
       }
-      if (!formData.get("image").size) {
-        document.getElementById("image-error").style.display = "block";
-        isValid = false;
-      }
-      if (!formData.get("start_date")) {
-        document.getElementById("start-date-error").style.display = "block";
-        isValid = false;
-      }
-      if (!formData.get("end_date") || endDate < startDate) {
-        document.getElementById("end-date-error").textContent = "End date must be after start date.";
-        document.getElementById("end-date-error").style.display = "block";
-        isValid = false;
-      }
+
       if (!isValid) {
         showToast("Please correct the form errors", false);
         return;
       }
+
+      // Strip out empty fields so the backend receives only what was actually provided
+      if (!titleVal) formData.delete("title"); else formData.set("title", titleVal);
+      if (!descVal) formData.delete("description"); else formData.set("description", descVal);
+      if (!imageFile || !imageFile.size) formData.delete("image");
+      if (!startVal) formData.delete("start_date");
+      if (!endVal) formData.delete("end_date");
 
       try {
         const response = await fetch("/api/promotions", {
@@ -651,7 +717,7 @@
       }
     });
 
-    // Open Edit Modal
+    // Open Edit Modal — fields may arrive blank
     function openEditModal(id, title, description, image, startDate, endDate) {
       try {
         const editTitle = document.getElementById("edit-title");
@@ -664,16 +730,22 @@
         editForm.reset();
         document.querySelectorAll("#edit-promotion-form .error-message").forEach(el => el.style.display = "none");
 
-        // Populate form fields
-        editTitle.value = title;
-        editDescription.value = description;
+        // Populate form fields (blank stays blank)
+        editTitle.value = title || '';
+        editDescription.value = description || '';
         editStartDate.value = toDateInputValue(startDate);
         editEndDate.value = toDateInputValue(endDate);
         editForm.dataset.id = id;
 
-        // Display current image
-        currentImage.src = image;
-        currentImage.style.display = image ? "block" : "none";
+        // Display current image only if one exists
+        if (image) {
+          currentImage.src = image;
+          currentImage.style.display = "block";
+          currentImage.onerror = () => { currentImage.style.display = "none"; };
+        } else {
+          currentImage.src = "";
+          currentImage.style.display = "none";
+        }
 
         // Show modal
         editModal.classList.add("show");
@@ -692,38 +764,41 @@
       document.querySelectorAll("#edit-promotion-form .error-message").forEach(el => el.style.display = "none");
     }
 
-    // Update Promotion
+    // Update Promotion — everything optional, only checks end >= start when BOTH are given
     editForm.addEventListener("submit", async (e) => {
       e.preventDefault();
       const id = editForm.dataset.id;
       const formData = new FormData(editForm);
-      const startDate = new Date(formData.get("start_date"));
-      const endDate = new Date(formData.get("end_date"));
 
-      // Client-side validation
+      const titleVal = (formData.get("title") || "").trim();
+      const descVal = (formData.get("description") || "").trim();
+      const startVal = formData.get("start_date");
+      const endVal = formData.get("end_date");
+
+      // Clear previous errors
       document.querySelectorAll("#edit-promotion-form .error-message").forEach(el => el.style.display = "none");
       let isValid = true;
-      if (!formData.get("title").trim()) {
-        document.getElementById("edit-title-error").style.display = "block";
-        isValid = false;
+
+      if (startVal && endVal) {
+        const startDate = new Date(startVal);
+        const endDate = new Date(endVal);
+        if (endDate < startDate) {
+          document.getElementById("edit-end-date-error").textContent = "End date must be after start date.";
+          document.getElementById("edit-end-date-error").style.display = "block";
+          isValid = false;
+        }
       }
-      if (!formData.get("description").trim()) {
-        document.getElementById("edit-description-error").style.display = "block";
-        isValid = false;
-      }
-      if (!formData.get("start_date")) {
-        document.getElementById("edit-start-date-error").style.display = "block";
-        isValid = false;
-      }
-      if (!formData.get("end_date") || endDate < startDate) {
-        document.getElementById("edit-end-date-error").textContent = "End date must be after start date.";
-        document.getElementById("edit-end-date-error").style.display = "block";
-        isValid = false;
-      }
+
       if (!isValid) {
         showToast("Please correct the form errors", false);
         return;
       }
+
+      // Normalize empty strings so blanking a field on edit is sent explicitly as empty
+      formData.set("title", titleVal);
+      formData.set("description", descVal);
+      if (!startVal) formData.set("start_date", ""); 
+      if (!endVal) formData.set("end_date", "");
 
       // Only send the image if a new one was chosen
       const editImageInput = document.getElementById("edit-image");
