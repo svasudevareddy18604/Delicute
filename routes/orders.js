@@ -6,15 +6,17 @@ const { sendEmail } = require("../utils/email");
 
 // ================== CREATE ORDER ==================
 router.post("/", async (req, res) => {
-  const { customer_name, table_number, items, coupon_code, subtotal, discount, total, instructions } = req.body;
+  const { customer_name, table_number, session_id, items, coupon_code, subtotal, discount, total, instructions, test_mode } = req.body;
 
   // Validate request
-  if (!customer_name || !table_number || !items || !Array.isArray(items) || items.length === 0) {
+  if (!customer_name || !table_number || !session_id || !items || !Array.isArray(items) || items.length === 0) {
     return res.status(400).json({ success: false, message: "Missing required fields" });
   }
   if (typeof subtotal !== "number" || typeof discount !== "number" || typeof total !== "number") {
     return res.status(400).json({ success: false, message: "Subtotal, discount, and total must be numbers" });
   }
+
+  const isTest = test_mode === true ? 1 : 0;
 
   // Normalize items to ensure qty
   const normalizedItems = items.map(item => ({
@@ -27,16 +29,18 @@ router.post("/", async (req, res) => {
   try {
     // Insert order into database
     const [result] = await pool.query(
-      "INSERT INTO orders (customer_name, table_number, items, coupon_code, subtotal, discount, total, instructions, status, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'Pending', NOW())",
+      "INSERT INTO orders (customer_name, table_number, session_id, items, coupon_code, subtotal, discount, total, instructions, status, is_test, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'Pending', ?, NOW())",
       [
         customer_name,
         table_number,
+        session_id,
         JSON.stringify(normalizedItems),
         coupon_code || null,
         subtotal,
         discount || 0,
         total,
-        instructions || ""
+        instructions || "",
+        isTest
       ]
     );
 
@@ -44,7 +48,7 @@ router.post("/", async (req, res) => {
 
     // Fetch the created order for notifications
     const [orderRows] = await pool.query(
-      "SELECT id, customer_name, table_number, items, coupon_code, subtotal, discount, total, instructions, status FROM orders WHERE id = ?",
+      "SELECT id, customer_name, table_number, session_id, items, coupon_code, subtotal, discount, total, instructions, status, is_test, created_at FROM orders WHERE id = ?",
       [orderId]
     );
     const order = {
@@ -55,69 +59,90 @@ router.post("/", async (req, res) => {
       total: parseFloat(orderRows[0].total),
       instructions: orderRows[0].instructions || ""
     };
-    console.log("Fetched order for notifications:", order); // Debug log
+    console.log(`Fetched order for notifications (test=${!!order.is_test}):`, order); // Debug log
 
-    // Send email notification via Brevo
-    try {
-      await sendEmail({
-        to: "contactdelicute@gmail.com",
-        subject: `New Order #${order.id} - DELICUTE`,
-        html: `
-          <h2>🍽️ New Order #${order.id}</h2>
-          <p><b>Customer:</b> ${order.customer_name}</p>
-          <p><b>Table:</b> ${order.table_number}</p>
-          <p><b>Subtotal:</b> ₹${order.subtotal.toFixed(2)}</p>
-          <p><b>Discount:</b> ₹${order.discount.toFixed(2)}</p>
-          <p><b>Total:</b> ₹${order.total.toFixed(2)}</p>
-          <p><b>Coupon:</b> ${order.coupon_code || "None"}</p>
-          <h3>Items</h3>
-          <ul>
-            ${order.items
-              .map(
-                (item) =>
-                  `<li>${item.name} × ${item.qty} - ₹${item.price.toFixed(2)}</li>`
-              )
-              .join("")}
-          </ul>
-          <p><b>Instructions:</b> ${order.instructions || "None"}</p>
-        `,
+    // Skip email + admin broadcast entirely for test orders — real staff
+    // never see or get emailed about anything created in test mode.
+    if (!isTest) {
+      // Send email notification via Brevo
+      try {
+        await sendEmail({
+          to: "contactdelicute@gmail.com",
+          subject: `New Order #${order.id} - DELICUTE`,
+          html: `
+            <h2>🍽️ New Order #${order.id}</h2>
+            <p><b>Customer:</b> ${order.customer_name}</p>
+            <p><b>Table:</b> ${order.table_number}</p>
+            <p><b>Subtotal:</b> ₹${order.subtotal.toFixed(2)}</p>
+            <p><b>Discount:</b> ₹${order.discount.toFixed(2)}</p>
+            <p><b>Total:</b> ₹${order.total.toFixed(2)}</p>
+            <p><b>Coupon:</b> ${order.coupon_code || "None"}</p>
+            <h3>Items</h3>
+            <ul>
+              ${order.items
+                .map(
+                  (item) =>
+                    `<li>${item.name} × ${item.qty} - ₹${item.price.toFixed(2)}</li>`
+                )
+                .join("")}
+            </ul>
+            <p><b>Instructions:</b> ${order.instructions || "None"}</p>
+          `,
+        });
+
+        console.log("✅ Brevo email sent");
+      } catch (err) {
+        console.error("❌ Brevo Error:", err);
+        // Continue execution to avoid blocking response
+      }
+
+      // Emit WebSocket event — cafe/admin dashboard listens for "new-order" globally.
+      // Not emitted at all for test orders, so the kitchen/admin screen never
+      // flickers or shows a test order.
+      const io = req.app.get("io");
+      io.emit("new-order", {
+        id: order.id,
+        customer_name: order.customer_name,
+        table_number: order.table_number,
+        session_id: order.session_id,
+        items: order.items,
+        coupon_code: order.coupon_code,
+        subtotal: order.subtotal,
+        discount: order.discount,
+        total: order.total,
+        instructions: order.instructions,
+        status: order.status
       });
-
-      console.log("✅ Brevo email sent");
-    } catch (err) {
-      console.error("❌ Brevo Error:", err);
-      // Continue execution to avoid blocking response
+    } else {
+      console.log(`🧪 Test order #${order.id} created — email and admin broadcast skipped`);
     }
 
-    // Emit WebSocket event
+    // Always emit to the customer's own session room (test or not) so the
+    // person testing can still see their own order-status page update live.
     const io = req.app.get("io");
-    io.emit("new-order", {
-      id: order.id,
-      customer_name: order.customer_name,
-      table_number: order.table_number,
-      items: order.items,
-      coupon_code: order.coupon_code,
-      subtotal: order.subtotal,
-      discount: order.discount,
-      total: order.total,
-      instructions: order.instructions,
+    io.to(`session:${order.session_id}`).emit("orderStatusUpdated", {
+      orderId: order.id,
       status: order.status
     });
 
-    res.json({ success: true, orderId });
+    res.json({ success: true, orderId, is_test: !!isTest });
   } catch (err) {
     console.error("Create order error:", err);
     res.status(500).json({ success: false, message: "Failed to create order" });
   }
 });
 
-// ================== GET ALL ORDERS ==================
+// ================== GET ALL ORDERS (admin/cafe dashboard) ==================
+// Real staff only ever see real orders. Pass ?includeTest=1 explicitly
+// (e.g. from a hidden dev-only view) if you ever want to see test orders here too.
 router.get("/", authenticate, async (req, res) => {
+  const includeTest = req.query.includeTest === "1";
   try {
     const [rows] = await pool.query(`
-      SELECT o.id, o.customer_name, o.table_number, o.items, o.coupon_code, 
-             o.subtotal, o.discount, o.total, o.instructions, o.status, o.created_at
+      SELECT o.id, o.customer_name, o.table_number, o.session_id, o.items, o.coupon_code, 
+             o.subtotal, o.discount, o.total, o.instructions, o.status, o.is_test, o.created_at
       FROM orders o
+      ${includeTest ? "" : "WHERE o.is_test = 0"}
       ORDER BY o.created_at DESC
     `);
 
@@ -156,6 +181,50 @@ router.get("/", authenticate, async (req, res) => {
   }
 });
 
+// ================== GET ORDERS FOR A CUSTOMER SESSION (public, no auth) ==================
+// Used by the order-status page to look up the customer's own order(s),
+// including after they've closed and reopened the tab. Includes test
+// orders too — this route is only ever reachable by someone who already
+// has that exact session_id, i.e. the person who placed the order.
+router.get("/session/:sessionId", async (req, res) => {
+  const { sessionId } = req.params;
+  if (!sessionId) {
+    return res.status(400).json({ success: false, message: "Missing session id" });
+  }
+
+  try {
+    const [rows] = await pool.query(
+      `SELECT id, customer_name, table_number, session_id, items, coupon_code,
+              subtotal, discount, total, instructions, status, is_test, created_at
+       FROM orders
+       WHERE session_id = ?
+       ORDER BY created_at DESC
+       LIMIT 5`,
+      [sessionId]
+    );
+
+    const orders = rows.map(order => {
+      let items = order.items;
+      if (typeof items === "string") {
+        try { items = JSON.parse(items); } catch { items = []; }
+      }
+      return {
+        ...order,
+        items,
+        subtotal: parseFloat(order.subtotal),
+        discount: parseFloat(order.discount),
+        total: parseFloat(order.total),
+        instructions: order.instructions || ""
+      };
+    });
+
+    res.json({ success: true, data: orders });
+  } catch (err) {
+    console.error("Get session orders error:", err);
+    res.status(500).json({ success: false, message: "Failed to fetch orders" });
+  }
+});
+
 // ================== CANCEL ORDER ==================
 router.put("/:id/cancel", authenticate, async (req, res) => {
   const { id } = req.params;
@@ -167,6 +236,15 @@ router.put("/:id/cancel", authenticate, async (req, res) => {
 
     if (result.affectedRows === 0) {
       return res.status(400).json({ success: false, message: "Order not found" });
+    }
+
+    const [rows] = await pool.query("SELECT session_id FROM orders WHERE id = ?", [id]);
+    if (rows[0]?.session_id) {
+      const io = req.app.get("io");
+      io.to(`session:${rows[0].session_id}`).emit("orderStatusUpdated", {
+        orderId: Number(id),
+        status: "Cancelled"
+      });
     }
 
     res.json({ success: true, message: "Order cancelled successfully" });
@@ -211,6 +289,15 @@ router.put("/:id/status", authenticate, async (req, res) => {
 
     if (result.affectedRows === 0) {
       return res.status(404).json({ success: false, message: "Order not found" });
+    }
+
+    const [rows] = await pool.query("SELECT session_id FROM orders WHERE id = ?", [id]);
+    if (rows[0]?.session_id) {
+      const io = req.app.get("io");
+      io.to(`session:${rows[0].session_id}`).emit("orderStatusUpdated", {
+        orderId: Number(id),
+        status
+      });
     }
 
     res.json({ success: true, message: `Order marked as ${status}` });

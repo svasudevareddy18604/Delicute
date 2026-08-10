@@ -70,6 +70,14 @@
     top: 0;
     z-index: 1000;
     box-shadow: var(--shadow-md);
+    position: sticky;
+  }
+  header { position: sticky; }
+  .header-inner {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
   }
   header img {
     height: clamp(40px, 7vw, 50px);
@@ -91,6 +99,55 @@
     text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
     display: block;
     margin-top: 0.1rem;
+  }
+
+  /* ---------- Track My Order — pinned top-right of header, always visible ---------- */
+  .track-order-btn {
+    position: absolute;
+    top: 0;
+    right: 0;
+    display: none;
+    align-items: center;
+    gap: 0.35rem;
+    background: rgba(255, 255, 255, 0.18);
+    border: 1.4px solid rgba(255, 255, 255, 0.55);
+    color: #FFFFFF;
+    text-decoration: none;
+    font-family: Arial, sans-serif;
+    font-weight: 700;
+    font-size: clamp(0.68rem, 2.2vw, 0.8rem);
+    padding: 0.45rem 0.7rem;
+    border-radius: 30px;
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    transition: background 0.2s ease, transform 0.15s ease;
+    white-space: nowrap;
+  }
+  .track-order-btn.show { display: inline-flex; }
+  .track-order-btn:hover { background: rgba(255, 255, 255, 0.3); }
+  .track-order-btn:active { transform: scale(0.96); }
+  .track-order-btn i.fa-receipt { font-size: 0.85em; }
+  .track-order-btn .track-dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: #4CD964;
+    box-shadow: 0 0 0 0 rgba(76, 217, 100, 0.6);
+    animation: trackDotPulse 1.6s ease-out infinite;
+    flex-shrink: 0;
+  }
+  @keyframes trackDotPulse {
+    0%   { box-shadow: 0 0 0 0 rgba(76, 217, 100, 0.55); }
+    70%  { box-shadow: 0 0 0 6px rgba(76, 217, 100, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(76, 217, 100, 0); }
+  }
+  .track-order-btn .track-label-full { display: inline; }
+  .track-order-btn .track-label-short { display: none; }
+
+  @media (max-width: 420px) {
+    .track-order-btn { padding: 0.4rem 0.55rem; gap: 0.28rem; }
+    .track-order-btn .track-label-full { display: none; }
+    .track-order-btn .track-label-short { display: inline; }
   }
 
   .anniversary-banner {
@@ -902,15 +959,24 @@
 </head>
 <body>
   <header>
-    <img src="https://i.postimg.cc/W3pgQx9q/DELICUTE-Imgur-1-modified.png" alt="DELICUTE Logo" onerror="this.src='https://via.placeholder.com/50'">
-    <div>
-      <h1>DELICUTE</h1>
-      <span class="tagline">Every Bite Tells A Story</span>
-    </div>
-    <div class="anniversary-banner">
-      <span class="anniversary-icon">✨</span>
-      <span class="anniversary-text">Celebrating 1 Year of DELICUTE ❤️</span>
-      <span class="anniversary-icon delay">✨</span>
+    <div class="header-inner">
+      <a href="customerstatus.html" class="track-order-btn" id="trackOrderBtn">
+        <span class="track-dot"></span>
+        <i class="fas fa-receipt"></i>
+        <span class="track-label-full">Track My Order</span>
+        <span class="track-label-short">Track</span>
+      </a>
+
+      <img src="https://i.postimg.cc/W3pgQx9q/DELICUTE-Imgur-1-modified.png" alt="DELICUTE Logo" onerror="this.src='https://via.placeholder.com/50'">
+      <div>
+        <h1>DELICUTE</h1>
+        <span class="tagline">Every Bite Tells A Story</span>
+      </div>
+      <div class="anniversary-banner">
+        <span class="anniversary-icon">✨</span>
+        <span class="anniversary-text">Celebrating 1 Year of DELICUTE ❤️</span>
+        <span class="anniversary-icon delay">✨</span>
+      </div>
     </div>
   </header>
 
@@ -979,6 +1045,73 @@
   </div>
 
   <div id="toast"></div>
+
+  <!-- ================================================================
+       TABLE / SESSION DETECTION
+       Runs before menu.js / cart.js. Resolves table+session in this
+       priority: URL params (from index.html, always fresh/wins) ->
+       localStorage (only if NOT stale) -> if neither is usable, send
+       back to index.html to pick a table fresh. A saved table older
+       than TABLE_TTL_MS is treated as belonging to a previous visit,
+       so it can't silently carry over to a new dining session.
+       Exposes window.DELICUTE_TABLE_ID and window.DELICUTE_SESSION_ID
+       for cart.js's placeOrder() to use when it sends the order.
+       ================================================================ -->
+  <script>
+    (function () {
+      const TABLE_TTL_MS = 4 * 60 * 60 * 1000; // keep this in sync with index.html
+
+      const params = new URLSearchParams(window.location.search);
+      const urlTable = params.get('table');
+      const urlSession = params.get('session');
+
+      if (urlTable) {
+        localStorage.setItem('delicute_table', urlTable);
+        localStorage.setItem('delicute_table_ts', Date.now().toString());
+      }
+      if (urlSession) localStorage.setItem('delicute_session_id', urlSession);
+
+      let sessionId = localStorage.getItem('delicute_session_id');
+      if (!sessionId) {
+        sessionId = crypto.randomUUID();
+        localStorage.setItem('delicute_session_id', sessionId);
+      }
+
+      const ts = localStorage.getItem('delicute_table_ts');
+      const isStale = !ts || (Date.now() - Number(ts)) > TABLE_TTL_MS;
+      const tableId = localStorage.getItem('delicute_table');
+
+      // No table known, or it's too old to trust -> go pick one fresh
+      if (!tableId || isStale) {
+        localStorage.removeItem('delicute_table');
+        localStorage.removeItem('delicute_table_ts');
+        window.location.href = 'index.html';
+        return;
+      }
+
+      window.DELICUTE_TABLE_ID = tableId;
+      window.DELICUTE_SESSION_ID = sessionId;
+
+      document.addEventListener('DOMContentLoaded', function () {
+        const tableInput = document.getElementById('tableNum');
+        const banner = document.getElementById('tableDetectBanner');
+        const trackBtn = document.getElementById('trackOrderBtn');
+
+        if (tableInput) {
+          tableInput.value = tableId;
+          tableInput.readOnly = true;
+        }
+        if (banner) {
+          banner.className = 'table-detect-banner success';
+          banner.textContent = '✓ Table ' + tableId + ' detected automatically';
+        }
+        // Show "Track My Order" in the header the moment we have a valid
+        // session — it doesn't matter yet whether an order exists;
+        // customerstatus.html itself handles the "no orders yet" state.
+        if (trackBtn) trackBtn.classList.add('show');
+      });
+    })();
+  </script>
 
   <!-- menu.js must load before cart.js references addToCartFromCard's DOM,
        but both only run their logic after window 'load' so order here is safe -->

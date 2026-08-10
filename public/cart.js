@@ -3,7 +3,9 @@
    Handles: cart state, drawer toggle/drag, coupon logic,
    table QR detection, order placement. Now supports
    per-item add-ons (extra toppings, sauces, etc).
-   Depends on showToast() and menuData from menu.js (globals).
+   Depends on showToast() and menuData from menu.js (globals),
+   and window.DELICUTE_TABLE_ID / window.DELICUTE_SESSION_ID
+   (set by the inline script in customermenu.html).
    ========================================================= */
 
 const cartItemsEl = document.getElementById("cartItems");
@@ -14,7 +16,8 @@ let cart = [];
 let appliedCoupon = null;
 let renderTimeout = null;
 
-// Set once a QR-scanned table has been verified against the backend.
+// Set once the table (from index.html/customermenu.html resolution) has
+// been verified against the backend.
 let scannedTableNumber = null;
 
 /* Effective per-unit price including any selected add-ons */
@@ -68,23 +71,11 @@ function clearCart() {
 }
 
 /* =========================================================
-   TABLE DETECTION — hit the moment a customer arrives here
-   from a scanned QR (via index.html?table=5 -> forwarded, or
-   directly if the QR ever points straight at this page).
-   Verifies the table against the backend before trusting it,
-   then locks the Table Number field so it can't be edited.
+   TABLE DETECTION
    ========================================================= */
 
 async function detectScannedTable() {
-  const urlParams = new URLSearchParams(window.location.search);
-  let tableParam = urlParams.get('table');
-
-  if (!tableParam) {
-    tableParam = sessionStorage.getItem('delicute_table');
-  } else {
-    sessionStorage.setItem('delicute_table', tableParam);
-  }
-
+  const tableParam = window.DELICUTE_TABLE_ID;
   const tableNumInput = document.getElementById('tableNum');
   if (!tableParam || !tableNumInput) return;
 
@@ -98,8 +89,7 @@ async function detectScannedTable() {
       tableNumInput.readOnly = true;
       showTableBanner(`✓ Table ${scannedTableNumber} detected — you're all set`, true);
     } else {
-      showTableBanner(data.message || 'Could not verify this table — please enter it manually', false);
-      sessionStorage.removeItem('delicute_table');
+      showTableBanner(data.message || 'Could not verify this table — please refresh or rescan the QR', false);
     }
   } catch (err) {
     console.error('Table detection error:', err);
@@ -465,17 +455,32 @@ async function placeOrder() {
   if (!custNameInput || !tableNumInput) return;
   const customer_name = custNameInput.value.trim();
   const table_number = tableNumInput.value.trim();
+  const session_id = window.DELICUTE_SESSION_ID || localStorage.getItem('delicute_session_id');
+
   if (!customer_name || !table_number) {
     showToast("Enter name and table number", false);
     return;
   }
+  if (!session_id) {
+    showToast("Session missing — please reopen the menu from your table's QR code", false);
+    return;
+  }
+
   const subtotal = cart.reduce((s, i) => s + (itemUnitPrice(i) * (i?.qty || 0)), 0);
   const discount = await calculateDiscount(subtotal);
   let total = subtotal - discount;
   if (total < 0) total = 0;
+
+  // While test mode is on (index.html?test=1), every order is tagged
+  // is_test=true. The backend skips the email + admin dashboard entirely
+  // for these, so real staff never see or get notified about test orders.
+  const test_mode = localStorage.getItem('delicute_test_mode') === 'true';
+
   const body = {
     customer_name,
     table_number: parseInt(table_number),
+    session_id,
+    test_mode,
     items: cart.map(item => ({
       id: item.id,
       name: item.name,
@@ -500,17 +505,21 @@ async function placeOrder() {
     const data = await res.json();
     if (data.success) {
       showToast(`Thank you, ${customer_name}! Order #${data.orderId || 'N/A'} placed!`, true);
+
+      if (data.orderId) {
+        localStorage.setItem("delicute_last_order_id", data.orderId);
+      }
+
       cart = [];
       appliedCoupon = null;
-      if (custNameInput) custNameInput.value = "";
-      if (!scannedTableNumber && tableNumInput) tableNumInput.value = "";
-      if (document.getElementById("instructions")) document.getElementById("instructions").value = "";
-      if (document.getElementById("couponCode")) document.getElementById("couponCode").value = "";
       localStorage.removeItem("cart");
       localStorage.removeItem("appliedCoupon");
       localStorage.removeItem("openCart");
-      renderCart();
-      toggleCart();
+
+      setTimeout(() => {
+        window.location.href = "orderstatus.html";
+      }, 1200);
+      return;
     } else {
       showToast(`Failed: ${data.message || "Unknown error"}`, false);
     }

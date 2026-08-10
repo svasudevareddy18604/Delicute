@@ -1,6 +1,7 @@
 // routes/tables.js
 // Table management routes — admin CRUD + public "scan" endpoint used
-// when a customer scans a table's QR code.
+// when a customer scans a table's QR code, + public "active" listing
+// used by the customer-facing table-select popup.
 //
 // NOTE: adjust these two require paths to match your project —
 // use the SAME db pool and admin-auth middleware your other admin
@@ -9,6 +10,78 @@ const express = require("express");
 const router = express.Router();
 const pool = require("../db");                     // mysql2 promise pool
 const verifyAdminToken = require("../middleware/authenticate");
+
+/* =========================================================
+   PUBLIC ROUTES — no auth, used by the customer-facing site
+   These must be declared BEFORE "GET /:id" below. Express
+   matches routes top-to-bottom, and "/:id" matches ANY single
+   path segment — including the literal word "active" — so if
+   "/:id" comes first it swallows this request and runs it
+   through verifyAdminToken, which is exactly what was causing
+   your 401s.
+   ========================================================= */
+
+// GET /api/tables/active  -> list active tables (customer table-picker)
+router.get("/active", async (req, res) => {
+  try {
+    const [rows] = await pool.query(
+      `SELECT id, table_number, capacity, location
+       FROM tables
+       WHERE status = 'active'
+       ORDER BY CAST(table_number AS UNSIGNED), table_number`
+    );
+    res.json({ success: true, data: rows });
+  } catch (err) {
+    console.error("Get Active Tables Error:", err);
+    res.status(500).json({ success: false, message: "Failed to fetch active tables" });
+  }
+});
+
+// GET /api/tables/scan/:number  -> single table lookup when a QR is scanned
+// (kept here, before "/:id", purely for readability — it doesn't actually
+// collide with "/:id" since it has two path segments, not one)
+router.get("/scan/:number", async (req, res) => {
+  try {
+    const { number } = req.params;
+
+    const [rows] = await pool.query(
+      "SELECT id, table_number, capacity, location, status FROM tables WHERE table_number = ?",
+      [number]
+    );
+
+    if (!rows.length) {
+      return res.status(404).json({
+        success: false,
+        message: "This table code isn't recognized. Please ask staff for help.",
+      });
+    }
+
+    const table = rows[0];
+
+    if (table.status !== "active") {
+      return res.status(403).json({
+        success: false,
+        message: `Table ${table.table_number} is currently inactive. Please ask staff for assistance.`,
+      });
+    }
+
+    res.json({
+      success: true,
+      table: {
+        id: table.id,
+        number: table.table_number,
+        capacity: table.capacity,
+        location: table.location,
+      },
+    });
+  } catch (err) {
+    console.error("Scan Table Error:", err);
+    res.status(500).json({
+      success: false,
+      message: "Something went wrong. Please ask staff for help.",
+    });
+  }
+});
 
 /* =========================================================
    ADMIN ROUTES — protected, used by admintablemanage.html
@@ -30,6 +103,8 @@ router.get("/", verifyAdminToken, async (req, res) => {
 });
 
 // GET /api/tables/:id  -> single table
+// NOTE: this MUST stay below "/active" and "/scan/:number" above,
+// otherwise it will intercept those requests.
 router.get("/:id", verifyAdminToken, async (req, res) => {
   try {
     const [rows] = await pool.query("SELECT * FROM tables WHERE id = ?", [req.params.id]);
@@ -147,55 +222,6 @@ router.delete("/:id", verifyAdminToken, async (req, res) => {
   } catch (err) {
     console.error("Delete Table Error:", err);
     res.status(500).json({ success: false, message: "Failed to delete table" });
-  }
-});
-
-/* =========================================================
-   PUBLIC ROUTE — hit the moment a customer scans a table's QR
-   QR encodes: https://delicute-kxc9.onrender.com/menu.html?table=5
-   menu.html reads ?table=5 and calls GET /api/tables/scan/5
-   ========================================================= */
-
-router.get("/scan/:number", async (req, res) => {
-  try {
-    const { number } = req.params;
-
-    const [rows] = await pool.query(
-      "SELECT id, table_number, capacity, location, status FROM tables WHERE table_number = ?",
-      [number]
-    );
-
-    if (!rows.length) {
-      return res.status(404).json({
-        success: false,
-        message: "This table code isn't recognized. Please ask staff for help.",
-      });
-    }
-
-    const table = rows[0];
-
-    if (table.status !== "active") {
-      return res.status(403).json({
-        success: false,
-        message: `Table ${table.table_number} is currently inactive. Please ask staff for assistance.`,
-      });
-    }
-
-    res.json({
-      success: true,
-      table: {
-        id: table.id,
-        number: table.table_number,
-        capacity: table.capacity,
-        location: table.location,
-      },
-    });
-  } catch (err) {
-    console.error("Scan Table Error:", err);
-    res.status(500).json({
-      success: false,
-      message: "Something went wrong. Please ask staff for help.",
-    });
   }
 });
 

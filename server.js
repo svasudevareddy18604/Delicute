@@ -119,6 +119,15 @@ app.get("/test-email", async (req, res) => {
 io.on("connection", (socket) => {
   console.log("🔌 Socket connected:", socket.id);
 
+  // Customer's browser joins a private room named after its own anonymous
+  // session id. Order-status updates are emitted to "session:<id>" from
+  // routes/orders.js, so only this browser receives its own order's updates.
+  socket.on("join-session", (sessionId) => {
+    if (!sessionId || typeof sessionId !== "string") return;
+    socket.join(`session:${sessionId}`);
+    console.log(`🙋 Socket ${socket.id} joined room session:${sessionId}`);
+  });
+
   socket.on("disconnect", () => {
     console.log("❌ Socket disconnected:", socket.id);
   });
