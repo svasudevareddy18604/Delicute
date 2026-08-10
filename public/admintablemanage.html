@@ -91,16 +91,18 @@
     nav a:hover { background: rgba(139, 107, 201, 0.25); color: #fff; }
     nav a.active { color: var(--gold-light); background: rgba(217, 169, 76, 0.12); }
 
-    .content-wrapper { max-width: 1100px; margin: 0 auto; padding: 1.25rem 1.25rem 2.2rem; }
+    .content-wrapper { max-width: 1200px; margin: 0 auto; padding: 1.25rem 1.25rem 2.2rem; }
 
     .dev-notice {
       background: #fff7e6; border: 1px solid var(--gold-light); border-radius: 10px;
       padding: 0.65rem 1rem; font-size: 0.8rem; color: #7a5c1e; margin-bottom: 1.2rem;
-      display: flex; align-items: center; gap: 0.55rem;
+      display: none; align-items: center; gap: 0.55rem;
     }
+    .dev-notice.show { display: flex; }
     .dev-notice i { color: var(--gold); }
     .dev-notice.err { background: #fdecec; border-color: #f3b9b9; color: #7a1e1e; }
     .dev-notice.err i { color: var(--cancelled); }
+    .dev-notice .retry-link { margin-left: auto; font-weight: 700; color: inherit; text-decoration: underline; cursor: pointer; background: none; border: none; font-size: 0.78rem; }
 
     .page-title-row {
       display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.8rem;
@@ -129,18 +131,23 @@
       font-size: 0.78rem; font-weight: 700; color: var(--primary-purple-dark);
       display: flex; align-items: center; gap: 0.4rem; margin-bottom: 0.4rem;
     }
-    .settings-row { display: flex; gap: 0.6rem; flex-wrap: wrap; }
+    .settings-row { display: flex; gap: 0.6rem; flex-wrap: wrap; align-items: center; }
     .settings-row input {
       flex: 1 1 260px; padding: 0.6rem 0.8rem; border: 1px solid var(--border); border-radius: 8px;
       font-family: 'Roboto', sans-serif; font-size: 0.85rem; background: var(--bg-lilac); color: var(--dark);
       outline: none; transition: border-color 0.2s ease;
     }
     .settings-row input:focus { border-color: var(--primary-purple); }
+    .settings-row input:disabled { opacity: 0.6; }
     .settings-row button {
       padding: 0.6rem 1.1rem; border-radius: 8px; border: none; background: var(--primary-purple-dark);
       color: #fff; font-weight: 700; font-size: 0.82rem; cursor: pointer;
+      display: flex; align-items: center; gap: 0.4rem; white-space: nowrap;
     }
-    .settings-hint { font-size: 0.72rem; color: var(--muted); margin-top: 0.4rem; }
+    .settings-row button:disabled { opacity: 0.6; cursor: not-allowed; }
+    .settings-hint { font-size: 0.72rem; color: var(--muted); margin-top: 0.4rem; display: flex; align-items: center; gap: 0.4rem; flex-wrap: wrap; }
+    .settings-hint .saved-tag { color: var(--delivered); font-weight: 700; }
+    .settings-hint .local-tag { color: var(--gold); font-weight: 700; }
 
     .toolbar {
       background: #fff; border: 1px solid var(--border); border-radius: 12px; box-shadow: var(--shadow-sm);
@@ -173,17 +180,18 @@
     .stat-card.active .num { color: var(--delivered); }
     .stat-card.inactive .num { color: var(--cancelled); }
 
-    .table-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; }
+    /* Bigger cards: 3 per row on desktop instead of 4, so the QR itself can be larger and stays easy to scan on a printed label */
+    .table-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.25rem; }
 
     .table-card {
-      background: #fff; border: 1px solid var(--border); border-radius: 14px; padding: 1.1rem;
+      background: #fff; border: 1px solid var(--border); border-radius: 14px; padding: 1.25rem;
       box-shadow: var(--shadow-sm); position: relative; transition: transform 0.2s ease, box-shadow 0.2s ease;
       display: flex; flex-direction: column;
     }
     .table-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-md); }
 
-    .table-card-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.7rem; }
-    .table-card-top h3 { font-family: 'Playfair Display', serif; font-size: 1.15rem; color: var(--dark); }
+    .table-card-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.8rem; }
+    .table-card-top h3 { font-family: 'Playfair Display', serif; font-size: 1.2rem; color: var(--dark); }
 
     .status-badge {
       font-size: 0.62rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.4px;
@@ -192,21 +200,22 @@
     .status-badge.active-badge { background: var(--delivered); }
     .status-badge.inactive-badge { background: var(--muted); }
 
+    /* Bigger QR preview */
     .qr-preview {
-      width: 100%; aspect-ratio: 1/1; max-width: 150px; margin: 0 auto 0.7rem;
-      display: flex; align-items: center; justify-content: center; background: var(--bg-lilac);
-      border-radius: 10px; border: 1px solid var(--border); padding: 0.5rem;
+      width: 100%; aspect-ratio: 1/1; max-width: 210px; margin: 0 auto 0.8rem;
+      display: flex; align-items: center; justify-content: center; background: #fff;
+      border-radius: 10px; border: 1px solid var(--border); padding: 0.6rem;
     }
     .qr-preview img, .qr-preview canvas { width: 100% !important; height: 100% !important; }
 
-    .table-card .meta { font-size: 0.8rem; color: var(--muted); margin-bottom: 0.15rem; text-align: center; }
+    .table-card .meta { font-size: 0.82rem; color: var(--muted); margin-bottom: 0.15rem; text-align: center; }
     .table-card .meta i { width: 16px; color: var(--primary-purple); }
     .table-card .meta.empty { font-style: italic; opacity: 0.6; }
 
     .table-card-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 0.45rem; margin-top: 0.9rem; }
     .table-card-actions button {
-      padding: 0.5rem; border-radius: 8px; border: 1px solid var(--border); background: var(--bg-lilac);
-      font-family: 'Roboto', sans-serif; font-size: 0.74rem; font-weight: 700; color: var(--primary-purple-dark);
+      padding: 0.55rem; border-radius: 8px; border: 1px solid var(--border); background: var(--bg-lilac);
+      font-family: 'Roboto', sans-serif; font-size: 0.76rem; font-weight: 700; color: var(--primary-purple-dark);
       cursor: pointer; transition: background 0.2s ease;
       display: flex; align-items: center; justify-content: center; gap: 0.3rem;
     }
@@ -256,11 +265,11 @@
     .modal-actions .save-btn { background: linear-gradient(135deg, var(--primary-purple), var(--primary-purple-dark)); color: #fff; }
     .modal-actions .save-btn:disabled { opacity: 0.65; cursor: not-allowed; }
 
-    /* QR preview modal */
-    .qr-modal-box { max-width: 360px; text-align: center; }
+    /* QR preview modal — bigger, cleaner */
+    .qr-modal-box { max-width: 400px; text-align: center; }
     .qr-modal-box .big-qr {
-      width: 220px; height: 220px; margin: 0.5rem auto 1rem; background: var(--bg-lilac);
-      border: 1px solid var(--border); border-radius: 12px; display: flex; align-items: center; justify-content: center; padding: 0.7rem;
+      width: 280px; height: 280px; margin: 0.5rem auto 1rem; background: #fff;
+      border: 1px solid var(--border); border-radius: 12px; display: flex; align-items: center; justify-content: center; padding: 0.85rem;
     }
     .qr-modal-box .big-qr img, .qr-modal-box .big-qr canvas { width: 100% !important; height: 100% !important; }
     .qr-modal-box .qr-url {
@@ -287,7 +296,7 @@
 
     .site-footer { text-align: center; padding: 1.1rem 1rem 1.6rem; font-size: 0.85rem; color: var(--muted); font-weight: 600; }
 
-    @media (max-width: 980px) { .table-grid { grid-template-columns: repeat(3, 1fr); } }
+    @media (max-width: 980px) { .table-grid { grid-template-columns: repeat(2, 1fr); } }
     @media (max-width: 760px) { .table-grid { grid-template-columns: repeat(2, 1fr); } .stats-row { grid-template-columns: repeat(3, 1fr); } }
 
     @media (max-width: 600px) {
@@ -298,7 +307,8 @@
       nav a { font-size: 0.82rem; padding: 0.7rem 0.85rem; }
       .content-wrapper { padding: 1rem 0.9rem 1.6rem; }
       .stats-row { grid-template-columns: repeat(3, 1fr); gap: 0.6rem; }
-      .table-grid { grid-template-columns: repeat(2, 1fr); gap: 0.7rem; }
+      .table-grid { grid-template-columns: repeat(2, 1fr); gap: 0.8rem; }
+      .qr-preview { max-width: 100%; }
       .page-title-row h2 { font-size: 1.15rem; }
       .add-table-btn { width: 100%; justify-content: center; }
       .table-card-actions { grid-template-columns: 1fr 1fr; }
@@ -336,6 +346,7 @@
 
   <div class="content-wrapper">
 
+    <div class="dev-notice" id="dev-notice"></div>
 
     <div class="page-title-row">
       <h2><i class="fas fa-qrcode"></i>Manage Tables &amp; QR Codes</h2>
@@ -345,10 +356,13 @@
     <div class="settings-bar">
       <label><i class="fas fa-link"></i>Ordering Page URL (used to generate every table's QR code)</label>
       <div class="settings-row">
-        <input type="url" id="base-url-input" placeholder="https://delicute-kxc9.onrender.com/menu.html">
-        <button onclick="saveBaseUrl()"><i class="fas fa-check"></i> Save</button>
+        <input type="url" id="base-url-input" placeholder="https://yourdomain.com/menu.html">
+        <button id="save-url-btn" onclick="saveBaseUrl()"><i class="fas fa-check"></i> Save</button>
       </div>
-      <div class="settings-hint">Each QR will link to: <span id="url-example">yourdomain.com/menu.html?table=5</span> — scanning it auto-loads that exact table, no typing needed for the customer.</div>
+      <div class="settings-hint">
+        <span>Each QR will link to: <span id="url-example">yourdomain.com/menu.html?table=5</span> — scanning it auto-loads that exact table.</span>
+        <span id="url-persist-status"></span>
+      </div>
     </div>
 
     <div class="stats-row">
@@ -455,6 +469,9 @@
        CONFIG
        ========================================================= */
     const API_BASE = "/api/tables"; // relative — same origin as this page
+    // Ordering-page base URL now lives at GET/PUT /api/tables/qr-settings
+    // (added to routes/tables.js — its own tiny qr_settings table, doesn't
+    // touch your existing cafe `settings` table).
 
     /* =========================================================
        DATA LAYER — talks to routes/tables.js
@@ -472,8 +489,8 @@
       };
     }
 
-    async function apiRequest(path, options = {}) {
-      const res = await fetch(`${API_BASE}${path}`, {
+    async function apiRequest(base, path, options = {}) {
+      const res = await fetch(`${base}${path}`, {
         credentials: "include",
         headers: { "Content-Type": "application/json" },
         ...options,
@@ -495,22 +512,22 @@
     }
 
     async function fetchTables() {
-      const data = await apiRequest("/", { method: "GET" });
+      const data = await apiRequest(API_BASE, "/", { method: "GET" });
       return (data.tables || []).map(fromServer);
     }
 
     async function createTable(payload) {
-      const data = await apiRequest("/", { method: "POST", body: JSON.stringify(payload) });
+      const data = await apiRequest(API_BASE, "/", { method: "POST", body: JSON.stringify(payload) });
       return fromServer(data.table);
     }
 
     async function updateTableApi(id, payload) {
-      const data = await apiRequest(`/${id}`, { method: "PUT", body: JSON.stringify(payload) });
+      const data = await apiRequest(API_BASE, `/${id}`, { method: "PUT", body: JSON.stringify(payload) });
       return fromServer(data.table);
     }
 
     async function deleteTableApi(id) {
-      await apiRequest(`/${id}`, { method: "DELETE" });
+      await apiRequest(API_BASE, `/${id}`, { method: "DELETE" });
     }
 
     /* ========================================================= */
@@ -520,20 +537,89 @@
     let activeQrTableId = null;
 
     const DEFAULT_BASE_URL = "https://delicute-kxc9.onrender.com/menu.html";
+    const LOCAL_KEY = "delicute_base_url";
 
-    function getBaseUrl() {
-      return localStorage.getItem("delicute_base_url") || DEFAULT_BASE_URL;
+    /* ---------------------------------------------------------------
+       ORDERING PAGE URL — persistence
+       This is the setting that was resetting on you. The fix: it now
+       saves to the server (cafe settings) so it sticks for every
+       admin/device, exactly as you typed it, until you change it
+       again. localStorage is only ever used as an offline fallback if
+       the server can't be reached — it is never what silently
+       overrides your saved value.
+       --------------------------------------------------------------- */
+    let baseUrlSource = "default"; // "server" | "local" | "default"
+
+    async function loadBaseUrl() {
+      // 1) try the server — the source of truth
+      try {
+        const data = await apiRequest(API_BASE, "/qr-settings", { method: "GET" });
+        const serverUrl = data.settings && data.settings.base_url;
+        if (serverUrl) {
+          localStorage.setItem(LOCAL_KEY, serverUrl); // keep an offline copy in sync
+          baseUrlSource = "server";
+          return serverUrl;
+        }
+      } catch (err) {
+        console.warn("Could not load ordering URL from server, falling back:", err.message);
+      }
+      // 2) fall back to whatever was last saved locally
+      const local = localStorage.getItem(LOCAL_KEY);
+      if (local) {
+        baseUrlSource = "local";
+        return local;
+      }
+      // 3) last resort — the built-in default, only used the very first time
+      baseUrlSource = "default";
+      return DEFAULT_BASE_URL;
     }
 
-    function saveBaseUrl() {
+    function getBaseUrl() {
+      return localStorage.getItem(LOCAL_KEY) || DEFAULT_BASE_URL;
+    }
+
+    function updatePersistStatus() {
+      const el = document.getElementById("url-persist-status");
+      if (baseUrlSource === "server") {
+        el.innerHTML = '<span class="saved-tag"><i class="fas fa-check-circle"></i> Saved</span>';
+      } else if (baseUrlSource === "local") {
+        el.innerHTML = '<span class="local-tag"><i class="fas fa-triangle-exclamation"></i> Saved on this device only — server unreachable</span>';
+      } else {
+        el.textContent = "";
+      }
+    }
+
+    async function saveBaseUrl() {
       const val = document.getElementById("base-url-input").value.trim();
       if (!val) {
         showToast("Please enter a valid URL", false);
         return;
       }
-      localStorage.setItem("delicute_base_url", val);
-      showToast("Ordering page URL saved!", true);
-      renderTables();
+
+      const btn = document.getElementById("save-url-btn");
+      btn.disabled = true;
+      btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
+
+      // always keep the local copy in sync immediately, so nothing is lost
+      localStorage.setItem(LOCAL_KEY, val);
+
+      try {
+        await apiRequest(API_BASE, "/qr-settings", {
+          method: "PUT",
+          body: JSON.stringify({ base_url: val }),
+        });
+        baseUrlSource = "server";
+        showToast("Ordering page URL saved — it will stay this way until you change it", true);
+      } catch (err) {
+        console.error("Save base URL error:", err);
+        baseUrlSource = "local";
+        showToast("Saved on this device — couldn't reach the server to save it everywhere", false);
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fas fa-check"></i> Save';
+        updatePersistStatus();
+        renderTables();
+      }
     }
 
     function buildQrUrl(tableNumber) {
@@ -552,8 +638,14 @@
 
     function showLoadError(msg) {
       const notice = document.getElementById("dev-notice");
-      notice.classList.add("err");
-      notice.innerHTML = `<i class="fas fa-triangle-exclamation"></i><span>Couldn't reach the server: ${escapeHtml(msg)}. Check that you're logged in and the backend is running.</span>`;
+      notice.classList.add("show", "err");
+      notice.innerHTML = `<i class="fas fa-triangle-exclamation"></i><span>Couldn't reach the server: ${escapeHtml(msg)}. Check that you're logged in and the backend is running.</span><button class="retry-link" onclick="init()">Retry</button>`;
+    }
+
+    function clearLoadError() {
+      const notice = document.getElementById("dev-notice");
+      notice.classList.remove("show", "err");
+      notice.innerHTML = "";
     }
 
     function escapeHtml(text) {
@@ -625,10 +717,10 @@
         </div>
       `).join("");
 
-      // render QR thumbnails after DOM is in place
+      // render QR thumbnails after DOM is in place — bigger + higher error correction so they still scan well on a printed label
       filtered.forEach(t => {
         const el = document.getElementById(`qr-thumb-${t.id}`);
-        if (el) renderQrInto(el, buildQrUrl(t.number), 120);
+        if (el) renderQrInto(el, buildQrUrl(t.number), 180);
       });
     }
 
@@ -640,7 +732,7 @@
         height: size,
         colorDark: "#2a1f26",
         colorLight: "#ffffff",
-        correctLevel: QRCode.CorrectLevel.M
+        correctLevel: QRCode.CorrectLevel.H
       });
     }
 
@@ -737,7 +829,7 @@
       const url = buildQrUrl(t.number);
       document.getElementById("qr-modal-url").textContent = url;
       const canvasHolder = document.getElementById("qr-modal-canvas");
-      renderQrInto(canvasHolder, url, 220);
+      renderQrInto(canvasHolder, url, 280);
       document.getElementById("qr-modal-overlay").classList.add("show");
     }
 
@@ -758,14 +850,15 @@
        Draws the raw QR onto a taller canvas with the table number (and
        capacity/location if set) printed underneath, so the exported PNG
        is a self-contained, ready-to-stick-on-the-table label — not just
-       a bare QR code. ---------------------------------------------------- */
+       a bare QR code. Rendered large (640px QR) so it stays crisp and
+       scannable even printed at business-card size or bigger. ---------- */
 
-    function buildLabeledQrCanvas(table, qrDataUrl, qrSize = 480) {
+    function buildLabeledQrCanvas(table, qrDataUrl, qrSize = 640) {
       return new Promise((resolve, reject) => {
         const qrImg = new Image();
         qrImg.onload = () => {
-          const padding = 36;
-          const labelHeight = 150;
+          const padding = 46;
+          const labelHeight = 190;
           const canvas = document.createElement("canvas");
           canvas.width = qrSize + padding * 2;
           canvas.height = qrSize + padding * 2 + labelHeight;
@@ -780,18 +873,18 @@
 
           // brand line
           ctx.fillStyle = "#5c3a52";
-          ctx.font = "bold 26px 'Playfair Display', 'Georgia', serif";
+          ctx.font = "bold 34px 'Playfair Display', 'Georgia', serif";
           ctx.textAlign = "center";
-          ctx.fillText("DELICUTE", canvas.width / 2, padding + 6);
+          ctx.fillText("DELICUTE", canvas.width / 2, padding + 10);
 
           // QR image
-          const qrY = padding + 34;
+          const qrY = padding + 44;
           ctx.drawImage(qrImg, padding, qrY, qrSize, qrSize);
 
           // table number — the big label
-          const textY = qrY + qrSize + 44;
+          const textY = qrY + qrSize + 56;
           ctx.fillStyle = "#2a1f26";
-          ctx.font = "bold 34px 'Roboto', 'Segoe UI', sans-serif";
+          ctx.font = "bold 44px 'Roboto', 'Segoe UI', sans-serif";
           ctx.fillText(`Table ${table.number}`, canvas.width / 2, textY);
 
           // capacity / location sub-line
@@ -800,14 +893,14 @@
           if (table.location) subParts.push(table.location);
           if (subParts.length) {
             ctx.fillStyle = "#8a7688";
-            ctx.font = "18px 'Roboto', 'Segoe UI', sans-serif";
-            ctx.fillText(subParts.join("  ·  "), canvas.width / 2, textY + 30);
+            ctx.font = "22px 'Roboto', 'Segoe UI', sans-serif";
+            ctx.fillText(subParts.join("  ·  "), canvas.width / 2, textY + 38);
           }
 
           // scan hint
           ctx.fillStyle = "#8a7688";
-          ctx.font = "italic 15px 'Roboto', 'Segoe UI', sans-serif";
-          ctx.fillText("Scan to view the menu & order", canvas.width / 2, canvas.height - 20);
+          ctx.font = "italic 19px 'Roboto', 'Segoe UI', sans-serif";
+          ctx.fillText("Scan to view the menu & order", canvas.width / 2, canvas.height - 26);
 
           resolve(canvas.toDataURL("image/png"));
         };
@@ -816,7 +909,7 @@
       });
     }
 
-    async function getLabeledQrDataUrl(table, size = 480) {
+    async function getLabeledQrDataUrl(table, size = 640) {
       const temp = document.createElement("div");
       temp.style.display = "none";
       document.body.appendChild(temp);
@@ -839,7 +932,7 @@
       const t = tables.find(x => x.id === id);
       if (!t) return;
       try {
-        const labeledDataUrl = await getLabeledQrDataUrl(t, 480);
+        const labeledDataUrl = await getLabeledQrDataUrl(t, 640);
         const a = document.createElement("a");
         a.href = labeledDataUrl;
         a.download = `table-${t.number}-qr.png`;
@@ -862,8 +955,8 @@
       const t = tables.find(x => x.id === id);
       if (!t) return;
       try {
-        const labeledDataUrl = await getLabeledQrDataUrl(t, 500);
-        const win = window.open("", "_blank", "width=520,height=700");
+        const labeledDataUrl = await getLabeledQrDataUrl(t, 640);
+        const win = window.open("", "_blank", "width=560,height=760");
         win.document.write(`
           <!DOCTYPE html>
           <html>
@@ -871,7 +964,7 @@
             <title>Table ${escapeHtml(t.number)} - DELICUTE</title>
             <style>
               body { font-family: 'Segoe UI', sans-serif; text-align: center; padding: 30px 20px; }
-              img { width: 320px; max-width: 90vw; border-radius: 8px; }
+              img { width: 360px; max-width: 92vw; border-radius: 8px; }
             </style>
           </head>
           <body>
@@ -914,7 +1007,11 @@
     /* ---------- init ---------- */
 
     async function init() {
-      document.getElementById("base-url-input").value = getBaseUrl();
+      clearLoadError();
+
+      const savedUrl = await loadBaseUrl();
+      document.getElementById("base-url-input").value = savedUrl;
+      updatePersistStatus();
 
       const grid = document.getElementById("table-grid");
       grid.innerHTML = `<div class="empty-state loading"><i class="fas fa-spinner"></i><p>Loading tables...</p></div>`;

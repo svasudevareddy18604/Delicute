@@ -12,6 +12,28 @@ const pool = require("../db");                     // mysql2 promise pool
 const verifyAdminToken = require("../middleware/authenticate");
 
 /* =========================================================
+   Ensure the qr_settings table exists. This is a small,
+   self-contained table just for the "ordering page base URL"
+   used to build every table's QR code — it does NOT touch or
+   assume anything about any other `settings` table you may
+   already have for cafe-wide config (GST %, dine-in/out toggles,
+   etc). Runs once when this router is first loaded.
+   ========================================================= */
+(async () => {
+  try {
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS qr_settings (
+        id INT PRIMARY KEY DEFAULT 1,
+        base_url VARCHAR(500) NOT NULL,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+      )
+    `);
+  } catch (err) {
+    console.error("Failed to ensure qr_settings table exists:", err);
+  }
+})();
+
+/* =========================================================
    PUBLIC ROUTES — no auth, used by the customer-facing site
    These must be declared BEFORE "GET /:id" below. Express
    matches routes top-to-bottom, and "/:id" matches ANY single
@@ -102,9 +124,55 @@ router.get("/", verifyAdminToken, async (req, res) => {
   }
 });
 
+// GET /api/tables/qr-settings  -> the ordering-page base URL used to build every table's QR
+// This is the setting from the "Ordering Page URL" box at the top of the Tables admin page.
+// NOTE: must stay above "GET /:id" below, for the same reason "/active" does — otherwise
+// "/:id" would swallow the literal word "qr-settings" as if it were an :id value.
+router.get("/qr-settings", verifyAdminToken, async (req, res) => {
+  try {
+    const [rows] = await pool.query("SELECT base_url FROM qr_settings WHERE id = 1");
+    res.json({
+      success: true,
+      settings: { base_url: rows.length ? rows[0].base_url : null },
+    });
+  } catch (err) {
+    console.error("Get QR Settings Error:", err);
+    res.status(500).json({ success: false, message: "Failed to fetch QR settings" });
+  }
+});
+
+// PUT /api/tables/qr-settings  -> save the ordering-page base URL
+// Upserts a single row (id = 1). Whatever you save here is what every
+// table's QR is built from, from then on, on every device — until you
+// change it again.
+router.put("/qr-settings", verifyAdminToken, async (req, res) => {
+  try {
+    const { base_url } = req.body;
+
+    if (!base_url || !base_url.trim()) {
+      return res.status(400).json({ success: false, message: "base_url is required" });
+    }
+    const trimmed = base_url.trim();
+
+    await pool.query(
+      `INSERT INTO qr_settings (id, base_url) VALUES (1, ?)
+       ON DUPLICATE KEY UPDATE base_url = VALUES(base_url)`,
+      [trimmed]
+    );
+
+    const io = req.app.get("io");
+    if (io) io.emit("qr-settings-updated", { base_url: trimmed });
+
+    res.json({ success: true, settings: { base_url: trimmed } });
+  } catch (err) {
+    console.error("Update QR Settings Error:", err);
+    res.status(500).json({ success: false, message: "Failed to save QR settings" });
+  }
+});
+
 // GET /api/tables/:id  -> single table
-// NOTE: this MUST stay below "/active" and "/scan/:number" above,
-// otherwise it will intercept those requests.
+// NOTE: this MUST stay below "/active", "/scan/:number", and "/qr-settings"
+// above, otherwise it will intercept those requests.
 router.get("/:id", verifyAdminToken, async (req, res) => {
   try {
     const [rows] = await pool.query("SELECT * FROM tables WHERE id = ?", [req.params.id]);
