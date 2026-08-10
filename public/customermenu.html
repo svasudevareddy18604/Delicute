@@ -83,8 +83,10 @@
     height: clamp(40px, 7vw, 50px);
     filter: drop-shadow(0 1px 3px rgba(0, 0, 0, 0.2));
     transition: transform 0.2s ease;
+    order: 1;
   }
   header img:hover { transform: scale(1.05); }
+  .header-titles { order: 2; }
   header h1 {
     font-size: clamp(1.2rem, 2.5vw, 1.5rem);
     font-weight: 800;
@@ -101,11 +103,12 @@
     margin-top: 0.1rem;
   }
 
-  /* ---------- Track My Order — pinned top-right of header, bold & glowing ---------- */
+  /* ---------- Track My Order — pinned top-right of header on desktop ---------- */
   .track-order-btn {
     position: absolute;
     top: 4px;
     right: 4px;
+    order: 4;
     display: none;
     align-items: center;
     gap: 0.5rem;
@@ -169,6 +172,22 @@
   .track-order-btn .track-label-full { display: inline; }
   .track-order-btn .track-label-short { display: none; }
 
+  /* ---------- MOBILE: pull the button out of the corner, into normal flow ----------
+     Instead of floating absolutely over the logo (which caused the overlap/clutter
+     seen on phones), it becomes a normal flex child that sits on its own row,
+     centered, below the anniversary banner. No overlap possible at any width. */
+  @media (max-width: 480px) {
+    .header-inner { position: static; }
+    .track-order-btn {
+      position: static;
+      top: auto; right: auto;
+      order: 4;
+      margin: 0.55rem auto 0;
+      align-self: center;
+    }
+    .anniversary-banner { order: 3; }
+  }
+
   @media (max-width: 420px) {
     .track-order-btn { padding: 0.42rem 0.65rem 0.42rem 0.42rem; gap: 0.35rem; }
     .track-icon-wrap { width: 23px; height: 23px; }
@@ -189,6 +208,7 @@
     border: 1px solid rgba(255,255,255,0.5);
     position: relative;
     overflow: hidden;
+    order: 3;
   }
   .anniversary-banner::before {
     content: '';
@@ -997,7 +1017,7 @@
       </a>
 
       <img src="https://i.postimg.cc/W3pgQx9q/DELICUTE-Imgur-1-modified.png" alt="DELICUTE Logo" onerror="this.src='https://via.placeholder.com/50'">
-      <div>
+      <div class="header-titles">
         <h1>DELICUTE</h1>
         <span class="tagline">Every Bite Tells A Story</span>
       </div>
