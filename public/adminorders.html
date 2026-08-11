@@ -42,7 +42,6 @@
       overscroll-behavior: contain;
     }
 
-    /* ---------- Header ---------- */
     header {
       background: linear-gradient(90deg, var(--primary-purple-dark), var(--primary-purple));
       color: white;
@@ -185,7 +184,6 @@
     }
     .clear-notifications:hover { background: var(--border); }
 
-    /* ---------- Nav ---------- */
     nav {
       background: var(--nav-dark);
       display: flex;
@@ -204,7 +202,6 @@
     }
     nav a:hover { background: rgba(139, 107, 201, 0.25); color: #fff; }
 
-    /* ---------- Container ---------- */
     .container { max-width: 1200px; margin: 1.5rem auto; padding: 0 1.25rem 2rem; }
 
     .container h2 {
@@ -216,7 +213,6 @@
       text-align: center;
     }
 
-    /* ---------- Date groups (foldable) ---------- */
     #ordersContainer { display: flex; flex-direction: column; gap: 1.1rem; }
 
     .date-group {
@@ -263,7 +259,6 @@
     .date-body { display: block; }
     .date-group.collapsed .date-body { display: none; }
 
-    /* ---- Desktop table ---- */
     .table-wrapper { width: 100%; overflow-x: auto; }
     table { width: 100%; border-collapse: collapse; min-width: 820px; }
 
@@ -308,7 +303,6 @@
     }
     @keyframes newFlagPop { 0% { transform: scale(0.4); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
 
-    /* ---------- Items + Add-ons display ---------- */
     .items-list { font-size: 0.85rem; display: flex; flex-direction: column; gap: 0.55rem; }
     .item-block { padding: 0; }
     .item-name-line {
@@ -460,7 +454,6 @@
       box-shadow: var(--shadow-sm);
     }
 
-    /* New order row highlight — fades out on its own */
     tr.order-row-new { animation: rowGlow 2.6s ease-out; }
     @keyframes rowGlow {
       0%   { background: #FFF3D6; box-shadow: inset 0 0 0 2px var(--gold); }
@@ -498,7 +491,6 @@
     @keyframes slideDown { from { opacity: 0; transform: translateY(-15px); } to { opacity: 1; transform: translateY(0); } }
     @keyframes slideUp { from { opacity: 1; transform: translateY(0); } to { opacity: 0; transform: translateY(-15px); } }
 
-    /* ================= MOBILE / TABLET CARD LAYOUT ================= */
     @media (max-width: 860px) {
       header h1 { font-size: 1.5rem; }
       header img { height: 42px; width: 42px; }
@@ -704,11 +696,14 @@
       elements.notificationCount.style.display = notifications.length ? "flex" : "none";
     }
 
+    // Uses order.orderNumber (the gap-free, admin-facing number) when
+    // available, falling back to the raw id only if it's missing for
+    // some reason (e.g. very old cached notification objects).
     function renderNotifications() {
       elements.notificationList.innerHTML = notifications.length
         ? notifications.map(n => `
             <div class="notification-item">
-              <strong>Order #${n.id}</strong> by ${n.customer_name}<br>
+              <strong>Order #${n.orderNumber ?? n.id}</strong> by ${n.customer_name}<br>
               Table: ${n.table_number} | Total: ₹${n.total.toFixed(2)}
             </div>
           `).join("")
@@ -757,8 +752,6 @@
       if (!e.target.closest(".status-dropdown") && !e.target.closest("#notification-icon")) {
         document.querySelectorAll(".status-options").forEach(d => d.classList.remove("show"));
         elements.notificationDropdown.classList.remove("show");
-        // A dropdown just got closed by an outside click — release any
-        // background render that was queued up while it was open.
         if (openDropdownOrderId !== null) {
           openDropdownOrderId = null;
           flushPendingRender();
@@ -827,13 +820,8 @@
     const POLL_DELAY_MAX = 8000;
     let consecutiveErrors = 0;
 
-    // ---- Status-update race-condition guards ----
-    // Which order's status dropdown is currently open (null if none).
     let openDropdownOrderId = null;
-    // True if a background poll wanted to re-render while a dropdown was open.
     let pendingRenderAfterDropdownClose = false;
-    // orderId -> { status, expiresAt } — status changes the user just made,
-    // protected from being overwritten by a stale/slow poll response.
     let pendingStatusUpdates = new Map();
     const STATUS_LOCK_MS = 6000;
 
@@ -894,10 +882,6 @@
       }
     }
 
-    // A render triggered by the background poll. If the admin currently has
-    // a status dropdown open, we don't rebuild the table underneath them —
-    // we just remember that a render is owed, and fire it the moment the
-    // dropdown closes.
     function safeRender() {
       if (openDropdownOrderId !== null) {
         pendingRenderAfterDropdownClose = true;
@@ -913,8 +897,6 @@
       }
     }
 
-    // Merges the latest server snapshot into local state, detects brand-new
-    // orders for notification, then re-renders (safely).
     function processServerOrders(serverOrders) {
       const incomingIds = new Set();
       const newIds = [];
@@ -923,16 +905,14 @@
         order.__dateKey = computeDateKey(order);
         incomingIds.add(order.id);
 
-        // If we just changed this order's status locally, don't let a
-        // slow/stale poll response flip it back before the server catches up.
         const pending = pendingStatusUpdates.get(order.id);
         if (pending) {
           if (order.status === pending.status) {
-            pendingStatusUpdates.delete(order.id); // server has confirmed it
+            pendingStatusUpdates.delete(order.id);
           } else if (Date.now() < pending.expiresAt) {
-            order.status = pending.status; // keep our optimistic value
+            order.status = pending.status;
           } else {
-            pendingStatusUpdates.delete(order.id); // gave it long enough, trust server
+            pendingStatusUpdates.delete(order.id);
           }
         }
 
@@ -956,14 +936,18 @@
       safeRender();
     }
 
+    // Uses order.orderNumber for the toast/notification display, while all
+    // internal tracking (notifiedIds, recentlyNewIds, etc.) still keys off
+    // the real order.id, exactly as before.
     function announceNewOrders(ids) {
       ids.forEach(id => {
         const order = ordersById.get(id);
+        const displayNum = order.orderNumber ?? order.id;
         notifiedIds.add(id);
         recentlyNewIds.add(id);
-        collapsedDates.delete(order.__dateKey); // guarantee it's visible, not folded away
+        collapsedDates.delete(order.__dateKey);
         playNotificationSound();
-        showToast(`New Order #${order.id} by ${order.customer_name} for ₹${order.total.toFixed(2)}`);
+        showToast(`New Order #${displayNum} by ${order.customer_name} for ₹${order.total.toFixed(2)}`);
         notifications.unshift(order);
         setTimeout(() => { recentlyNewIds.delete(id); safeRender(); }, 6000);
       });
@@ -995,7 +979,6 @@
             ordersById.set(o.id, o);
             notifiedIds.add(o.id);
           });
-          // Default view: Today expanded, every earlier date folded.
           const todayKey = keyForOffsetDays(0);
           groupOrders().forEach(g => { if (g.key !== todayKey) collapsedDates.add(g.key); });
         }
@@ -1062,10 +1045,6 @@
       render();
     }
 
-    /* Builds the "Items & Add-ons" column content.
-       Every item shows its name + qty (+ size tag if present), and if it
-       has add-ons, each one appears as its own clearly-labeled chip with
-       its price underneath — so kitchen staff can't miss a customization. */
     function buildItemsHtml(items) {
       if (!Array.isArray(items)) {
         return `<div>${items}</div>`;
@@ -1097,6 +1076,9 @@
       }).join('');
     }
 
+    // Row label now shows the gap-free orderNumber. All action handlers
+    // below (status dropdown, cancel, delete) still use order.id — that
+    // must never change, since it's the real primary key the API expects.
     function buildOrderRow(order, isNew) {
       const items = buildItemsHtml(order.items);
       const instructions = order.instructions || "None";
@@ -1109,7 +1091,7 @@
       return `
         <tr id="order-row-${order.id}" class="${isNew ? 'order-row-new' : ''}">
           <td class="cell-customer">
-            <span class="order-id">Order #${order.id}</span>
+            <span class="order-id">Order #${order.orderNumber ?? order.id}</span>
             <span class="customer-name">${order.customer_name}${isNew ? '<span class="new-flag">NEW</span>' : ''}</span>
           </td>
           <td data-label="Table">${order.table_number}</td>
@@ -1163,11 +1145,9 @@
 
     async function updateStatus(id, status) {
       const order = ordersById.get(id);
+      const displayNum = order?.orderNumber ?? id;
       const previousStatus = order ? order.status : null;
 
-      // Optimistic update: reflect the new status immediately, close the
-      // dropdown, and lock this order against being overwritten by a
-      // background poll that hasn't seen the server's update yet.
       if (order) order.status = status;
       pendingStatusUpdates.set(id, { status, expiresAt: Date.now() + STATUS_LOCK_MS });
       openDropdownOrderId = null;
@@ -1183,7 +1163,7 @@
         });
         const data = await res.json();
         if (data.success) {
-          showToast(`Order #${id} marked as ${status}!`);
+          showToast(`Order #${displayNum} marked as ${status}!`);
         } else {
           showToast("Failed: " + data.message, false);
           if (order) order.status = previousStatus;
@@ -1202,6 +1182,7 @@
     async function cancelOrder(id) {
       if (!confirm("Are you sure you want to cancel this order?")) return;
       const order = ordersById.get(id);
+      const displayNum = order?.orderNumber ?? id;
       const previousStatus = order ? order.status : null;
 
       if (order) order.status = "Cancelled";
@@ -1217,7 +1198,7 @@
         });
         const data = await res.json();
         if (data.success) {
-          showToast(`Order #${id} cancelled!`);
+          showToast(`Order #${displayNum} cancelled!`);
         } else {
           showToast("Failed: " + (data.message || "Unable to cancel order"), false);
           if (order) order.status = previousStatus;
@@ -1235,6 +1216,10 @@
 
     async function deleteOrder(id) {
       if (!confirm("Are you sure you want to delete this order?")) return;
+      // Grab the display number before the order is potentially removed
+      // from ordersById below.
+      const order = ordersById.get(id);
+      const displayNum = order?.orderNumber ?? id;
       try {
         const res = await fetch(`/api/orders/${id}`, {
           method: "DELETE",
@@ -1243,7 +1228,7 @@
         });
         const data = await res.json();
         if (data.success) {
-          showToast(`Order #${id} deleted!`);
+          showToast(`Order #${displayNum} deleted!`);
           const row = document.getElementById(`order-row-${id}`);
           if (row) {
             row.classList.add("order-row-removing");

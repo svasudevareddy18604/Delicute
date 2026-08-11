@@ -258,7 +258,7 @@
             <option>Delivered</option>
             <option>Cancelled</option>
           </select>
-          <input class="search" id="orderSearch" placeholder="Search order # / customer…" />
+          <input class="search" id="orderSearch" placeholder="Search order # / TEST01 / customer…" />
           <button class="btn small" id="refreshBtn">Refresh</button>
         </div>
       </div>
@@ -299,6 +299,12 @@
   // ONLY place test orders are ever visible, and only when this switch
   // is explicitly turned on (default: off, so the default view here
   // matches what admin sees too).
+  //
+  // DISPLAY IDS: each order carries a displayId from the backend —
+  // a plain gap-free number for real orders, or TEST01 / TEST02 ... for
+  // test orders (its own independent counter). The raw numeric `id` is
+  // only used internally (data-order-row, status update API calls,
+  // knownIds tracking) and is never shown to the user anymore.
   const AUTO_REFRESH_MS = 20000; // background safety-net refresh, independent of sockets
 
   let currentOrders = [];
@@ -339,6 +345,13 @@
   const escapeHtml = (s) => String(s ?? '').replace(/[&<>"']/g, c => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]));
   const fmtMoney = (n) => `₹${Number(n || 0).toFixed(2)}`;
   const fmtTime = (d) => d ? new Date(d).toLocaleString('en-IN', { day:'2-digit', month:'short', hour:'2-digit', minute:'2-digit' }) : '—';
+
+  // Falls back to the raw id only if a displayId wasn't returned for some
+  // reason (e.g. older cached data) — should not normally happen once the
+  // backend migration is deployed.
+  function displayIdOf(o) {
+    return o.displayId || (o.isTest ? `TEST${o.id}` : String(o.id));
+  }
 
   function todayStr() {
     const d = new Date();
@@ -432,10 +445,15 @@
     }
   }
 
+  // Row/detail data-attributes still key off the raw numeric o.id (needed
+  // for expand state + the status-update API call), but everything the
+  // user actually reads uses displayIdOf(o) — TEST01/TEST02... for test
+  // orders, the clean gap-free order number for real ones.
   function renderOrderRows(o) {
     const isExpanded = expandedIds.has(o.id);
     const isNew = !firstLoad && !knownIds.has(o.id);
     const testCls = o.isTest ? ' row-test' : '';
+    const shownId = displayIdOf(o);
 
     const mainRow = `
       <tr class="order-row${testCls} ${isExpanded ? 'expanded' : ''} ${isNew ? 'row-new' : ''}" data-order-row="${o.id}">
@@ -444,7 +462,7 @@
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 6l6 6-6 6"/></svg>
           </span>
         </td>
-        <td class="id-cell">#${o.id}${o.isTest ? '<span class="badge test">🧪 TEST</span>' : ''}</td>
+        <td class="id-cell">#${shownId}${o.isTest ? '<span class="badge test">🧪 TEST</span>' : ''}</td>
         <td class="customer-cell">
           <div class="name-main">${escapeHtml(o.customerName)}</div>
           <div class="table-sub">Table ${escapeHtml(o.tableNumber)}</div>
@@ -531,8 +549,8 @@
         method: 'PUT',
         body: JSON.stringify({ status })
       });
-      window.showToast(`Order #${id} marked as ${status}.`, 'success');
       const order = currentOrders.find(o => o.id === Number(id));
+      window.showToast(`Order #${order ? displayIdOf(order) : id} marked as ${status}.`, 'success');
       if (order) order.status = status;
       loadOrders(false);
     } catch (err) {
@@ -573,8 +591,9 @@
     // Test orders never reach this event (routes/orders.js skips the emit
     // for them), so they won't trigger this toast — they'll still show up
     // here on the next auto-refresh if "Show Test Orders" is on.
+    // The payload now carries displayId directly from the backend.
     socket.on('new-order', (order) => {
-      window.showToast(`New order #${order.id} from ${order.customer_name}.`, 'info');
+      window.showToast(`New order #${order.displayId || order.id} from ${order.customer_name}.`, 'info');
       loadDates();
       loadOrders(false);
     });

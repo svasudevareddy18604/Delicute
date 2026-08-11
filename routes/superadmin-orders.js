@@ -27,6 +27,15 @@ function itemCount(items) {
   return items.reduce((sum, it) => sum + (it.qty || 1), 0);
 }
 
+// Builds the friendly id superadmin sees: plain number for real orders,
+// TEST01 / TEST02 ... for test orders (its own separate counter, so
+// testing never creates gaps in the real order numbering).
+function buildDisplayId(o) {
+  return o.is_test
+    ? `TEST${String(o.test_number).padStart(2, "0")}`
+    : String(o.order_number);
+}
+
 // Every route below requires a valid superadmin session.
 router.use(authenticateSuperadmin);
 
@@ -80,9 +89,16 @@ router.get("/", async (req, res) => {
     }
     if (q && q.trim()) {
       const term = q.trim();
-      if (/^\d+$/.test(term)) {
-        where.push("id = ?");
-        params.push(term);
+      // Support searching by "TEST5" / "test05" as well as a plain number
+      // (matches order_number for real orders, test_number for test ones)
+      // and still falls back to raw id / customer name.
+      const testMatch = term.match(/^test0*(\d+)$/i);
+      if (testMatch) {
+        where.push("(is_test = 1 AND test_number = ?)");
+        params.push(Number(testMatch[1]));
+      } else if (/^\d+$/.test(term)) {
+        where.push("(id = ? OR order_number = ?)");
+        params.push(term, term);
       } else {
         where.push("customer_name LIKE ?");
         params.push(`%${term}%`);
@@ -92,7 +108,8 @@ router.get("/", async (req, res) => {
     const whereSql = where.length ? `WHERE ${where.join(" AND ")}` : "";
     const [rows] = await pool.query(
       `SELECT id, customer_name, table_number, session_id, items, coupon_code,
-              subtotal, discount, total, instructions, status, is_test, created_at
+              subtotal, discount, total, instructions, status, is_test,
+              order_number, test_number, created_at
        FROM orders ${whereSql} ORDER BY created_at DESC LIMIT 300`,
       params
     );
@@ -103,6 +120,9 @@ router.get("/", async (req, res) => {
         const items = parseItems(o.items);
         return {
           id: o.id,
+          displayId: buildDisplayId(o),
+          orderNumber: o.order_number,
+          testNumber: o.test_number,
           customerName: o.customer_name,
           tableNumber: o.table_number,
           sessionId: o.session_id,

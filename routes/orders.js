@@ -4,6 +4,12 @@ const pool = require("../db"); // MySQL pool
 const authenticate = require("../middleware/authenticate");
 const { sendEmail } = require("../utils/email");
 
+function buildDisplayId(order) {
+  return order.is_test
+    ? `TEST${String(order.test_number).padStart(2, "0")}`
+    : String(order.order_number);
+}
+
 // ================== CREATE ORDER ==================
 router.post("/", async (req, res) => {
   const { customer_name, table_number, session_id, items, coupon_code, subtotal, discount, total, instructions, test_mode } = req.body;
@@ -19,10 +25,6 @@ router.post("/", async (req, res) => {
   const isTest = test_mode === true ? 1 : 0;
 
   // Normalize items to ensure qty, and PRESERVE size + addons.
-  // Previously this mapping dropped `size` and `addons` entirely, so even
-  // though the customer's cart correctly sent them in the request body,
-  // they never made it into the JSON that gets saved to the orders table —
-  // meaning admin had no way to see what add-ons were selected.
   const normalizedItems = items.map(item => ({
     id: item.id,
     name: item.name,
@@ -36,10 +38,32 @@ router.post("/", async (req, res) => {
     })) : []
   }));
 
+  // ---- Assign a gap-free display number ----
+  // Real orders and test orders each get their own independent counter, so
+  // testing never eats into (or creates gaps in) the numbers admin sees.
+  // Done inside a transaction with FOR UPDATE to stay safe if two orders
+  // land at the exact same instant.
+  const conn = await pool.getConnection();
+  let orderId, orderNumber, testNumber;
   try {
-    // Insert order into database
-    const [result] = await pool.query(
-      "INSERT INTO orders (customer_name, table_number, session_id, items, coupon_code, subtotal, discount, total, instructions, status, is_test, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'Pending', ?, NOW())",
+    await conn.beginTransaction();
+
+    const counterName = isTest ? "test" : "real";
+    const [[counterRow]] = await conn.query(
+      "SELECT value FROM order_counters WHERE name = ? FOR UPDATE",
+      [counterName]
+    );
+    const nextVal = (counterRow?.value || 0) + 1;
+    await conn.query(
+      "UPDATE order_counters SET value = ? WHERE name = ?",
+      [nextVal, counterName]
+    );
+
+    orderNumber = isTest ? null : nextVal;
+    testNumber = isTest ? nextVal : null;
+
+    const [result] = await conn.query(
+      "INSERT INTO orders (customer_name, table_number, session_id, items, coupon_code, subtotal, discount, total, instructions, status, is_test, order_number, test_number, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'Pending', ?, ?, ?, NOW())",
       [
         customer_name,
         table_number,
@@ -50,15 +74,26 @@ router.post("/", async (req, res) => {
         discount || 0,
         total,
         instructions || "",
-        isTest
+        isTest,
+        orderNumber,
+        testNumber
       ]
     );
 
-    const orderId = result.insertId;
+    await conn.commit();
+    orderId = result.insertId;
+  } catch (err) {
+    await conn.rollback();
+    console.error("Create order error:", err);
+    return res.status(500).json({ success: false, message: "Failed to create order" });
+  } finally {
+    conn.release();
+  }
 
+  try {
     // Fetch the created order for notifications
     const [orderRows] = await pool.query(
-      "SELECT id, customer_name, table_number, session_id, items, coupon_code, subtotal, discount, total, instructions, status, is_test, created_at FROM orders WHERE id = ?",
+      "SELECT id, customer_name, table_number, session_id, items, coupon_code, subtotal, discount, total, instructions, status, is_test, order_number, test_number, created_at FROM orders WHERE id = ?",
       [orderId]
     );
     const order = {
@@ -69,7 +104,8 @@ router.post("/", async (req, res) => {
       total: parseFloat(orderRows[0].total),
       instructions: orderRows[0].instructions || ""
     };
-    console.log(`Fetched order for notifications (test=${!!order.is_test}):`, order); // Debug log
+    const displayId = buildDisplayId(order);
+    console.log(`Fetched order for notifications (test=${!!order.is_test}, display=${displayId}):`, order); // Debug log
 
     // Skip email + admin broadcast entirely for test orders — real staff
     // never see or get emailed about anything created in test mode.
@@ -78,9 +114,9 @@ router.post("/", async (req, res) => {
       try {
         await sendEmail({
           to: "contactdelicute@gmail.com",
-          subject: `New Order #${order.id} - DELICUTE`,
+          subject: `New Order #${displayId} - DELICUTE`,
           html: `
-            <h2>🍽️ New Order #${order.id}</h2>
+            <h2>🍽️ New Order #${displayId}</h2>
             <p><b>Customer:</b> ${order.customer_name}</p>
             <p><b>Table:</b> ${order.table_number}</p>
             <p><b>Subtotal:</b> ₹${order.subtotal.toFixed(2)}</p>
@@ -116,6 +152,9 @@ router.post("/", async (req, res) => {
       const io = req.app.get("io");
       io.emit("new-order", {
         id: order.id,
+        displayId,
+        orderNumber: order.order_number,
+        isTest: !!order.is_test,
         customer_name: order.customer_name,
         table_number: order.table_number,
         session_id: order.session_id,
@@ -128,7 +167,7 @@ router.post("/", async (req, res) => {
         status: order.status
       });
     } else {
-      console.log(`🧪 Test order #${order.id} created — email and admin broadcast skipped`);
+      console.log(`🧪 Test order ${displayId} created — email and admin broadcast skipped`);
     }
 
     // Always emit to the customer's own session room (test or not) so the
@@ -136,13 +175,15 @@ router.post("/", async (req, res) => {
     const io = req.app.get("io");
     io.to(`session:${order.session_id}`).emit("orderStatusUpdated", {
       orderId: order.id,
+      displayId,
       status: order.status
     });
 
-    res.json({ success: true, orderId, is_test: !!isTest });
+    res.json({ success: true, orderId, displayId, is_test: !!isTest });
   } catch (err) {
-    console.error("Create order error:", err);
-    res.status(500).json({ success: false, message: "Failed to create order" });
+    console.error("Post-create notification error:", err);
+    // Order was already saved successfully — still tell the client it worked.
+    res.json({ success: true, orderId, displayId: buildDisplayId({ is_test: isTest, order_number: orderNumber, test_number: testNumber }), is_test: !!isTest });
   }
 });
 
@@ -154,7 +195,8 @@ router.get("/", authenticate, async (req, res) => {
   try {
     const [rows] = await pool.query(`
       SELECT o.id, o.customer_name, o.table_number, o.session_id, o.items, o.coupon_code, 
-             o.subtotal, o.discount, o.total, o.instructions, o.status, o.is_test, o.created_at
+             o.subtotal, o.discount, o.total, o.instructions, o.status, o.is_test,
+             o.order_number, o.test_number, o.created_at
       FROM orders o
       ${includeTest ? "" : "WHERE o.is_test = 0"}
       ORDER BY o.created_at DESC
@@ -192,7 +234,9 @@ router.get("/", authenticate, async (req, res) => {
         subtotal: parseFloat(order.subtotal),
         discount: parseFloat(order.discount),
         total: parseFloat(order.total),
-        instructions: order.instructions || ""
+        instructions: order.instructions || "",
+        displayId: buildDisplayId(order),
+        orderNumber: order.order_number
       };
     });
 
@@ -217,7 +261,8 @@ router.get("/session/:sessionId", async (req, res) => {
   try {
     const [rows] = await pool.query(
       `SELECT id, customer_name, table_number, session_id, items, coupon_code,
-              subtotal, discount, total, instructions, status, is_test, created_at
+              subtotal, discount, total, instructions, status, is_test,
+              order_number, test_number, created_at
        FROM orders
        WHERE session_id = ?
        ORDER BY created_at DESC
@@ -251,7 +296,9 @@ router.get("/session/:sessionId", async (req, res) => {
         subtotal: parseFloat(order.subtotal),
         discount: parseFloat(order.discount),
         total: parseFloat(order.total),
-        instructions: order.instructions || ""
+        instructions: order.instructions || "",
+        displayId: buildDisplayId(order),
+        orderNumber: order.order_number
       };
     });
 
