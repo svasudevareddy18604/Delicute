@@ -517,7 +517,7 @@ async function placeOrder() {
       localStorage.removeItem("openCart");
 
       setTimeout(() => {
-        window.location.href = "orderstatus.html";
+        window.location.href = "customerorderstatus.html";
       }, 1200);
       return;
     } else {
