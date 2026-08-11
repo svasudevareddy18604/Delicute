@@ -30,10 +30,17 @@ function itemCount(items) {
 // Builds the friendly id superadmin sees: plain number for real orders,
 // TEST01 / TEST02 ... for test orders (its own separate counter, so
 // testing never creates gaps in the real order numbering).
+//
+// Defensive: if order_number / test_number is ever missing (e.g. an old
+// pre-migration row that hasn't been backfilled yet), falls back to the
+// raw internal id instead of printing the literal text "null".
 function buildDisplayId(o) {
-  return o.is_test
-    ? `TEST${String(o.test_number).padStart(2, "0")}`
-    : String(o.order_number);
+  if (o.is_test) {
+    return o.test_number != null
+      ? `TEST${String(o.test_number).padStart(2, "0")}`
+      : `TEST-${o.id}`;
+  }
+  return o.order_number != null ? String(o.order_number) : String(o.id);
 }
 
 // Every route below requires a valid superadmin session.

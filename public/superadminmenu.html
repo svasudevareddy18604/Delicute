@@ -309,6 +309,34 @@
   .new-cat-row { display: flex; gap: 0.5rem; }
   .new-cat-row input { flex: 1; }
 
+  /* ---------- Add-on Groups checklist (inside item modal) ---------- */
+  .addon-group-box {
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    background: var(--graphite-2);
+    padding: 0.8rem 0.9rem;
+    margin-bottom: 0.9rem;
+  }
+  .addon-group-box .agb-title {
+    font-family: 'Roboto Mono', monospace;
+    font-size: 0.68rem;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: var(--gold-light);
+    margin-bottom: 0.6rem;
+    display: flex; align-items: center; gap: 0.4rem;
+  }
+  .addon-group-list { display: flex; flex-direction: column; gap: 0.5rem; max-height: 180px; overflow-y: auto; }
+  .addon-group-list.empty { color: var(--muted); font-size: 0.78rem; padding: 0.3rem 0; font-family: 'Roboto Mono', monospace; }
+  .addon-group-check {
+    display: flex; align-items: center; gap: 0.55rem;
+    background: var(--panel-2); border: 1px solid var(--border); border-radius: 8px;
+    padding: 0.5rem 0.7rem; cursor: pointer;
+  }
+  .addon-group-check input { width: auto; accent-color: var(--gold); cursor: pointer; flex-shrink: 0; }
+  .addon-group-check .agc-name { font-size: 0.82rem; font-weight: 600; color: var(--text); font-family: 'Roboto', sans-serif; }
+  .addon-group-check .agc-meta { font-size: 0.66rem; color: var(--muted); margin-left: auto; white-space: nowrap; font-family: 'Roboto Mono', monospace; }
+
   /* ---------- Toast ---------- */
   #toast-container { position: fixed; top: 80px; right: 20px; z-index: 2000; display: flex; flex-direction: column; gap: 0.6rem; max-width: 90vw; }
   .toast {
@@ -443,6 +471,12 @@
       </select>
     </div>
 
+    <!-- Add-on Groups checklist -->
+    <div class="addon-group-box">
+      <div class="agb-title">Attach Add-on Groups (optional)</div>
+      <div class="addon-group-list" id="itemAddonGroupList"></div>
+    </div>
+
     <div class="modal-actions">
       <button class="btn" id="cancelItemModal">Cancel</button>
       <button class="btn primary" id="saveItemBtn">Save Item</button>
@@ -471,6 +505,7 @@
   // ============ Config ============
   const MENU_API = "/api/superadmin/menu";
   const CAT_API = "/api/superadmin/categories";
+  const ADDON_API = "/api/superadmin/addons";
   const LOGIN_PAGE = "/superadminlogin.html";
   const PLACEHOLDER_IMG = "https://placehold.co/400x300/232330/8b889a?text=No+Image";
 
@@ -478,6 +513,7 @@
   let allItems = [];
   let activeCategory = "";
   let activeFoodType = "";
+  let addonGroups = []; // all available groups from ADDON_API
 
   // ============ Toast ============
   window.showToast = function showToast(message, type = 'success', duration = 3200) {
@@ -630,6 +666,52 @@
   });
 
   /* =================================================================
+     ADD-ON GROUPS CHECKLIST
+     ================================================================= */
+  async function loadAddonGroups() {
+    try {
+      const data = await api(`${ADDON_API}/addon-groups`);
+      addonGroups = (data && data.groups) || [];
+    } catch (err) {
+      console.error("Addon Groups Load Error:", err);
+      addonGroups = [];
+    }
+  }
+
+  function renderAddonChecklist(selectedIds = []) {
+    const container = document.getElementById('itemAddonGroupList');
+    if (!addonGroups.length) {
+      container.className = 'addon-group-list empty';
+      container.innerHTML = 'No add-on groups yet. Create some on the Add-ons page first.';
+      return;
+    }
+    container.className = 'addon-group-list';
+    container.innerHTML = addonGroups.map(g => `
+      <label class="addon-group-check">
+        <input type="checkbox" value="${g.id}" ${selectedIds.includes(g.id) || selectedIds.includes(String(g.id)) ? "checked" : ""}>
+        <span class="agc-name">${escapeHtml(g.name)}</span>
+        <span class="agc-meta">${g.is_required ? "Required" : "Optional"} · ${g.min_selection}-${g.max_selection}</span>
+      </label>
+    `).join('');
+  }
+
+  function getSelectedAddonGroupIds() {
+    return Array.from(document.querySelectorAll('#itemAddonGroupList input:checked')).map(i => i.value);
+  }
+
+  async function assignAddonGroups(menuItemId, groupIds) {
+    try {
+      await apiJson(`${ADDON_API}/menu-items/${menuItemId}/addon-groups`, {
+        method: 'PUT',
+        body: JSON.stringify({ addon_group_ids: groupIds })
+      });
+    } catch (err) {
+      console.error("Assign Addon Groups Error:", err);
+      window.showToast('Item saved, but add-on group assignment failed.', 'error');
+    }
+  }
+
+  /* =================================================================
      MENU ITEMS
      ================================================================= */
   async function loadMenu() {
@@ -769,6 +851,7 @@
     document.getElementById('itemImage').value = '';
     selectedImageFile = null;
     if (categories.length) document.getElementById('itemCategory').value = categories[0].id;
+    renderAddonChecklist([]);
   }
 
   document.getElementById('addItemBtn').addEventListener('click', () => {
@@ -778,7 +861,7 @@
     itemModal.classList.add('show');
   });
 
-  function openEditModal(item) {
+  async function openEditModal(item) {
     resetItemForm();
     document.getElementById('itemModalTitle').textContent = `Edit ${item.name}`;
     document.getElementById('itemId').value = item.id;
@@ -801,6 +884,15 @@
       img.src = item.image;
       document.getElementById('imageDrop').appendChild(img);
     }
+
+    let assignedIds = [];
+    try {
+      const assigned = await api(`${ADDON_API}/menu-items/${item.id}/addon-groups`);
+      assignedIds = (assigned || []).map(g => g.id);
+    } catch (err) {
+      console.error("Fetch assigned groups error:", err);
+    }
+    renderAddonChecklist(assignedIds);
 
     itemModal.classList.add('show');
   }
@@ -835,6 +927,7 @@
     const food_type = document.querySelector('input[name="foodType"]:checked').value;
     const hasSize = document.getElementById('hasSizeCheck').checked;
     const size = hasSize ? document.getElementById('itemSize').value : '';
+    const selectedGroupIds = getSelectedAddonGroupIds();
 
     if (!name || !original_price || !category_id) {
       window.showToast('Name, category, and price are required.', 'error');
@@ -856,13 +949,20 @@
     if (selectedImageFile) formData.append('image', selectedImageFile);
 
     try {
+      let itemIdForAssignment = id;
       if (id) {
         await api(`${MENU_API}/${id}`, { method: 'PUT', body: formData });
         window.showToast('Menu item updated.', 'success');
       } else {
-        await api(MENU_API, { method: 'POST', body: formData });
+        const result = await api(MENU_API, { method: 'POST', body: formData });
+        itemIdForAssignment = result?.data?.id || result?.id;
         window.showToast('Menu item added.', 'success');
       }
+
+      if (itemIdForAssignment) {
+        await assignAddonGroups(itemIdForAssignment, selectedGroupIds);
+      }
+
       itemModal.classList.remove('show');
       await loadMenu();
     } catch (e) {
@@ -889,7 +989,7 @@
 
   window.PAGE_TITLE = "Menu & Categories";
   window.PAGE_SUB = "Manage dishes, pricing, and categories";
-  window.onRefresh = () => { loadCategories(); loadMenu(); };
+  window.onRefresh = () => { loadCategories(); loadMenu(); loadAddonGroups(); };
 
   Promise.all([
     loadComponent('superadminsidedashboard.html', 'sidebar-placeholder'),
@@ -897,6 +997,7 @@
   ]).then(async () => {
     await loadCategories();
     await loadMenu();
+    await loadAddonGroups();
   });
 </script>
 </body>

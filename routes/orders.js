@@ -4,10 +4,16 @@ const pool = require("../db"); // MySQL pool
 const authenticate = require("../middleware/authenticate");
 const { sendEmail } = require("../utils/email");
 
+// Defensive version — falls back to the raw internal id if order_number /
+// test_number is ever missing (e.g. an old pre-migration row that wasn't
+// backfilled), instead of printing the literal text "null".
 function buildDisplayId(order) {
-  return order.is_test
-    ? `TEST${String(order.test_number).padStart(2, "0")}`
-    : String(order.order_number);
+  if (order.is_test) {
+    return order.test_number != null
+      ? `TEST${String(order.test_number).padStart(2, "0")}`
+      : `TEST-${order.id}`;
+  }
+  return order.order_number != null ? String(order.order_number) : String(order.id);
 }
 
 // ================== CREATE ORDER ==================
@@ -183,7 +189,7 @@ router.post("/", async (req, res) => {
   } catch (err) {
     console.error("Post-create notification error:", err);
     // Order was already saved successfully — still tell the client it worked.
-    res.json({ success: true, orderId, displayId: buildDisplayId({ is_test: isTest, order_number: orderNumber, test_number: testNumber }), is_test: !!isTest });
+    res.json({ success: true, orderId, displayId: buildDisplayId({ id: orderId, is_test: isTest, order_number: orderNumber, test_number: testNumber }), is_test: !!isTest });
   }
 });
 

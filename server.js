@@ -71,24 +71,25 @@ const couponsRoutes = require("./routes/coupons");
 const customerMenuRoutes = require("./routes/customermenu");
 const tablesRoutes = require("./routes/tables");
 const promotionsRoutes = require("./routes/promotions");
-const superadminAuthRoutes = require("./routes/superadmin"); // NEW — separate superadmin auth system
+const superadminAuthRoutes = require("./routes/superadmin"); // separate superadmin auth system
 const superadminMaintenanceRoutes = require("./routes/superadmin-maintenance");
-const adminAddonRoutes = require("./routes/adminaddon"); // NEW — add-on groups & items
-const superadminManageRoutes = require("./routes/superadmin-manage"); // NEW — admins & superadmins CRUD
-const superadminDashboardRoutes = require("./routes/superadmin-dashboard");
+const adminAddonRoutes = require("./routes/adminaddon"); // add-on groups & items
+const superadminManageRoutes = require("./routes/superadmin-manage"); // admins & superadmins CRUD
+const superadminDashboardRoutes = require("./routes/superadminDashboard"); // ✅ camelCase — has full stats
 const superadminOrdersRoutes = require("./routes/superadmin-orders");
 const maintenanceGate = require("./middleware/maintenanceGate");
-const superadminTablesRoutes = require("./routes/superadmin-tables"); // NEW
-const superadminMenuRoutes = require("./routes/superadmin-menu"); // NEW
-const superadminCategoriesRoutes = require("./routes/superadmin-categories"); // NEW
-const superadminAddonRoutes = require("./routes/superadmin-addon"); // NEW
-const testModeRoutes = require("./routes/testmode"); // NEW — public status check
-const superadminTestModeRoutes = require("./routes/superadmin-testmode"); // NEW — superadmin toggle
-
+const superadminTablesRoutes = require("./routes/superadmin-tables");
+const superadminMenuRoutes = require("./routes/superadmin-menu");
+const superadminCategoriesRoutes = require("./routes/superadmin-categories");
+const superadminAddonRoutes = require("./routes/superadmin-addon");
+const testModeRoutes = require("./routes/testmode"); // public status check
+const superadminTestModeRoutes = require("./routes/superadmin-testmode"); // superadmin toggle
+const superadminTopPicksRoutes = require("./routes/superadmin-toppicks");
+const superadminPromotionsRoutes = require("./routes/superadmin-promotions"); // NEW
+const superadminCouponsRoutes = require("./routes/superadmin-coupons");
 
 app.use("/api/tables", tablesRoutes);
-app.use("/api/test-mode", testModeRoutes); // NEW — public, must stay above maintenanceGate
-app.use("/api/tables", tablesRoutes);
+app.use("/api/test-mode", testModeRoutes); // public, must stay above maintenanceGate
 app.use(maintenanceGate);
 app.use("/api/auth", authRoutes);
 app.use("/api/menu", menuRoutes);
@@ -97,19 +98,20 @@ app.use("/api/orders", ordersRoutes);
 app.use("/api/coupons", couponsRoutes);
 app.use("/api", customerMenuRoutes);
 app.use("/api/promotions", promotionsRoutes);
-app.use("/api/admin", adminAddonRoutes); // NEW — /api/admin/addon-groups, /api/admin/addons
-app.use("/api/superadmin/auth", superadminAuthRoutes); // NEW
+app.use("/api/admin", adminAddonRoutes); // /api/admin/addon-groups, /api/admin/addons
+app.use("/api/superadmin/auth", superadminAuthRoutes);
 app.use("/api/superadmin/maintenance", superadminMaintenanceRoutes);
-app.use("/api/superadmin/dashboard", superadminDashboardRoutes);
+app.use("/api/superadmin/dashboard", superadminDashboardRoutes); // ✅ single mount only
 app.use("/api/superadmin/orders", superadminOrdersRoutes);
 app.use("/api/superadmin", superadminManageRoutes);
 app.use("/api/superadmin/tables", superadminTablesRoutes);
 app.use("/api/superadmin/menu", superadminMenuRoutes);
 app.use("/api/superadmin/categories", superadminCategoriesRoutes);
 app.use("/api/superadmin/addons", superadminAddonRoutes);
-app.use("/api/superadmin/tables", superadminTablesRoutes);
-app.use("/api/superadmin/test-mode", superadminTestModeRoutes); // NEW
-
+app.use("/api/superadmin/test-mode", superadminTestModeRoutes);
+app.use("/api/superadmin/toppicks", superadminTopPicksRoutes);
+app.use("/api/superadmin/promotions", superadminPromotionsRoutes);
+app.use("/api/superadmin/coupons", superadminCouponsRoutes);
 
 // ================== TEST EMAIL ROUTE ==================
 app.get("/test-email", async (req, res) => {
@@ -177,7 +179,7 @@ app.get("/promotions", (_, res) =>
   res.redirect("/adminpromotions.html")
 );
 
-// NEW — superadmin console redirects
+// superadmin console redirects
 app.get("/superadmin", (_, res) =>
   res.redirect("/superadminlogin.html")
 );

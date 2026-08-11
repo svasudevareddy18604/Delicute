@@ -219,4 +219,60 @@ router.delete("/addons/:id", async (req, res) => {
   }
 });
 
+/* =========================================================================
+   MENU-ITEM ↔ ADDON-GROUP ASSIGNMENT
+   ⚠️ Assumes a junction table `menu_item_addon_groups`
+      (menu_item_id, addon_group_id). Adjust table/column names below
+      if your actual schema (see adminaddon.js) differs.
+   ========================================================================= */
+
+// ================== GET groups assigned to a menu item ==================
+// GET /api/superadmin/addons/menu-items/:id/addon-groups
+router.get("/menu-items/:id/addon-groups", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const [rows] = await pool.query(
+      `SELECT ag.id, ag.name, ag.min_selection, ag.max_selection, ag.is_required
+       FROM menu_item_addon_groups miag
+       JOIN addon_groups ag ON ag.id = miag.addon_group_id
+       WHERE miag.menu_item_id = ?`,
+      [id]
+    );
+    res.json(rows.map(r => ({ ...r, is_required: !!r.is_required })));
+  } catch (err) {
+    console.error("GET /superadmin/addons/menu-items/:id/addon-groups error:", err);
+    res.status(500).json({ success: false, message: "Failed to fetch assigned add-on groups" });
+  }
+});
+
+// ================== SET groups assigned to a menu item (replace all) ==================
+// PUT /api/superadmin/addons/menu-items/:id/addon-groups
+router.put("/menu-items/:id/addon-groups", async (req, res) => {
+  const conn = await pool.getConnection();
+  try {
+    const { id } = req.params;
+    const { addon_group_ids = [] } = req.body;
+
+    await conn.beginTransaction();
+    await conn.query(`DELETE FROM menu_item_addon_groups WHERE menu_item_id = ?`, [id]);
+
+    if (addon_group_ids.length) {
+      const values = addon_group_ids.map(gid => [id, gid]);
+      await conn.query(
+        `INSERT INTO menu_item_addon_groups (menu_item_id, addon_group_id) VALUES ?`,
+        [values]
+      );
+    }
+
+    await conn.commit();
+    res.json({ success: true });
+  } catch (err) {
+    await conn.rollback();
+    console.error("PUT /superadmin/addons/menu-items/:id/addon-groups error:", err);
+    res.status(500).json({ success: false, message: "Failed to assign add-on groups" });
+  } finally {
+    conn.release();
+  }
+});
+
 module.exports = router;

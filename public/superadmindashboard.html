@@ -6,15 +6,16 @@
 <title>Delicute | Super Admin Console</title>
 <link rel="icon" href="https://i.postimg.cc/W3pgQx9q/DELICUTE-Imgur-1-modified.png" />
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Roboto+Mono:wght@500;600&family=Roboto:wght@400;500;600&display=swap" rel="stylesheet" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
   html, body { width: 100%; overflow-x: hidden; }
 
   :root {
-    --graphite: #14141a;
-    --graphite-2: #1a1a22;
-    --panel: #1d1d26;
-    --panel-2: #232330;
+    --graphite: #100f14;
+    --graphite-2: #17161d;
+    --panel: #1b1a23;
+    --panel-2: #232230;
     --crimson: #c0392b;
     --crimson-bright: #e8543f;
     --gold: #d9a94c;
@@ -22,15 +23,20 @@
     --green: #2e9e6b;
     --amber: #d9a94c;
     --red: #d64545;
-    --text: #e9e6ef;
+    --blue: #4a90d9;
+    --purple: #9b6fd9;
+    --text: #eeecf5;
     --muted: #8b889a;
-    --border: #33333f;
+    --border: #302f3c;
   }
 
   body {
     font-family: 'Roboto', sans-serif;
     color: var(--text);
-    background: var(--graphite);
+    background:
+      radial-gradient(circle at 15% 0%, rgba(155,111,217,0.08), transparent 45%),
+      radial-gradient(circle at 85% 20%, rgba(217,169,76,0.06), transparent 40%),
+      var(--graphite);
     min-height: 100vh;
     display: flex;
   }
@@ -38,104 +44,119 @@
   a { color: inherit; text-decoration: none; }
   button { font-family: inherit; cursor: pointer; }
 
-  /* ---------- Main ---------- */
-  .main {
-    flex: 1;
-    min-width: 0;
-    display: flex;
-    flex-direction: column;
-  }
+  .main { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+  .content { padding: 1.5rem; flex: 1; }
 
-  .content { padding: 1.4rem; flex: 1; }
+  .section-label {
+    font-family: 'Roboto Mono', monospace;
+    font-size: 0.68rem;
+    text-transform: uppercase;
+    letter-spacing: 1.4px;
+    color: var(--muted);
+    margin: 1.6rem 0 0.7rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  .section-label::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+  .section-label:first-of-type { margin-top: 0; }
 
   /* ---------- Stat cards ---------- */
   .stat-grid {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
-    gap: 0.9rem;
-    margin-bottom: 1.3rem;
+    gap: 1rem;
   }
   .stat-card {
-    background: var(--panel);
+    background: linear-gradient(155deg, var(--panel), var(--panel-2));
     border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 1rem 1.1rem;
+    border-radius: 16px;
+    padding: 1.15rem 1.25rem;
     position: relative;
     overflow: hidden;
+    transition: transform 0.25s ease, border-color 0.25s ease;
   }
+  .stat-card:hover { transform: translateY(-3px); border-color: rgba(217,169,76,0.35); }
   .stat-card::before {
-    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
-    background: linear-gradient(90deg, var(--crimson-bright), var(--gold));
-    opacity: 0.7;
+    content: ''; position: absolute; top: -40%; right: -30%; width: 140px; height: 140px;
+    background: radial-gradient(circle, var(--accent, var(--gold)) 0%, transparent 70%);
+    opacity: 0.14; border-radius: 50%; pointer-events: none;
   }
-  .stat-label { font-family: 'Roboto Mono', monospace; font-size: 0.62rem; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); }
-  .stat-value { font-family: 'Playfair Display', serif; font-weight: 800; font-size: 1.7rem; margin-top: 0.35rem; }
-  .stat-delta { font-size: 0.72rem; margin-top: 0.3rem; color: var(--green); font-weight: 600; }
+  .stat-card.c-crimson { --accent: var(--crimson-bright); }
+  .stat-card.c-gold { --accent: var(--gold); }
+  .stat-card.c-green { --accent: var(--green); }
+  .stat-card.c-blue { --accent: var(--blue); }
+  .stat-card.c-purple { --accent: var(--purple); }
+
+  .stat-icon {
+    width: 34px; height: 34px; border-radius: 9px;
+    display: flex; align-items: center; justify-content: center;
+    background: color-mix(in srgb, var(--accent, var(--gold)) 18%, transparent);
+    color: var(--accent, var(--gold));
+    margin-bottom: 0.7rem;
+  }
+  .stat-icon svg { width: 17px; height: 17px; }
+
+  .stat-label { font-family: 'Roboto Mono', monospace; font-size: 0.63rem; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); }
+  .stat-value { font-family: 'Playfair Display', serif; font-weight: 800; font-size: 1.65rem; margin-top: 0.3rem; letter-spacing: 0.2px; }
+  .stat-sub { font-size: 0.7rem; color: var(--muted); margin-top: 0.35rem; }
+  .stat-delta { font-size: 0.72rem; margin-top: 0.3rem; color: var(--green); font-weight: 600; display: inline-flex; align-items: center; gap: 0.2rem; }
   .stat-delta.down { color: var(--red); }
 
-  /* ---------- Panels / cards ---------- */
+  /* ---------- Panels ---------- */
+  .grid-2 { display: grid; grid-template-columns: 1.5fr 1fr; gap: 1rem; }
+  .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; }
+
   .panel {
     background: var(--panel);
     border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 1.1rem 1.2rem;
-    margin-bottom: 1.1rem;
+    border-radius: 14px;
+    padding: 1.2rem 1.3rem;
+    position: relative;
+    overflow: hidden;
   }
-  .panel-head {
-    display: flex; align-items: center; justify-content: space-between;
-    margin-bottom: 0.9rem; flex-wrap: wrap; gap: 0.6rem;
+  .panel::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+    background: linear-gradient(90deg, var(--purple), var(--gold));
+    opacity: 0.7;
   }
+  .panel-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.6rem; }
   .panel-title { font-family: 'Playfair Display', serif; font-weight: 700; font-size: 1.02rem; }
+  .panel-sub { font-size: 0.72rem; color: var(--muted); margin-top: 0.15rem; }
 
-  .btn {
-    padding: 0.48rem 0.9rem;
-    border-radius: 7px;
-    border: 1px solid var(--border);
-    background: var(--panel-2);
-    color: var(--text);
-    font-size: 0.78rem;
-    font-weight: 600;
-    display: inline-flex; align-items: center; gap: 0.35rem;
-  }
-  .btn:hover { border-color: rgba(217,169,76,0.4); }
-  .btn.small { padding: 0.32rem 0.65rem; font-size: 0.7rem; }
+  .chart-wrap { position: relative; height: 240px; }
+  .chart-wrap.small { height: 200px; }
 
-  /* ---------- Tables ---------- */
-  .table-wrap { overflow-x: auto; }
-  table { width: 100%; border-collapse: collapse; font-size: 0.82rem; }
-  thead th {
-    text-align: left;
-    font-family: 'Roboto Mono', monospace;
-    font-size: 0.62rem;
-    text-transform: uppercase;
-    letter-spacing: 0.8px;
-    color: var(--muted);
-    padding: 0.55rem 0.7rem;
-    border-bottom: 1px solid var(--border);
-    white-space: nowrap;
+  /* ---------- Top items list ---------- */
+  .rank-list { display: flex; flex-direction: column; gap: 0.55rem; }
+  .rank-item { display: flex; align-items: center; gap: 0.7rem; padding: 0.5rem 0.15rem; }
+  .rank-num {
+    width: 24px; height: 24px; border-radius: 7px; flex-shrink: 0;
+    background: rgba(217,169,76,0.14); color: var(--gold-light);
+    font-family: 'Roboto Mono', monospace; font-size: 0.72rem; font-weight: 700;
+    display: flex; align-items: center; justify-content: center;
   }
-  tbody td {
-    padding: 0.62rem 0.7rem;
-    border-bottom: 1px solid rgba(255,255,255,0.04);
-    vertical-align: middle;
-  }
-  tbody tr:hover { background: rgba(255,255,255,0.02); }
-  .empty-row td { text-align: center; color: var(--muted); padding: 1.6rem; font-family: 'Roboto Mono', monospace; font-size: 0.78rem; }
+  .rank-item:nth-child(1) .rank-num { background: rgba(217,169,76,0.28); }
+  .rank-info { flex: 1; min-width: 0; }
+  .rank-name { font-weight: 600; font-size: 0.85rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .rank-meta { font-size: 0.68rem; color: var(--muted); font-family: 'Roboto Mono', monospace; }
+  .rank-bar-track { height: 4px; background: var(--graphite-2); border-radius: 3px; margin-top: 0.3rem; overflow: hidden; }
+  .rank-bar-fill { height: 100%; background: linear-gradient(90deg, var(--gold), var(--crimson-bright)); border-radius: 3px; }
+  .rank-value { font-family: 'Roboto Mono', monospace; font-size: 0.78rem; font-weight: 700; color: var(--gold-light); white-space: nowrap; }
 
-  .badge {
-    display: inline-block; padding: 0.2rem 0.55rem; border-radius: 5px;
-    font-family: 'Roboto Mono', monospace; font-size: 0.66rem; font-weight: 600; letter-spacing: 0.4px;
-  }
-  .badge.green { background: rgba(46,158,107,0.15); color: #7fd9ac; }
-  .badge.amber { background: rgba(217,169,76,0.15); color: var(--gold-light); }
-  .badge.red { background: rgba(214,69,69,0.15); color: #f2a3a3; }
-  .badge.gray { background: rgba(139,136,154,0.15); color: var(--muted); }
+  /* ---------- Coupon panel ---------- */
+  .coupon-summary { display: flex; gap: 1.4rem; margin-bottom: 1rem; flex-wrap: wrap; }
+  .coupon-summary-item .num { font-family: 'Playfair Display', serif; font-weight: 800; font-size: 1.3rem; }
+  .coupon-summary-item .lbl { font-size: 0.68rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.6px; font-family: 'Roboto Mono', monospace; }
+  .coupon-row { display: flex; align-items: center; justify-content: space-between; padding: 0.5rem 0; border-bottom: 1px dashed var(--border); font-size: 0.82rem; }
+  .coupon-row:last-child { border-bottom: none; }
+  .coupon-code { font-family: 'Roboto Mono', monospace; font-weight: 700; color: var(--gold-light); background: rgba(217,169,76,0.1); padding: 0.15rem 0.5rem; border-radius: 5px; }
+  .coupon-uses { color: var(--muted); font-size: 0.75rem; }
+  .coupon-discount { font-weight: 700; }
+  .empty-msg { color: var(--muted); font-size: 0.8rem; text-align: center; padding: 1.5rem 0; font-family: 'Roboto Mono', monospace; }
 
   /* ---------- Toast ---------- */
-  #toast-container {
-    position: fixed; top: 20px; right: 20px; z-index: 2000;
-    display: flex; flex-direction: column; gap: 0.6rem; max-width: 90vw;
-  }
+  #toast-container { position: fixed; top: 20px; right: 20px; z-index: 2000; display: flex; flex-direction: column; gap: 0.6rem; max-width: 90vw; }
   .toast {
     display: flex; align-items: center; gap: 0.65rem; min-width: 260px; max-width: 340px;
     background: var(--panel); border-radius: 10px; padding: 0.85rem 1.05rem;
@@ -156,8 +177,10 @@
   @keyframes toastOut { to { opacity: 0; transform: translateX(40px); } }
 
   /* ---------- Responsive ---------- */
-  @media (max-width: 1080px) {
+  @media (max-width: 1180px) {
     .stat-grid { grid-template-columns: repeat(2, 1fr); }
+    .grid-2 { grid-template-columns: 1fr; }
+    .grid-3 { grid-template-columns: 1fr; }
   }
   @media (max-width: 560px) {
     .stat-grid { grid-template-columns: 1fr; }
@@ -170,37 +193,132 @@
 </head>
 <body>
 
-<!-- Sidebar gets injected here -->
 <div id="sidebar-placeholder"></div>
 
 <div class="main">
-  <!-- Header gets injected here -->
   <div id="header-placeholder"></div>
 
   <div class="content">
 
-    <!-- OVERVIEW -->
-    <section id="section-overview">
-      <div class="stat-grid">
-        <div class="stat-card"><div class="stat-label">Orders Today</div><div class="stat-value" id="statOrdersToday">–</div><div class="stat-delta" id="statOrdersDelta">–</div></div>
-        <div class="stat-card"><div class="stat-label">Revenue Today</div><div class="stat-value" id="statRevenueToday">–</div><div class="stat-delta" id="statRevenueDelta">–</div></div>
-        <div class="stat-card"><div class="stat-label">Total Users</div><div class="stat-value" id="statUsers">–</div><div class="stat-delta" id="statUsersDelta">–</div></div>
-        <div class="stat-card"><div class="stat-label">Active Coupons</div><div class="stat-value" id="statCoupons">–</div><div class="stat-delta" id="statCouponsDelta">–</div></div>
+    <!-- ===== TODAY ===== -->
+    <div class="section-label">Today</div>
+    <div class="stat-grid">
+      <div class="stat-card c-crimson">
+        <div class="stat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 7h16l-1.5 11a2 2 0 0 1-2 1.7H7.5a2 2 0 0 1-2-1.7L4 7Z"/><path d="M8 7V5a4 4 0 0 1 8 0v2"/></svg></div>
+        <div class="stat-label">Orders Today</div>
+        <div class="stat-value" id="statOrdersToday">0</div>
+        <div class="stat-delta" id="statOrdersDelta">—</div>
+      </div>
+      <div class="stat-card c-gold">
+        <div class="stat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div>
+        <div class="stat-label">Revenue Today</div>
+        <div class="stat-value" id="statRevenueToday">₹0</div>
+        <div class="stat-delta" id="statRevenueDelta">—</div>
+      </div>
+      <div class="stat-card c-blue">
+        <div class="stat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 3v18h18M7 15l4-5 3 3 5-7"/></svg></div>
+        <div class="stat-label">Avg Order Value</div>
+        <div class="stat-value" id="statAOVToday">₹0</div>
+        <div class="stat-sub">Today's average</div>
+      </div>
+      <div class="stat-card c-purple">
+        <div class="stat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 3h6l-1 5h4l-8 13 1-8H7l2-10Z"/></svg></div>
+        <div class="stat-label">Test Orders Today</div>
+        <div class="stat-value" id="statTestToday">0</div>
+        <div class="stat-sub">Visible only here</div>
+      </div>
+    </div>
+
+    <!-- ===== ALL-TIME / OVERALL ===== -->
+    <div class="section-label">All-Time</div>
+    <div class="stat-grid">
+      <div class="stat-card c-crimson">
+        <div class="stat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 7h16l-1.5 11a2 2 0 0 1-2 1.7H7.5a2 2 0 0 1-2-1.7L4 7Z"/><path d="M8 7V5a4 4 0 0 1 8 0v2"/></svg></div>
+        <div class="stat-label">Total Orders</div>
+        <div class="stat-value" id="statOrdersAllTime">0</div>
+        <div class="stat-sub">All real orders, ever</div>
+      </div>
+      <div class="stat-card c-gold">
+        <div class="stat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div>
+        <div class="stat-label">Total Revenue</div>
+        <div class="stat-value" id="statRevenueAllTime">₹0</div>
+        <div class="stat-sub">All-time earnings</div>
+      </div>
+      <div class="stat-card c-green">
+        <div class="stat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 12h4l3 8 4-16 3 8h4"/></svg></div>
+        <div class="stat-label">This Week</div>
+        <div class="stat-value" id="statRevenueWeek">₹0</div>
+        <div class="stat-sub" id="statOrdersWeek">0 orders</div>
+      </div>
+      <div class="stat-card c-blue">
+        <div class="stat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M3 9h18M8 2v4M16 2v4"/></svg></div>
+        <div class="stat-label">This Month</div>
+        <div class="stat-value" id="statRevenueMonth">₹0</div>
+        <div class="stat-sub" id="statOrdersMonth">0 orders</div>
+      </div>
+    </div>
+
+    <!-- ===== CHARTS ===== -->
+    <div class="section-label">Trends</div>
+    <div class="grid-2">
+      <div class="panel">
+        <div class="panel-head">
+          <div>
+            <div class="panel-title">Revenue — Last 7 Days</div>
+            <div class="panel-sub">Real orders only</div>
+          </div>
+        </div>
+        <div class="chart-wrap"><canvas id="revenueChart"></canvas></div>
+      </div>
+      <div class="panel">
+        <div class="panel-head">
+          <div>
+            <div class="panel-title">Today's Order Status</div>
+            <div class="panel-sub">Live breakdown</div>
+          </div>
+        </div>
+        <div class="chart-wrap"><canvas id="statusChart"></canvas></div>
+      </div>
+    </div>
+
+    <!-- ===== ITEMS + HOURS + COUPONS ===== -->
+    <div class="section-label">Insights</div>
+    <div class="grid-3">
+      <div class="panel">
+        <div class="panel-head">
+          <div>
+            <div class="panel-title">Top-Selling Items</div>
+            <div class="panel-sub">Last 30 days</div>
+          </div>
+        </div>
+        <div class="rank-list" id="topItemsList"><div class="empty-msg">Loading…</div></div>
       </div>
 
       <div class="panel">
         <div class="panel-head">
-          <div class="panel-title">Recent Orders</div>
-          <a class="btn small" href="superadminorders.html">View all →</a>
+          <div>
+            <div class="panel-title">Peak Order Hours</div>
+            <div class="panel-sub">Last 30 days</div>
+          </div>
         </div>
-        <div class="table-wrap">
-          <table>
-            <thead><tr><th>Order ID</th><th>Customer</th><th>Items</th><th>Total</th><th>Status</th><th>Placed</th></tr></thead>
-            <tbody id="recentOrdersBody"><tr class="empty-row"><td colspan="6">Loading…</td></tr></tbody>
-          </table>
-        </div>
+        <div class="chart-wrap small"><canvas id="hoursChart"></canvas></div>
       </div>
-    </section>
+
+      <div class="panel">
+        <div class="panel-head">
+          <div>
+            <div class="panel-title">Coupon Performance</div>
+            <div class="panel-sub">All-time</div>
+          </div>
+        </div>
+        <div class="coupon-summary">
+          <div class="coupon-summary-item"><div class="num" id="couponTotalUses">0</div><div class="lbl">Total Uses</div></div>
+          <div class="coupon-summary-item"><div class="num" id="couponTotalDiscount">₹0</div><div class="lbl">Discount Given</div></div>
+          <div class="coupon-summary-item"><div class="num" id="couponActiveCount">0</div><div class="lbl">Active Coupons</div></div>
+        </div>
+        <div id="couponList"><div class="empty-msg">Loading…</div></div>
+      </div>
+    </div>
 
   </div>
 </div>
@@ -210,12 +328,12 @@
 <script>
   // ============ Config ============
   const API_BASE = "/api/superadmin";
-  const ENDPOINTS = {
-    stats: `${API_BASE}/dashboard/stats`
-  };
+  const ENDPOINTS = { stats: `${API_BASE}/dashboard/stats` };
   const LOGIN_PAGE = "/superadminlogin.html";
 
-  // ============ Toast (shared globally so header.html can use it) ============
+  let revenueChart, statusChart, hoursChart;
+
+  // ============ Toast ============
   window.showToast = function showToast(message, type = 'success', duration = 3200) {
     const container = document.getElementById('toast-container');
     const toast = document.createElement('div');
@@ -240,68 +358,194 @@
       return null;
     }
     const data = await res.json().catch(() => ({}));
-    if (!res.ok) throw new Error(data.message || 'Request failed');
+    if (!res.ok || data.success === false) throw new Error(data.message || 'Request failed');
     return data;
   }
 
-  const fmtMoney = (n) => `₹${Number(n || 0).toLocaleString('en-IN')}`;
-  const fmtDate = (d) => d ? new Date(d).toLocaleString('en-IN', { day:'2-digit', month:'short', hour:'2-digit', minute:'2-digit' }) : '—';
+  const fmtMoney = (n) => `₹${Number(n || 0).toLocaleString('en-IN', { maximumFractionDigits: 0 })}`;
   const escapeHtml = (s) => String(s ?? '').replace(/[&<>"']/g, c => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]));
 
-  function statusBadge(status) {
-    const map = { Delivered: 'green', Accepted: 'amber', Cooking: 'amber', Pending: 'gray', Cancelled: 'red' };
-    const cls = map[status] || 'gray';
-    return `<span class="badge ${cls}">${escapeHtml(status || 'unknown')}</span>`;
+  // Animated count-up for stat numbers (plain numbers only, not money strings)
+  function animateNumber(el, target, formatter = (n) => Math.round(n).toLocaleString('en-IN'), duration = 700) {
+    const start = 0;
+    const startTime = performance.now();
+    function tick(now) {
+      const progress = Math.min((now - startTime) / duration, 1);
+      const eased = 1 - Math.pow(1 - progress, 3);
+      const value = start + (target - start) * eased;
+      el.textContent = formatter(value);
+      if (progress < 1) requestAnimationFrame(tick);
+    }
+    requestAnimationFrame(tick);
   }
 
-  // ============ Overview loader ============
+  const CHART_TEXT = '#8b889a';
+  const CHART_GRID = 'rgba(255,255,255,0.05)';
+
+  function buildRevenueChart(trend) {
+    const ctx = document.getElementById('revenueChart').getContext('2d');
+    const labels = trend.map(t => new Date(t.date + 'T00:00:00').toLocaleDateString('en-IN', { weekday: 'short' }));
+    const data = trend.map(t => t.revenue);
+    if (revenueChart) revenueChart.destroy();
+    revenueChart = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels,
+        datasets: [{
+          data,
+          borderColor: '#d9a94c',
+          backgroundColor: (context) => {
+            const g = context.chart.ctx.createLinearGradient(0, 0, 0, 220);
+            g.addColorStop(0, 'rgba(217,169,76,0.35)');
+            g.addColorStop(1, 'rgba(217,169,76,0)');
+            return g;
+          },
+          fill: true,
+          tension: 0.35,
+          pointRadius: 3,
+          pointBackgroundColor: '#e8543f',
+          pointBorderColor: '#e8543f',
+          borderWidth: 2
+        }]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { display: false }, tooltip: {
+          callbacks: { label: (c) => fmtMoney(c.parsed.y) }
+        }},
+        scales: {
+          x: { ticks: { color: CHART_TEXT, font: { family: 'Roboto Mono', size: 10 } }, grid: { display: false } },
+          y: { ticks: { color: CHART_TEXT, font: { family: 'Roboto Mono', size: 10 }, callback: (v) => `₹${v}` }, grid: { color: CHART_GRID } }
+        }
+      }
+    });
+  }
+
+  function buildStatusChart(breakdown) {
+    const ctx = document.getElementById('statusChart').getContext('2d');
+    const labels = Object.keys(breakdown);
+    const data = Object.values(breakdown);
+    const colors = { Pending: '#d9a94c', Accepted: '#4a90d9', Cooking: '#9b6fd9', Delivered: '#2e9e6b', Cancelled: '#d64545' };
+    if (statusChart) statusChart.destroy();
+
+    const total = data.reduce((a, b) => a + b, 0);
+    if (total === 0) {
+      document.getElementById('statusChart').parentElement.innerHTML = `<div class="empty-msg" style="padding-top:4.5rem;">No orders yet today.</div>`;
+      return;
+    }
+
+    statusChart = new Chart(ctx, {
+      type: 'doughnut',
+      data: { labels, datasets: [{ data, backgroundColor: labels.map(l => colors[l]), borderColor: '#1b1a23', borderWidth: 3 }] },
+      options: {
+        responsive: true, maintainAspectRatio: false, cutout: '68%',
+        plugins: { legend: { position: 'bottom', labels: { color: CHART_TEXT, font: { family: 'Roboto Mono', size: 10 }, padding: 12, boxWidth: 10 } } }
+      }
+    });
+  }
+
+  function buildHoursChart(peakHours) {
+    const ctx = document.getElementById('hoursChart').getContext('2d');
+    const labels = peakHours.map(h => `${h.hour}`);
+    const data = peakHours.map(h => h.count);
+    if (hoursChart) hoursChart.destroy();
+    hoursChart = new Chart(ctx, {
+      type: 'bar',
+      data: { labels, datasets: [{ data, backgroundColor: 'rgba(155,111,217,0.55)', borderRadius: 4, maxBarThickness: 10 }] },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { display: false }, tooltip: { callbacks: { title: (c) => `${c[0].label}:00` } } },
+        scales: {
+          x: { ticks: { color: CHART_TEXT, font: { family: 'Roboto Mono', size: 8 }, maxRotation: 0, autoSkip: true, maxTicksLimit: 12 }, grid: { display: false } },
+          y: { ticks: { color: CHART_TEXT, font: { family: 'Roboto Mono', size: 9 } }, grid: { color: CHART_GRID } }
+        }
+      }
+    });
+  }
+
+  function renderTopItems(items) {
+    const el = document.getElementById('topItemsList');
+    if (!items.length) { el.innerHTML = `<div class="empty-msg">No item data yet.</div>`; return; }
+    const maxQty = Math.max(...items.map(i => i.qty));
+    el.innerHTML = items.map((it, i) => `
+      <div class="rank-item">
+        <div class="rank-num">${i + 1}</div>
+        <div class="rank-info">
+          <div class="rank-name">${escapeHtml(it.name)}</div>
+          <div class="rank-meta">${it.qty} sold</div>
+          <div class="rank-bar-track"><div class="rank-bar-fill" style="width:${(it.qty / maxQty) * 100}%"></div></div>
+        </div>
+        <div class="rank-value">${fmtMoney(it.revenue)}</div>
+      </div>
+    `).join('');
+  }
+
+  function renderCoupons(couponStats) {
+    document.getElementById('couponTotalUses').textContent = couponStats.totalUses;
+    document.getElementById('couponTotalDiscount').textContent = fmtMoney(couponStats.totalDiscountGiven);
+
+    const el = document.getElementById('couponList');
+    if (!couponStats.topCoupons.length) { el.innerHTML = `<div class="empty-msg">No coupons used yet.</div>`; return; }
+    el.innerHTML = couponStats.topCoupons.map(c => `
+      <div class="coupon-row">
+        <div><span class="coupon-code">${escapeHtml(c.code)}</span> <span class="coupon-uses">${c.uses} use${c.uses === 1 ? '' : 's'}</span></div>
+        <div class="coupon-discount">-${fmtMoney(c.totalDiscount)}</div>
+      </div>
+    `).join('');
+  }
+
+  // ============ Load dashboard ============
   async function loadOverview() {
     try {
       const data = await api(ENDPOINTS.stats);
       if (!data) return;
-      document.getElementById('statOrdersToday').textContent = data.ordersToday ?? '0';
-      document.getElementById('statRevenueToday').textContent = fmtMoney(data.revenueToday);
-      document.getElementById('statUsers').textContent = data.totalUsers ?? '0';
-      document.getElementById('statCoupons').textContent = data.activeCoupons ?? '0';
 
-      const deltas = [
-        ['statOrdersDelta', data.ordersDeltaPct],
-        ['statRevenueDelta', data.revenueDeltaPct],
-        ['statUsersDelta', data.usersDeltaPct],
-        ['statCouponsDelta', data.couponsDeltaPct]
-      ];
-      deltas.forEach(([id, val]) => {
-        const el = document.getElementById(id);
-        if (val === undefined || val === null) { el.textContent = '—'; return; }
-        const up = val >= 0;
-        el.textContent = `${up ? '▲' : '▼'} ${Math.abs(val)}% vs yesterday`;
-        el.classList.toggle('down', !up);
-      });
+      // Today
+      animateNumber(document.getElementById('statOrdersToday'), data.ordersToday);
+      animateNumber(document.getElementById('statRevenueToday'), data.revenueToday, (n) => fmtMoney(n));
+      animateNumber(document.getElementById('statAOVToday'), data.avgOrderValueToday, (n) => fmtMoney(n));
+      animateNumber(document.getElementById('statTestToday'), data.testOrdersToday);
 
-      const body = document.getElementById('recentOrdersBody');
-      const rows = (data.recentOrders || []);
-      body.innerHTML = rows.length ? rows.map(o => `
-        <tr>
-          <td>#${escapeHtml(o.id)}</td>
-          <td>${escapeHtml(o.customerName)}</td>
-          <td>${o.itemCount ?? '—'}</td>
-          <td>${fmtMoney(o.total)}</td>
-          <td>${statusBadge(o.status)}</td>
-          <td>${fmtDate(o.createdAt)}</td>
-        </tr>`).join('') : `<tr class="empty-row"><td colspan="6">No orders yet.</td></tr>`;
+      const ordersDeltaEl = document.getElementById('statOrdersDelta');
+      const up1 = data.ordersDeltaPct >= 0;
+      ordersDeltaEl.textContent = `${up1 ? '▲' : '▼'} ${Math.abs(data.ordersDeltaPct)}% vs yesterday`;
+      ordersDeltaEl.classList.toggle('down', !up1);
+
+      const revDeltaEl = document.getElementById('statRevenueDelta');
+      const up2 = data.revenueDeltaPct >= 0;
+      revDeltaEl.textContent = `${up2 ? '▲' : '▼'} ${Math.abs(data.revenueDeltaPct)}% vs yesterday`;
+      revDeltaEl.classList.toggle('down', !up2);
+
+      // All-time
+      animateNumber(document.getElementById('statOrdersAllTime'), data.ordersAllTime);
+      animateNumber(document.getElementById('statRevenueAllTime'), data.revenueAllTime, (n) => fmtMoney(n));
+      animateNumber(document.getElementById('statRevenueWeek'), data.revenueWeek, (n) => fmtMoney(n));
+      animateNumber(document.getElementById('statRevenueMonth'), data.revenueMonth, (n) => fmtMoney(n));
+      document.getElementById('statOrdersWeek').textContent = `${data.ordersWeek} orders`;
+      document.getElementById('statOrdersMonth').textContent = `${data.ordersMonth} orders`;
+
+      // Charts
+      buildRevenueChart(data.revenueTrend);
+      buildStatusChart(data.statusBreakdown);
+      buildHoursChart(data.peakHours);
+
+      // Lists
+      renderTopItems(data.topItems);
+      document.getElementById('couponActiveCount').textContent = data.activeCoupons;
+      renderCoupons(data.couponStats);
+
     } catch (e) {
-      showToast('Could not load overview stats.', 'error');
+      showToast(e.message || 'Could not load dashboard stats.', 'error');
     }
   }
 
-  // ============ Load sidebar + header components, then init page ============
+  // ============ Load sidebar + header, then init ============
   function loadComponent(url, placeholderId) {
     return fetch(url)
       .then(r => r.text())
       .then(html => {
         const el = document.getElementById(placeholderId);
         el.innerHTML = html;
-        // re-run inline scripts (innerHTML doesn't execute them)
         el.querySelectorAll('script').forEach(old => {
           const s = document.createElement('script');
           s.textContent = old.textContent;
@@ -310,17 +554,16 @@
       });
   }
 
-  // Page-level hooks the header component reads
   window.PAGE_TITLE = "Overview";
-  window.PAGE_SUB = "Real-time snapshot of Delicute";
+  window.PAGE_SUB = "Real-time revenue & performance snapshot";
   window.onRefresh = loadOverview;
 
   Promise.all([
-  loadComponent('superadminsidedashboard.html', 'sidebar-placeholder'),
-  loadComponent('superadminheader.html', 'header-placeholder')
-]).then(() => {
-  loadOverview();
-});
+    loadComponent('superadminsidedashboard.html', 'sidebar-placeholder'),
+    loadComponent('superadminheader.html', 'header-placeholder')
+  ]).then(() => {
+    loadOverview();
+  });
 </script>
 </body>
 </html>

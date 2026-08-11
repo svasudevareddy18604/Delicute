@@ -1,0 +1,886 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Delicute | Promotions &amp; Coupons</title>
+<link rel="icon" href="https://i.postimg.cc/W3pgQx9q/DELICUTE-Imgur-1-modified.png" />
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Roboto+Mono:wght@500;600&family=Roboto:wght@400;500;600&display=swap" rel="stylesheet" />
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { width: 100%; overflow-x: hidden; }
+
+  :root {
+    --graphite: #14141a;
+    --graphite-2: #1a1a22;
+    --panel: #1d1d26;
+    --panel-2: #232330;
+    --crimson: #c0392b;
+    --crimson-bright: #e8543f;
+    --gold: #d9a94c;
+    --gold-light: #f2d49b;
+    --green: #2e9e6b;
+    --red: #d64545;
+    --blue: #4a90d9;
+    --purple: #9b6fd9;
+    --text: #e9e6ef;
+    --muted: #8b889a;
+    --border: #33333f;
+  }
+
+  body { font-family: 'Roboto', sans-serif; color: var(--text); background: var(--graphite); min-height: 100vh; display: flex; }
+  a { color: inherit; text-decoration: none; }
+  button { font-family: inherit; cursor: pointer; }
+
+  .main { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+  .content { padding: 1.4rem; flex: 1; }
+
+  /* ---------- Tabs ---------- */
+  .tab-row {
+    display: flex; gap: 0.5rem; margin-bottom: 1.2rem;
+    background: var(--panel); border: 1px solid var(--border); border-radius: 12px;
+    padding: 0.35rem; width: fit-content;
+  }
+  .tab-btn {
+    padding: 0.6rem 1.3rem; border-radius: 9px; border: none;
+    background: transparent; color: var(--muted); font-size: 0.85rem; font-weight: 700;
+    transition: all 0.18s ease;
+  }
+  .tab-btn.active { background: linear-gradient(135deg, var(--crimson), #8e2419); color: #fff; box-shadow: 0 4px 14px rgba(192,57,43,0.3); }
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; }
+
+  /* ---------- Stat cards ---------- */
+  .stat-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin-bottom: 1.2rem; }
+  .stat-card {
+    background: linear-gradient(155deg, var(--panel), var(--panel-2));
+    border: 1px solid var(--border); border-radius: 16px; padding: 1.05rem 1.2rem;
+    position: relative; overflow: hidden;
+  }
+  .stat-card::before {
+    content: ''; position: absolute; top: -40%; right: -30%; width: 130px; height: 130px;
+    background: radial-gradient(circle, var(--accent, var(--gold)) 0%, transparent 70%);
+    opacity: 0.14; border-radius: 50%; pointer-events: none;
+  }
+  .stat-card.c-gold { --accent: var(--gold); }
+  .stat-card.c-green { --accent: var(--green); }
+  .stat-card.c-blue { --accent: var(--blue); }
+  .stat-card.c-red { --accent: var(--red); }
+  .stat-card.c-purple { --accent: var(--purple); }
+  .stat-label { font-family: 'Roboto Mono', monospace; font-size: 0.62rem; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); }
+  .stat-value { font-family: 'Playfair Display', serif; font-weight: 800; font-size: 1.5rem; margin-top: 0.3rem; }
+
+  /* ---------- Panel & toolbar ---------- */
+  .panel {
+    background: var(--panel); border: 1px solid var(--border); border-radius: 14px;
+    padding: 1.2rem 1.3rem; position: relative; overflow: hidden;
+  }
+  .panel::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+    background: linear-gradient(90deg, var(--crimson-bright), var(--gold), var(--purple)); opacity: 0.75;
+  }
+  .toolbar { display: flex; align-items: center; justify-content: space-between; gap: 0.8rem; flex-wrap: wrap; margin-bottom: 1.1rem; }
+  .panel-title { font-family: 'Playfair Display', serif; font-weight: 700; font-size: 1.05rem; }
+  .panel-count { font-family: 'Roboto Mono', monospace; font-size: 0.65rem; color: var(--muted); margin-top: 0.15rem; }
+
+  .btn {
+    padding: 0.5rem 0.9rem; border-radius: 8px; border: 1px solid var(--border);
+    background: var(--panel-2); color: var(--text); font-size: 0.78rem; font-weight: 600;
+    display: inline-flex; align-items: center; gap: 0.35rem; transition: all 0.15s ease;
+  }
+  .btn:hover { border-color: rgba(217,169,76,0.4); }
+  .btn.primary { background: linear-gradient(135deg, var(--crimson), #8e2419); border-color: transparent; color: #fff; box-shadow: 0 4px 14px rgba(192,57,43,0.3); }
+  .btn.primary:hover { background: linear-gradient(135deg, var(--crimson-bright), var(--crimson)); }
+  .btn.danger { color: #f2a3a3; }
+  .btn.danger:hover { border-color: rgba(214,69,69,0.4); }
+  .btn.small { padding: 0.34rem 0.7rem; font-size: 0.7rem; }
+
+  /* ---------- Promo grid ---------- */
+  .promo-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 1.1rem; }
+  .promo-card {
+    background: var(--panel-2); border: 1px solid var(--border); border-radius: 14px; overflow: hidden;
+    display: flex; flex-direction: column; transition: transform 0.18s ease, border-color 0.18s ease;
+    position: relative;
+  }
+  .promo-card:hover { transform: translateY(-3px); border-color: rgba(217,169,76,0.4); }
+  .promo-img-wrap { position: relative; width: 100%; aspect-ratio: 16/9; background: var(--graphite-2); overflow: hidden; }
+  .promo-img-wrap img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .promo-status {
+    position: absolute; top: 10px; left: 10px;
+    padding: 0.25rem 0.65rem; border-radius: 20px; font-size: 0.65rem; font-weight: 800;
+    text-transform: uppercase; letter-spacing: 0.5px;
+    backdrop-filter: blur(4px);
+  }
+  .promo-status.active { background: rgba(46,158,107,0.85); color: #fff; }
+  .promo-status.upcoming { background: rgba(74,144,217,0.85); color: #fff; }
+  .promo-status.expired { background: rgba(139,136,154,0.6); color: #fff; }
+  .promo-body { padding: 0.9rem 1rem 1rem; display: flex; flex-direction: column; gap: 0.35rem; flex: 1; }
+  .promo-title { font-family: 'Playfair Display', serif; font-weight: 700; font-size: 1.02rem; }
+  .promo-desc { font-size: 0.78rem; color: var(--muted); line-height: 1.4; }
+  .promo-dates { font-family: 'Roboto Mono', monospace; font-size: 0.68rem; color: var(--gold-light); margin-top: 0.15rem; }
+  .promo-actions { display: flex; gap: 0.4rem; margin-top: 0.6rem; }
+  .promo-actions .btn { flex: 1; justify-content: center; }
+
+  /* ---------- Coupon grid ---------- */
+  .coupon-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1.1rem; }
+  .coupon-card {
+    background: var(--panel-2); border: 1px solid var(--border); border-radius: 14px;
+    padding: 1rem 1.1rem; display: flex; flex-direction: column; gap: 0.5rem;
+    transition: transform 0.18s ease, border-color 0.18s ease;
+  }
+  .coupon-card:hover { transform: translateY(-3px); border-color: rgba(217,169,76,0.4); }
+  .coupon-head { display: flex; align-items: center; justify-content: space-between; gap: 0.6rem; }
+  .coupon-code {
+    font-family: 'Roboto Mono', monospace; font-weight: 800; font-size: 0.95rem;
+    color: var(--gold-light); background: rgba(217,169,76,0.12); padding: 0.25rem 0.6rem; border-radius: 6px;
+  }
+  .coupon-type-badge {
+    font-family: 'Roboto Mono', monospace; font-size: 0.62rem; font-weight: 700;
+    padding: 0.2rem 0.55rem; border-radius: 20px; text-transform: uppercase; letter-spacing: 0.5px;
+  }
+  .coupon-type-badge.flat { background: rgba(74,144,217,0.18); color: #8ec1f0; }
+  .coupon-type-badge.tier { background: rgba(155,111,217,0.18); color: #c4a9ef; }
+  .coupon-desc { font-size: 0.8rem; color: var(--text); line-height: 1.4; }
+  .coupon-meta-row { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+  .coupon-meta-chip {
+    font-family: 'Roboto Mono', monospace; font-size: 0.68rem; color: var(--muted);
+    background: var(--graphite-2); border: 1px solid var(--border); border-radius: 6px; padding: 0.2rem 0.55rem;
+  }
+  .tier-list { display: flex; flex-direction: column; gap: 0.3rem; margin-top: 0.1rem; }
+  .tier-row-display {
+    display: flex; justify-content: space-between; font-family: 'Roboto Mono', monospace;
+    font-size: 0.72rem; background: var(--graphite-2); border-radius: 6px; padding: 0.35rem 0.6rem;
+    border: 1px solid var(--border);
+  }
+  .tier-row-display .amt { color: var(--muted); }
+  .tier-row-display .disc { color: var(--gold-light); font-weight: 700; }
+  .coupon-actions { display: flex; gap: 0.4rem; margin-top: 0.4rem; }
+  .coupon-actions .btn { flex: 1; justify-content: center; }
+
+  .empty-state { grid-column: 1 / -1; text-align: center; padding: 3rem 1rem; color: var(--muted); font-family: 'Roboto Mono', monospace; font-size: 0.85rem; }
+
+  /* ---------- Modal ---------- */
+  .modal-overlay {
+    display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.65); z-index: 100;
+    align-items: center; justify-content: center; padding: 1rem; backdrop-filter: blur(3px); overflow-y: auto;
+  }
+  .modal-overlay.show { display: flex; }
+  .modal-box {
+    background: var(--panel); border: 1px solid var(--border); border-radius: 14px;
+    padding: 1.4rem; width: 100%; max-width: 480px; box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+    max-height: 90vh; overflow-y: auto;
+  }
+  .modal-box h3 { font-family: 'Playfair Display', serif; font-size: 1.15rem; margin-bottom: 1rem; }
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.8rem; }
+  .form-group { margin-bottom: 0.9rem; }
+  .form-group label {
+    display: block; font-family: 'Roboto Mono', monospace; font-size: 0.65rem;
+    text-transform: uppercase; letter-spacing: 0.8px; color: var(--muted); margin-bottom: 0.4rem;
+  }
+  .form-group input, .form-group select, .form-group textarea {
+    width: 100%; padding: 0.6rem 0.8rem; border-radius: 8px; border: 1px solid var(--border);
+    background: var(--graphite-2); color: var(--text); font-size: 0.85rem;
+    font-family: 'Roboto Mono', monospace; resize: vertical;
+  }
+  .form-group textarea { font-family: 'Roboto', sans-serif; min-height: 60px; }
+  .form-group input:focus, .form-group select:focus, .form-group textarea:focus { outline: none; border-color: rgba(217,169,76,0.5); }
+  .form-hint { font-size: 0.72rem; color: var(--muted); margin-top: 0.3rem; }
+
+  .image-drop {
+    border: 1.5px dashed var(--border); border-radius: 10px; padding: 0.9rem; text-align: center; cursor: pointer;
+    background: var(--graphite-2); min-height: 90px; display: flex; align-items: center; justify-content: center;
+  }
+  .image-drop:hover { border-color: rgba(217,169,76,0.5); }
+  .image-drop img { max-height: 130px; border-radius: 8px; object-fit: cover; }
+  .image-drop .drop-label { font-size: 0.75rem; color: var(--muted); font-family: 'Roboto Mono', monospace; }
+  .image-drop input[type=file] { display: none; }
+
+  .type-toggle { display: flex; gap: 0.5rem; margin-bottom: 0.9rem; }
+  .type-toggle label {
+    flex: 1; display: flex; align-items: center; justify-content: center; gap: 0.4rem;
+    padding: 0.55rem; border-radius: 8px; border: 1px solid var(--border);
+    background: var(--graphite-2); font-size: 0.76rem; font-weight: 600; cursor: pointer; color: var(--muted);
+  }
+  .type-toggle input { display: none; }
+  .type-toggle label:has(input:checked) { background: rgba(217,169,76,0.16); border-color: var(--gold); color: var(--gold-light); }
+
+  .tier-editor-row { display: flex; gap: 0.5rem; align-items: center; margin-bottom: 0.5rem; }
+  .tier-editor-row input { flex: 1; }
+  .tier-editor-row .rm-tier { flex: 0 0 auto; padding: 0.5rem 0.6rem; }
+  .add-tier-btn { width: 100%; justify-content: center; margin-top: 0.2rem; }
+
+  .modal-actions { display: flex; gap: 0.6rem; justify-content: flex-end; margin-top: 1.2rem; }
+
+  /* ---------- Toast ---------- */
+  #toast-container { position: fixed; top: 80px; right: 20px; z-index: 2000; display: flex; flex-direction: column; gap: 0.6rem; max-width: 90vw; }
+  .toast {
+    display: flex; align-items: center; gap: 0.65rem; min-width: 260px; max-width: 340px;
+    background: var(--panel); border-radius: 10px; padding: 0.85rem 1.05rem;
+    box-shadow: 0 10px 28px rgba(0,0,0,0.4); border-left: 4px solid var(--crimson);
+    font-size: 0.9rem; font-weight: 500; color: var(--text);
+    opacity: 0; transform: translateX(40px); animation: toastIn 0.4s ease-out forwards;
+  }
+  .toast.success { border-left-color: var(--green); }
+  .toast.error { border-left-color: var(--red); }
+  .toast .icon {
+    flex-shrink: 0; width: 22px; height: 22px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center; font-size: 0.8rem; font-weight: 800; color: #fff;
+  }
+  .toast.success .icon { background: var(--green); }
+  .toast.error .icon { background: var(--red); }
+  .toast.hide { animation: toastOut 0.35s ease-in forwards; }
+  @keyframes toastIn { to { opacity: 1; transform: translateX(0); } }
+  @keyframes toastOut { to { opacity: 0; transform: translateX(40px); } }
+
+  @media (max-width: 700px) {
+    .stat-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+  @media (max-width: 560px) {
+    .content { padding: 1rem; }
+    .toolbar { flex-direction: column; align-items: flex-start; }
+    .form-row { grid-template-columns: 1fr; }
+    .promo-grid, .coupon-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<div id="sidebar-placeholder"></div>
+
+<div class="main">
+  <div id="header-placeholder"></div>
+
+  <div class="content">
+
+    <div class="tab-row">
+      <button class="tab-btn active" data-tab="promos">Promotions</button>
+      <button class="tab-btn" data-tab="coupons">Coupons</button>
+    </div>
+
+    <!-- ============ PROMOTIONS TAB ============ -->
+    <div class="tab-panel active" id="tab-promos">
+      <div class="stat-grid">
+        <div class="stat-card c-gold"><div class="stat-label">Total Promotions</div><div class="stat-value" id="promoTotal">0</div></div>
+        <div class="stat-card c-green"><div class="stat-label">Active Now</div><div class="stat-value" id="promoActive">0</div></div>
+        <div class="stat-card c-blue"><div class="stat-label">Upcoming</div><div class="stat-value" id="promoUpcoming">0</div></div>
+        <div class="stat-card c-purple"><div class="stat-label">Expired</div><div class="stat-value" id="promoExpired">0</div></div>
+      </div>
+
+      <div class="panel">
+        <div class="toolbar">
+          <div>
+            <div class="panel-title">Promotions</div>
+            <div class="panel-count" id="promoCount">— promotions</div>
+          </div>
+          <button class="btn primary" id="addPromoBtn">+ Add Promotion</button>
+        </div>
+        <div class="promo-grid" id="promoGrid"><div class="empty-state">Loading promotions…</div></div>
+      </div>
+    </div>
+
+    <!-- ============ COUPONS TAB ============ -->
+    <div class="tab-panel" id="tab-coupons">
+      <div class="stat-grid">
+        <div class="stat-card c-gold"><div class="stat-label">Total Coupons</div><div class="stat-value" id="couponTotal">0</div></div>
+        <div class="stat-card c-blue"><div class="stat-label">Flat Discount</div><div class="stat-value" id="couponFlat">0</div></div>
+        <div class="stat-card c-purple"><div class="stat-label">Tiered</div><div class="stat-value" id="couponTiered">0</div></div>
+        <div class="stat-card c-green"><div class="stat-label">With Images</div><div class="stat-value" id="couponImaged">0</div></div>
+      </div>
+
+      <div class="panel">
+        <div class="toolbar">
+          <div>
+            <div class="panel-title">Coupons</div>
+            <div class="panel-count" id="couponCount">— coupons</div>
+          </div>
+          <button class="btn primary" id="addCouponBtn">+ Add Coupon</button>
+        </div>
+        <div class="coupon-grid" id="couponGrid"><div class="empty-state">Loading coupons…</div></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ADD/EDIT PROMOTION MODAL -->
+<div class="modal-overlay" id="promoModal">
+  <div class="modal-box">
+    <h3 id="promoModalTitle">Add Promotion</h3>
+    <input type="hidden" id="promoId" />
+
+    <div class="form-group">
+      <label>Image</label>
+      <div class="image-drop" id="promoImageDrop">
+        <span class="drop-label" id="promoImageDropLabel">Click to upload promo banner</span>
+        <input type="file" id="promoImage" accept="image/*" />
+      </div>
+    </div>
+
+    <div class="form-group"><label>Title</label><input type="text" id="promoTitle" placeholder="e.g. Weekend Special" /></div>
+    <div class="form-group"><label>Description</label><textarea id="promoDescription" placeholder="Shown to customers"></textarea></div>
+
+    <div class="form-row">
+      <div class="form-group"><label>Start Date (optional)</label><input type="date" id="promoStartDate" /></div>
+      <div class="form-group"><label>End Date (optional)</label><input type="date" id="promoEndDate" /></div>
+    </div>
+    <div class="form-hint">Leave dates blank for an always-active promotion.</div>
+
+    <div class="modal-actions">
+      <button class="btn" id="cancelPromoModal">Cancel</button>
+      <button class="btn primary" id="savePromoBtn">Save Promotion</button>
+    </div>
+  </div>
+</div>
+
+<!-- ADD/EDIT COUPON MODAL -->
+<div class="modal-overlay" id="couponModal">
+  <div class="modal-box">
+    <h3 id="couponModalTitle">Add Coupon</h3>
+    <input type="hidden" id="couponId" />
+
+    <div class="form-group">
+      <label>Image (optional)</label>
+      <div class="image-drop" id="couponImageDrop">
+        <span class="drop-label" id="couponImageDropLabel">Click to upload coupon banner</span>
+        <input type="file" id="couponImage" accept="image/*" />
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group"><label>Coupon Code</label><input type="text" id="couponCode" placeholder="e.g. WELCOME50" /></div>
+      <div class="form-group"><label>Type</label>
+        <div class="type-toggle" id="couponTypeToggle">
+          <label data-type="min_cart_amount"><input type="radio" name="couponType" value="min_cart_amount" checked /><span>Flat %</span></label>
+          <label data-type="cart_tier"><input type="radio" name="couponType" value="cart_tier" /><span>Cart Tiers</span></label>
+        </div>
+      </div>
+    </div>
+
+    <div class="form-group"><label>Description</label><textarea id="couponDescription" placeholder="e.g. 50% off on your first order"></textarea></div>
+
+    <!-- FLAT TYPE FIELDS -->
+    <div id="flatFields">
+      <div class="form-row">
+        <div class="form-group"><label>Discount (%)</label><input type="number" id="couponDiscount" min="0" max="100" step="0.01" placeholder="e.g. 20" /></div>
+        <div class="form-group"><label>Min Cart Amount (₹, optional)</label><input type="number" id="couponMinCart" min="0" step="0.01" placeholder="e.g. 500" /></div>
+      </div>
+      <div class="form-group"><label>Free Item (optional — overrides discount)</label><input type="text" id="couponFreeItem" placeholder="e.g. Free Garlic Bread" /></div>
+    </div>
+
+    <!-- TIER TYPE FIELDS -->
+    <div id="tierFields" style="display:none;">
+      <label style="display:block; font-family:'Roboto Mono',monospace; font-size:0.65rem; text-transform:uppercase; letter-spacing:0.8px; color:var(--muted); margin-bottom:0.5rem;">Cart Tiers</label>
+      <div id="tierRows"></div>
+      <button class="btn small add-tier-btn" id="addTierBtn" type="button">+ Add Tier</button>
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn" id="cancelCouponModal">Cancel</button>
+      <button class="btn primary" id="saveCouponBtn">Save Coupon</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast-container" aria-live="polite" aria-atomic="true"></div>
+
+<script>
+  // ============ Config ============
+  const PROMO_API = "/api/superadmin/promotions";
+  const COUPON_API = "/api/superadmin/coupons";
+  const LOGIN_PAGE = "/superadminlogin.html";
+  const PLACEHOLDER_IMG = "https://placehold.co/400x225/232330/8b889a?text=No+Image";
+
+  let promotions = [];
+  let coupons = [];
+  let selectedPromoImageFile = null;
+  let selectedCouponImageFile = null;
+
+  // ============ Toast ============
+  window.showToast = function showToast(message, type = 'success', duration = 3200) {
+    const container = document.getElementById('toast-container');
+    const toast = document.createElement('div');
+    toast.className = `toast ${type}`;
+    toast.innerHTML = `<span class="icon">${type === 'success' ? '✓' : '!'}</span><span>${message}</span>`;
+    container.appendChild(toast);
+    setTimeout(() => {
+      toast.classList.add('hide');
+      toast.addEventListener('animationend', () => toast.remove(), { once: true });
+    }, duration);
+  };
+
+  const escapeHtml = (s) => String(s ?? '').replace(/[&<>"']/g, c => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]));
+  const fmtMoney = (n) => `₹${Number(n || 0).toFixed(2)}`;
+
+  // ============ Fetch helper ============
+  async function api(url, options = {}) {
+    const res = await fetch(url, { credentials: 'include', ...options });
+    if (res.status === 401) { window.location.href = LOGIN_PAGE; return null; }
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok || data.success === false) throw new Error(data.message || 'Request failed');
+    return data;
+  }
+
+  /* =================================================================
+     TABS
+     ================================================================= */
+  document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById(`tab-${btn.dataset.tab}`).classList.add('active');
+    });
+  });
+
+  /* =================================================================
+     PROMOTIONS
+     ================================================================= */
+  function getPromoStatus(p) {
+    const today = new Date().toISOString().slice(0, 10);
+    if (p.start_date && p.start_date > today) return 'upcoming';
+    if (p.end_date && p.end_date < today) return 'expired';
+    return 'active';
+  }
+
+  async function loadPromotions() {
+    const grid = document.getElementById('promoGrid');
+    try {
+      const data = await api(PROMO_API);
+      if (!data) return;
+      promotions = data.data || [];
+      renderPromoStats();
+      renderPromoGrid();
+    } catch (e) {
+      grid.innerHTML = `<div class="empty-state">Failed to load promotions.</div>`;
+      window.showToast(e.message || 'Failed to load promotions.', 'error');
+    }
+  }
+
+  function renderPromoStats() {
+    document.getElementById('promoTotal').textContent = promotions.length;
+    document.getElementById('promoActive').textContent = promotions.filter(p => getPromoStatus(p) === 'active').length;
+    document.getElementById('promoUpcoming').textContent = promotions.filter(p => getPromoStatus(p) === 'upcoming').length;
+    document.getElementById('promoExpired').textContent = promotions.filter(p => getPromoStatus(p) === 'expired').length;
+    document.getElementById('promoCount').textContent = `${promotions.length} promotion${promotions.length === 1 ? '' : 's'}`;
+  }
+
+  function renderPromoGrid() {
+    const grid = document.getElementById('promoGrid');
+    if (!promotions.length) {
+      grid.innerHTML = `<div class="empty-state">No promotions yet. Add one to get started.</div>`;
+      return;
+    }
+    grid.innerHTML = promotions.map(p => {
+      const status = getPromoStatus(p);
+      const dateRange = (p.start_date || p.end_date)
+        ? `${p.start_date || 'Always'} → ${p.end_date || 'Ongoing'}`
+        : 'Always active';
+      return `
+        <div class="promo-card">
+          <div class="promo-img-wrap">
+            <img src="${p.image || PLACEHOLDER_IMG}" alt="${escapeHtml(p.title || 'Promotion')}" loading="lazy" onerror="this.src='${PLACEHOLDER_IMG}'" />
+            <div class="promo-status ${status}">${status}</div>
+          </div>
+          <div class="promo-body">
+            <div class="promo-title">${escapeHtml(p.title || 'Untitled')}</div>
+            <div class="promo-desc">${escapeHtml(p.description || 'No description')}</div>
+            <div class="promo-dates">${dateRange}</div>
+            <div class="promo-actions">
+              <button class="btn small" data-edit-promo="${p.id}">Edit</button>
+              <button class="btn small danger" data-delete-promo="${p.id}">Delete</button>
+            </div>
+          </div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  document.getElementById('promoGrid').addEventListener('click', async (e) => {
+    const editId = e.target.closest('[data-edit-promo]')?.dataset.editPromo;
+    const delId = e.target.closest('[data-delete-promo]')?.dataset.deletePromo;
+
+    if (editId) {
+      const p = promotions.find(x => x.id === Number(editId));
+      if (p) openEditPromoModal(p);
+      return;
+    }
+    if (delId) {
+      if (!confirm('Delete this promotion permanently?')) return;
+      try {
+        await api(`${PROMO_API}/${delId}`, { method: 'DELETE' });
+        window.showToast('Promotion deleted.', 'success');
+        await loadPromotions();
+      } catch (err) {
+        window.showToast(err.message || 'Failed to delete promotion.', 'error');
+      }
+    }
+  });
+
+  const promoModal = document.getElementById('promoModal');
+
+  function resetPromoForm() {
+    document.getElementById('promoId').value = '';
+    document.getElementById('promoTitle').value = '';
+    document.getElementById('promoDescription').value = '';
+    document.getElementById('promoStartDate').value = '';
+    document.getElementById('promoEndDate').value = '';
+    document.getElementById('promoImageDropLabel').style.display = 'block';
+    document.getElementById('promoImageDrop').querySelector('img')?.remove();
+    document.getElementById('promoImage').value = '';
+    selectedPromoImageFile = null;
+  }
+
+  document.getElementById('addPromoBtn').addEventListener('click', () => {
+    resetPromoForm();
+    document.getElementById('promoModalTitle').textContent = 'Add Promotion';
+    promoModal.classList.add('show');
+  });
+
+  function openEditPromoModal(p) {
+    resetPromoForm();
+    document.getElementById('promoModalTitle').textContent = `Edit ${p.title || 'Promotion'}`;
+    document.getElementById('promoId').value = p.id;
+    document.getElementById('promoTitle').value = p.title || '';
+    document.getElementById('promoDescription').value = p.description || '';
+    document.getElementById('promoStartDate').value = p.start_date || '';
+    document.getElementById('promoEndDate').value = p.end_date || '';
+    if (p.image) {
+      document.getElementById('promoImageDropLabel').style.display = 'none';
+      const img = document.createElement('img');
+      img.src = p.image;
+      document.getElementById('promoImageDrop').appendChild(img);
+    }
+    promoModal.classList.add('show');
+  }
+
+  document.getElementById('cancelPromoModal').addEventListener('click', () => promoModal.classList.remove('show'));
+  promoModal.addEventListener('click', (e) => { if (e.target === promoModal) promoModal.classList.remove('show'); });
+
+  document.getElementById('promoImageDrop').addEventListener('click', () => document.getElementById('promoImage').click());
+  document.getElementById('promoImage').addEventListener('change', (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    selectedPromoImageFile = file;
+    const drop = document.getElementById('promoImageDrop');
+    drop.querySelector('img')?.remove();
+    document.getElementById('promoImageDropLabel').style.display = 'none';
+    const img = document.createElement('img');
+    img.src = URL.createObjectURL(file);
+    drop.appendChild(img);
+  });
+
+  document.getElementById('savePromoBtn').addEventListener('click', async () => {
+    const id = document.getElementById('promoId').value;
+    const title = document.getElementById('promoTitle').value.trim();
+    const description = document.getElementById('promoDescription').value.trim();
+    const start_date = document.getElementById('promoStartDate').value;
+    const end_date = document.getElementById('promoEndDate').value;
+
+    if (!title && !description && !start_date && !end_date && !selectedPromoImageFile) {
+      window.showToast('Please fill in at least one field.', 'error');
+      return;
+    }
+
+    const formData = new FormData();
+    if (title) formData.append('title', title);
+    if (description) formData.append('description', description);
+    formData.append('start_date', start_date);
+    formData.append('end_date', end_date);
+    if (selectedPromoImageFile) formData.append('image', selectedPromoImageFile);
+
+    try {
+      if (id) {
+        await api(`${PROMO_API}/${id}`, { method: 'PUT', body: formData });
+        window.showToast('Promotion updated.', 'success');
+      } else {
+        await api(PROMO_API, { method: 'POST', body: formData });
+        window.showToast('Promotion added.', 'success');
+      }
+      promoModal.classList.remove('show');
+      await loadPromotions();
+    } catch (e) {
+      window.showToast(e.message || 'Failed to save promotion.', 'error');
+    }
+  });
+
+  /* =================================================================
+     COUPONS
+     ================================================================= */
+  async function loadCoupons() {
+    const grid = document.getElementById('couponGrid');
+    try {
+      const data = await api(COUPON_API);
+      if (!data) return;
+      coupons = data.data || [];
+      renderCouponStats();
+      renderCouponGrid();
+    } catch (e) {
+      grid.innerHTML = `<div class="empty-state">Failed to load coupons.</div>`;
+      window.showToast(e.message || 'Failed to load coupons.', 'error');
+    }
+  }
+
+  function renderCouponStats() {
+    document.getElementById('couponTotal').textContent = coupons.length;
+    document.getElementById('couponFlat').textContent = coupons.filter(c => c.type === 'min_cart_amount').length;
+    document.getElementById('couponTiered').textContent = coupons.filter(c => c.type === 'cart_tier').length;
+    document.getElementById('couponImaged').textContent = coupons.filter(c => c.image).length;
+    document.getElementById('couponCount').textContent = `${coupons.length} coupon${coupons.length === 1 ? '' : 's'}`;
+  }
+
+  function parseTiers(raw) {
+    try {
+      const t = typeof raw === 'string' ? JSON.parse(raw) : raw;
+      return Array.isArray(t) ? t : [];
+    } catch {
+      return [];
+    }
+  }
+
+  function renderCouponGrid() {
+    const grid = document.getElementById('couponGrid');
+    if (!coupons.length) {
+      grid.innerHTML = `<div class="empty-state">No coupons yet. Add one to get started.</div>`;
+      return;
+    }
+    grid.innerHTML = coupons.map(c => {
+      const isTier = c.type === 'cart_tier';
+      let metaHtml = '';
+      if (isTier) {
+        const tiers = parseTiers(c.tiers);
+        metaHtml = `<div class="tier-list">${tiers.map(t => `
+          <div class="tier-row-display"><span class="amt">Cart ≥ ${fmtMoney(t.amount)}</span><span class="disc">${t.discount}% off</span></div>
+        `).join('')}</div>`;
+      } else {
+        const chips = [];
+        if (c.free_item) chips.push(`<span class="coupon-meta-chip">🎁 ${escapeHtml(c.free_item)}</span>`);
+        else if (c.discount != null) chips.push(`<span class="coupon-meta-chip">${c.discount}% off</span>`);
+        if (c.min_cart_amount != null) chips.push(`<span class="coupon-meta-chip">Min cart ${fmtMoney(c.min_cart_amount)}</span>`);
+        metaHtml = `<div class="coupon-meta-row">${chips.join('')}</div>`;
+      }
+
+      return `
+        <div class="coupon-card">
+          <div class="coupon-head">
+            <span class="coupon-code">${escapeHtml(c.code)}</span>
+            <span class="coupon-type-badge ${isTier ? 'tier' : 'flat'}">${isTier ? 'Cart Tiers' : 'Flat %'}</span>
+          </div>
+          <div class="coupon-desc">${escapeHtml(c.description || '')}</div>
+          ${metaHtml}
+          <div class="coupon-actions">
+            <button class="btn small" data-edit-coupon="${c.id}">Edit</button>
+            <button class="btn small danger" data-delete-coupon="${c.id}">Delete</button>
+          </div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  document.getElementById('couponGrid').addEventListener('click', async (e) => {
+    const editId = e.target.closest('[data-edit-coupon]')?.dataset.editCoupon;
+    const delId = e.target.closest('[data-delete-coupon]')?.dataset.deleteCoupon;
+
+    if (editId) {
+      const c = coupons.find(x => x.id === Number(editId));
+      if (c) openEditCouponModal(c);
+      return;
+    }
+    if (delId) {
+      if (!confirm('Delete this coupon permanently?')) return;
+      try {
+        await api(`${COUPON_API}/${delId}`, { method: 'DELETE' });
+        window.showToast('Coupon deleted.', 'success');
+        await loadCoupons();
+      } catch (err) {
+        window.showToast(err.message || 'Failed to delete coupon.', 'error');
+      }
+    }
+  });
+
+  const couponModal = document.getElementById('couponModal');
+
+  function setCouponTypeUI(type) {
+    document.getElementById('flatFields').style.display = type === 'cart_tier' ? 'none' : 'block';
+    document.getElementById('tierFields').style.display = type === 'cart_tier' ? 'block' : 'none';
+  }
+
+  document.querySelectorAll('input[name="couponType"]').forEach(radio => {
+    radio.addEventListener('change', (e) => setCouponTypeUI(e.target.value));
+  });
+
+  function addTierRow(amount = '', discount = '') {
+    const wrap = document.createElement('div');
+    wrap.className = 'tier-editor-row';
+    wrap.innerHTML = `
+      <input type="number" class="tier-amount" min="0" step="0.01" placeholder="Cart amount ₹" value="${amount}" />
+      <input type="number" class="tier-discount" min="0" max="100" step="0.01" placeholder="Discount %" value="${discount}" />
+      <button type="button" class="btn small rm-tier">✕</button>
+    `;
+    wrap.querySelector('.rm-tier').addEventListener('click', () => wrap.remove());
+    document.getElementById('tierRows').appendChild(wrap);
+  }
+
+  document.getElementById('addTierBtn').addEventListener('click', () => addTierRow());
+
+  function resetCouponForm() {
+    document.getElementById('couponId').value = '';
+    document.getElementById('couponCode').value = '';
+    document.getElementById('couponDescription').value = '';
+    document.getElementById('couponDiscount').value = '';
+    document.getElementById('couponMinCart').value = '';
+    document.getElementById('couponFreeItem').value = '';
+    document.querySelector('input[name="couponType"][value="min_cart_amount"]').checked = true;
+    setCouponTypeUI('min_cart_amount');
+    document.getElementById('tierRows').innerHTML = '';
+    addTierRow();
+    document.getElementById('couponImageDropLabel').style.display = 'block';
+    document.getElementById('couponImageDrop').querySelector('img')?.remove();
+    document.getElementById('couponImage').value = '';
+    selectedCouponImageFile = null;
+  }
+
+  document.getElementById('addCouponBtn').addEventListener('click', () => {
+    resetCouponForm();
+    document.getElementById('couponModalTitle').textContent = 'Add Coupon';
+    couponModal.classList.add('show');
+  });
+
+  function openEditCouponModal(c) {
+    resetCouponForm();
+    document.getElementById('couponModalTitle').textContent = `Edit ${c.code}`;
+    document.getElementById('couponId').value = c.id;
+    document.getElementById('couponCode').value = c.code;
+    document.getElementById('couponDescription').value = c.description || '';
+
+    const type = c.type === 'cart_tier' ? 'cart_tier' : 'min_cart_amount';
+    document.querySelector(`input[name="couponType"][value="${type}"]`).checked = true;
+    setCouponTypeUI(type);
+
+    if (type === 'cart_tier') {
+      const tiers = parseTiers(c.tiers);
+      document.getElementById('tierRows').innerHTML = '';
+      if (tiers.length) {
+        tiers.forEach(t => addTierRow(t.amount, t.discount));
+      } else {
+        addTierRow();
+      }
+    } else {
+      document.getElementById('couponDiscount').value = c.discount || '';
+      document.getElementById('couponMinCart').value = c.min_cart_amount ?? '';
+      document.getElementById('couponFreeItem').value = c.free_item || '';
+    }
+
+    if (c.image) {
+      document.getElementById('couponImageDropLabel').style.display = 'none';
+      const img = document.createElement('img');
+      img.src = c.image;
+      document.getElementById('couponImageDrop').appendChild(img);
+    }
+
+    couponModal.classList.add('show');
+  }
+
+  document.getElementById('cancelCouponModal').addEventListener('click', () => couponModal.classList.remove('show'));
+  couponModal.addEventListener('click', (e) => { if (e.target === couponModal) couponModal.classList.remove('show'); });
+
+  document.getElementById('couponImageDrop').addEventListener('click', () => document.getElementById('couponImage').click());
+  document.getElementById('couponImage').addEventListener('change', (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    selectedCouponImageFile = file;
+    const drop = document.getElementById('couponImageDrop');
+    drop.querySelector('img')?.remove();
+    document.getElementById('couponImageDropLabel').style.display = 'none';
+    const img = document.createElement('img');
+    img.src = URL.createObjectURL(file);
+    drop.appendChild(img);
+  });
+
+  document.getElementById('saveCouponBtn').addEventListener('click', async () => {
+    const id = document.getElementById('couponId').value;
+    const code = document.getElementById('couponCode').value.trim();
+    const description = document.getElementById('couponDescription').value.trim();
+    const type = document.querySelector('input[name="couponType"]:checked').value;
+
+    if (!code || !description) {
+      window.showToast('Code and description are required.', 'error');
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append('code', code);
+    formData.append('description', description);
+    formData.append('type', type);
+    if (selectedCouponImageFile) formData.append('image', selectedCouponImageFile);
+
+    if (type === 'cart_tier') {
+      const rows = Array.from(document.querySelectorAll('#tierRows .tier-editor-row'));
+      const tiers = rows.map(row => ({
+        amount: Number(row.querySelector('.tier-amount').value),
+        discount: Number(row.querySelector('.tier-discount').value)
+      }));
+      if (!tiers.length || tiers.some(t => !Number.isFinite(t.amount) || !Number.isFinite(t.discount))) {
+        window.showToast('Fill in valid amount and discount for every tier.', 'error');
+        return;
+      }
+      formData.append('tiers', JSON.stringify(tiers));
+    } else {
+      const discount = document.getElementById('couponDiscount').value;
+      const minCart = document.getElementById('couponMinCart').value;
+      const freeItem = document.getElementById('couponFreeItem').value.trim();
+
+      if (!discount && !freeItem) {
+        window.showToast('Enter a discount % or a free item.', 'error');
+        return;
+      }
+      if (discount) formData.append('discount', discount);
+      if (minCart) formData.append('min_cart_amount', minCart);
+      if (freeItem) formData.append('free_item', freeItem);
+    }
+
+    try {
+      if (id) {
+        await api(`${COUPON_API}/${id}`, { method: 'PUT', body: formData });
+        window.showToast('Coupon updated.', 'success');
+      } else {
+        await api(COUPON_API, { method: 'POST', body: formData });
+        window.showToast('Coupon added.', 'success');
+      }
+      couponModal.classList.remove('show');
+      await loadCoupons();
+    } catch (e) {
+      window.showToast(e.message || 'Failed to save coupon.', 'error');
+    }
+  });
+
+  /* =================================================================
+     BOOT
+     ================================================================= */
+  function loadComponent(url, placeholderId) {
+    return fetch(url)
+      .then(r => r.text())
+      .then(html => {
+        const el = document.getElementById(placeholderId);
+        el.innerHTML = html;
+        el.querySelectorAll('script').forEach(old => {
+          const s = document.createElement('script');
+          s.textContent = old.textContent;
+          old.replaceWith(s);
+        });
+      });
+  }
+
+  window.PAGE_TITLE = "Promotions & Coupons";
+  window.PAGE_SUB = "Manage banners and discount codes";
+  window.onRefresh = () => { loadPromotions(); loadCoupons(); };
+
+  Promise.all([
+    loadComponent('superadminsidedashboard.html', 'sidebar-placeholder'),
+    loadComponent('superadminheader.html', 'header-placeholder')
+  ]).then(async () => {
+    await loadPromotions();
+    await loadCoupons();
+  });
+</script>
+</body>
+</html>
