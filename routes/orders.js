@@ -18,12 +18,22 @@ router.post("/", async (req, res) => {
 
   const isTest = test_mode === true ? 1 : 0;
 
-  // Normalize items to ensure qty
+  // Normalize items to ensure qty, and PRESERVE size + addons.
+  // Previously this mapping dropped `size` and `addons` entirely, so even
+  // though the customer's cart correctly sent them in the request body,
+  // they never made it into the JSON that gets saved to the orders table —
+  // meaning admin had no way to see what add-ons were selected.
   const normalizedItems = items.map(item => ({
     id: item.id,
     name: item.name,
     price: item.price,
-    qty: item.qty || 1 // Fallback to 1 if qty is missing
+    qty: item.qty || 1, // Fallback to 1 if qty is missing
+    size: item.size || null,
+    addons: Array.isArray(item.addons) ? item.addons.map(a => ({
+      addon_id: a.addon_id,
+      name: a.name,
+      price: a.price
+    })) : []
   }));
 
   try {
@@ -82,7 +92,11 @@ router.post("/", async (req, res) => {
               ${order.items
                 .map(
                   (item) =>
-                    `<li>${item.name} × ${item.qty} - ₹${item.price.toFixed(2)}</li>`
+                    `<li>${item.name}${item.size ? ` (${item.size})` : ""} × ${item.qty} - ₹${item.price.toFixed(2)}${
+                      Array.isArray(item.addons) && item.addons.length
+                        ? `<br/><small>+ ${item.addons.map(a => `${a.name} (₹${Number(a.price).toFixed(2)})`).join(", ")}</small>`
+                        : ""
+                    }</li>`
                 )
                 .join("")}
             </ul>
@@ -146,7 +160,7 @@ router.get("/", authenticate, async (req, res) => {
       ORDER BY o.created_at DESC
     `);
 
-    // Parse items and normalize qty
+    // Parse items and normalize qty/size/addons
     const orders = rows.map(order => {
       let items = order.items;
       if (typeof order.items === "string") {
@@ -161,7 +175,15 @@ router.get("/", authenticate, async (req, res) => {
         ? items.map(item => ({
             ...item,
             qty: item.qty ?? item.quantity ?? 1,
-            price: parseFloat(item.price) // Ensure price is a number
+            price: parseFloat(item.price), // Ensure price is a number
+            size: item.size || null,
+            addons: Array.isArray(item.addons)
+              ? item.addons.map(a => ({
+                  addon_id: a.addon_id,
+                  name: a.name,
+                  price: parseFloat(a.price) || 0
+                }))
+              : []
           }))
         : [];
       return {
@@ -208,6 +230,21 @@ router.get("/session/:sessionId", async (req, res) => {
       if (typeof items === "string") {
         try { items = JSON.parse(items); } catch { items = []; }
       }
+      items = Array.isArray(items)
+        ? items.map(item => ({
+            ...item,
+            qty: item.qty ?? item.quantity ?? 1,
+            price: parseFloat(item.price),
+            size: item.size || null,
+            addons: Array.isArray(item.addons)
+              ? item.addons.map(a => ({
+                  addon_id: a.addon_id,
+                  name: a.name,
+                  price: parseFloat(a.price) || 0
+                }))
+              : []
+          }))
+        : [];
       return {
         ...order,
         items,

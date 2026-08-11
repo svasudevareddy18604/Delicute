@@ -147,7 +147,7 @@
       filter: drop-shadow(0 4px 14px rgba(0, 0, 0, 0.45));
       opacity: 0;
       will-change: transform, opacity;
-      animation: logoRollIn 1.4s cubic-bezier(0.22, 0.61, 0.36, 1) forwards;
+      animation: logoRollIn 2.4s cubic-bezier(0.22, 0.61, 0.36, 1) forwards;
     }
 
     @keyframes logoRollIn {
@@ -176,7 +176,7 @@
       color: var(--gold-light);
       margin-bottom: 0.5rem;
       opacity: 0;
-      animation: fadeInUp 0.8s ease-out 1.2s forwards;
+      animation: fadeInUp 0.8s ease-out 2.2s forwards;
     }
 
     .hero h1 {
@@ -188,7 +188,7 @@
       text-shadow: 0 3px 14px rgba(0, 0, 0, 0.55), 0 0 24px rgba(217, 169, 76, 0.35);
       opacity: 0;
       transform: translateY(20px);
-      animation: fadeInUp 0.8s ease-out 1.3s forwards;
+      animation: fadeInUp 0.8s ease-out 2.3s forwards;
       letter-spacing: 0.5px;
     }
 
@@ -202,7 +202,7 @@
       max-width: 92%;
       opacity: 0;
       transform: translateY(20px);
-      animation: fadeInUp 0.8s ease-out 1.5s forwards;
+      animation: fadeInUp 0.8s ease-out 2.5s forwards;
     }
 
     .anniversary-note {
@@ -215,7 +215,7 @@
       margin: 0 auto 1.8rem;
       opacity: 0;
       transform: translateY(20px);
-      animation: fadeInUp 0.8s ease-out 1.6s forwards;
+      animation: fadeInUp 0.8s ease-out 2.6s forwards;
     }
 
     .anniversary-note .script {
@@ -304,7 +304,7 @@
       box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
       opacity: 0;
       transform: translateY(20px);
-      animation: fadeInUp 0.8s ease-out 1.8s forwards, pulseGlow 2.4s ease-in-out 2.8s infinite;
+      animation: fadeInUp 0.8s ease-out 2.8s forwards, pulseGlow 2.4s ease-in-out 3.8s infinite;
     }
 
     .hero .btn:hover {
@@ -619,6 +619,32 @@
     }
     .table-select-manual button:hover { background: var(--gold-light); }
 
+    /* ---------- Footer ---------- */
+    .site-footer {
+      width: 100%;
+      background: linear-gradient(135deg, var(--ink) 0%, #3a2a34 100%);
+      color: #f0e6f7;
+      text-align: center;
+      padding: 1.4rem 1rem;
+      position: relative;
+    }
+    .site-footer .footer-divider {
+      width: 70px;
+      height: 2px;
+      margin: 0 auto 0.7rem;
+      background: linear-gradient(90deg, transparent, var(--gold), transparent);
+    }
+    .site-footer p {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(0.8rem, 2.6vw, 0.95rem);
+      letter-spacing: 0.5px;
+      color: #ddc9d6;
+    }
+    .site-footer p span {
+      color: var(--gold-light);
+      font-weight: 600;
+    }
+
     /* ---------- Responsive ---------- */
     @media (min-width: 1024px) {
       .hero-content { max-width: 680px; }
@@ -632,6 +658,7 @@
       .corner-flourish { width: 70px; height: 70px; opacity: 0.3; }
       .sparkle { font-size: 0.9rem; }
       .hero-bg { background-position: 60% center; }
+      .site-footer { padding: 1.1rem 0.9rem; }
 
       @keyframes logoRollIn {
         0% {
@@ -697,6 +724,11 @@
       <a href="#" id="exploreBtn" class="btn">Explore Our Menu</a>
     </div>
   </section>
+
+  <footer class="site-footer">
+    <div class="footer-divider"></div>
+    <p>&copy; 2025 <span>Delicute</span>. All Rights Reserved.</p>
+  </footer>
 
   <!-- Offer Popup -->
   <div class="offer-overlay" id="offerOverlay">
