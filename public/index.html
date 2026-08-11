@@ -807,7 +807,20 @@
        2. TABLE RESOLUTION
        Priority: URL param (fresh scan, always wins) -> saved table
        IF NOT STALE -> ask the user.
+
+       This runs once on initial page load, AND again every time the
+       tab returns to the foreground (visibilitychange / pageshow).
+       Mobile browsers often keep a tab alive in the background for
+       hours without reloading it, so without the second trigger a
+       stale table from last night could keep showing all morning
+       until the customer manually refreshes. Re-running the same
+       check on resume closes that gap silently — no popups, no
+       interruption, it just quietly re-validates what's on screen.
        ========================================================= */
+
+    // Applies the "is a scanned table param present" logic. Only
+    // meaningful on true page load (a fresh scan reflects in the URL),
+    // so this part stays out of the resume-check function below.
     if (scannedTable) {
       const previousTable = localStorage.getItem('delicute_table');
       if (previousTable && previousTable !== scannedTable) {
@@ -825,25 +838,61 @@
       return (Date.now() - Number(ts)) > TABLE_TTL_MS;
     }
 
-    let currentTable = localStorage.getItem('delicute_table');
-
-    if (currentTable && isSavedTableStale()) {
-      localStorage.removeItem('delicute_table');
-      localStorage.removeItem('delicute_table_ts');
-      localStorage.removeItem('cart');
-      localStorage.removeItem('appliedCoupon');
-      localStorage.removeItem('delicute_last_order_id');
-      currentTable = null;
-    }
+    let currentTable = null;
 
     function showTableBadge(tableNumber) {
       tableBadgeText.textContent = `Table ${tableNumber}`;
       tableBadge.classList.add('show');
     }
 
-    if (currentTable) {
-      showTableBadge(currentTable);
+    function hideTableBadge() {
+      tableBadge.classList.remove('show');
     }
+
+    // Single source of truth for "what table should currently be shown".
+    // Called on first load, and again on every tab-resume. Silent by
+    // design — it only ever updates the badge / localStorage, never
+    // pops a modal on its own, so a customer mid-browse never gets
+    // interrupted by a popup appearing out of nowhere.
+    function syncTableState() {
+      const savedTable = localStorage.getItem('delicute_table');
+
+      if (savedTable && isSavedTableStale()) {
+        localStorage.removeItem('delicute_table');
+        localStorage.removeItem('delicute_table_ts');
+        localStorage.removeItem('cart');
+        localStorage.removeItem('appliedCoupon');
+        localStorage.removeItem('delicute_last_order_id');
+        currentTable = null;
+        hideTableBadge();
+        return;
+      }
+
+      if (savedTable) {
+        currentTable = savedTable;
+        showTableBadge(savedTable);
+      } else {
+        currentTable = null;
+        hideTableBadge();
+      }
+    }
+
+    // Initial run on page load.
+    syncTableState();
+
+    // Re-run whenever the tab becomes visible again (covers Android/iOS
+    // browsers resuming a backgrounded tab without a real reload).
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'visible') {
+        syncTableState();
+      }
+    });
+
+    // Belt-and-braces: covers back/forward-cache restores (Safari/Chrome
+    // bfcache), which visibilitychange doesn't always catch on its own.
+    window.addEventListener('pageshow', (e) => {
+      syncTableState();
+    });
 
     // Tapping the badge just lets you switch tables — it's not part of
     // the "must pick a table before continuing" flow, so no auto-nav.
@@ -941,6 +990,9 @@
        3. NAVIGATE TO MENU
        ========================================================= */
     function goToMenu() {
+      // Re-validate right before navigating too — covers the case where
+      // the table went stale while this exact click was in flight.
+      syncTableState();
       if (!currentTable) {
         openTableSelectPopup(true);
         return;

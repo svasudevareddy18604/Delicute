@@ -90,30 +90,9 @@
       color: #F0E68C;
       text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
     }
-    .confetti {
-      position: absolute;
-      top: -10%;
-      font-size: 1rem;
-      pointer-events: none;
-      user-select: none;
-      animation: fall linear infinite;
-      z-index: 0;
-    }
-    #confettiLayer {
-      position: absolute;
-      inset: 0;
-      overflow: hidden;
-      pointer-events: none;
-      z-index: 0;
-    }
     header > img, header > div {
       position: relative;
       z-index: 1;
-    }
-    @keyframes fall {
-      0% { transform: translateY(-10%) rotate(0deg); opacity: 0; }
-      10% { opacity: 1; }
-      100% { transform: translateY(160px) rotate(360deg); opacity: 0; }
     }
     .container {
       max-width: 1400px;
@@ -234,34 +213,94 @@
     .apply-btn:hover {
       background: linear-gradient(45deg, #8A2BE2, #D8BFD8);
     }
-    #toast {
-      visibility: hidden;
-      min-width: 180px;
-      max-width: 90%;
-      background: linear-gradient(45deg, #9370DB, #D8BFD8);
-      color: #FFFFFF;
+
+    /* ---------- Empty state ---------- */
+    .empty-state {
+      grid-column: 1 / -1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 0.6rem;
+      background: #FFFFFF;
+      border: 1.5px dashed #C9A9D9;
+      border-radius: 12px;
+      padding: 2.2rem 1.2rem;
       text-align: center;
-      border-radius: 8px;
-      padding: 0.7rem;
-      position: fixed;
-      z-index: 1000;
-      top: 50px;
-      right: 10px;
-      font-size: clamp(0.7rem, 1.8vw, 0.8rem);
-      box-shadow: 0 2px 5px rgba(142, 68, 173, 0.2);
+      opacity: 0;
+      transform: translateY(10px);
+      animation: cardIn 0.4s ease forwards;
+    }
+    .empty-state .empty-icon {
+      width: 52px;
+      height: 52px;
+      border-radius: 50%;
+      background: linear-gradient(45deg, #9370DB, #D8BFD8);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+    }
+    .empty-state b {
+      font-size: clamp(0.85rem, 1.8vw, 0.95rem);
+      color: #7B4FCB;
+      font-weight: 800;
+    }
+    .empty-state p {
       font-family: Arial, sans-serif;
+      font-size: clamp(0.72rem, 1.5vw, 0.82rem);
+      color: #4B5E8E;
+      font-weight: 500;
+      max-width: 260px;
+    }
+
+    /* ---------- Toast ---------- */
+    #toast {
+      position: fixed;
+      top: 16px;
+      left: 50%;
+      transform: translateX(-50%) translateY(-120%);
+      z-index: 1000;
+      display: flex;
+      align-items: center;
+      gap: 0.55rem;
+      min-width: 220px;
+      max-width: 90%;
+      background: #FFFFFF;
+      border-left: 5px solid #2E7D32;
+      color: #1B5E20;
+      border-radius: 10px;
+      padding: 0.7rem 1rem;
+      font-family: Arial, sans-serif;
+      font-size: clamp(0.75rem, 1.8vw, 0.85rem);
+      font-weight: 600;
+      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.15);
+      opacity: 0;
+      transition: transform 0.35s ease, opacity 0.35s ease;
+    }
+    #toast .toast-icon {
+      flex-shrink: 0;
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      background: #2E7D32;
+      color: #FFFFFF;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.8rem;
+      font-weight: 800;
+    }
+    #toast.error {
+      border-left-color: #C62828;
+      color: #B71C1C;
+    }
+    #toast.error .toast-icon {
+      background: #C62828;
     }
     #toast.show {
-      visibility: visible;
-      animation: slideDown 0.4s ease-out, slideUp 0.4s ease-in 2s forwards;
-    }
-    @keyframes slideDown {
-      from { opacity: 0; top: -100%; }
-      to { opacity: 1; top: 50px; }
-    }
-    @keyframes slideUp {
-      from { opacity: 1; top: 50px; }
-      to { opacity: 0; top: -100%; }
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
     }
     @media (min-width: 769px) {
       .container { padding: 0 0.8rem; }
@@ -280,16 +319,15 @@
       .coupon-info b { font-size: 0.75rem; }
       .coupon-info p { font-size: 0.65rem; }
       .apply-btn { font-size: 0.7rem; padding: 0.4rem; }
-      #toast { font-size: 0.65rem; padding: 0.6rem; }
+      .empty-state { padding: 1.6rem 0.9rem; }
+      .empty-state .empty-icon { width: 44px; height: 44px; font-size: 1.25rem; }
     }
   </style>
 </head>
 <body>
   <header>
-    <div id="confettiLayer"></div>
     <img src="https://i.postimg.cc/W3pgQx9q/DELICUTE-Imgur-1-modified.png" alt="DELICUTE Logo">
     <div>
-      <div class="anniv-badge">🎉 1 Year Anniversary</div>
       <h1>Available Coupons</h1>
       <span>Unlock Delicious Savings</span>
     </div>
@@ -302,26 +340,16 @@
   <div id="toast"></div>
 
   <script>
-    function spawnConfetti() {
-      const layer = document.getElementById("confettiLayer");
-      const emojis = ["🎉", "🎊", "✨", "🥳"];
-      for (let i = 0; i < 10; i++) {
-        const el = document.createElement("span");
-        el.className = "confetti";
-        el.textContent = emojis[Math.floor(Math.random() * emojis.length)];
-        el.style.left = Math.random() * 100 + "%";
-        el.style.animationDuration = (2.5 + Math.random() * 2.5) + "s";
-        el.style.animationDelay = (Math.random() * 3) + "s";
-        layer.appendChild(el);
-      }
-    }
-
     function showToast(msg, success = true) {
       const toast = document.getElementById("toast");
-      toast.textContent = msg;
-      toast.style.background = success ? "linear-gradient(45deg, #9370DB, #D8BFD8)" : "linear-gradient(45deg, #ef5350, #e53935)";
-      toast.className = "show";
-      setTimeout(() => toast.className = toast.className.replace("show", ""), 2000);
+      toast.innerHTML = `
+        <span class="toast-icon">${success ? "✓" : "✕"}</span>
+        <span>${msg}</span>
+      `;
+      toast.classList.toggle("error", !success);
+      toast.classList.add("show");
+      clearTimeout(toast._hideTimer);
+      toast._hideTimer = setTimeout(() => toast.classList.remove("show"), 2500);
     }
 
     async function loadCoupons() {
@@ -345,9 +373,23 @@
             `;
           });
         } else {
-          list.innerHTML = "<p style='text-align:center;color:#4B5E8E;font-size:0.8rem;'>No coupons available right now.</p>";
+          list.innerHTML = `
+            <div class="empty-state">
+              <div class="empty-icon">🎟️</div>
+              <b>No Coupons Available Right Now</b>
+              <p>Check back soon — new offers drop regularly!</p>
+            </div>
+          `;
         }
       } catch (err) {
+        const list = document.getElementById("couponList");
+        list.innerHTML = `
+          <div class="empty-state">
+            <div class="empty-icon">⚠️</div>
+            <b>Couldn't Load Coupons</b>
+            <p>Please check your connection and try again.</p>
+          </div>
+        `;
         showToast("Error loading coupons", false);
         console.error("Coupon Load Error:", err);
       }
@@ -362,10 +404,7 @@
       }, 1000);
     }
 
-    window.addEventListener("load", () => {
-      spawnConfetti();
-      loadCoupons();
-    });
+    window.addEventListener("load", loadCoupons);
   </script>
 </body>
 </html>
