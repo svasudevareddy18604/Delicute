@@ -1,0 +1,299 @@
+<!-- ===================== HEADER COMPONENT ===================== -->
+<style>
+  .topbar {
+    height: 64px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 1.4rem;
+    border-bottom: 1px solid var(--border);
+    background: rgba(20,20,26,0.78);
+    backdrop-filter: blur(12px);
+    position: fixed;
+    top: 0;
+    left: 240px;
+    right: 0;
+    z-index: 15;
+    transition: left 0.25s ease;
+  }
+  .topbar::after {
+    content: '';
+    position: absolute;
+    left: 0; right: 0; bottom: -1px;
+    height: 2px;
+    background: linear-gradient(90deg, var(--crimson-bright), var(--gold), var(--green), var(--crimson-bright));
+    background-size: 300% 100%;
+    opacity: 0.55;
+    animation: topbarShimmer 8s linear infinite;
+  }
+  @keyframes topbarShimmer {
+    0% { background-position: 0% 0; }
+    100% { background-position: 300% 0; }
+  }
+
+  /* spacer pushed into the page flow so content isn't hidden under fixed header */
+  .topbar-spacer { height: 64px; flex-shrink: 0; }
+
+  .topbar-left { display: flex; align-items: center; gap: 0.9rem; position: relative; min-width: 0; }
+  #menuToggle {
+    display: none;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    color: var(--gold-light);
+    font-size: 1.1rem;
+    cursor: pointer;
+    width: 34px; height: 34px;
+    border-radius: 8px;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  #menuToggle:hover { border-color: rgba(217,169,76,0.5); }
+
+  .title-block { display: flex; align-items: center; gap: 0.6rem; min-width: 0; }
+  .title-dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: linear-gradient(45deg, var(--crimson-bright), var(--gold));
+    box-shadow: 0 0 8px rgba(232,84,63,0.6);
+    flex-shrink: 0;
+  }
+  .page-title {
+    font-family: 'Playfair Display', serif;
+    font-weight: 700;
+    font-size: 1.18rem;
+    background: linear-gradient(90deg, var(--text), var(--gold-light));
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    white-space: nowrap;
+  }
+
+  /* ---------- Scrolling ticker (replaces static page-sub) ---------- */
+  .page-sub-ticker {
+    width: 100%;
+    max-width: 320px;
+    overflow: hidden;
+    position: relative;
+    margin-top: 0.2rem;
+    -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 8%, #000 92%, transparent 100%);
+    mask-image: linear-gradient(90deg, transparent 0, #000 8%, #000 92%, transparent 100%);
+  }
+  .page-sub-track {
+    display: flex;
+    width: max-content;
+    animation: tickerScroll 14s linear infinite;
+  }
+  .page-sub-track span {
+    font-family: 'Roboto Mono', monospace;
+    font-size: 0.62rem;
+    color: var(--muted);
+    letter-spacing: 1.2px;
+    white-space: nowrap;
+    padding-right: 1.6rem;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+  }
+  .page-sub-track span::before {
+    content: '';
+    width: 4px; height: 4px; border-radius: 50%;
+    background: var(--gold);
+    display: inline-block;
+    flex-shrink: 0;
+  }
+  @keyframes tickerScroll {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
+  }
+  @media (max-width: 640px) { .page-sub-ticker { max-width: 160px; } }
+
+  .topbar-right { display: flex; align-items: center; gap: 0.8rem; flex-shrink: 0; }
+
+  .clock-chip {
+    display: none;
+    align-items: center;
+    gap: 0.4rem;
+    font-family: 'Roboto Mono', monospace;
+    font-size: 0.68rem;
+    color: var(--muted);
+    padding: 0.4rem 0.7rem;
+    border-radius: 7px;
+    background: var(--panel);
+    border: 1px solid var(--border);
+  }
+  .clock-chip .pulse {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: var(--green);
+    box-shadow: 0 0 0 0 rgba(46,158,107,0.6);
+    animation: clockPulse 2s ease-out infinite;
+  }
+  @keyframes clockPulse {
+    0% { box-shadow: 0 0 0 0 rgba(46,158,107,0.55); }
+    70% { box-shadow: 0 0 0 5px rgba(46,158,107,0); }
+    100% { box-shadow: 0 0 0 0 rgba(46,158,107,0); }
+  }
+  @media (min-width: 640px) { .clock-chip { display: flex; } }
+
+  .refresh-btn {
+    background: linear-gradient(135deg, var(--panel), var(--panel-2, var(--panel)));
+    border: 1px solid var(--border);
+    color: var(--gold-light);
+    padding: 0.44rem 0.85rem;
+    border-radius: 8px;
+    font-size: 0.78rem;
+    font-weight: 600;
+    display: flex; align-items: center; gap: 0.4rem;
+    cursor: pointer;
+    font-family: inherit;
+    transition: border-color 0.2s ease, transform 0.15s ease, box-shadow 0.2s ease;
+  }
+  .refresh-btn:hover {
+    border-color: rgba(217,169,76,0.55);
+    box-shadow: 0 4px 14px rgba(217,169,76,0.15);
+  }
+  .refresh-btn:active { transform: scale(0.96); }
+  .refresh-btn svg { transition: transform 0.5s ease; }
+  .refresh-btn.spinning svg { transform: rotate(360deg); }
+
+  .admin-chip {
+    display: flex; align-items: center; gap: 0.55rem;
+    font-family: 'Roboto Mono', monospace; font-size: 0.72rem; color: var(--muted);
+    padding: 0.3rem 0.7rem 0.3rem 0.3rem;
+    border-radius: 24px;
+    background: var(--panel);
+    border: 1px solid var(--border);
+  }
+  .admin-chip .avatar {
+    width: 30px; height: 30px; border-radius: 50%;
+    background: linear-gradient(135deg, var(--crimson), var(--gold));
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 700; font-size: 0.78rem; color: #14141a;
+    position: relative;
+    box-shadow: 0 0 0 2px var(--graphite-2, #1a1a22), 0 0 0 3px rgba(217,169,76,0.35);
+    flex-shrink: 0;
+  }
+  .admin-chip .avatar::after {
+    content: '';
+    position: absolute;
+    bottom: -1px; right: -1px;
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--green);
+    border: 2px solid var(--graphite-2, #1a1a22);
+  }
+  .admin-chip .email-label { color: var(--text); font-weight: 600; }
+  .admin-chip .role-label { display: block; font-size: 0.58rem; color: var(--muted); letter-spacing: 0.4px; }
+
+  @media (max-width: 860px) {
+    .topbar { left: 0; }
+    #menuToggle { display: flex; }
+  }
+  @media (max-width: 480px) {
+    .admin-chip .email-label { display: none; }
+    .admin-chip .role-label { display: none; }
+    .admin-chip { padding: 0.3rem; }
+  }
+</style>
+
+<div class="topbar" id="topbar">
+  <div class="topbar-left">
+    <button id="menuToggle" aria-label="Toggle sidebar">☰</button>
+    <div class="title-block">
+      <span class="title-dot"></span>
+      <div style="min-width:0;">
+        <div class="page-title" id="pageTitle">Page Title</div>
+        <div class="page-sub-ticker">
+          <div class="page-sub-track" id="pageSubTrack">
+            <!-- populated by JS: duplicated content for seamless loop -->
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="topbar-right">
+    <div class="clock-chip" id="clockChip">
+      <span class="pulse"></span>
+      <span id="clockText">--:--</span>
+    </div>
+    <button class="refresh-btn" id="refreshBtn">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 4v6h-6M1 20v-6h6"/><path d="M20.5 9A9 9 0 0 0 5 5.6L1 10m22 4-4 4.4a9 9 0 0 1-15.5-3.4"/></svg>
+      Refresh
+    </button>
+    <div class="admin-chip">
+      <div class="avatar" id="adminInitial">S</div>
+      <div>
+        <span class="email-label" id="adminEmail">superadmin</span>
+        <span class="role-label">Super Admin</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="topbar-spacer"></div>
+
+<script>
+  // ============ Header behaviour ============
+  // Each page must define window.PAGE_TITLE / window.PAGE_SUB and window.onRefresh (optional)
+  // and must have a #sidebar element already loaded before this script runs.
+
+  (function initHeader() {
+    const titleEl = document.getElementById('pageTitle');
+    if (window.PAGE_TITLE) titleEl.textContent = window.PAGE_TITLE;
+
+    // ---- Scrolling ticker for the subtitle ----
+    const subText = window.PAGE_SUB || 'DELICUTE — EVERY BITE TELLS A STORY';
+    const track = document.getElementById('pageSubTrack');
+    // duplicate content twice so the -50% translateX loop is seamless
+    track.innerHTML = `<span>${subText}</span><span>${subText}</span><span>${subText}</span><span>${subText}</span>`;
+
+    // Mobile sidebar toggle — expects a #sidebar element in the DOM
+    document.getElementById('menuToggle').addEventListener('click', () => {
+      const sidebar = document.getElementById('sidebar');
+      if (sidebar) sidebar.classList.toggle('open');
+    });
+
+    // Refresh button — calls page-level window.onRefresh() if defined
+    const refreshBtn = document.getElementById('refreshBtn');
+    refreshBtn.addEventListener('click', () => {
+      refreshBtn.classList.add('spinning');
+      setTimeout(() => refreshBtn.classList.remove('spinning'), 500);
+
+      if (typeof window.onRefresh === 'function') {
+        window.onRefresh();
+      }
+      if (typeof window.showToast === 'function') {
+        window.showToast('Refreshed.', 'success', 1500);
+      }
+    });
+
+    // Live clock
+    updateClock();
+    setInterval(updateClock, 1000 * 30);
+
+    // Admin identity
+    loadIdentity();
+  })();
+
+  function updateClock() {
+    const el = document.getElementById('clockText');
+    if (!el) return;
+    const now = new Date();
+    el.textContent = now.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' });
+  }
+
+  async function loadIdentity() {
+    try {
+      const res = await fetch('/api/superadmin/auth/me', { credentials: 'include' });
+      if (res.status === 401) {
+        window.location.href = '/superadminlogin.html';
+        return;
+      }
+      const data = await res.json();
+      const email = data.email || 'superadmin';
+      document.getElementById('adminEmail').textContent = email;
+      document.getElementById('adminInitial').textContent = email.charAt(0).toUpperCase();
+    } catch (e) { /* not fatal */ }
+  }
+</script>
+<!-- =================== END HEADER COMPONENT =================== -->

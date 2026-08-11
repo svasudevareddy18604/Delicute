@@ -61,6 +61,30 @@
     touch-action: pan-y;
   }
 
+  /* Small badge shown only while test mode is active, so it's obvious
+     at a glance you're not creating real orders. Same style as
+     index.html's badge for visual consistency across the flow. */
+  .test-mode-badge {
+    display: none;
+    align-items: center;
+    gap: 0.35rem;
+    position: fixed;
+    top: 10px;
+    right: 10px;
+    z-index: 5000;
+    font-family: Arial, sans-serif;
+    font-weight: 700;
+    font-size: 0.7rem;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    color: #1a1a1a;
+    background: #ffca28;
+    padding: 0.35rem 0.7rem;
+    border-radius: 20px;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.3);
+  }
+  .test-mode-badge.show { display: inline-flex; }
+
   header {
     background: linear-gradient(90deg, var(--primary-purple) 0%, var(--lilac) 100%);
     color: #FFFFFF;
@@ -1005,6 +1029,8 @@
 </style>
 </head>
 <body>
+  <div class="test-mode-badge" id="testModeBadge">🧪 Test Mode</div>
+
   <header>
     <div class="header-inner">
       <a href="customerstatus.html" class="track-order-btn" id="trackOrderBtn">
@@ -1155,6 +1181,37 @@
         // session — it doesn't matter yet whether an order exists;
         // customerstatus.html itself handles the "no orders yet" state.
         if (trackBtn) trackBtn.classList.add('show');
+      });
+    })();
+  </script>
+
+  <!-- ================================================================
+       TEST MODE BADGE
+       cart.js already fetches /api/test-mode on window 'load' and sets
+       window.DELICUTE_TEST_MODE (used by placeOrder() to tag orders).
+       This tiny listener just reflects that same state onto the visual
+       badge here, polling briefly right after load since cart.js's own
+       fetch is async and may resolve a moment after this file runs.
+       ================================================================ -->
+  <script>
+    (function () {
+      const testModeBadge = document.getElementById('testModeBadge');
+
+      function reflectTestModeBadge() {
+        if (window.DELICUTE_TEST_MODE === true) {
+          testModeBadge.classList.add('show');
+        } else {
+          testModeBadge.classList.remove('show');
+        }
+      }
+
+      window.addEventListener('load', () => {
+        // cart.js's syncTestMode() runs on 'load' too — give it a brief
+        // moment to resolve, then reflect the result onto the badge.
+        // Also re-checks periodically so if a superadmin flips test mode
+        // while this tab is open, the badge updates without a refresh.
+        setTimeout(reflectTestModeBadge, 400);
+        setInterval(reflectTestModeBadge, 5000);
       });
     })();
   </script>

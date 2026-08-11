@@ -811,20 +811,27 @@
     const scannedTable = urlParams.get('table');
 
     /* =========================================================
-       TEST MODE
-       Visit index.html?test=1 once to turn it on — remembered until
-       you visit index.html?test=0. While on, every order placed is
-       tagged is_test=1 on the backend, which skips the email and
-       the admin/kitchen dashboard entirely — safe to place real
-       test orders without staff seeing them.
-       ========================================================= */
-    const testParam = urlParams.get('test');
-    if (testParam === '1') localStorage.setItem('delicute_test_mode', 'true');
-    if (testParam === '0') localStorage.removeItem('delicute_test_mode');
+   TEST MODE — now controlled server-side by the superadmin,
+   not by a URL param. Restaurant admins have no way to see or
+   toggle this. When ON, orders should be tagged is_test=1 so
+   they skip the email + admin/kitchen dashboard, but superadmins
+   can still see everything and use the site normally to test.
+   ========================================================= */
+window.DELICUTE_TEST_MODE = false; // default OFF until server responds
 
-    if (localStorage.getItem('delicute_test_mode') === 'true') {
-      testModeBadge.classList.add('show');
-    }
+async function syncTestMode() {
+  try {
+    const res = await fetch('/api/test-mode', { cache: 'no-store' });
+    const data = await res.json();
+    window.DELICUTE_TEST_MODE = !!data.enabled;
+    testModeBadge.classList.toggle('show', window.DELICUTE_TEST_MODE);
+  } catch (err) {
+    console.error('Test Mode Sync Error:', err);
+    window.DELICUTE_TEST_MODE = false; // fail safe: never silently test-tag real orders
+    testModeBadge.classList.remove('show');
+  }
+}
+syncTestMode();
 
     /* =========================================================
        1. PERSISTENT ANONYMOUS SESSION

@@ -42,6 +42,21 @@ function cookieOptions() {
   };
 }
 
+// ================== MIDDLEWARE ==================
+// Defined up top (not at the bottom) so it can be used by /logs and any
+// other protected route declared below in this same file.
+function authenticateSuperadmin(req, res, next) {
+  const token = req.cookies?.[COOKIE_NAME];
+  if (!token) return res.status(401).json({ success: false, message: "Not authenticated" });
+
+  try {
+    req.superadmin = jwt.verify(token, JWT_SECRET);
+    next();
+  } catch (err) {
+    return res.status(401).json({ success: false, message: "Session expired or invalid" });
+  }
+}
+
 async function logAttempt({ superadminId, email, ip, userAgent, success, reason }) {
   try {
     await pool.query(
@@ -190,7 +205,6 @@ router.get("/me", async (req, res) => {
   }
 });
 
-
 // ================== AUTH CHECK ==================
 router.get("/check", async (req, res) => {
   const token = req.cookies?.[COOKIE_NAME];
@@ -210,20 +224,39 @@ router.post("/logout", (req, res) => {
   res.json({ success: true, message: "Logged out" });
 });
 
-module.exports = router;
-
-// ================== MIDDLEWARE (export separately for other superadmin routes) ==================
-// Usage in future route files:
-//   const { authenticateSuperadmin } = require("../routes/superadmin");
-//   router.get("/some-protected-thing", authenticateSuperadmin, handler);
-module.exports.authenticateSuperadmin = function authenticateSuperadmin(req, res, next) {
-  const token = req.cookies?.[COOKIE_NAME];
-  if (!token) return res.status(401).json({ success: false, message: "Not authenticated" });
-
+// ================== LOGIN LOGS (for the Login Logs page) ==================
+// GET /api/superadmin/logs?q=&success=&limit=
+router.get("/logs", authenticateSuperadmin, async (req, res) => {
   try {
-    req.superadmin = jwt.verify(token, JWT_SECRET);
-    next();
+    const { q = "", success = "", limit = "50" } = req.query;
+
+    const safeLimit = Math.min(Math.max(parseInt(limit, 10) || 50, 1), 500);
+
+    let sql = `SELECT id, superadmin_id, email_attempted, ip_address, user_agent, success, reason, created_at
+               FROM superadmin_login_logs WHERE 1=1`;
+    const params = [];
+
+    if (q.trim()) {
+      sql += ` AND (email_attempted LIKE ? OR ip_address LIKE ?)`;
+      params.push(`%${q.trim()}%`, `%${q.trim()}%`);
+    }
+
+    if (success === "1" || success === "0") {
+      sql += ` AND success = ?`;
+      params.push(success === "1" ? 1 : 0);
+    }
+
+    sql += ` ORDER BY id DESC LIMIT ?`;
+    params.push(safeLimit);
+
+    const [rows] = await pool.query(sql, params);
+
+    res.json({ success: true, logs: rows });
   } catch (err) {
-    return res.status(401).json({ success: false, message: "Session expired or invalid" });
+    console.error("Fetch superadmin logs error:", err);
+    res.status(500).json({ success: false, message: "Failed to fetch login logs" });
   }
-};
+});
+
+module.exports = router;
+module.exports.authenticateSuperadmin = authenticateSuperadmin;

@@ -1,0 +1,657 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Delicute | Add-ons</title>
+<link rel="icon" href="https://i.postimg.cc/W3pgQx9q/DELICUTE-Imgur-1-modified.png" />
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Roboto+Mono:wght@500;600&family=Roboto:wght@400;500;600&display=swap" rel="stylesheet" />
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { width: 100%; overflow-x: hidden; }
+
+  :root {
+    --graphite: #14141a;
+    --graphite-2: #1a1a22;
+    --panel: #1d1d26;
+    --panel-2: #232330;
+    --crimson: #c0392b;
+    --crimson-bright: #e8543f;
+    --gold: #d9a94c;
+    --gold-light: #f2d49b;
+    --green: #2e9e6b;
+    --amber: #d9a94c;
+    --red: #d64545;
+    --blue: #4a90d9;
+    --purple: #9b6fd9;
+    --text: #e9e6ef;
+    --muted: #8b889a;
+    --border: #33333f;
+  }
+
+  body { font-family: 'Roboto', sans-serif; color: var(--text); background: var(--graphite); min-height: 100vh; display: flex; }
+  a { color: inherit; text-decoration: none; }
+  button { font-family: inherit; cursor: pointer; }
+
+  .main { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+  .content { padding: 1.4rem; flex: 1; }
+
+  .panel {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 1.2rem 1.3rem;
+    margin-bottom: 1.2rem;
+    position: relative;
+    overflow: hidden;
+  }
+  .panel::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+    background: linear-gradient(90deg, var(--purple), var(--blue));
+    opacity: 0.75;
+  }
+
+  .panel-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.7rem; }
+  .panel-title-wrap { display: flex; align-items: center; gap: 0.6rem; }
+  .panel-icon {
+    width: 36px; height: 36px; border-radius: 9px;
+    display: flex; align-items: center; justify-content: center;
+    background: rgba(155,111,217,0.15); color: #c9aef2;
+    flex-shrink: 0;
+  }
+  .panel-icon svg { width: 18px; height: 18px; }
+  .panel-title { font-family: 'Playfair Display', serif; font-weight: 700; font-size: 1.05rem; }
+  .panel-count { font-family: 'Roboto Mono', monospace; font-size: 0.65rem; color: var(--muted); }
+  .panel-sub { font-size: 0.78rem; color: var(--muted); margin-top: 0.2rem; }
+
+  .panel-actions { display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap; }
+
+  input.search, input.text-input, select.select {
+    padding: 0.5rem 0.75rem;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: var(--graphite-2);
+    color: var(--text);
+    font-size: 0.8rem;
+    font-family: 'Roboto Mono', monospace;
+  }
+  input.search:focus, input.text-input:focus, select.select:focus { outline: none; border-color: rgba(217,169,76,0.5); }
+
+  .btn {
+    padding: 0.5rem 0.9rem;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: var(--panel-2);
+    color: var(--text);
+    font-size: 0.78rem;
+    font-weight: 600;
+    display: inline-flex; align-items: center; gap: 0.35rem;
+    transition: all 0.15s ease;
+  }
+  .btn:hover { border-color: rgba(217,169,76,0.4); }
+  .btn.primary {
+    background: linear-gradient(135deg, var(--purple), #6a4a99);
+    border-color: transparent; color: #fff;
+    box-shadow: 0 4px 14px rgba(155,111,217,0.3);
+  }
+  .btn.primary:hover { background: linear-gradient(135deg, #a97fe0, var(--purple)); }
+  .btn.danger { color: #f2a3a3; }
+  .btn.danger:hover { border-color: rgba(214,69,69,0.4); }
+  .btn.small { padding: 0.34rem 0.7rem; font-size: 0.7rem; }
+  .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  /* ---------- Group cards ---------- */
+  .groups-wrap { display: flex; flex-direction: column; gap: 1rem; }
+  .group-card {
+    background: var(--panel-2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+  .group-head {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0.9rem 1rem; gap: 0.8rem; flex-wrap: wrap;
+    cursor: pointer;
+  }
+  .group-head-left { display: flex; align-items: center; gap: 0.7rem; flex-wrap: wrap; }
+  .group-name { font-weight: 600; font-size: 0.95rem; }
+  .group-meta { font-family: 'Roboto Mono', monospace; font-size: 0.68rem; color: var(--muted); display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap; }
+  .group-chevron { transition: transform 0.2s ease; color: var(--muted); flex-shrink: 0; }
+  .group-card.collapsed .group-chevron { transform: rotate(-90deg); }
+  .group-card.collapsed .group-body { display: none; }
+  .group-body { border-top: 1px solid var(--border); }
+
+  .badge {
+    display: inline-block; padding: 0.2rem 0.55rem; border-radius: 6px;
+    font-family: 'Roboto Mono', monospace; font-size: 0.62rem; font-weight: 600; letter-spacing: 0.4px;
+  }
+  .badge.green { background: rgba(46,158,107,0.15); color: #7fd9ac; }
+  .badge.red { background: rgba(214,69,69,0.15); color: #f2a3a3; }
+  .badge.gold { background: rgba(217,169,76,0.15); color: var(--gold-light); }
+  .badge.muted { background: rgba(139,136,154,0.15); color: var(--muted); }
+
+  /* ---------- Table ---------- */
+  .table-wrap { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; font-size: 0.83rem; }
+  thead th {
+    text-align: left; font-family: 'Roboto Mono', monospace; font-size: 0.62rem;
+    text-transform: uppercase; letter-spacing: 0.8px; color: var(--muted);
+    padding: 0.6rem 0.9rem; border-bottom: 1px solid var(--border); white-space: nowrap;
+  }
+  tbody td { padding: 0.6rem 0.9rem; border-bottom: 1px solid rgba(255,255,255,0.04); vertical-align: middle; }
+  tbody tr:last-child td { border-bottom: none; }
+  tbody tr:hover { background: rgba(255,255,255,0.02); }
+  tbody tr.row-new { background: rgba(155,111,217,0.12); }
+  .empty-row td { text-align: center; color: var(--muted); padding: 1.4rem; font-family: 'Roboto Mono', monospace; font-size: 0.76rem; }
+
+  .price-cell { font-family: 'Roboto Mono', monospace; font-weight: 700; color: var(--gold-light); }
+  .veg-dot { width: 10px; height: 10px; border-radius: 3px; display: inline-block; border: 1.5px solid; }
+  .veg-dot.veg { border-color: var(--green); }
+  .veg-dot.veg::after { content:''; display:block; width:5px; height:5px; margin:1.5px; border-radius:50%; background:var(--green); }
+  .veg-dot.nonveg { border-color: var(--red); }
+  .veg-dot.nonveg::after { content:''; display:block; width:5px; height:5px; margin:1.5px; border-radius:50%; background:var(--red); }
+
+  .row-actions { display: flex; gap: 0.4rem; flex-wrap: wrap; }
+  .group-actions { display: flex; gap: 0.4rem; flex-wrap: wrap; align-items: center; }
+
+  .empty-groups { text-align: center; color: var(--muted); padding: 2.2rem; font-family: 'Roboto Mono', monospace; font-size: 0.8rem; }
+
+  /* ---------- Modal ---------- */
+  .modal-overlay {
+    display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6);
+    z-index: 100; align-items: center; justify-content: center; padding: 1rem;
+    backdrop-filter: blur(3px);
+  }
+  .modal-overlay.show { display: flex; }
+  .modal-box {
+    background: var(--panel); border: 1px solid var(--border); border-radius: 14px;
+    padding: 1.4rem; width: 100%; max-width: 440px;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+    max-height: 90vh; overflow-y: auto;
+  }
+  .modal-box h3 { font-family: 'Playfair Display', serif; font-size: 1.15rem; margin-bottom: 1rem; }
+  .form-group { margin-bottom: 0.9rem; }
+  .form-row { display: flex; gap: 0.8rem; }
+  .form-row .form-group { flex: 1; }
+  .form-group label {
+    display: block; font-family: 'Roboto Mono', monospace; font-size: 0.65rem;
+    text-transform: uppercase; letter-spacing: 0.8px; color: var(--muted); margin-bottom: 0.4rem;
+  }
+  .form-group input, .form-group select {
+    width: 100%; padding: 0.6rem 0.8rem; border-radius: 8px;
+    border: 1px solid var(--border); background: var(--graphite-2); color: var(--text);
+    font-size: 0.85rem; font-family: 'Roboto Mono', monospace;
+  }
+  .form-group input:focus, .form-group select:focus { outline: none; border-color: rgba(217,169,76,0.5); }
+  .checkbox-row { display: flex; align-items: center; gap: 0.5rem; }
+  .checkbox-row input { width: auto; }
+  .checkbox-row label { margin: 0; }
+  .modal-actions { display: flex; gap: 0.6rem; justify-content: flex-end; margin-top: 1.2rem; }
+
+  /* ---------- Toast ---------- */
+  #toast-container { position: fixed; top: 80px; right: 20px; z-index: 2000; display: flex; flex-direction: column; gap: 0.6rem; max-width: 90vw; }
+  .toast {
+    display: flex; align-items: center; gap: 0.65rem; min-width: 260px; max-width: 340px;
+    background: var(--panel); border-radius: 10px; padding: 0.85rem 1.05rem;
+    box-shadow: 0 10px 28px rgba(0,0,0,0.4); border-left: 4px solid var(--crimson);
+    font-size: 0.9rem; font-weight: 500; color: var(--text);
+    opacity: 0; transform: translateX(40px); animation: toastIn 0.4s ease-out forwards;
+  }
+  .toast.success { border-left-color: var(--green); }
+  .toast.error { border-left-color: var(--red); }
+  .toast .icon {
+    flex-shrink: 0; width: 22px; height: 22px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center; font-size: 0.8rem; font-weight: 800; color: #fff;
+  }
+  .toast.success .icon { background: var(--green); }
+  .toast.error .icon { background: var(--red); }
+  .toast.hide { animation: toastOut 0.35s ease-in forwards; }
+  @keyframes toastIn { to { opacity: 1; transform: translateX(0); } }
+  @keyframes toastOut { to { opacity: 0; transform: translateX(40px); } }
+
+  @media (max-width: 560px) {
+    .content { padding: 1rem; }
+    .panel-head { flex-direction: column; align-items: flex-start; }
+    .form-row { flex-direction: column; gap: 0; }
+  }
+</style>
+</head>
+<body>
+
+<div id="sidebar-placeholder"></div>
+
+<div class="main">
+  <div id="header-placeholder"></div>
+
+  <div class="content">
+
+    <!-- ADD-ON GROUPS -->
+    <div class="panel">
+      <div class="panel-head">
+        <div class="panel-title-wrap">
+          <div class="panel-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg>
+          </div>
+          <div>
+            <div class="panel-title">Add-on Groups</div>
+            <div class="panel-count" id="groupsCount">— groups</div>
+          </div>
+        </div>
+        <div class="panel-actions">
+          <input class="search" id="groupSearch" placeholder="Search group / add-on…" />
+          <button class="btn primary" id="addGroupBtn">+ Add Group</button>
+        </div>
+      </div>
+
+      <div class="groups-wrap" id="groupsWrap">
+        <div class="empty-groups">Loading…</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ADD/EDIT GROUP MODAL -->
+<div class="modal-overlay" id="groupModal">
+  <div class="modal-box">
+    <h3 id="groupModalTitle">Add Group</h3>
+    <input type="hidden" id="groupId" />
+    <div class="form-group"><label>Group Name</label><input type="text" id="groupName" placeholder="e.g. Choose your toppings" /></div>
+    <div class="form-row">
+      <div class="form-group"><label>Min Selection</label><input type="number" id="groupMin" min="0" value="0" /></div>
+      <div class="form-group"><label>Max Selection</label><input type="number" id="groupMax" min="1" value="1" /></div>
+    </div>
+    <div class="form-group checkbox-row">
+      <input type="checkbox" id="groupRequired" />
+      <label for="groupRequired" style="margin-bottom:0;">Required for customer to choose</label>
+    </div>
+    <div class="modal-actions">
+      <button class="btn" id="cancelGroupModal">Cancel</button>
+      <button class="btn primary" id="saveGroupBtn">Save Group</button>
+    </div>
+  </div>
+</div>
+
+<!-- ADD/EDIT ADDON MODAL -->
+<div class="modal-overlay" id="addonModal">
+  <div class="modal-box">
+    <h3 id="addonModalTitle">Add Add-on</h3>
+    <input type="hidden" id="addonId" />
+    <input type="hidden" id="addonGroupId" />
+    <div class="form-group"><label>Add-on Name</label><input type="text" id="addonName" placeholder="e.g. Extra Cheese" /></div>
+    <div class="form-row">
+      <div class="form-group"><label>Price (₹)</label><input type="number" id="addonPrice" min="0" step="0.01" placeholder="e.g. 40" /></div>
+      <div class="form-group">
+        <label>Type</label>
+        <select id="addonVeg">
+          <option value="true">Veg</option>
+          <option value="false">Non-Veg</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-group checkbox-row">
+      <input type="checkbox" id="addonAvailable" checked />
+      <label for="addonAvailable" style="margin-bottom:0;">Available to order</label>
+    </div>
+    <div class="modal-actions">
+      <button class="btn" id="cancelAddonModal">Cancel</button>
+      <button class="btn primary" id="saveAddonBtn">Save Add-on</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast-container" aria-live="polite" aria-atomic="true"></div>
+
+<script>
+  // ============ Config ============
+  // NOTE: only the admin backend exists (routes/adminaddon.js -> /api/admin/*).
+  // This page authenticates as a regular admin (cookie "token"), not superadmin.
+const API_BASE = "/api/superadmin/addons";
+const LOGIN_PAGE = "/superadminlogin.html"; // adjust to your actual admin login page if different
+
+  let currentGroups = [];   // full nested groups+addons from server
+  let collapsedIds = new Set();
+
+  // ============ Toast ============
+  window.showToast = function showToast(message, type = 'success', duration = 3200) {
+    const container = document.getElementById('toast-container');
+    const toast = document.createElement('div');
+    toast.className = `toast ${type}`;
+    toast.innerHTML = `<span class="icon">${type === 'success' ? '✓' : '!'}</span><span>${message}</span>`;
+    container.appendChild(toast);
+    setTimeout(() => {
+      toast.classList.add('hide');
+      toast.addEventListener('animationend', () => toast.remove(), { once: true });
+    }, duration);
+  };
+
+  // ============ Fetch helper ============
+  async function api(url, options = {}) {
+    const res = await fetch(url, {
+      credentials: 'include',
+      headers: { 'Content-Type': 'application/json' },
+      ...options
+    });
+    if (res.status === 401) {
+      window.location.href = LOGIN_PAGE;
+      return null;
+    }
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok || data.success === false) throw new Error(data.message || 'Request failed');
+    return data;
+  }
+
+  const escapeHtml = (s) => String(s ?? '').replace(/[&<>"']/g, c => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]));
+  const fmtPrice = (p) => `₹${Number(p ?? 0).toFixed(2)}`;
+
+  // ============ Load groups ============
+  async function loadGroups(showLoadingState = false) {
+    const wrap = document.getElementById('groupsWrap');
+    if (showLoadingState) wrap.innerHTML = `<div class="empty-groups">Loading…</div>`;
+    try {
+      const data = await api(`${API_BASE}/addon-groups`);
+      if (!data) return;
+      currentGroups = Array.isArray(data) ? data : (data.groups || []);
+      renderGroups();
+    } catch (e) {
+      wrap.innerHTML = `<div class="empty-groups">Failed to load add-on groups.</div>`;
+      window.showToast(e.message || 'Failed to load add-on groups.', 'error');
+    }
+  }
+
+  function renderGroups() {
+    const wrap = document.getElementById('groupsWrap');
+    const q = document.getElementById('groupSearch').value.trim().toLowerCase();
+
+    let groups = currentGroups;
+    if (q) {
+      groups = currentGroups
+        .map(g => ({
+          ...g,
+          addons: (g.addons || []).filter(a => a.name.toLowerCase().includes(q))
+        }))
+        .filter(g => g.name.toLowerCase().includes(q) || g.addons.length);
+    }
+
+    document.getElementById('groupsCount').textContent =
+      `${currentGroups.length} group${currentGroups.length === 1 ? '' : 's'}`;
+
+    if (!groups.length) {
+      wrap.innerHTML = `<div class="empty-groups">No add-on groups found.</div>`;
+      return;
+    }
+
+    wrap.innerHTML = groups.map(g => {
+      const collapsed = collapsedIds.has(g.id);
+      const addons = g.addons || [];
+      return `
+      <div class="group-card ${collapsed ? 'collapsed' : ''}" data-group="${g.id}">
+        <div class="group-head" data-toggle-group="${g.id}">
+          <div class="group-head-left">
+            <svg class="group-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg>
+            <span class="group-name">${escapeHtml(g.name)}</span>
+            <span class="group-meta">
+              <span class="badge muted">min ${g.min_selection ?? 0} / max ${g.max_selection ?? 1}</span>
+              <span class="badge ${g.is_required ? 'gold' : 'muted'}">${g.is_required ? 'Required' : 'Optional'}</span>
+              <span class="badge muted">${addons.length} item${addons.length === 1 ? '' : 's'}</span>
+            </span>
+          </div>
+          <div class="group-actions">
+            <button class="btn small" data-add-addon="${g.id}">+ Add-on</button>
+            <button class="btn small" data-edit-group="${g.id}">Edit</button>
+            <button class="btn small danger" data-delete-group="${g.id}">Delete</button>
+          </div>
+        </div>
+        <div class="group-body">
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr><th>Name</th><th>Price</th><th>Type</th><th>Status</th><th></th></tr>
+              </thead>
+              <tbody>
+                ${addons.length ? addons.map(a => `
+                  <tr>
+                    <td>${escapeHtml(a.name)}</td>
+                    <td class="price-cell">${fmtPrice(a.price)}</td>
+                    <td><span class="veg-dot ${a.is_veg ? 'veg' : 'nonveg'}" title="${a.is_veg ? 'Veg' : 'Non-Veg'}"></span></td>
+                    <td><span class="badge ${a.is_available ? 'green' : 'red'}">${a.is_available ? 'Available' : 'Unavailable'}</span></td>
+                    <td>
+                      <div class="row-actions">
+                        <button class="btn small" data-edit-addon="${a.id}" data-group="${g.id}">Edit</button>
+                        <button class="btn small ${a.is_available ? 'danger' : ''}" data-toggle-addon="${a.id}" data-available="${a.is_available}">
+                          ${a.is_available ? 'Disable' : 'Enable'}
+                        </button>
+                        <button class="btn small danger" data-delete-addon="${a.id}">Delete</button>
+                      </div>
+                    </td>
+                  </tr>
+                `).join('') : `<tr class="empty-row"><td colspan="5">No add-ons in this group yet.</td></tr>`}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>`;
+    }).join('');
+  }
+
+  let searchTimer;
+  document.getElementById('groupSearch').addEventListener('input', () => {
+    clearTimeout(searchTimer);
+    searchTimer = setTimeout(renderGroups, 250);
+  });
+
+  // ============ Collapse toggle + row actions (delegate) ============
+  document.getElementById('groupsWrap').addEventListener('click', async (e) => {
+    const toggleGroupId = e.target.closest('[data-toggle-group]')?.dataset.toggleGroup;
+    const addAddonId = e.target.dataset.addAddon;
+    const editGroupId = e.target.dataset.editGroup;
+    const deleteGroupId = e.target.dataset.deleteGroup;
+    const editAddonId = e.target.dataset.editAddon;
+    const toggleAddonId = e.target.dataset.toggleAddon;
+    const deleteAddonId = e.target.dataset.deleteAddon;
+
+    // Collapse/expand (ignore clicks on buttons inside the head)
+    if (toggleGroupId && !e.target.closest('.group-actions')) {
+      if (collapsedIds.has(Number(toggleGroupId))) collapsedIds.delete(Number(toggleGroupId));
+      else collapsedIds.add(Number(toggleGroupId));
+      renderGroups();
+      return;
+    }
+
+    if (addAddonId) { openAddonModal(null, addAddonId); return; }
+
+    if (editGroupId) {
+      const group = currentGroups.find(g => String(g.id) === editGroupId);
+      if (group) openGroupModal(group);
+      return;
+    }
+
+    if (deleteGroupId) {
+      if (!confirm('Delete this group and all its add-ons? This cannot be undone.')) return;
+      try {
+        await api(`${API_BASE}/addon-groups/${deleteGroupId}`, { method: 'DELETE' });
+        window.showToast('Group deleted.', 'success');
+        loadGroups(false);
+      } catch (err) {
+        window.showToast(err.message || 'Failed to delete group.', 'error');
+      }
+      return;
+    }
+
+    if (editAddonId) {
+      const groupId = e.target.dataset.group;
+      const group = currentGroups.find(g => String(g.id) === groupId);
+      const addon = group?.addons?.find(a => String(a.id) === editAddonId);
+      if (addon) openAddonModal(addon, groupId);
+      return;
+    }
+
+    if (toggleAddonId) {
+      const isAvailable = e.target.dataset.available === 'true';
+      try {
+        await api(`${API_BASE}/addons/${toggleAddonId}/availability`, {
+          method: 'PATCH',
+          body: JSON.stringify({ is_available: !isAvailable })
+        });
+        window.showToast(`Add-on ${!isAvailable ? 'enabled' : 'disabled'}.`, 'success');
+        loadGroups(false);
+      } catch (err) {
+        window.showToast(err.message || 'Failed to update availability.', 'error');
+      }
+      return;
+    }
+
+    if (deleteAddonId) {
+      if (!confirm('Delete this add-on permanently?')) return;
+      try {
+        await api(`${API_BASE}/addons/${deleteAddonId}`, { method: 'DELETE' });
+        window.showToast('Add-on deleted.', 'success');
+        loadGroups(false);
+      } catch (err) {
+        window.showToast(err.message || 'Failed to delete add-on.', 'error');
+      }
+      return;
+    }
+  });
+
+  // ============ Group modal ============
+  const groupModal = document.getElementById('groupModal');
+
+  function openAddGroupModal() {
+    document.getElementById('groupModalTitle').textContent = 'Add Group';
+    document.getElementById('groupId').value = '';
+    document.getElementById('groupName').value = '';
+    document.getElementById('groupMin').value = 0;
+    document.getElementById('groupMax').value = 1;
+    document.getElementById('groupRequired').checked = false;
+    groupModal.classList.add('show');
+  }
+
+  function openGroupModal(group) {
+    document.getElementById('groupModalTitle').textContent = `Edit Group`;
+    document.getElementById('groupId').value = group.id;
+    document.getElementById('groupName').value = group.name;
+    document.getElementById('groupMin').value = group.min_selection ?? 0;
+    document.getElementById('groupMax').value = group.max_selection ?? 1;
+    document.getElementById('groupRequired').checked = !!group.is_required;
+    groupModal.classList.add('show');
+  }
+
+  document.getElementById('addGroupBtn').addEventListener('click', openAddGroupModal);
+  document.getElementById('cancelGroupModal').addEventListener('click', () => groupModal.classList.remove('show'));
+  groupModal.addEventListener('click', (e) => { if (e.target === groupModal) groupModal.classList.remove('show'); });
+
+  document.getElementById('saveGroupBtn').addEventListener('click', async () => {
+    const id = document.getElementById('groupId').value;
+    const name = document.getElementById('groupName').value.trim();
+    const min_selection = Number(document.getElementById('groupMin').value || 0);
+    const max_selection = Number(document.getElementById('groupMax').value || 1);
+    const is_required = document.getElementById('groupRequired').checked;
+
+    if (!name) { window.showToast('Group name is required.', 'error'); return; }
+    if (max_selection < min_selection) { window.showToast('Max selection cannot be less than min.', 'error'); return; }
+
+    const payload = { name, min_selection, max_selection, is_required };
+
+    try {
+      if (id) {
+        await api(`${API_BASE}/addon-groups/${id}`, { method: 'PUT', body: JSON.stringify(payload) });
+        window.showToast('Group updated.', 'success');
+      } else {
+        await api(`${API_BASE}/addon-groups`, { method: 'POST', body: JSON.stringify(payload) });
+        window.showToast('Group created.', 'success');
+      }
+      groupModal.classList.remove('show');
+      loadGroups(false);
+    } catch (e) {
+      window.showToast(e.message || 'Failed to save group.', 'error');
+    }
+  });
+
+  // ============ Addon modal ============
+  const addonModal = document.getElementById('addonModal');
+
+  function openAddonModal(addon, groupId) {
+    if (addon) {
+      document.getElementById('addonModalTitle').textContent = 'Edit Add-on';
+      document.getElementById('addonId').value = addon.id;
+      document.getElementById('addonGroupId').value = groupId;
+      document.getElementById('addonName').value = addon.name;
+      document.getElementById('addonPrice').value = addon.price;
+      document.getElementById('addonVeg').value = addon.is_veg ? 'true' : 'false';
+      document.getElementById('addonAvailable').checked = !!addon.is_available;
+    } else {
+      document.getElementById('addonModalTitle').textContent = 'Add Add-on';
+      document.getElementById('addonId').value = '';
+      document.getElementById('addonGroupId').value = groupId;
+      document.getElementById('addonName').value = '';
+      document.getElementById('addonPrice').value = '';
+      document.getElementById('addonVeg').value = 'true';
+      document.getElementById('addonAvailable').checked = true;
+    }
+    addonModal.classList.add('show');
+  }
+
+  document.getElementById('cancelAddonModal').addEventListener('click', () => addonModal.classList.remove('show'));
+  addonModal.addEventListener('click', (e) => { if (e.target === addonModal) addonModal.classList.remove('show'); });
+
+  document.getElementById('saveAddonBtn').addEventListener('click', async () => {
+    const id = document.getElementById('addonId').value;
+    const addon_group_id = document.getElementById('addonGroupId').value;
+    const name = document.getElementById('addonName').value.trim();
+    const price = document.getElementById('addonPrice').value;
+    const is_veg = document.getElementById('addonVeg').value === 'true';
+    const is_available = document.getElementById('addonAvailable').checked;
+
+    if (!name) { window.showToast('Add-on name is required.', 'error'); return; }
+    if (price === '' || isNaN(price) || Number(price) < 0) { window.showToast('Enter a valid price.', 'error'); return; }
+
+    try {
+      if (id) {
+        await api(`${API_BASE}/addons/${id}`, {
+          method: 'PUT',
+          body: JSON.stringify({ name, price: Number(price), is_veg, is_available })
+        });
+        window.showToast('Add-on updated.', 'success');
+      } else {
+        await api(`${API_BASE}/addons`, {
+          method: 'POST',
+          body: JSON.stringify({ name, price: Number(price), is_veg, is_available, addon_group_id })
+        });
+        window.showToast('Add-on created.', 'success');
+      }
+      addonModal.classList.remove('show');
+      loadGroups(false);
+    } catch (e) {
+      window.showToast(e.message || 'Failed to save add-on.', 'error');
+    }
+  });
+
+  // ============ Load sidebar + header, then init ============
+  function loadComponent(url, placeholderId) {
+    return fetch(url)
+      .then(r => r.text())
+      .then(html => {
+        const el = document.getElementById(placeholderId);
+        el.innerHTML = html;
+        el.querySelectorAll('script').forEach(old => {
+          const s = document.createElement('script');
+          s.textContent = old.textContent;
+          old.replaceWith(s);
+        });
+      });
+  }
+
+  window.PAGE_TITLE = "Add-ons";
+  window.PAGE_SUB = "Manage add-on groups & items";
+  window.onRefresh = () => loadGroups(true);
+
+  Promise.all([
+  loadComponent('superadminsidedashboard.html', 'sidebar-placeholder'),
+  loadComponent('superadminheader.html', 'header-placeholder')
+]).then(() => {
+  loadGroups(true);
+});
+</script>
+</body>
+</html>

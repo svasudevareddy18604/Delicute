@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Delicute | Login Logs</title>
+<link rel="icon" href="https://i.postimg.cc/W3pgQx9q/DELICUTE-Imgur-1-modified.png" />
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Roboto+Mono:wght@500;600&family=Roboto:wght@400;500;600&display=swap" rel="stylesheet" />
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { width: 100%; overflow-x: hidden; }
+
+  :root {
+    --graphite: #14141a;
+    --graphite-2: #1a1a22;
+    --panel: #1d1d26;
+    --panel-2: #232330;
+    --crimson: #c0392b;
+    --crimson-bright: #e8543f;
+    --gold: #d9a94c;
+    --gold-light: #f2d49b;
+    --green: #2e9e6b;
+    --amber: #d9a94c;
+    --red: #d64545;
+    --blue: #4a90d9;
+    --purple: #9b6fd9;
+    --text: #e9e6ef;
+    --muted: #8b889a;
+    --border: #33333f;
+  }
+
+  body { font-family: 'Roboto', sans-serif; color: var(--text); background: var(--graphite); min-height: 100vh; display: flex; }
+  a { color: inherit; text-decoration: none; }
+  button { font-family: inherit; cursor: pointer; }
+
+  .main { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+  .content { padding: 1.4rem; flex: 1; }
+
+  .panel {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 1.2rem 1.3rem;
+    margin-bottom: 1.2rem;
+    position: relative;
+    overflow: hidden;
+  }
+  .panel::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+    background: linear-gradient(90deg, var(--purple), var(--blue));
+    opacity: 0.75;
+  }
+
+  .panel-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.7rem; }
+  .panel-title-wrap { display: flex; align-items: center; gap: 0.6rem; }
+  .panel-icon {
+    width: 36px; height: 36px; border-radius: 9px;
+    display: flex; align-items: center; justify-content: center;
+    background: rgba(155,111,217,0.15); color: #c9aef2;
+    flex-shrink: 0;
+  }
+  .panel-icon svg { width: 18px; height: 18px; }
+  .panel-title { font-family: 'Playfair Display', serif; font-weight: 700; font-size: 1.05rem; }
+  .panel-count { font-family: 'Roboto Mono', monospace; font-size: 0.65rem; color: var(--muted); }
+
+  .panel-actions { display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap; }
+
+  input.search, select.select {
+    padding: 0.5rem 0.75rem;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: var(--graphite-2);
+    color: var(--text);
+    font-size: 0.8rem;
+    font-family: 'Roboto Mono', monospace;
+  }
+  input.search:focus, select.select:focus { outline: none; border-color: rgba(217,169,76,0.5); }
+
+  .btn {
+    padding: 0.5rem 0.9rem;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: var(--panel-2);
+    color: var(--text);
+    font-size: 0.78rem;
+    font-weight: 600;
+    display: inline-flex; align-items: center; gap: 0.35rem;
+    transition: all 0.15s ease;
+  }
+  .btn:hover { border-color: rgba(217,169,76,0.4); }
+  .btn.small { padding: 0.34rem 0.7rem; font-size: 0.7rem; }
+
+  /* ---------- Live indicator ---------- */
+  .live-pill {
+    display: flex; align-items: center; gap: 0.4rem;
+    padding: 0.4rem 0.7rem;
+    border-radius: 7px;
+    background: rgba(46,158,107,0.12);
+    border: 1px solid rgba(46,158,107,0.4);
+    font-family: 'Roboto Mono', monospace;
+    font-size: 0.62rem;
+    letter-spacing: 0.5px;
+    color: #7fd9ac;
+  }
+  .live-pill .dot {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: var(--green);
+    box-shadow: 0 0 0 0 rgba(46,158,107,0.6);
+    animation: dotPulse 1s ease-out infinite;
+  }
+  .live-pill.paused { background: rgba(214,69,69,0.12); border-color: rgba(214,69,69,0.4); color: #f2a3a3; }
+  .live-pill.paused .dot { background: var(--red); animation: none; box-shadow: none; }
+  @keyframes dotPulse { 0%{box-shadow:0 0 0 0 rgba(46,158,107,.55);}70%{box-shadow:0 0 0 6px rgba(46,158,107,0);}100%{box-shadow:0 0 0 0 rgba(46,158,107,0);} }
+
+  /* ---------- Table ---------- */
+  .table-wrap { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; font-size: 0.83rem; }
+  thead th {
+    text-align: left; font-family: 'Roboto Mono', monospace; font-size: 0.62rem;
+    text-transform: uppercase; letter-spacing: 0.8px; color: var(--muted);
+    padding: 0.6rem 0.7rem; border-bottom: 1px solid var(--border); white-space: nowrap;
+  }
+  tbody td { padding: 0.68rem 0.7rem; border-bottom: 1px solid rgba(255,255,255,0.04); vertical-align: middle; }
+  tbody tr { transition: background 0.6s ease; }
+  tbody tr:hover { background: rgba(255,255,255,0.02); }
+  tbody tr.row-new { background: rgba(155,111,217,0.10); }
+  .empty-row td { text-align: center; color: var(--muted); padding: 1.8rem; font-family: 'Roboto Mono', monospace; font-size: 0.78rem; }
+
+  .mono { font-family: 'Roboto Mono', monospace; font-size: 0.76rem; color: var(--muted); }
+  .email-cell { font-weight: 600; }
+  .ua-cell { max-width: 220px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-family: 'Roboto Mono', monospace; font-size: 0.7rem; color: var(--muted); }
+
+  .badge {
+    display: inline-block; padding: 0.22rem 0.6rem; border-radius: 6px;
+    font-family: 'Roboto Mono', monospace; font-size: 0.66rem; font-weight: 600; letter-spacing: 0.4px;
+  }
+  .badge.green { background: rgba(46,158,107,0.15); color: #7fd9ac; }
+  .badge.red { background: rgba(214,69,69,0.15); color: #f2a3a3; }
+  .badge.gray { background: rgba(139,136,154,0.15); color: var(--muted); }
+  .badge.amber { background: rgba(217,169,76,0.15); color: var(--gold-light); }
+
+  .pagination { display: flex; align-items: center; justify-content: flex-end; gap: 0.6rem; margin-top: 0.9rem; }
+  .pagination .page-info { font-family: 'Roboto Mono', monospace; font-size: 0.72rem; color: var(--muted); }
+
+  /* ---------- Toast ---------- */
+  #toast-container { position: fixed; top: 80px; right: 20px; z-index: 2000; display: flex; flex-direction: column; gap: 0.6rem; max-width: 90vw; }
+  .toast {
+    display: flex; align-items: center; gap: 0.65rem; min-width: 260px; max-width: 340px;
+    background: var(--panel); border-radius: 10px; padding: 0.85rem 1.05rem;
+    box-shadow: 0 10px 28px rgba(0,0,0,0.4); border-left: 4px solid var(--crimson);
+    font-size: 0.9rem; font-weight: 500; color: var(--text);
+    opacity: 0; transform: translateX(40px); animation: toastIn 0.4s ease-out forwards;
+  }
+  .toast.success { border-left-color: var(--green); }
+  .toast.error { border-left-color: var(--red); }
+  .toast .icon {
+    flex-shrink: 0; width: 22px; height: 22px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center; font-size: 0.8rem; font-weight: 800; color: #fff;
+  }
+  .toast.success .icon { background: var(--green); }
+  .toast.error .icon { background: var(--red); }
+  .toast.hide { animation: toastOut 0.35s ease-in forwards; }
+  @keyframes toastIn { to { opacity: 1; transform: translateX(0); } }
+  @keyframes toastOut { to { opacity: 0; transform: translateX(40px); } }
+
+  @media (max-width: 560px) {
+    .content { padding: 1rem; }
+    .panel-head { flex-direction: column; align-items: flex-start; }
+    .ua-cell { max-width: 120px; }
+  }
+</style>
+</head>
+<body>
+
+<div id="sidebar-placeholder"></div>
+
+<div class="main">
+  <div id="header-placeholder"></div>
+
+  <div class="content">
+
+    <div class="panel">
+      <div class="panel-head">
+        <div class="panel-title-wrap">
+          <div class="panel-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
+          </div>
+          <div>
+            <div class="panel-title">Login Logs</div>
+            <div class="panel-count" id="logsCount">— entries</div>
+          </div>
+        </div>
+        <div class="panel-actions">
+          <span class="live-pill" id="livePill"><span class="dot"></span> Live</span>
+          <input class="search" id="logSearch" placeholder="Search email / IP…" />
+          <select class="select" id="statusFilter">
+            <option value="">All status</option>
+            <option value="1">Success</option>
+            <option value="0">Failed</option>
+          </select>
+          <select class="select" id="limitSelect">
+            <option value="25">25 rows</option>
+            <option value="50" selected>50 rows</option>
+            <option value="100">100 rows</option>
+            <option value="200">200 rows</option>
+          </select>
+          <button class="btn small" id="pauseBtn">Pause</button>
+        </div>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Email Attempted</th>
+              <th>Status</th>
+              <th>Reason</th>
+              <th>IP Address</th>
+              <th>Device / Agent</th>
+              <th>Time</th>
+            </tr>
+          </thead>
+          <tbody id="logsBody"><tr class="empty-row"><td colspan="6">Loading…</td></tr></tbody>
+        </table>
+      </div>
+      <div class="pagination">
+        <span class="page-info" id="lastUpdated">—</span>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div id="toast-container" aria-live="polite" aria-atomic="true"></div>
+
+<script>
+  // ============ Config ============
+  const API_BASE = "/api/superadmin";
+  const LOGS_ENDPOINT = `${API_BASE}/logs`;
+  const LOGIN_PAGE = "/superadminlogin.html";
+  const REFRESH_MS = 1000; // auto-refresh every 1 second
+
+  let isPaused = false;
+  let refreshTimer = null;
+  let lastSeenIds = new Set();
+  let firstLoad = true;
+
+  // ============ Toast ============
+  window.showToast = function showToast(message, type = 'success', duration = 3200) {
+    const container = document.getElementById('toast-container');
+    const toast = document.createElement('div');
+    toast.className = `toast ${type}`;
+    toast.innerHTML = `<span class="icon">${type === 'success' ? '✓' : '!'}</span><span>${message}</span>`;
+    container.appendChild(toast);
+    setTimeout(() => {
+      toast.classList.add('hide');
+      toast.addEventListener('animationend', () => toast.remove(), { once: true });
+    }, duration);
+  };
+
+  // ============ Fetch helper ============
+  async function api(url, options = {}) {
+    const res = await fetch(url, {
+      credentials: 'include',
+      headers: { 'Content-Type': 'application/json' },
+      ...options
+    });
+    if (res.status === 401) {
+      window.location.href = LOGIN_PAGE;
+      return null;
+    }
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok || data.success === false) throw new Error(data.message || 'Request failed');
+    return data;
+  }
+
+  const escapeHtml = (s) => String(s ?? '').replace(/[&<>"']/g, c => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]));
+  const fmtDate = (d) => d ? new Date(d).toLocaleString('en-IN', { day:'2-digit', month:'short', hour:'2-digit', minute:'2-digit', second:'2-digit' }) : '—';
+
+  function reasonBadge(reason) {
+    const map = {
+      ok:       { cls: 'green', label: 'OK' },
+      bad_password: { cls: 'red',   label: 'Bad password' },
+      bad_otp:  { cls: 'red',   label: 'Bad OTP' },
+      no_account:   { cls: 'gray',  label: 'No account' },
+      inactive: { cls: 'amber', label: 'Inactive account' },
+    };
+    const m = map[reason] || { cls: 'gray', label: reason || '—' };
+    return `<span class="badge ${m.cls}">${escapeHtml(m.label)}</span>`;
+  }
+
+  // ============ Load logs ============
+  async function loadLogs(silent = true) {
+    if (isPaused) return;
+    const body = document.getElementById('logsBody');
+    try {
+      const q = document.getElementById('logSearch').value.trim();
+      const status = document.getElementById('statusFilter').value;
+      const limit = document.getElementById('limitSelect').value;
+
+      const params = new URLSearchParams();
+      if (q) params.set('q', q);
+      if (status !== '') params.set('success', status);
+      params.set('limit', limit);
+
+      const data = await api(`${LOGS_ENDPOINT}?${params.toString()}`);
+      if (!data) return;
+      const rows = data.logs || [];
+
+      document.getElementById('logsCount').textContent = `${rows.length} entr${rows.length === 1 ? 'y' : 'ies'}`;
+      document.getElementById('lastUpdated').textContent = `Updated ${new Date().toLocaleTimeString('en-IN')}`;
+
+      if (!rows.length) {
+        body.innerHTML = `<tr class="empty-row"><td colspan="6">No login attempts recorded.</td></tr>`;
+        lastSeenIds = new Set();
+        return;
+      }
+
+      body.innerHTML = rows.map(l => {
+        const isNew = firstLoad ? false : !lastSeenIds.has(l.id);
+        return `
+        <tr class="${isNew ? 'row-new' : ''}">
+          <td class="email-cell">${escapeHtml(l.email_attempted)}</td>
+          <td><span class="badge ${l.success ? 'green' : 'red'}">${l.success ? 'Success' : 'Failed'}</span></td>
+          <td>${reasonBadge(l.reason)}</td>
+          <td class="mono">${escapeHtml(l.ip_address || '—')}</td>
+          <td class="ua-cell" title="${escapeHtml(l.user_agent || '')}">${escapeHtml(l.user_agent || '—')}</td>
+          <td class="mono">${fmtDate(l.created_at)}</td>
+        </tr>`;
+      }).join('');
+
+      lastSeenIds = new Set(rows.map(l => l.id));
+      firstLoad = false;
+
+      // fade the "new row" highlight out after a moment
+      setTimeout(() => {
+        document.querySelectorAll('#logsBody tr.row-new').forEach(tr => tr.classList.remove('row-new'));
+      }, 900);
+
+    } catch (e) {
+      if (!silent) {
+        body.innerHTML = `<tr class="empty-row"><td colspan="6">Failed to load logs.</td></tr>`;
+      }
+      window.showToast(e.message || 'Failed to load logs.', 'error');
+    }
+  }
+
+  // ============ Auto refresh loop ============
+  function startAutoRefresh() {
+    if (refreshTimer) clearInterval(refreshTimer);
+    refreshTimer = setInterval(() => loadLogs(true), REFRESH_MS);
+  }
+
+  document.getElementById('pauseBtn').addEventListener('click', () => {
+    isPaused = !isPaused;
+    const pill = document.getElementById('livePill');
+    const btn = document.getElementById('pauseBtn');
+    if (isPaused) {
+      pill.classList.add('paused');
+      pill.innerHTML = `<span class="dot"></span> Paused`;
+      btn.textContent = 'Resume';
+    } else {
+      pill.classList.remove('paused');
+      pill.innerHTML = `<span class="dot"></span> Live`;
+      btn.textContent = 'Pause';
+      loadLogs(false);
+    }
+  });
+
+  // Search / filters trigger an immediate reload (debounced for typing)
+  let searchTimer;
+  document.getElementById('logSearch').addEventListener('input', () => {
+    clearTimeout(searchTimer);
+    searchTimer = setTimeout(() => loadLogs(false), 300);
+  });
+  document.getElementById('statusFilter').addEventListener('change', () => loadLogs(false));
+  document.getElementById('limitSelect').addEventListener('change', () => loadLogs(false));
+
+  // ============ Load sidebar + header, then init ============
+  function loadComponent(url, placeholderId) {
+    return fetch(url)
+      .then(r => r.text())
+      .then(html => {
+        const el = document.getElementById(placeholderId);
+        el.innerHTML = html;
+        el.querySelectorAll('script').forEach(old => {
+          const s = document.createElement('script');
+          s.textContent = old.textContent;
+          old.replaceWith(s);
+        });
+      });
+  }
+
+  window.PAGE_TITLE = "Login Logs";
+  window.PAGE_SUB = "Live super admin authentication activity";
+  window.onRefresh = () => loadLogs(false);
+
+  Promise.all([
+    loadComponent('superadminsidedashboard.html', 'sidebar-placeholder'),
+    loadComponent('superadminheader.html', 'header-placeholder')
+  ]).then(() => {
+    loadLogs(false);
+    startAutoRefresh();
+  });
+
+  // pause refresh when tab isn't visible (saves requests), resume when back
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden) {
+      if (refreshTimer) clearInterval(refreshTimer);
+    } else if (!isPaused) {
+      loadLogs(true);
+      startAutoRefresh();
+    }
+  });
+</script>
+</body>
+</html>

@@ -1,0 +1,903 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Delicute | Menu &amp; Categories</title>
+<link rel="icon" href="https://i.postimg.cc/W3pgQx9q/DELICUTE-Imgur-1-modified.png" />
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Roboto+Mono:wght@500;600&family=Roboto:wght@400;500;600&display=swap" rel="stylesheet" />
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { width: 100%; overflow-x: hidden; }
+
+  :root {
+    --graphite: #14141a;
+    --graphite-2: #1a1a22;
+    --panel: #1d1d26;
+    --panel-2: #232330;
+    --crimson: #c0392b;
+    --crimson-bright: #e8543f;
+    --gold: #d9a94c;
+    --gold-light: #f2d49b;
+    --green: #2e9e6b;
+    --amber: #d9a94c;
+    --red: #d64545;
+    --blue: #4a90d9;
+    --purple: #9b6fd9;
+    --text: #e9e6ef;
+    --muted: #8b889a;
+    --border: #33333f;
+  }
+
+  body { font-family: 'Roboto', sans-serif; color: var(--text); background: var(--graphite); min-height: 100vh; display: flex; }
+  a { color: inherit; text-decoration: none; }
+  button { font-family: inherit; cursor: pointer; }
+
+  .main { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+  .content { padding: 1.4rem; flex: 1; }
+
+  .panel {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 1.2rem 1.3rem;
+    margin-bottom: 1.2rem;
+    position: relative;
+    overflow: hidden;
+  }
+  .panel::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+    background: linear-gradient(90deg, var(--crimson-bright), var(--gold), var(--purple));
+    opacity: 0.75;
+  }
+
+  .panel-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.7rem; }
+  .panel-title-wrap { display: flex; align-items: center; gap: 0.6rem; }
+  .panel-icon {
+    width: 36px; height: 36px; border-radius: 9px;
+    display: flex; align-items: center; justify-content: center;
+    background: rgba(217,169,76,0.15); color: var(--gold-light);
+    flex-shrink: 0;
+  }
+  .panel-icon svg { width: 18px; height: 18px; }
+  .panel-title { font-family: 'Playfair Display', serif; font-weight: 700; font-size: 1.05rem; }
+  .panel-count { font-family: 'Roboto Mono', monospace; font-size: 0.65rem; color: var(--muted); }
+
+  .panel-actions { display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap; }
+
+  input.search, select.select {
+    padding: 0.5rem 0.75rem;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: var(--graphite-2);
+    color: var(--text);
+    font-size: 0.8rem;
+    font-family: 'Roboto Mono', monospace;
+  }
+  input.search:focus, select.select:focus { outline: none; border-color: rgba(217,169,76,0.5); }
+
+  .btn {
+    padding: 0.5rem 0.9rem;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: var(--panel-2);
+    color: var(--text);
+    font-size: 0.78rem;
+    font-weight: 600;
+    display: inline-flex; align-items: center; gap: 0.35rem;
+    transition: all 0.15s ease;
+  }
+  .btn:hover { border-color: rgba(217,169,76,0.4); }
+  .btn.primary {
+    background: linear-gradient(135deg, var(--crimson), #8e2419);
+    border-color: transparent; color: #fff;
+    box-shadow: 0 4px 14px rgba(192,57,43,0.3);
+  }
+  .btn.primary:hover { background: linear-gradient(135deg, var(--crimson-bright), var(--crimson)); }
+  .btn.danger { color: #f2a3a3; }
+  .btn.danger:hover { border-color: rgba(214,69,69,0.4); }
+  .btn.small { padding: 0.34rem 0.7rem; font-size: 0.7rem; }
+  .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  /* ---------- Category chips ---------- */
+  .chip-row { display: flex; gap: 0.55rem; flex-wrap: wrap; }
+  .chip {
+    display: inline-flex; align-items: center; gap: 0.45rem;
+    padding: 0.42rem 0.85rem 0.42rem 0.7rem;
+    border-radius: 20px;
+    border: 1px solid var(--border);
+    background: var(--graphite-2);
+    font-size: 0.78rem; font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    user-select: none;
+  }
+  .chip:hover { border-color: rgba(217,169,76,0.4); }
+  .chip.active {
+    background: linear-gradient(90deg, rgba(192,57,43,0.28), rgba(217,169,76,0.12));
+    border-color: rgba(217,169,76,0.5);
+    color: var(--gold-light);
+  }
+  .chip .count {
+    font-family: 'Roboto Mono', monospace; font-size: 0.62rem;
+    background: rgba(255,255,255,0.08); padding: 0.1rem 0.4rem; border-radius: 10px;
+    color: var(--muted);
+  }
+  .chip.active .count { background: rgba(217,169,76,0.25); color: var(--gold-light); }
+  .chip .edit-dot, .chip .del-dot {
+    width: 16px; height: 16px; display: none; align-items: center; justify-content: center;
+    border-radius: 50%; opacity: 0.7;
+  }
+  .chip:hover .edit-dot, .chip:hover .del-dot { display: inline-flex; }
+  .chip .edit-dot:hover, .chip .del-dot:hover { opacity: 1; }
+  .chip svg { width: 11px; height: 11px; }
+
+  .add-chip {
+    display: inline-flex; align-items: center; gap: 0.35rem;
+    padding: 0.42rem 0.9rem;
+    border-radius: 20px;
+    border: 1px dashed rgba(217,169,76,0.5);
+    color: var(--gold-light);
+    background: rgba(217,169,76,0.06);
+    font-size: 0.78rem; font-weight: 600;
+    cursor: pointer;
+  }
+  .add-chip:hover { background: rgba(217,169,76,0.12); }
+
+  /* ---------- Menu toolbar ---------- */
+  .toolbar {
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 0.8rem; flex-wrap: wrap; margin-bottom: 1.1rem;
+  }
+  .toolbar-left { display: flex; gap: 0.5rem; flex-wrap: wrap; align-items: center; }
+
+  .veg-toggle { display: flex; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
+  .veg-toggle button {
+    padding: 0.5rem 0.8rem; background: var(--graphite-2); color: var(--muted);
+    border: none; font-size: 0.75rem; font-weight: 700; border-right: 1px solid var(--border);
+  }
+  .veg-toggle button:last-child { border-right: none; }
+  .veg-toggle button.active.all { background: var(--panel-2); color: var(--text); }
+  .veg-toggle button.active.veg { background: rgba(46,158,107,0.2); color: #7fd9ac; }
+  .veg-toggle button.active.nonveg { background: rgba(214,69,69,0.2); color: #f2a3a3; }
+
+  /* ---------- Menu grid ---------- */
+  .menu-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 1.1rem;
+  }
+
+  .dish-card {
+    background: var(--panel-2);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    overflow: hidden;
+    display: flex; flex-direction: column;
+    transition: transform 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease;
+    position: relative;
+  }
+  .dish-card:hover { transform: translateY(-3px); border-color: rgba(217,169,76,0.4); box-shadow: 0 10px 26px rgba(0,0,0,0.35); }
+
+  .dish-img-wrap { position: relative; width: 100%; aspect-ratio: 4/3; background: var(--graphite-2); overflow: hidden; }
+  .dish-img-wrap img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform 0.4s ease; }
+  .dish-card:hover .dish-img-wrap img { transform: scale(1.06); }
+
+  .food-dot {
+    position: absolute; top: 10px; left: 10px;
+    width: 20px; height: 20px; border-radius: 4px;
+    background: rgba(20,20,26,0.75); backdrop-filter: blur(4px);
+    display: flex; align-items: center; justify-content: center;
+    border: 1.5px solid;
+  }
+  .food-dot.veg { border-color: var(--green); }
+  .food-dot.nonveg { border-color: var(--red); }
+  .food-dot .inner-dot { width: 8px; height: 8px; border-radius: 50%; }
+  .food-dot.veg .inner-dot { background: var(--green); }
+  .food-dot.nonveg .inner-dot { background: var(--red); }
+
+  .top-pick-star {
+    position: absolute; top: 8px; right: 8px;
+    width: 30px; height: 30px; border-radius: 50%;
+    background: rgba(20,20,26,0.75); backdrop-filter: blur(4px);
+    display: flex; align-items: center; justify-content: center;
+    border: 1px solid var(--border);
+    color: var(--muted);
+    transition: all 0.15s ease;
+  }
+  .top-pick-star.active { color: var(--gold-light); border-color: rgba(217,169,76,0.5); background: rgba(217,169,76,0.18); }
+  .top-pick-star svg { width: 15px; height: 15px; }
+  .top-pick-star:hover { transform: scale(1.08); }
+
+  .size-tag {
+    position: absolute; bottom: 10px; left: 10px;
+    padding: 0.16rem 0.5rem; border-radius: 5px;
+    background: rgba(20,20,26,0.75); backdrop-filter: blur(4px);
+    font-family: 'Roboto Mono', monospace; font-size: 0.6rem; letter-spacing: 0.5px;
+    color: var(--gold-light); border: 1px solid rgba(217,169,76,0.3);
+  }
+
+  .dish-body { padding: 0.8rem 0.9rem 0.9rem; display: flex; flex-direction: column; gap: 0.35rem; flex: 1; }
+  .dish-name { font-family: 'Playfair Display', serif; font-weight: 700; font-size: 0.98rem; line-height: 1.25; }
+  .dish-cat { font-family: 'Roboto Mono', monospace; font-size: 0.64rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; }
+  .dish-desc { font-size: 0.74rem; color: var(--muted); line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; min-height: 2.1em; }
+
+  .dish-price-row { display: flex; align-items: baseline; gap: 0.5rem; margin-top: 0.15rem; }
+  .dish-price { font-family: 'Roboto Mono', monospace; font-weight: 700; font-size: 1rem; color: var(--gold-light); }
+  .dish-original-price { font-family: 'Roboto Mono', monospace; font-size: 0.72rem; color: var(--muted); text-decoration: line-through; }
+
+  .dish-actions { display: flex; gap: 0.4rem; margin-top: 0.6rem; }
+  .dish-actions .btn { flex: 1; justify-content: center; }
+
+  .empty-state {
+    grid-column: 1 / -1;
+    text-align: center; padding: 3rem 1rem;
+    color: var(--muted); font-family: 'Roboto Mono', monospace; font-size: 0.85rem;
+  }
+
+  /* ---------- Modal ---------- */
+  .modal-overlay {
+    display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.65);
+    z-index: 100; align-items: center; justify-content: center; padding: 1rem;
+    backdrop-filter: blur(3px); overflow-y: auto;
+  }
+  .modal-overlay.show { display: flex; }
+  .modal-box {
+    background: var(--panel); border: 1px solid var(--border); border-radius: 14px;
+    padding: 1.4rem; width: 100%; max-width: 480px;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+    max-height: 90vh; overflow-y: auto;
+  }
+  .modal-box.narrow { max-width: 380px; }
+  .modal-box h3 { font-family: 'Playfair Display', serif; font-size: 1.15rem; margin-bottom: 1rem; }
+
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.8rem; }
+  .form-group { margin-bottom: 0.9rem; }
+  .form-group label {
+    display: block; font-family: 'Roboto Mono', monospace; font-size: 0.65rem;
+    text-transform: uppercase; letter-spacing: 0.8px; color: var(--muted); margin-bottom: 0.4rem;
+  }
+  .form-group input, .form-group select, .form-group textarea {
+    width: 100%; padding: 0.6rem 0.8rem; border-radius: 8px;
+    border: 1px solid var(--border); background: var(--graphite-2); color: var(--text);
+    font-size: 0.85rem; font-family: 'Roboto Mono', monospace; resize: vertical;
+  }
+  .form-group textarea { font-family: 'Roboto', sans-serif; min-height: 60px; }
+  .form-group input:focus, .form-group select:focus, .form-group textarea:focus { outline: none; border-color: rgba(217,169,76,0.5); }
+
+  .food-type-toggle { display: flex; gap: 0.5rem; }
+  .food-type-toggle label {
+    flex: 1; display: flex; align-items: center; justify-content: center; gap: 0.4rem;
+    padding: 0.55rem; border-radius: 8px; border: 1px solid var(--border);
+    background: var(--graphite-2); font-size: 0.78rem; font-weight: 600; cursor: pointer; color: var(--muted);
+  }
+  .food-type-toggle input { display: none; width: auto; }
+  .food-type-toggle input:checked + span { color: inherit; }
+  .food-type-toggle label:has(input:checked)[data-type="veg"] { background: rgba(46,158,107,0.18); border-color: var(--green); color: #7fd9ac; }
+  .food-type-toggle label:has(input:checked)[data-type="nonveg"] { background: rgba(214,69,69,0.18); border-color: var(--red); color: #f2a3a3; }
+
+  .size-check-row { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.7rem; }
+  .size-check-row input { width: auto; }
+  .size-check-row label { font-size: 0.8rem; color: var(--text); font-family: 'Roboto', sans-serif; }
+
+  .image-drop {
+    border: 1.5px dashed var(--border); border-radius: 10px;
+    padding: 0.9rem; text-align: center; cursor: pointer;
+    background: var(--graphite-2); position: relative; overflow: hidden;
+    min-height: 100px; display: flex; align-items: center; justify-content: center;
+  }
+  .image-drop:hover { border-color: rgba(217,169,76,0.5); }
+  .image-drop img { max-height: 140px; border-radius: 8px; object-fit: cover; }
+  .image-drop .drop-label { font-size: 0.75rem; color: var(--muted); font-family: 'Roboto Mono', monospace; }
+  .image-drop input[type=file] { display: none; }
+
+  .modal-actions { display: flex; gap: 0.6rem; justify-content: flex-end; margin-top: 1.2rem; }
+
+  /* ---------- Category manage list (inside modal) ---------- */
+  .cat-manage-list { display: flex; flex-direction: column; gap: 0.5rem; max-height: 260px; overflow-y: auto; margin-bottom: 1rem; }
+  .cat-manage-row {
+    display: flex; align-items: center; gap: 0.6rem;
+    padding: 0.55rem 0.7rem; border-radius: 8px; background: var(--graphite-2); border: 1px solid var(--border);
+  }
+  .cat-manage-row input { flex: 1; background: transparent; border: none; color: var(--text); font-size: 0.85rem; font-family: 'Roboto Mono', monospace; }
+  .cat-manage-row input:focus { outline: none; }
+  .cat-manage-row .cat-count { font-family: 'Roboto Mono', monospace; font-size: 0.65rem; color: var(--muted); white-space: nowrap; }
+  .cat-manage-row button { background: transparent; border: none; color: var(--muted); padding: 0.2rem; border-radius: 5px; display: flex; }
+  .cat-manage-row button:hover { color: var(--red); background: rgba(214,69,69,0.1); }
+  .cat-manage-row button.save-cat:hover { color: var(--green); background: rgba(46,158,107,0.1); }
+
+  .new-cat-row { display: flex; gap: 0.5rem; }
+  .new-cat-row input { flex: 1; }
+
+  /* ---------- Toast ---------- */
+  #toast-container { position: fixed; top: 80px; right: 20px; z-index: 2000; display: flex; flex-direction: column; gap: 0.6rem; max-width: 90vw; }
+  .toast {
+    display: flex; align-items: center; gap: 0.65rem; min-width: 260px; max-width: 340px;
+    background: var(--panel); border-radius: 10px; padding: 0.85rem 1.05rem;
+    box-shadow: 0 10px 28px rgba(0,0,0,0.4); border-left: 4px solid var(--crimson);
+    font-size: 0.9rem; font-weight: 500; color: var(--text);
+    opacity: 0; transform: translateX(40px); animation: toastIn 0.4s ease-out forwards;
+  }
+  .toast.success { border-left-color: var(--green); }
+  .toast.error { border-left-color: var(--red); }
+  .toast .icon {
+    flex-shrink: 0; width: 22px; height: 22px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center; font-size: 0.8rem; font-weight: 800; color: #fff;
+  }
+  .toast.success .icon { background: var(--green); }
+  .toast.error .icon { background: var(--red); }
+  .toast.hide { animation: toastOut 0.35s ease-in forwards; }
+  @keyframes toastIn { to { opacity: 1; transform: translateX(0); } }
+  @keyframes toastOut { to { opacity: 0; transform: translateX(40px); } }
+
+  @media (max-width: 560px) {
+    .content { padding: 1rem; }
+    .panel-head, .toolbar { flex-direction: column; align-items: flex-start; }
+    .form-row { grid-template-columns: 1fr; }
+    .menu-grid { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 0.7rem; }
+  }
+</style>
+</head>
+<body>
+
+<div id="sidebar-placeholder"></div>
+
+<div class="main">
+  <div id="header-placeholder"></div>
+
+  <div class="content">
+
+    <!-- CATEGORIES -->
+    <div class="panel">
+      <div class="panel-head">
+        <div class="panel-title-wrap">
+          <div class="panel-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 6h16M4 12h16M4 18h10"/></svg>
+          </div>
+          <div>
+            <div class="panel-title">Categories</div>
+            <div class="panel-count" id="catCount">— categories</div>
+          </div>
+        </div>
+        <button class="btn small" id="manageCatsBtn">Manage Categories</button>
+      </div>
+      <div class="chip-row" id="chipRow">
+        <div class="chip active" data-cat="">All Items <span class="count" id="allCount">0</span></div>
+      </div>
+    </div>
+
+    <!-- MENU ITEMS -->
+    <div class="panel">
+      <div class="toolbar">
+        <div class="toolbar-left">
+          <div class="panel-title-wrap">
+            <div class="panel-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M12 2l2.9 6.6L22 9.3l-5 4.9 1.2 7-6.2-3.6L5.8 21.2 7 14.2l-5-4.9 7.1-.7L12 2z"/></svg>
+            </div>
+            <div>
+              <div class="panel-title">Menu Items</div>
+              <div class="panel-count" id="menuCount">— items</div>
+            </div>
+          </div>
+          <div class="veg-toggle">
+            <button class="active all" data-food="">All</button>
+            <button data-food="veg">Veg</button>
+            <button data-food="nonveg">Non-Veg</button>
+          </div>
+          <input class="search" id="menuSearch" placeholder="Search dishes…" />
+        </div>
+        <button class="btn primary" id="addItemBtn">+ Add Menu Item</button>
+      </div>
+
+      <div class="menu-grid" id="menuGrid">
+        <div class="empty-state">Loading menu…</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ADD/EDIT MENU ITEM MODAL -->
+<div class="modal-overlay" id="itemModal">
+  <div class="modal-box">
+    <h3 id="itemModalTitle">Add Menu Item</h3>
+    <input type="hidden" id="itemId" />
+
+    <div class="form-group">
+      <label>Image</label>
+      <div class="image-drop" id="imageDrop">
+        <span class="drop-label" id="imageDropLabel">Click to upload dish photo</span>
+        <input type="file" id="itemImage" accept="image/*" />
+      </div>
+    </div>
+
+    <div class="form-group"><label>Name</label><input type="text" id="itemName" placeholder="e.g. Margherita Pizza" /></div>
+    <div class="form-group"><label>Description</label><textarea id="itemDescription" placeholder="Short description shown to customers"></textarea></div>
+
+    <div class="form-group"><label>Category</label><select id="itemCategory"></select></div>
+
+    <div class="form-row">
+      <div class="form-group"><label>Original Price (₹)</label><input type="number" id="itemOriginalPrice" min="0" step="0.01" /></div>
+      <div class="form-group"><label>Saved / Discount (₹)</label><input type="number" id="itemSavedPrice" min="0" step="0.01" value="0" /></div>
+    </div>
+
+    <div class="form-group">
+      <label>Food Type</label>
+      <div class="food-type-toggle">
+        <label data-type="veg"><input type="radio" name="foodType" value="veg" checked /><span>🟢 Veg</span></label>
+        <label data-type="nonveg"><input type="radio" name="foodType" value="nonveg" /><span>🔴 Non-Veg</span></label>
+      </div>
+    </div>
+
+    <div class="size-check-row">
+      <input type="checkbox" id="hasSizeCheck" />
+      <label for="hasSizeCheck">This item has a size (Small / Regular / Medium / Large)</label>
+    </div>
+    <div class="form-group" id="sizeGroup" style="display:none;">
+      <label>Size</label>
+      <select id="itemSize">
+        <option value="SMALL">Small</option>
+        <option value="REGULAR">Regular</option>
+        <option value="MEDIUM">Medium</option>
+        <option value="LARGE">Large</option>
+      </select>
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn" id="cancelItemModal">Cancel</button>
+      <button class="btn primary" id="saveItemBtn">Save Item</button>
+    </div>
+  </div>
+</div>
+
+<!-- MANAGE CATEGORIES MODAL -->
+<div class="modal-overlay" id="catModal">
+  <div class="modal-box narrow">
+    <h3>Manage Categories</h3>
+    <div class="cat-manage-list" id="catManageList"></div>
+    <div class="new-cat-row">
+      <input type="text" class="text-input" id="newCatName" placeholder="New category name" style="padding:0.6rem 0.8rem;border-radius:8px;border:1px solid var(--border);background:var(--graphite-2);color:var(--text);font-size:0.85rem;font-family:'Roboto Mono',monospace;" />
+      <button class="btn primary small" id="addCatBtn">Add</button>
+    </div>
+    <div class="modal-actions">
+      <button class="btn" id="closeCatModal">Done</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast-container" aria-live="polite" aria-atomic="true"></div>
+
+<script>
+  // ============ Config ============
+  const MENU_API = "/api/superadmin/menu";
+  const CAT_API = "/api/superadmin/categories";
+  const LOGIN_PAGE = "/superadminlogin.html";
+  const PLACEHOLDER_IMG = "https://placehold.co/400x300/232330/8b889a?text=No+Image";
+
+  let categories = [];
+  let allItems = [];
+  let activeCategory = "";
+  let activeFoodType = "";
+
+  // ============ Toast ============
+  window.showToast = function showToast(message, type = 'success', duration = 3200) {
+    const container = document.getElementById('toast-container');
+    const toast = document.createElement('div');
+    toast.className = `toast ${type}`;
+    toast.innerHTML = `<span class="icon">${type === 'success' ? '✓' : '!'}</span><span>${message}</span>`;
+    container.appendChild(toast);
+    setTimeout(() => {
+      toast.classList.add('hide');
+      toast.addEventListener('animationend', () => toast.remove(), { once: true });
+    }, duration);
+  };
+
+  // ============ Fetch helpers ============
+  async function api(url, options = {}) {
+    const res = await fetch(url, { credentials: 'include', ...options });
+    if (res.status === 401) { window.location.href = LOGIN_PAGE; return null; }
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok || data.success === false) throw new Error(data.message || 'Request failed');
+    return data;
+  }
+  async function apiJson(url, options = {}) {
+    return api(url, {
+      headers: { 'Content-Type': 'application/json' },
+      ...options
+    });
+  }
+
+  const escapeHtml = (s) => String(s ?? '').replace(/[&<>"']/g, c => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]));
+  const fmtMoney = (n) => `₹${Number(n || 0).toFixed(2)}`;
+
+  /* =================================================================
+     CATEGORIES
+     ================================================================= */
+  async function loadCategories() {
+    try {
+      const data = await api(CAT_API);
+      if (!data) return;
+      categories = data.data || [];
+      renderChips();
+      renderCategorySelect();
+      renderCategoryManageList();
+    } catch (e) {
+      window.showToast(e.message || 'Failed to load categories.', 'error');
+    }
+  }
+
+  function renderChips() {
+    document.getElementById('catCount').textContent = `${categories.length} categor${categories.length === 1 ? 'y' : 'ies'}`;
+    const totalItems = allItems.length;
+
+    const chipRow = document.getElementById('chipRow');
+    const allChip = `<div class="chip ${activeCategory === '' ? 'active' : ''}" data-cat="">All Items <span class="count">${totalItems}</span></div>`;
+    const catChips = categories.map(c => {
+      const count = allItems.filter(i => i.category_id === c.id).length;
+      return `
+        <div class="chip ${activeCategory == c.id ? 'active' : ''}" data-cat="${c.id}">
+          ${escapeHtml(c.name)} <span class="count">${count}</span>
+        </div>`;
+    }).join('');
+
+    chipRow.innerHTML = allChip + catChips;
+
+    chipRow.querySelectorAll('.chip').forEach(chip => {
+      chip.addEventListener('click', () => {
+        activeCategory = chip.dataset.cat;
+        renderChips();
+        renderMenuGrid();
+      });
+    });
+  }
+
+  function renderCategorySelect() {
+    const sel = document.getElementById('itemCategory');
+    sel.innerHTML = categories.map(c => `<option value="${c.id}">${escapeHtml(c.name)}</option>`).join('');
+  }
+
+  function renderCategoryManageList() {
+    const list = document.getElementById('catManageList');
+    if (!categories.length) {
+      list.innerHTML = `<div style="color:var(--muted);font-size:0.8rem;text-align:center;padding:1rem;">No categories yet.</div>`;
+      return;
+    }
+    list.innerHTML = categories.map(c => `
+      <div class="cat-manage-row" data-cat-id="${c.id}">
+        <input type="text" value="${escapeHtml(c.name)}" data-original="${escapeHtml(c.name)}" />
+        <span class="cat-count">${c.item_count} item${c.item_count === 1 ? '' : 's'}</span>
+        <button class="save-cat" title="Save" data-save-cat="${c.id}">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg>
+        </button>
+        <button title="Delete" data-del-cat="${c.id}">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m3 0-1 14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2L4 6"/></svg>
+        </button>
+      </div>
+    `).join('');
+  }
+
+  document.getElementById('manageCatsBtn').addEventListener('click', () => {
+    renderCategoryManageList();
+    document.getElementById('catModal').classList.add('show');
+  });
+  document.getElementById('closeCatModal').addEventListener('click', () => document.getElementById('catModal').classList.remove('show'));
+
+  document.getElementById('addCatBtn').addEventListener('click', async () => {
+    const input = document.getElementById('newCatName');
+    const name = input.value.trim();
+    if (!name) { window.showToast('Enter a category name.', 'error'); return; }
+    try {
+      await apiJson(CAT_API, { method: 'POST', body: JSON.stringify({ name }) });
+      input.value = '';
+      window.showToast('Category added.', 'success');
+      await loadCategories();
+    } catch (e) {
+      window.showToast(e.message || 'Failed to add category.', 'error');
+    }
+  });
+
+  document.getElementById('catManageList').addEventListener('click', async (e) => {
+    const saveId = e.target.closest('[data-save-cat]')?.dataset.saveCat;
+    const delId = e.target.closest('[data-del-cat]')?.dataset.delCat;
+
+    if (saveId) {
+      const row = e.target.closest('.cat-manage-row');
+      const newName = row.querySelector('input').value.trim();
+      if (!newName) { window.showToast('Category name cannot be empty.', 'error'); return; }
+      try {
+        await apiJson(`${CAT_API}/${saveId}`, { method: 'PUT', body: JSON.stringify({ name: newName }) });
+        window.showToast('Category updated.', 'success');
+        await loadCategories();
+        await loadMenu();
+      } catch (err) {
+        window.showToast(err.message || 'Failed to update category.', 'error');
+      }
+      return;
+    }
+
+    if (delId) {
+      if (!confirm('Delete this category?')) return;
+      try {
+        await apiJson(`${CAT_API}/${delId}`, { method: 'DELETE' });
+        window.showToast('Category deleted.', 'success');
+        if (activeCategory == delId) activeCategory = '';
+        await loadCategories();
+      } catch (err) {
+        window.showToast(err.message || 'Failed to delete category.', 'error');
+      }
+      return;
+    }
+  });
+
+  /* =================================================================
+     MENU ITEMS
+     ================================================================= */
+  async function loadMenu() {
+    const grid = document.getElementById('menuGrid');
+    try {
+      const data = await api(MENU_API);
+      if (!data) return;
+      allItems = data.data || [];
+      renderChips();
+      renderMenuGrid();
+    } catch (e) {
+      grid.innerHTML = `<div class="empty-state">Failed to load menu items.</div>`;
+      window.showToast(e.message || 'Failed to load menu.', 'error');
+    }
+  }
+
+  function renderMenuGrid() {
+    const grid = document.getElementById('menuGrid');
+    const q = document.getElementById('menuSearch').value.trim().toLowerCase();
+
+    let items = allItems;
+    if (activeCategory) items = items.filter(i => String(i.category_id) === String(activeCategory));
+    if (activeFoodType) items = items.filter(i => i.food_type === activeFoodType);
+    if (q) items = items.filter(i => i.name.toLowerCase().includes(q));
+
+    document.getElementById('menuCount').textContent = `${items.length} item${items.length === 1 ? '' : 's'}`;
+
+    if (!items.length) {
+      grid.innerHTML = `<div class="empty-state">No dishes match these filters.</div>`;
+      return;
+    }
+
+    grid.innerHTML = items.map(item => `
+      <div class="dish-card">
+        <div class="dish-img-wrap">
+          <img src="${item.image || PLACEHOLDER_IMG}" alt="${escapeHtml(item.name)}" loading="lazy"
+               onerror="this.src='${PLACEHOLDER_IMG}'" />
+          <div class="food-dot ${item.food_type}"><span class="inner-dot"></span></div>
+          <button class="top-pick-star ${item.is_top_pick ? 'active' : ''}" data-toppick="${item.id}" data-current="${item.is_top_pick ? 1 : 0}" title="Toggle Top Pick">
+            <svg viewBox="0 0 24 24" fill="${item.is_top_pick ? 'currentColor' : 'none'}" stroke="currentColor" stroke-width="1.8"><path d="M12 2l2.9 6.6L22 9.3l-5 4.9 1.2 7-6.2-3.6L5.8 21.2 7 14.2l-5-4.9 7.1-.7L12 2z"/></svg>
+          </button>
+          ${item.size ? `<div class="size-tag">${escapeHtml(item.size)}</div>` : ''}
+        </div>
+        <div class="dish-body">
+          <div class="dish-cat">${escapeHtml(item.category || '')}</div>
+          <div class="dish-name">${escapeHtml(item.name)}</div>
+          <div class="dish-desc">${escapeHtml(item.description || 'No description')}</div>
+          <div class="dish-price-row">
+            <span class="dish-price">${fmtMoney(item.price)}</span>
+            ${item.saved_price > 0 ? `<span class="dish-original-price">${fmtMoney(item.original_price)}</span>` : ''}
+          </div>
+          <div class="dish-actions">
+            <button class="btn small" data-edit-item="${item.id}">Edit</button>
+            <button class="btn small danger" data-delete-item="${item.id}">Delete</button>
+          </div>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  let searchTimer;
+  document.getElementById('menuSearch').addEventListener('input', () => {
+    clearTimeout(searchTimer);
+    searchTimer = setTimeout(renderMenuGrid, 250);
+  });
+
+  document.querySelectorAll('.veg-toggle button').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.veg-toggle button').forEach(b => b.classList.remove('active', 'all', 'veg', 'nonveg'));
+      activeFoodType = btn.dataset.food;
+      btn.classList.add('active', btn.dataset.food || 'all');
+      renderMenuGrid();
+    });
+  });
+
+  // ============ Grid interactions: edit / delete / top-pick ============
+  document.getElementById('menuGrid').addEventListener('click', async (e) => {
+    const editId = e.target.closest('[data-edit-item]')?.dataset.editItem;
+    const delId = e.target.closest('[data-delete-item]')?.dataset.deleteItem;
+    const starBtn = e.target.closest('[data-toppick]');
+
+    if (editId) {
+      const item = allItems.find(i => i.id === Number(editId));
+      if (item) openEditModal(item);
+      return;
+    }
+
+    if (delId) {
+      if (!confirm('Delete this menu item permanently?')) return;
+      try {
+        await apiJson(`${MENU_API}/${delId}`, { method: 'DELETE' });
+        window.showToast('Menu item deleted.', 'success');
+        await loadMenu();
+      } catch (err) {
+        window.showToast(err.message || 'Failed to delete item.', 'error');
+      }
+      return;
+    }
+
+    if (starBtn) {
+      const id = starBtn.dataset.toppick;
+      const isCurrentlyTop = starBtn.dataset.current === '1';
+      try {
+        if (isCurrentlyTop) {
+          await apiJson(`${MENU_API}/top-picks/${id}`, { method: 'DELETE' });
+          window.showToast('Removed from Top Picks.', 'success');
+        } else {
+          await apiJson(`${MENU_API}/top-picks/${id}`, { method: 'POST' });
+          window.showToast('Added to Top Picks.', 'success');
+        }
+        await loadMenu();
+      } catch (err) {
+        window.showToast(err.message || 'Failed to update top pick.', 'error');
+      }
+      return;
+    }
+  });
+
+  /* =================================================================
+     ADD / EDIT ITEM MODAL
+     ================================================================= */
+  const itemModal = document.getElementById('itemModal');
+  let selectedImageFile = null;
+
+  function resetItemForm() {
+    document.getElementById('itemId').value = '';
+    document.getElementById('itemName').value = '';
+    document.getElementById('itemDescription').value = '';
+    document.getElementById('itemOriginalPrice').value = '';
+    document.getElementById('itemSavedPrice').value = '0';
+    document.querySelector('input[name="foodType"][value="veg"]').checked = true;
+    document.getElementById('hasSizeCheck').checked = false;
+    document.getElementById('sizeGroup').style.display = 'none';
+    document.getElementById('itemSize').value = 'REGULAR';
+    document.getElementById('imageDropLabel').style.display = 'block';
+    document.getElementById('imageDrop').querySelector('img')?.remove();
+    document.getElementById('itemImage').value = '';
+    selectedImageFile = null;
+    if (categories.length) document.getElementById('itemCategory').value = categories[0].id;
+  }
+
+  document.getElementById('addItemBtn').addEventListener('click', () => {
+    if (!categories.length) { window.showToast('Add a category first.', 'error'); return; }
+    resetItemForm();
+    document.getElementById('itemModalTitle').textContent = 'Add Menu Item';
+    itemModal.classList.add('show');
+  });
+
+  function openEditModal(item) {
+    resetItemForm();
+    document.getElementById('itemModalTitle').textContent = `Edit ${item.name}`;
+    document.getElementById('itemId').value = item.id;
+    document.getElementById('itemName').value = item.name;
+    document.getElementById('itemDescription').value = item.description || '';
+    document.getElementById('itemCategory').value = item.category_id;
+    document.getElementById('itemOriginalPrice').value = item.original_price;
+    document.getElementById('itemSavedPrice').value = item.saved_price || 0;
+    document.querySelector(`input[name="foodType"][value="${item.food_type}"]`).checked = true;
+
+    if (item.size) {
+      document.getElementById('hasSizeCheck').checked = true;
+      document.getElementById('sizeGroup').style.display = 'block';
+      document.getElementById('itemSize').value = item.size;
+    }
+
+    if (item.image) {
+      document.getElementById('imageDropLabel').style.display = 'none';
+      const img = document.createElement('img');
+      img.src = item.image;
+      document.getElementById('imageDrop').appendChild(img);
+    }
+
+    itemModal.classList.add('show');
+  }
+
+  document.getElementById('cancelItemModal').addEventListener('click', () => itemModal.classList.remove('show'));
+  itemModal.addEventListener('click', (e) => { if (e.target === itemModal) itemModal.classList.remove('show'); });
+
+  document.getElementById('hasSizeCheck').addEventListener('change', (e) => {
+    document.getElementById('sizeGroup').style.display = e.target.checked ? 'block' : 'none';
+  });
+
+  document.getElementById('imageDrop').addEventListener('click', () => document.getElementById('itemImage').click());
+  document.getElementById('itemImage').addEventListener('change', (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    selectedImageFile = file;
+    const drop = document.getElementById('imageDrop');
+    drop.querySelector('img')?.remove();
+    document.getElementById('imageDropLabel').style.display = 'none';
+    const img = document.createElement('img');
+    img.src = URL.createObjectURL(file);
+    drop.appendChild(img);
+  });
+
+  document.getElementById('saveItemBtn').addEventListener('click', async () => {
+    const id = document.getElementById('itemId').value;
+    const name = document.getElementById('itemName').value.trim();
+    const description = document.getElementById('itemDescription').value.trim();
+    const category_id = document.getElementById('itemCategory').value;
+    const original_price = document.getElementById('itemOriginalPrice').value;
+    const saved_price = document.getElementById('itemSavedPrice').value || '0';
+    const food_type = document.querySelector('input[name="foodType"]:checked').value;
+    const hasSize = document.getElementById('hasSizeCheck').checked;
+    const size = hasSize ? document.getElementById('itemSize').value : '';
+
+    if (!name || !original_price || !category_id) {
+      window.showToast('Name, category, and price are required.', 'error');
+      return;
+    }
+    if (!id && !selectedImageFile) {
+      window.showToast('Please upload a dish photo.', 'error');
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append('name', name);
+    formData.append('description', description);
+    formData.append('category_id', category_id);
+    formData.append('original_price', original_price);
+    formData.append('saved_price', saved_price);
+    formData.append('food_type', food_type);
+    formData.append('size', size);
+    if (selectedImageFile) formData.append('image', selectedImageFile);
+
+    try {
+      if (id) {
+        await api(`${MENU_API}/${id}`, { method: 'PUT', body: formData });
+        window.showToast('Menu item updated.', 'success');
+      } else {
+        await api(MENU_API, { method: 'POST', body: formData });
+        window.showToast('Menu item added.', 'success');
+      }
+      itemModal.classList.remove('show');
+      await loadMenu();
+    } catch (e) {
+      window.showToast(e.message || 'Failed to save item.', 'error');
+    }
+  });
+
+  /* =================================================================
+     BOOT
+     ================================================================= */
+  function loadComponent(url, placeholderId) {
+    return fetch(url)
+      .then(r => r.text())
+      .then(html => {
+        const el = document.getElementById(placeholderId);
+        el.innerHTML = html;
+        el.querySelectorAll('script').forEach(old => {
+          const s = document.createElement('script');
+          s.textContent = old.textContent;
+          old.replaceWith(s);
+        });
+      });
+  }
+
+  window.PAGE_TITLE = "Menu & Categories";
+  window.PAGE_SUB = "Manage dishes, pricing, and categories";
+  window.onRefresh = () => { loadCategories(); loadMenu(); };
+
+  Promise.all([
+    loadComponent('superadminsidedashboard.html', 'sidebar-placeholder'),
+    loadComponent('superadminheader.html', 'header-placeholder')
+  ]).then(async () => {
+    await loadCategories();
+    await loadMenu();
+  });
+</script>
+</body>
+</html>

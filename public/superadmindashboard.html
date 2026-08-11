@@ -38,115 +38,6 @@
   a { color: inherit; text-decoration: none; }
   button { font-family: inherit; cursor: pointer; }
 
-  /* ---------- Sidebar ---------- */
-  .sidebar {
-    width: 240px;
-    flex-shrink: 0;
-    background: var(--graphite-2);
-    border-right: 1px solid var(--border);
-    display: flex;
-    flex-direction: column;
-    height: 100vh;
-    position: sticky;
-    top: 0;
-    z-index: 20;
-    transition: transform 0.25s ease;
-  }
-
-  .sidebar-brand {
-    display: flex;
-    align-items: center;
-    gap: 0.6rem;
-    padding: 1.1rem 1.2rem;
-    border-bottom: 1px solid var(--border);
-  }
-  .sidebar-brand img { width: 32px; height: 32px; border-radius: 50%; box-shadow: 0 0 0 2px rgba(217,169,76,0.3); }
-  .sidebar-brand .name { font-family: 'Playfair Display', serif; font-weight: 800; font-size: 1.05rem; }
-  .sidebar-brand .sub { font-family: 'Roboto Mono', monospace; font-size: 0.6rem; color: var(--muted); letter-spacing: 1px; text-transform: uppercase; }
-
-  .maint-pill {
-    display: none;
-    margin: 0.8rem 1rem 0;
-    padding: 0.4rem 0.7rem;
-    border-radius: 7px;
-    background: rgba(214, 69, 69, 0.12);
-    border: 1px solid rgba(214, 69, 69, 0.4);
-    font-family: 'Roboto Mono', monospace;
-    font-size: 0.62rem;
-    letter-spacing: 0.5px;
-    color: #f2a3a3;
-    align-items: center;
-    gap: 0.4rem;
-  }
-  .maint-pill.show { display: flex; }
-  .maint-pill .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--red); box-shadow: 0 0 0 0 rgba(214,69,69,0.6); animation: dotPulse 1.6s ease-out infinite; }
-  @keyframes dotPulse { 0%{box-shadow:0 0 0 0 rgba(214,69,69,.55);}70%{box-shadow:0 0 0 6px rgba(214,69,69,0);}100%{box-shadow:0 0 0 0 rgba(214,69,69,0);} }
-
-  .nav-group { padding: 0.9rem 0.6rem; }
-  .nav-label {
-    font-family: 'Roboto Mono', monospace;
-    font-size: 0.6rem;
-    letter-spacing: 1.5px;
-    text-transform: uppercase;
-    color: var(--muted);
-    padding: 0.5rem 0.6rem 0.35rem;
-  }
-
-  .nav-item {
-    display: flex;
-    align-items: center;
-    gap: 0.65rem;
-    padding: 0.62rem 0.7rem;
-    border-radius: 8px;
-    font-size: 0.86rem;
-    font-weight: 500;
-    color: var(--text);
-    margin-bottom: 0.15rem;
-    border: 1px solid transparent;
-    transition: background 0.15s ease, border-color 0.15s ease;
-  }
-  .nav-item svg { width: 17px; height: 17px; flex-shrink: 0; opacity: 0.85; }
-  .nav-item:hover { background: rgba(255,255,255,0.04); }
-  .nav-item.active {
-    background: linear-gradient(90deg, rgba(192,57,43,0.18), rgba(192,57,43,0.03));
-    border-color: rgba(192,57,43,0.35);
-    color: var(--gold-light);
-  }
-
-  .nav-item.stub { opacity: 0.55; }
-  .nav-item.stub .badge {
-    margin-left: auto;
-    font-family: 'Roboto Mono', monospace;
-    font-size: 0.55rem;
-    padding: 0.12rem 0.4rem;
-    border-radius: 4px;
-    background: rgba(217,169,76,0.15);
-    color: var(--gold-light);
-    letter-spacing: 0.5px;
-  }
-
-  .sidebar-footer {
-    margin-top: auto;
-    padding: 0.9rem;
-    border-top: 1px solid var(--border);
-  }
-  .logout-btn {
-    width: 100%;
-    padding: 0.6rem;
-    border-radius: 8px;
-    border: 1px solid var(--border);
-    background: var(--panel);
-    color: var(--muted);
-    font-size: 0.8rem;
-    font-weight: 600;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.4rem;
-    transition: color 0.2s ease, border-color 0.2s ease;
-  }
-  .logout-btn:hover { color: var(--red); border-color: rgba(214,69,69,0.4); }
-
   /* ---------- Main ---------- */
   .main {
     flex: 1;
@@ -155,53 +46,7 @@
     flex-direction: column;
   }
 
-  .topbar {
-    height: 62px;
-    flex-shrink: 0;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 0 1.4rem;
-    border-bottom: 1px solid var(--border);
-    background: rgba(20,20,26,0.7);
-    backdrop-filter: blur(10px);
-    position: sticky;
-    top: 0;
-    z-index: 10;
-  }
-  .topbar-left { display: flex; align-items: center; gap: 0.8rem; }
-  #menuToggle { display: none; background: none; border: none; color: var(--text); font-size: 1.3rem; }
-  .page-title { font-family: 'Playfair Display', serif; font-weight: 700; font-size: 1.15rem; }
-  .page-sub { font-family: 'Roboto Mono', monospace; font-size: 0.62rem; color: var(--muted); letter-spacing: 0.5px; margin-top: 0.1rem; }
-
-  .topbar-right { display: flex; align-items: center; gap: 0.9rem; }
-  .refresh-btn {
-    background: var(--panel);
-    border: 1px solid var(--border);
-    color: var(--gold-light);
-    padding: 0.42rem 0.8rem;
-    border-radius: 7px;
-    font-size: 0.78rem;
-    font-weight: 600;
-    display: flex; align-items: center; gap: 0.35rem;
-  }
-  .refresh-btn:hover { border-color: rgba(217,169,76,0.4); }
-  .admin-chip {
-    display: flex; align-items: center; gap: 0.5rem;
-    font-family: 'Roboto Mono', monospace; font-size: 0.72rem; color: var(--muted);
-  }
-  .admin-chip .avatar {
-    width: 28px; height: 28px; border-radius: 50%;
-    background: linear-gradient(45deg, var(--crimson), var(--gold));
-    display: flex; align-items: center; justify-content: center;
-    font-weight: 700; font-size: 0.75rem; color: #14141a;
-  }
-
   .content { padding: 1.4rem; flex: 1; }
-
-  .section { display: none; animation: fadeIn 0.35s ease; }
-  .section.active { display: block; }
-  @keyframes fadeIn { from { opacity: 0; transform: translateY(6px);} to { opacity:1; transform: translateY(0);} }
 
   /* ---------- Stat cards ---------- */
   .stat-grid {
@@ -241,7 +86,6 @@
     margin-bottom: 0.9rem; flex-wrap: wrap; gap: 0.6rem;
   }
   .panel-title { font-family: 'Playfair Display', serif; font-weight: 700; font-size: 1.02rem; }
-  .panel-actions { display: flex; gap: 0.5rem; align-items: center; }
 
   .btn {
     padding: 0.48rem 0.9rem;
@@ -254,26 +98,7 @@
     display: inline-flex; align-items: center; gap: 0.35rem;
   }
   .btn:hover { border-color: rgba(217,169,76,0.4); }
-  .btn.primary {
-    background: linear-gradient(45deg, var(--crimson), #8e2419);
-    border-color: transparent; color: #fff;
-    box-shadow: 0 4px 12px rgba(192,57,43,0.3);
-  }
-  .btn.primary:hover { background: linear-gradient(45deg, var(--crimson-bright), var(--crimson)); }
-  .btn.danger { color: #f2a3a3; }
-  .btn.danger:hover { border-color: rgba(214,69,69,0.4); }
   .btn.small { padding: 0.32rem 0.65rem; font-size: 0.7rem; }
-
-  input.search, select.select {
-    padding: 0.5rem 0.75rem;
-    border-radius: 7px;
-    border: 1px solid var(--border);
-    background: var(--graphite-2);
-    color: var(--text);
-    font-size: 0.8rem;
-    font-family: 'Roboto Mono', monospace;
-  }
-  input.search:focus, select.select:focus { outline: none; border-color: var(--crimson-bright); }
 
   /* ---------- Tables ---------- */
   .table-wrap { overflow-x: auto; }
@@ -306,45 +131,6 @@
   .badge.red { background: rgba(214,69,69,0.15); color: #f2a3a3; }
   .badge.gray { background: rgba(139,136,154,0.15); color: var(--muted); }
 
-  /* ---------- Toggle switch ---------- */
-  .switch { position: relative; display: inline-block; width: 40px; height: 22px; flex-shrink: 0; }
-  .switch input { opacity: 0; width: 0; height: 0; }
-  .slider {
-    position: absolute; cursor: pointer; inset: 0;
-    background: var(--border); border-radius: 22px; transition: 0.2s;
-  }
-  .slider::before {
-    content: ""; position: absolute; height: 16px; width: 16px; left: 3px; bottom: 3px;
-    background: #fff; border-radius: 50%; transition: 0.2s;
-  }
-  .switch input:checked + .slider { background: var(--crimson); }
-  .switch input:checked + .slider::before { transform: translateX(18px); }
-
-  /* ---------- Maintenance panel ---------- */
-  .maint-box {
-    display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; flex-wrap: wrap;
-  }
-  .maint-info { max-width: 480px; }
-  .maint-info p { color: var(--muted); font-size: 0.82rem; margin-top: 0.3rem; line-height: 1.5; }
-  .maint-control { display: flex; align-items: center; gap: 0.7rem; }
-  textarea.maint-msg {
-    width: 100%; margin-top: 0.8rem; padding: 0.65rem 0.8rem;
-    background: var(--graphite-2); border: 1px solid var(--border); border-radius: 8px;
-    color: var(--text); font-family: 'Roboto Mono', monospace; font-size: 0.8rem; resize: vertical; min-height: 70px;
-  }
-
-  /* ---------- Client sites stub ---------- */
-  .stub-card {
-    border: 1px dashed rgba(217,169,76,0.35);
-    border-radius: 12px;
-    padding: 1.5rem;
-    text-align: center;
-    color: var(--muted);
-    font-size: 0.85rem;
-    line-height: 1.6;
-  }
-  .stub-card strong { color: var(--gold-light); }
-
   /* ---------- Toast ---------- */
   #toast-container {
     position: fixed; top: 20px; right: 20px; z-index: 2000;
@@ -373,14 +159,6 @@
   @media (max-width: 1080px) {
     .stat-grid { grid-template-columns: repeat(2, 1fr); }
   }
-  @media (max-width: 860px) {
-    .sidebar {
-      position: fixed; left: 0; top: 0; transform: translateX(-100%);
-      width: 230px; box-shadow: 20px 0 40px rgba(0,0,0,0.4);
-    }
-    .sidebar.open { transform: translateX(0); }
-    #menuToggle { display: block; }
-  }
   @media (max-width: 560px) {
     .stat-grid { grid-template-columns: 1fr; }
     .content { padding: 1rem; }
@@ -392,99 +170,17 @@
 </head>
 <body>
 
-<aside class="sidebar" id="sidebar">
-  <div class="sidebar-brand">
-    <img src="https://i.postimg.cc/W3pgQx9q/DELICUTE-Imgur-1-modified.png" alt="Delicute" />
-    <div>
-      <div class="name">DELICUTE</div>
-      <div class="sub">Super Admin</div>
-    </div>
-  </div>
-
-  <div class="maint-pill" id="maintPill"><span class="dot"></span> Maintenance mode is ON</div>
-
-  <div class="nav-group">
-    <div class="nav-label">Delicute</div>
-    <div class="nav-item active" data-section="overview">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg>
-      Overview
-    </div>
-    <div class="nav-item" data-section="orders">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 7h16l-1.5 11a2 2 0 0 1-2 1.7H7.5a2 2 0 0 1-2-1.7L4 7Z"/><path d="M8 7V5a4 4 0 0 1 8 0v2"/></svg>
-      Orders
-    </div>
-    <div class="nav-item" data-section="menu">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 6h16M4 12h16M4 18h10"/></svg>
-      Menu &amp; Categories
-    </div>
-    <div class="nav-item" data-section="toppicks">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M12 2l2.9 6.6L22 9.3l-5 4.9 1.2 7-6.2-3.6L5.8 21.2 7 14.2l-5-4.9 7.1-.7L12 2z"/></svg>
-      Top Picks
-    </div>
-    <div class="nav-item" data-section="promos">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M20.6 12.3 12.7 4.4a2 2 0 0 0-1.4-.6H5a1 1 0 0 0-1 1v6.3c0 .5.2 1 .6 1.4l7.9 7.9a2 2 0 0 0 2.8 0l5.3-5.3a2 2 0 0 0 0-2.8Z"/><circle cx="8.5" cy="8.5" r="1.2"/></svg>
-      Coupons &amp; Promotions
-    </div>
-    <div class="nav-item" data-section="users">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-8 8-8s8 3.6 8 8"/></svg>
-      Users
-    </div>
-    <div class="nav-item" data-section="admins">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M12 2 4 5v6c0 5 3.4 8.7 8 11 4.6-2.3 8-6 8-11V5l-8-3Z"/><path d="M9 12l2 2 4-4"/></svg>
-      Admins
-    </div>
-    <div class="nav-item" data-section="logs">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
-      Login Logs
-    </div>
-    <div class="nav-item" data-section="maintenance">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M14.7 6.3a4 4 0 0 1-5.4 5.4L4 17l3 3 5.3-5.3a4 4 0 0 1 5.4-5.4l-3-3-....Z"/><path d="M14.7 6.3 21 12.6M4 17l3 3M9.3 11.7 3 18"/></svg>
-      Maintenance Mode
-    </div>
-  </div>
-
-  <div class="nav-group" style="padding-top:0;">
-    <div class="nav-label">Platform</div>
-    <div class="nav-item stub" data-section="clientsites">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="3" y="4" width="18" height="14" rx="2"/><path d="M3 9h18M8 21h8"/></svg>
-      Client Sites
-      <span class="badge-inline badge">soon</span>
-    </div>
-  </div>
-
-  <div class="sidebar-footer">
-    <button class="logout-btn" id="logoutBtn">
-      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg>
-      Sign out
-    </button>
-  </div>
-</aside>
+<!-- Sidebar gets injected here -->
+<div id="sidebar-placeholder"></div>
 
 <div class="main">
-  <div class="topbar">
-    <div class="topbar-left">
-      <button id="menuToggle">☰</button>
-      <div>
-        <div class="page-title" id="pageTitle">Overview</div>
-        <div class="page-sub" id="pageSub">Real-time snapshot of Delicute</div>
-      </div>
-    </div>
-    <div class="topbar-right">
-      <button class="refresh-btn" id="refreshBtn">
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 4v6h-6M1 20v-6h6"/><path d="M20.5 9A9 9 0 0 0 5 5.6L1 10m22 4-4 4.4a9 9 0 0 1-15.5-3.4"/></svg>
-        Refresh
-      </button>
-      <div class="admin-chip">
-        <div class="avatar" id="adminInitial">S</div>
-        <span id="adminEmail">superadmin</span>
-      </div>
-    </div>
-  </div>
+  <!-- Header gets injected here -->
+  <div id="header-placeholder"></div>
 
   <div class="content">
 
     <!-- OVERVIEW -->
-    <section class="section active" id="section-overview">
+    <section id="section-overview">
       <div class="stat-grid">
         <div class="stat-card"><div class="stat-label">Orders Today</div><div class="stat-value" id="statOrdersToday">–</div><div class="stat-delta" id="statOrdersDelta">–</div></div>
         <div class="stat-card"><div class="stat-label">Revenue Today</div><div class="stat-value" id="statRevenueToday">–</div><div class="stat-delta" id="statRevenueDelta">–</div></div>
@@ -495,217 +191,13 @@
       <div class="panel">
         <div class="panel-head">
           <div class="panel-title">Recent Orders</div>
-          <button class="btn small" data-nav="orders">View all →</button>
+          <a class="btn small" href="superadminorders.html">View all →</a>
         </div>
         <div class="table-wrap">
           <table>
             <thead><tr><th>Order ID</th><th>Customer</th><th>Items</th><th>Total</th><th>Status</th><th>Placed</th></tr></thead>
             <tbody id="recentOrdersBody"><tr class="empty-row"><td colspan="6">Loading…</td></tr></tbody>
           </table>
-        </div>
-      </div>
-    </section>
-
-    <!-- ORDERS -->
-    <section class="section" id="section-orders">
-      <div class="panel">
-        <div class="panel-head">
-          <div class="panel-title">All Orders</div>
-          <div class="panel-actions">
-            <select class="select" id="orderStatusFilter">
-  <option value="">All statuses</option>
-  <option value="Pending">Pending</option>
-  <option value="Accepted">Accepted</option>
-  <option value="Cooking">Cooking</option>
-  <option value="Delivered">Delivered</option>
-  <option value="Cancelled">Cancelled</option>
-</select>
-            <input class="search" id="orderSearch" placeholder="Search order / customer…" />
-          </div>
-        </div>
-        <div class="table-wrap">
-          <table>
-            <thead><tr><th>Order ID</th><th>Customer</th><th>Items</th><th>Total</th><th>Payment</th><th>Status</th><th>Placed</th><th></th></tr></thead>
-            <tbody id="ordersBody"><tr class="empty-row"><td colspan="8">Loading…</td></tr></tbody>
-          </table>
-        </div>
-      </div>
-    </section>
-
-    <!-- MENU & CATEGORIES -->
-    <section class="section" id="section-menu">
-      <div class="panel">
-        <div class="panel-head">
-          <div class="panel-title">Categories</div>
-          <button class="btn primary small" id="addCategoryBtn">+ Add Category</button>
-        </div>
-        <div class="table-wrap">
-          <table>
-            <thead><tr><th>ID</th><th>Name</th><th>Items</th><th>Status</th><th></th></tr></thead>
-            <tbody id="categoriesBody"><tr class="empty-row"><td colspan="5">Loading…</td></tr></tbody>
-          </table>
-        </div>
-      </div>
-
-      <div class="panel">
-        <div class="panel-head">
-          <div class="panel-title">Menu Items</div>
-          <div class="panel-actions">
-            <input class="search" id="menuSearch" placeholder="Search menu item…" />
-            <button class="btn primary small" id="addMenuItemBtn">+ Add Item</button>
-          </div>
-        </div>
-        <div class="table-wrap">
-          <table>
-            <thead><tr><th>ID</th><th>Name</th><th>Category</th><th>Price</th><th>Type</th><th></th></tr></thead>
-            <tbody id="menuBody"><tr class="empty-row"><td colspan="6">Loading…</td></tr></tbody>
-          </table>
-        </div>
-      </div>
-    </section>
-
-    <!-- TOP PICKS -->
-    <section class="section" id="section-toppicks">
-      <div class="panel">
-        <div class="panel-head">
-          <div class="panel-title">Top Picks / Featured Items</div>
-          <button class="btn primary small" id="addTopPickBtn">+ Feature an Item</button>
-        </div>
-        <div class="table-wrap">
-          <table>
-            <thead><tr><th>ID</th><th>Menu Item</th><th>Rank</th><th></th></tr></thead>
-            <tbody id="topPicksBody"><tr class="empty-row"><td colspan="4">Loading…</td></tr></tbody>
-          </table>
-        </div>
-      </div>
-    </section>
-
-    <!-- COUPONS & PROMOTIONS -->
-    <section class="section" id="section-promos">
-      <div class="panel">
-        <div class="panel-head">
-          <div class="panel-title">Coupons</div>
-          <button class="btn primary small" id="addCouponBtn">+ New Coupon</button>
-        </div>
-        <div class="table-wrap">
-          <table>
-            <thead><tr><th>Code</th><th>Discount</th><th>Min Order</th><th>Expiry</th><th>Status</th><th></th></tr></thead>
-            <tbody id="couponsBody"><tr class="empty-row"><td colspan="6">Loading…</td></tr></tbody>
-          </table>
-        </div>
-      </div>
-
-      <div class="panel">
-        <div class="panel-head">
-          <div class="panel-title">Promotions</div>
-          <button class="btn primary small" id="addPromoBtn">+ New Promotion</button>
-        </div>
-        <div class="table-wrap">
-          <table>
-            <thead><tr><th>Title</th><th>Type</th><th>Valid Till</th><th>Status</th><th></th></tr></thead>
-            <tbody id="promosBody"><tr class="empty-row"><td colspan="5">Loading…</td></tr></tbody>
-          </table>
-        </div>
-      </div>
-    </section>
-
-    <!-- USERS -->
-    <section class="section" id="section-users">
-      <div class="panel">
-        <div class="panel-head">
-          <div class="panel-title">Registered Users</div>
-          <input class="search" id="userSearch" placeholder="Search name / email / phone…" />
-        </div>
-        <div class="table-wrap">
-          <table>
-            <thead><tr><th>ID</th><th>Name</th><th>Email</th><th>Phone</th><th>Orders</th><th>Status</th><th></th></tr></thead>
-            <tbody id="usersBody"><tr class="empty-row"><td colspan="7">Loading…</td></tr></tbody>
-          </table>
-        </div>
-      </div>
-    </section>
-
-    <!-- ADMINS -->
-    <section class="section" id="section-admins">
-      <div class="panel">
-        <div class="panel-head">
-          <div class="panel-title">Restaurant Admins</div>
-          <button class="btn primary small" id="addAdminBtn">+ Add Admin</button>
-        </div>
-        <div class="table-wrap">
-          <table>
-            <thead><tr><th>ID</th><th>Name</th><th>Email</th><th>Role</th><th>Status</th><th></th></tr></thead>
-            <tbody id="adminsBody"><tr class="empty-row"><td colspan="6">Loading…</td></tr></tbody>
-          </table>
-        </div>
-      </div>
-
-      <div class="panel">
-        <div class="panel-head">
-          <div class="panel-title">Super Admins</div>
-          <button class="btn primary small" id="addSuperAdminBtn">+ Add Super Admin</button>
-        </div>
-        <div class="table-wrap">
-          <table>
-            <thead><tr><th>ID</th><th>Name</th><th>Email</th><th>2FA</th><th>Last Login</th><th></th></tr></thead>
-            <tbody id="superadminsBody"><tr class="empty-row"><td colspan="6">Loading…</td></tr></tbody>
-          </table>
-        </div>
-      </div>
-    </section>
-
-    <!-- LOGIN LOGS -->
-    <section class="section" id="section-logs">
-      <div class="panel">
-        <div class="panel-head">
-          <div class="panel-title">Super Admin Login Logs</div>
-          <input class="search" id="logSearch" placeholder="Search by email / IP…" />
-        </div>
-        <div class="table-wrap">
-          <table>
-            <thead><tr><th>Email</th><th>IP Address</th><th>Status</th><th>Timestamp</th></tr></thead>
-            <tbody id="logsBody"><tr class="empty-row"><td colspan="4">Loading…</td></tr></tbody>
-          </table>
-        </div>
-      </div>
-    </section>
-
-    <!-- MAINTENANCE MODE -->
-    <section class="section" id="section-maintenance">
-      <div class="panel">
-        <div class="panel-head">
-          <div class="panel-title">Site Maintenance Mode</div>
-        </div>
-        <div class="maint-box">
-          <div class="maint-info">
-            <div style="font-weight:600;">Take Delicute offline for customers</div>
-            <p>When enabled, customer-facing pages show a maintenance screen with the message below. Admin/superadmin login stays accessible so you can keep working.</p>
-            <textarea class="maint-msg" id="maintMessage" placeholder="We're upgrading Delicute — back shortly!"></textarea>
-          </div>
-          <div class="maint-control">
-            <span id="maintStatusLabel" style="font-family:'Roboto Mono',monospace; font-size:0.75rem; color: var(--muted);">OFF</span>
-            <label class="switch">
-              <input type="checkbox" id="maintToggle">
-              <span class="slider"></span>
-            </label>
-          </div>
-        </div>
-        <div style="margin-top:1rem; display:flex; gap:0.6rem;">
-          <button class="btn primary small" id="saveMaintBtn">Save Message</button>
-        </div>
-      </div>
-    </section>
-
-    <!-- CLIENT SITES (stub) -->
-    <section class="section" id="section-clientsites">
-      <div class="panel">
-        <div class="panel-head">
-          <div class="panel-title">Client Sites</div>
-        </div>
-        <div class="stub-card">
-          Multi-site management isn't wired up yet.<br/>
-          Once you have a <strong>client_sites</strong> table (site name, domain, backend URL, status, last deploy), this panel can list every site you maintain — Delicute, the cafe project, and future ones — each with its own maintenance toggle and quick links, without needing a separate dashboard per client.<br/><br/>
-          Say the word when you're ready and I'll design that table + this panel together.
         </div>
       </div>
     </section>
@@ -719,25 +211,12 @@
   // ============ Config ============
   const API_BASE = "/api/superadmin";
   const ENDPOINTS = {
-  stats: `${API_BASE}/dashboard/stats`,
-  orders: `${API_BASE}/orders`,
-  categories: `/api/categories`,
-  menu: `/api/menu`,
-  topPicks: `${API_BASE}/top-picks`,
-  coupons: `${API_BASE}/coupons`,
-  promotions: `${API_BASE}/promotions`,
-  users: `${API_BASE}/users`,
-  admins: `${API_BASE}/admins`,
-  superadmins: `${API_BASE}/superadmins`,
-  logs: `${API_BASE}/login-logs`,
-  maintenance: `${API_BASE}/maintenance`,
-  logout: `${API_BASE}/auth/logout`,
-  me: `${API_BASE}/auth/me`
-};
+    stats: `${API_BASE}/dashboard/stats`
+  };
   const LOGIN_PAGE = "/superadminlogin.html";
 
-  // ============ Toast ============
-  function showToast(message, type = 'success', duration = 3200) {
+  // ============ Toast (shared globally so header.html can use it) ============
+  window.showToast = function showToast(message, type = 'success', duration = 3200) {
     const container = document.getElementById('toast-container');
     const toast = document.createElement('div');
     toast.className = `toast ${type}`;
@@ -747,7 +226,7 @@
       toast.classList.add('hide');
       toast.addEventListener('animationend', () => toast.remove(), { once: true });
     }, duration);
-  }
+  };
 
   // ============ Fetch helper ============
   async function api(url, options = {}) {
@@ -770,87 +249,12 @@
   const escapeHtml = (s) => String(s ?? '').replace(/[&<>"']/g, c => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]));
 
   function statusBadge(status) {
-  const map = {
-    Delivered: 'green', Accepted: 'amber', Cooking: 'amber', Pending: 'gray', Cancelled: 'red'
-  };
-  const cls = map[status] || 'gray';
-  return `<span class="badge ${cls}">${escapeHtml(status || 'unknown')}</span>`;
-}
-
-  // ============ Navigation ============
-  const navItems = document.querySelectorAll('.nav-item[data-section]');
-  const sections = document.querySelectorAll('.section');
-  const titles = {
-    overview: ['Overview', 'Real-time snapshot of Delicute'],
-    orders: ['Orders', 'Track and manage every order'],
-    menu: ['Menu & Categories', 'Manage what customers can order'],
-    toppicks: ['Top Picks', 'Curate featured menu items'],
-    promos: ['Coupons & Promotions', 'Manage discounts and campaigns'],
-    users: ['Users', 'Registered customer accounts'],
-    admins: ['Admins', 'Restaurant admins & super admins'],
-    logs: ['Login Logs', 'Super admin access history'],
-    maintenance: ['Maintenance Mode', 'Control site-wide availability'],
-    clientsites: ['Client Sites', 'Manage other websites you maintain']
-  };
-
-  const loaders = {
-    overview: loadOverview,
-    orders: loadOrders,
-    menu: loadMenu,
-    toppicks: loadTopPicks,
-    promos: loadPromos,
-    users: loadUsers,
-    admins: loadAdmins,
-    logs: loadLogs,
-    maintenance: loadMaintenance,
-    clientsites: () => {}
-  };
-
-  function goToSection(key) {
-    navItems.forEach(n => n.classList.toggle('active', n.dataset.section === key));
-    sections.forEach(s => s.classList.toggle('active', s.id === `section-${key}`));
-    document.getElementById('pageTitle').textContent = titles[key][0];
-    document.getElementById('pageSub').textContent = titles[key][1];
-    sidebar.classList.remove('open');
-    loaders[key] && loaders[key]();
+    const map = { Delivered: 'green', Accepted: 'amber', Cooking: 'amber', Pending: 'gray', Cancelled: 'red' };
+    const cls = map[status] || 'gray';
+    return `<span class="badge ${cls}">${escapeHtml(status || 'unknown')}</span>`;
   }
 
-  navItems.forEach(item => {
-    item.addEventListener('click', () => goToSection(item.dataset.section));
-  });
-  document.querySelectorAll('[data-nav]').forEach(btn => {
-    btn.addEventListener('click', () => goToSection(btn.dataset.nav));
-  });
-
-  const sidebar = document.getElementById('sidebar');
-  document.getElementById('menuToggle').addEventListener('click', () => sidebar.classList.toggle('open'));
-
-  document.getElementById('refreshBtn').addEventListener('click', () => {
-    const active = document.querySelector('.nav-item.active').dataset.section;
-    loaders[active] && loaders[active]();
-    showToast('Refreshed.', 'success', 1500);
-  });
-
-  // ============ Logout ============
-  document.getElementById('logoutBtn').addEventListener('click', async () => {
-    try {
-      await api(ENDPOINTS.logout, { method: 'POST' });
-    } catch (e) { /* ignore, redirect anyway */ }
-    window.location.href = LOGIN_PAGE;
-  });
-
-  // ============ Admin identity ============
-  async function loadIdentity() {
-    try {
-      const data = await api(ENDPOINTS.me);
-      if (!data) return;
-      const email = data.email || 'superadmin';
-      document.getElementById('adminEmail').textContent = email;
-      document.getElementById('adminInitial').textContent = email.charAt(0).toUpperCase();
-    } catch (e) { /* not fatal */ }
-  }
-
-  // ============ Overview ============
+  // ============ Overview loader ============
   async function loadOverview() {
     try {
       const data = await api(ENDPOINTS.stats);
@@ -890,322 +294,33 @@
     }
   }
 
-  // ============ Orders ============
-  async function loadOrders() {
-    const body = document.getElementById('ordersBody');
-    try {
-      const status = document.getElementById('orderStatusFilter').value;
-      const q = document.getElementById('orderSearch').value.trim();
-      const params = new URLSearchParams();
-      if (status) params.set('status', status);
-      if (q) params.set('q', q);
-      const data = await api(`${ENDPOINTS.orders}?${params.toString()}`);
-      if (!data) return;
-      const rows = data.orders || [];
-      body.innerHTML = rows.length ? rows.map(o => `
-        <tr>
-          <td>#${escapeHtml(o.id)}</td>
-          <td>${escapeHtml(o.customerName)}</td>
-          <td>${o.itemCount ?? '—'}</td>
-          <td>${fmtMoney(o.total)}</td>
-          <td>${escapeHtml(o.paymentMethod || '—')}</td>
-          <td>${statusBadge(o.status)}</td>
-          <td>${fmtDate(o.createdAt)}</td>
-          <td><button class="btn small" data-order-id="${o.id}">View</button></td>
-        </tr>`).join('') : `<tr class="empty-row"><td colspan="8">No orders found.</td></tr>`;
-    } catch (e) {
-      body.innerHTML = `<tr class="empty-row"><td colspan="8">Failed to load orders.</td></tr>`;
-    }
-  }
-  document.getElementById('orderStatusFilter').addEventListener('change', loadOrders);
-  let orderSearchTimer;
-  document.getElementById('orderSearch').addEventListener('input', () => {
-    clearTimeout(orderSearchTimer);
-    orderSearchTimer = setTimeout(loadOrders, 350);
-  });
-
-  // ============ Menu & Categories ============
-  async function loadMenu() {
-  const catBody = document.getElementById('categoriesBody');
-  const menuBody = document.getElementById('menuBody');
-
-  let categories = [];
-  try {
-    const catRes = await fetch(ENDPOINTS.categories, { credentials: 'include' });
-    const catData = await catRes.json();
-    categories = catData.data || [];
-    catBody.innerHTML = categories.length ? categories.map(c => `
-      <tr>
-        <td>${escapeHtml(c.id)}</td>
-        <td>${escapeHtml(c.name)}</td>
-        <td colspan="2"></td>
-        <td><button class="btn small" data-edit-category="${c.id}">Edit</button>
-            <button class="btn small danger" data-delete-category="${c.id}">Delete</button></td>
-      </tr>`).join('') : `<tr class="empty-row"><td colspan="5">No categories yet.</td></tr>`;
-  } catch (e) {
-    catBody.innerHTML = `<tr class="empty-row"><td colspan="5">Failed to load categories.</td></tr>`;
+  // ============ Load sidebar + header components, then init page ============
+  function loadComponent(url, placeholderId) {
+    return fetch(url)
+      .then(r => r.text())
+      .then(html => {
+        const el = document.getElementById(placeholderId);
+        el.innerHTML = html;
+        // re-run inline scripts (innerHTML doesn't execute them)
+        el.querySelectorAll('script').forEach(old => {
+          const s = document.createElement('script');
+          s.textContent = old.textContent;
+          old.replaceWith(s);
+        });
+      });
   }
 
-  try {
-    const q = document.getElementById('menuSearch').value.trim().toLowerCase();
-    const menuRes = await fetch(ENDPOINTS.menu, { credentials: 'include' });
-    const menuData = await menuRes.json();
-    let items = menuData.data || [];
-    if (q) items = items.filter(m => m.name.toLowerCase().includes(q));
+  // Page-level hooks the header component reads
+  window.PAGE_TITLE = "Overview";
+  window.PAGE_SUB = "Real-time snapshot of Delicute";
+  window.onRefresh = loadOverview;
 
-    menuBody.innerHTML = items.length ? items.map(m => `
-      <tr>
-        <td>${escapeHtml(m.id)}</td>
-        <td>${escapeHtml(m.name)} ${m.is_top_pick ? '<span class="badge amber">Top Pick</span>' : ''}</td>
-        <td>${escapeHtml(m.category || '—')}</td>
-        <td>${fmtMoney(m.price)}</td>
-        <td>${escapeHtml(m.food_type || 'veg')}</td>
-        <td>
-          <button class="btn small" data-edit-item="${m.id}">Edit</button>
-          <button class="btn small danger" data-delete-item="${m.id}">Delete</button>
-        </td>
-      </tr>`).join('') : `<tr class="empty-row"><td colspan="6">No menu items yet.</td></tr>`;
-  } catch (e) {
-    menuBody.innerHTML = `<tr class="empty-row"><td colspan="6">Failed to load menu items.</td></tr>`;
-  }
-}
-document.getElementById('addCategoryBtn').addEventListener('click', async () => {
-  const name = prompt('Category name:');
-  if (!name || !name.trim()) return;
-  try {
-    const res = await fetch(ENDPOINTS.categories, {
-      method: 'POST', credentials: 'include',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name: name.trim() })
-    });
-    const data = await res.json();
-    if (!res.ok) throw new Error(data.message);
-    showToast('Category added.', 'success');
-    loadMenu();
-  } catch (err) { showToast(err.message || 'Failed to add category.', 'error'); }
-});
-
-document.getElementById('categoriesBody').addEventListener('click', async (e) => {
-  const delId = e.target.dataset.deleteCategory;
-  if (delId && confirm('Delete this category? Items inside it may be affected.')) {
-    try {
-      const res = await fetch(`${ENDPOINTS.categories}/${delId}`, { method: 'DELETE', credentials: 'include' });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.message);
-      showToast('Category deleted.', 'success');
-      loadMenu();
-    } catch (err) { showToast(err.message || 'Failed to delete category.', 'error'); }
-  }
-});
-
-document.getElementById('menuBody').addEventListener('click', async (e) => {
-  const delId = e.target.dataset.deleteItem;
-  if (delId && confirm('Delete this menu item?')) {
-    try {
-      await fetch(`${ENDPOINTS.menu}/${delId}`, { method: 'DELETE', credentials: 'include' });
-      showToast('Item deleted.', 'success');
-      loadMenu();
-    } catch (err) { showToast('Failed to delete item.', 'error'); }
-  }
-});
-
-  // ============ Top Picks ============
-  async function loadTopPicks() {
-    const body = document.getElementById('topPicksBody');
-    try {
-      const data = await api(ENDPOINTS.topPicks);
-      const rows = data?.topPicks || [];
-      body.innerHTML = rows.length ? rows.map(t => `
-        <tr>
-          <td>${escapeHtml(t.id)}</td>
-          <td>${escapeHtml(t.menuItemName)}</td>
-          <td>${t.rank ?? '—'}</td>
-          <td><button class="btn small danger" data-remove-pick="${t.id}">Remove</button></td>
-        </tr>`).join('') : `<tr class="empty-row"><td colspan="4">No featured items yet.</td></tr>`;
-    } catch (e) {
-      body.innerHTML = `<tr class="empty-row"><td colspan="4">Failed to load top picks.</td></tr>`;
-    }
-  }
-
-  // ============ Coupons & Promotions ============
-  async function loadPromos() {
-    const cBody = document.getElementById('couponsBody');
-    const pBody = document.getElementById('promosBody');
-    try {
-      const data = await api(ENDPOINTS.coupons);
-      const rows = data?.coupons || [];
-      cBody.innerHTML = rows.length ? rows.map(c => `
-        <tr>
-          <td>${escapeHtml(c.code)}</td>
-          <td>${c.discountType === 'percent' ? c.discountValue + '%' : fmtMoney(c.discountValue)}</td>
-          <td>${fmtMoney(c.minOrder)}</td>
-          <td>${fmtDate(c.expiresAt)}</td>
-          <td>${statusBadge(c.active ? 'active' : 'expired')}</td>
-          <td><button class="btn small danger" data-remove-coupon="${c.id}">Deactivate</button></td>
-        </tr>`).join('') : `<tr class="empty-row"><td colspan="6">No coupons yet.</td></tr>`;
-    } catch (e) {
-      cBody.innerHTML = `<tr class="empty-row"><td colspan="6">Failed to load coupons.</td></tr>`;
-    }
-
-    try {
-      const data = await api(ENDPOINTS.promotions);
-      const rows = data?.promotions || [];
-      pBody.innerHTML = rows.length ? rows.map(p => `
-        <tr>
-          <td>${escapeHtml(p.title)}</td>
-          <td>${escapeHtml(p.type)}</td>
-          <td>${fmtDate(p.validTill)}</td>
-          <td>${statusBadge(p.active ? 'active' : 'expired')}</td>
-          <td><button class="btn small danger" data-remove-promo="${p.id}">Deactivate</button></td>
-        </tr>`).join('') : `<tr class="empty-row"><td colspan="5">No promotions yet.</td></tr>`;
-    } catch (e) {
-      pBody.innerHTML = `<tr class="empty-row"><td colspan="5">Failed to load promotions.</td></tr>`;
-    }
-  }
-
-  // ============ Users ============
-  async function loadUsers() {
-    const body = document.getElementById('usersBody');
-    try {
-      const q = document.getElementById('userSearch').value.trim();
-      const params = new URLSearchParams();
-      if (q) params.set('q', q);
-      const data = await api(`${ENDPOINTS.users}?${params.toString()}`);
-      const rows = data?.users || [];
-      body.innerHTML = rows.length ? rows.map(u => `
-        <tr>
-          <td>${escapeHtml(u.id)}</td>
-          <td>${escapeHtml(u.name)}</td>
-          <td>${escapeHtml(u.email)}</td>
-          <td>${escapeHtml(u.phone || '—')}</td>
-          <td>${u.orderCount ?? 0}</td>
-          <td>${statusBadge(u.active ? 'active' : 'inactive')}</td>
-          <td><button class="btn small ${u.active ? 'danger' : ''}" data-toggle-user="${u.id}">${u.active ? 'Suspend' : 'Reactivate'}</button></td>
-        </tr>`).join('') : `<tr class="empty-row"><td colspan="7">No users found.</td></tr>`;
-    } catch (e) {
-      body.innerHTML = `<tr class="empty-row"><td colspan="7">Failed to load users.</td></tr>`;
-    }
-  }
-  let userSearchTimer;
-  document.getElementById('userSearch').addEventListener('input', () => {
-    clearTimeout(userSearchTimer);
-    userSearchTimer = setTimeout(loadUsers, 350);
-  });
-
-  // ============ Admins ============
-  async function loadAdmins() {
-    const aBody = document.getElementById('adminsBody');
-    const sBody = document.getElementById('superadminsBody');
-    try {
-      const data = await api(ENDPOINTS.admins);
-      const rows = data?.admins || [];
-      aBody.innerHTML = rows.length ? rows.map(a => `
-        <tr>
-          <td>${escapeHtml(a.id)}</td>
-          <td>${escapeHtml(a.name)}</td>
-          <td>${escapeHtml(a.email)}</td>
-          <td>${escapeHtml(a.role || 'admin')}</td>
-          <td>${statusBadge(a.active ? 'active' : 'inactive')}</td>
-          <td><button class="btn small danger" data-revoke-admin="${a.id}">Revoke</button></td>
-        </tr>`).join('') : `<tr class="empty-row"><td colspan="6">No admins yet.</td></tr>`;
-    } catch (e) {
-      aBody.innerHTML = `<tr class="empty-row"><td colspan="6">Failed to load admins.</td></tr>`;
-    }
-
-    try {
-      const data = await api(ENDPOINTS.superadmins);
-      const rows = data?.superadmins || [];
-      sBody.innerHTML = rows.length ? rows.map(s => `
-        <tr>
-          <td>${escapeHtml(s.id)}</td>
-          <td>${escapeHtml(s.name)}</td>
-          <td>${escapeHtml(s.email)}</td>
-          <td>${statusBadge(s.twoFactorEnabled ? 'active' : 'inactive')}</td>
-          <td>${fmtDate(s.lastLoginAt)}</td>
-          <td><button class="btn small danger" data-revoke-superadmin="${s.id}">Revoke</button></td>
-        </tr>`).join('') : `<tr class="empty-row"><td colspan="6">No super admins yet.</td></tr>`;
-    } catch (e) {
-      sBody.innerHTML = `<tr class="empty-row"><td colspan="6">Failed to load super admins.</td></tr>`;
-    }
-  }
-
-  // ============ Login Logs ============
-  async function loadLogs() {
-    const body = document.getElementById('logsBody');
-    try {
-      const q = document.getElementById('logSearch').value.trim();
-      const params = new URLSearchParams();
-      if (q) params.set('q', q);
-      const data = await api(`${ENDPOINTS.logs}?${params.toString()}`);
-      const rows = data?.logs || [];
-      body.innerHTML = rows.length ? rows.map(l => `
-        <tr>
-          <td>${escapeHtml(l.email)}</td>
-          <td>${escapeHtml(l.ipAddress)}</td>
-          <td>${statusBadge(l.success ? 'active' : 'failed')}</td>
-          <td>${fmtDate(l.createdAt)}</td>
-        </tr>`).join('') : `<tr class="empty-row"><td colspan="4">No login activity yet.</td></tr>`;
-    } catch (e) {
-      body.innerHTML = `<tr class="empty-row"><td colspan="4">Failed to load logs.</td></tr>`;
-    }
-  }
-  let logSearchTimer;
-  document.getElementById('logSearch').addEventListener('input', () => {
-    clearTimeout(logSearchTimer);
-    logSearchTimer = setTimeout(loadLogs, 350);
-  });
-
-  // ============ Maintenance Mode ============
-  const maintToggle = document.getElementById('maintToggle');
-  const maintStatusLabel = document.getElementById('maintStatusLabel');
-  const maintMessage = document.getElementById('maintMessage');
-  const maintPill = document.getElementById('maintPill');
-
-  async function loadMaintenance() {
-    try {
-      const data = await api(ENDPOINTS.maintenance);
-      if (!data) return;
-      applyMaintState(!!data.enabled, data.message || '');
-    } catch (e) {
-      showToast('Could not load maintenance status.', 'error');
-    }
-  }
-
-  function applyMaintState(enabled, message) {
-    maintToggle.checked = enabled;
-    maintStatusLabel.textContent = enabled ? 'ON' : 'OFF';
-    maintMessage.value = message;
-    maintPill.classList.toggle('show', enabled);
-  }
-
-  maintToggle.addEventListener('change', async () => {
-    const enabled = maintToggle.checked;
-    maintStatusLabel.textContent = enabled ? 'ON' : 'OFF';
-    maintPill.classList.toggle('show', enabled);
-    try {
-      await api(ENDPOINTS.maintenance, { method: 'PUT', body: JSON.stringify({ enabled, message: maintMessage.value }) });
-      showToast(`Maintenance mode ${enabled ? 'enabled' : 'disabled'}.`, 'success');
-    } catch (e) {
-      showToast('Failed to update maintenance mode.', 'error');
-      maintToggle.checked = !enabled;
-      maintStatusLabel.textContent = !enabled ? 'ON' : 'OFF';
-      maintPill.classList.toggle('show', !enabled);
-    }
-  });
-
-  document.getElementById('saveMaintBtn').addEventListener('click', async () => {
-    try {
-      await api(ENDPOINTS.maintenance, { method: 'PUT', body: JSON.stringify({ enabled: maintToggle.checked, message: maintMessage.value }) });
-      showToast('Maintenance message saved.', 'success');
-    } catch (e) {
-      showToast('Failed to save message.', 'error');
-    }
-  });
-
-  // ============ Init ============
-  loadIdentity();
+  Promise.all([
+  loadComponent('superadminsidedashboard.html', 'sidebar-placeholder'),
+  loadComponent('superadminheader.html', 'header-placeholder')
+]).then(() => {
   loadOverview();
-  loadMaintenance(); // so the sidebar pill is correct even before visiting that tab
+});
 </script>
 </body>
 </html>

@@ -1,0 +1,652 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Delicute | Orders</title>
+<link rel="icon" href="https://i.postimg.cc/W3pgQx9q/DELICUTE-Imgur-1-modified.png" />
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Roboto+Mono:wght@500;600&family=Roboto:wght@400;500;600&display=swap" rel="stylesheet" />
+<script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { width: 100%; overflow-x: hidden; }
+
+  :root {
+    --graphite: #14141a;
+    --graphite-2: #1a1a22;
+    --panel: #1d1d26;
+    --panel-2: #232330;
+    --crimson: #c0392b;
+    --crimson-bright: #e8543f;
+    --gold: #d9a94c;
+    --gold-light: #f2d49b;
+    --green: #2e9e6b;
+    --amber: #d9a94c;
+    --red: #d64545;
+    --blue: #4a90d9;
+    --purple: #9b6fd9;
+    --text: #e9e6ef;
+    --muted: #8b889a;
+    --border: #33333f;
+  }
+
+  body { font-family: 'Roboto', sans-serif; color: var(--text); background: var(--graphite); min-height: 100vh; display: flex; }
+  a { color: inherit; text-decoration: none; }
+  button { font-family: inherit; cursor: pointer; }
+
+  .main { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+  .content { padding: 1.4rem; flex: 1; }
+
+  .panel {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 1.2rem 1.3rem;
+    margin-bottom: 1.2rem;
+    position: relative;
+    overflow: hidden;
+  }
+  .panel::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+    background: linear-gradient(90deg, var(--purple), var(--blue));
+    opacity: 0.75;
+  }
+
+  .panel-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.7rem; }
+  .panel-title-wrap { display: flex; align-items: center; gap: 0.6rem; }
+  .panel-icon {
+    width: 36px; height: 36px; border-radius: 9px;
+    display: flex; align-items: center; justify-content: center;
+    background: rgba(155,111,217,0.15); color: #c9aef2;
+    flex-shrink: 0;
+  }
+  .panel-icon svg { width: 18px; height: 18px; }
+  .panel-title { font-family: 'Playfair Display', serif; font-weight: 700; font-size: 1.05rem; }
+  .panel-count { font-family: 'Roboto Mono', monospace; font-size: 0.65rem; color: var(--muted); }
+
+  .panel-actions { display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap; }
+
+  input.search, select.select {
+    padding: 0.5rem 0.75rem;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: var(--graphite-2);
+    color: var(--text);
+    font-size: 0.8rem;
+    font-family: 'Roboto Mono', monospace;
+  }
+  input.search:focus, select.select:focus { outline: none; border-color: rgba(217,169,76,0.5); }
+
+  .btn {
+    padding: 0.5rem 0.9rem;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: var(--panel-2);
+    color: var(--text);
+    font-size: 0.78rem;
+    font-weight: 600;
+    display: inline-flex; align-items: center; gap: 0.35rem;
+    transition: all 0.15s ease;
+  }
+  .btn:hover { border-color: rgba(217,169,76,0.4); }
+  .btn.small { padding: 0.34rem 0.7rem; font-size: 0.7rem; }
+  .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  .live-pill {
+    display: flex; align-items: center; gap: 0.4rem;
+    padding: 0.4rem 0.7rem;
+    border-radius: 7px;
+    background: rgba(46,158,107,0.12);
+    border: 1px solid rgba(46,158,107,0.4);
+    font-family: 'Roboto Mono', monospace;
+    font-size: 0.62rem;
+    letter-spacing: 0.5px;
+    color: #7fd9ac;
+  }
+  .live-pill .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--green); box-shadow: 0 0 0 0 rgba(46,158,107,0.6); animation: dotPulse 1s ease-out infinite; }
+  .live-pill.off { background: rgba(214,69,69,0.12); border-color: rgba(214,69,69,0.4); color: #f2a3a3; }
+  .live-pill.off .dot { background: var(--red); animation: none; box-shadow: none; }
+  @keyframes dotPulse { 0%{box-shadow:0 0 0 0 rgba(46,158,107,.55);}70%{box-shadow:0 0 0 6px rgba(46,158,107,0);}100%{box-shadow:0 0 0 0 rgba(46,158,107,0);} }
+
+  /* ---------- Test-orders toggle ---------- */
+  .test-toggle-wrap {
+    display: flex; align-items: center; gap: 0.5rem;
+    padding: 0.4rem 0.7rem;
+    border-radius: 7px;
+    background: rgba(217,169,76,0.08);
+    border: 1px solid rgba(217,169,76,0.3);
+    font-family: 'Roboto Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--gold-light);
+    user-select: none;
+  }
+  .test-toggle-wrap .switch { position: relative; width: 34px; height: 19px; flex-shrink: 0; }
+  .test-toggle-wrap .switch input { opacity: 0; width: 0; height: 0; }
+  .test-toggle-wrap .slider { position: absolute; inset: 0; background: var(--graphite-2); border: 1px solid var(--border); border-radius: 20px; cursor: pointer; transition: 0.2s; }
+  .test-toggle-wrap .slider::before { content: ''; position: absolute; width: 13px; height: 13px; left: 2px; top: 2px; background: var(--muted); border-radius: 50%; transition: 0.2s; }
+  .test-toggle-wrap input:checked + .slider { background: rgba(217,169,76,0.25); border-color: rgba(217,169,76,0.5); }
+  .test-toggle-wrap input:checked + .slider::before { transform: translateX(15px); background: var(--gold); }
+  .test-toggle-wrap label { cursor: pointer; }
+
+  /* ---------- Table ---------- */
+  .table-wrap { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; font-size: 0.83rem; }
+  thead th {
+    text-align: left; font-family: 'Roboto Mono', monospace; font-size: 0.62rem;
+    text-transform: uppercase; letter-spacing: 0.8px; color: var(--muted);
+    padding: 0.6rem 0.7rem; border-bottom: 1px solid var(--border); white-space: nowrap;
+  }
+  tbody td { padding: 0.68rem 0.7rem; border-bottom: 1px solid rgba(255,255,255,0.04); vertical-align: middle; }
+  tbody tr.order-row { cursor: pointer; transition: background 0.6s ease; }
+  tbody tr.order-row:hover { background: rgba(255,255,255,0.02); }
+  tbody tr.row-new { background: rgba(155,111,217,0.12); }
+
+  /* Test orders get a distinct amber tint so they're never mistaken for
+     a real order, at a glance, even before reading the badge. */
+  tbody tr.order-row.row-test { background: rgba(217,169,76,0.05); }
+  tbody tr.order-row.row-test:hover { background: rgba(217,169,76,0.09); }
+  tbody tr.detail-row.row-test .detail-inner { background: rgba(217,169,76,0.04); }
+
+  .empty-row td { text-align: center; color: var(--muted); padding: 1.8rem; font-family: 'Roboto Mono', monospace; font-size: 0.78rem; }
+
+  .id-cell { font-family: 'Roboto Mono', monospace; color: var(--gold-light); font-weight: 700; }
+  .customer-cell .name-main { font-weight: 600; }
+  .customer-cell .table-sub { font-family: 'Roboto Mono', monospace; font-size: 0.7rem; color: var(--muted); }
+  .mono { font-family: 'Roboto Mono', monospace; }
+  .total-cell { font-weight: 700; }
+
+  .badge {
+    display: inline-block; padding: 0.24rem 0.65rem; border-radius: 6px;
+    font-family: 'Roboto Mono', monospace; font-size: 0.66rem; font-weight: 700; letter-spacing: 0.4px;
+  }
+  .badge.Pending   { background: rgba(217,169,76,0.15); color: var(--gold-light); }
+  .badge.Accepted  { background: rgba(74,144,217,0.15); color: #a9cdf2; }
+  .badge.Cooking   { background: rgba(155,111,217,0.15); color: #c9aef2; }
+  .badge.Delivered { background: rgba(46,158,107,0.15); color: #7fd9ac; }
+  .badge.Cancelled { background: rgba(214,69,69,0.15); color: #f2a3a3; }
+  .badge.test { background: rgba(217,169,76,0.22); color: var(--gold-light); margin-left: 0.4rem; }
+
+  .expand-icon { display: inline-flex; transition: transform 0.2s ease; color: var(--muted); }
+  tr.expanded .expand-icon { transform: rotate(90deg); }
+
+  .detail-row td { padding: 0; border-bottom: 1px solid rgba(255,255,255,0.04); }
+  .detail-inner { display: none; padding: 1rem 1.2rem 1.2rem; background: var(--graphite-2); }
+  .detail-row.show .detail-inner { display: block; }
+
+  .detail-grid { display: grid; grid-template-columns: 1.4fr 1fr; gap: 1.4rem; }
+  @media (max-width: 760px) { .detail-grid { grid-template-columns: 1fr; } }
+
+  .item-line { display: flex; justify-content: space-between; gap: 0.6rem; padding: 0.4rem 0; border-bottom: 1px dashed var(--border); font-size: 0.82rem; }
+  .item-line:last-child { border-bottom: none; }
+  .item-name { font-weight: 600; }
+  .item-meta { font-size: 0.72rem; color: var(--muted); }
+  .item-addons { font-size: 0.72rem; color: var(--muted); margin-top: 0.15rem; }
+  .item-price { white-space: nowrap; font-family: 'Roboto Mono', monospace; }
+
+  .summary-line { display: flex; justify-content: space-between; font-size: 0.82rem; padding: 0.28rem 0; color: var(--muted); }
+  .summary-line.total { color: var(--text); font-weight: 700; border-top: 1px solid var(--border); margin-top: 0.4rem; padding-top: 0.55rem; }
+  .instructions-box { margin-top: 0.9rem; padding: 0.7rem 0.85rem; background: var(--panel); border: 1px solid var(--border); border-radius: 8px; font-size: 0.8rem; color: var(--text); }
+  .instructions-box .label { font-family: 'Roboto Mono', monospace; font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.8px; color: var(--muted); margin-bottom: 0.3rem; }
+
+  .status-actions { display: flex; align-items: center; gap: 0.5rem; margin-top: 1rem; flex-wrap: wrap; }
+  .status-actions select { flex: 1; min-width: 140px; }
+
+  /* ---------- Toast ---------- */
+  #toast-container { position: fixed; top: 80px; right: 20px; z-index: 2000; display: flex; flex-direction: column; gap: 0.6rem; max-width: 90vw; }
+  .toast {
+    display: flex; align-items: center; gap: 0.65rem; min-width: 260px; max-width: 340px;
+    background: var(--panel); border-radius: 10px; padding: 0.85rem 1.05rem;
+    box-shadow: 0 10px 28px rgba(0,0,0,0.4); border-left: 4px solid var(--crimson);
+    font-size: 0.9rem; font-weight: 500; color: var(--text);
+    opacity: 0; transform: translateX(40px); animation: toastIn 0.4s ease-out forwards;
+  }
+  .toast.success { border-left-color: var(--green); }
+  .toast.error { border-left-color: var(--red); }
+  .toast.info { border-left-color: var(--blue); }
+  .toast .icon {
+    flex-shrink: 0; width: 22px; height: 22px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center; font-size: 0.8rem; font-weight: 800; color: #fff;
+  }
+  .toast.success .icon { background: var(--green); }
+  .toast.error .icon { background: var(--red); }
+  .toast.info .icon { background: var(--blue); }
+  .toast.hide { animation: toastOut 0.35s ease-in forwards; }
+  @keyframes toastIn { to { opacity: 1; transform: translateX(0); } }
+  @keyframes toastOut { to { opacity: 0; transform: translateX(40px); } }
+
+  @media (max-width: 560px) {
+    .content { padding: 1rem; }
+    .panel-head { flex-direction: column; align-items: flex-start; }
+  }
+</style>
+</head>
+<body>
+
+<div id="sidebar-placeholder"></div>
+
+<div class="main">
+  <div id="header-placeholder"></div>
+
+  <div class="content">
+
+    <div class="panel">
+      <div class="panel-head">
+        <div class="panel-title-wrap">
+          <div class="panel-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 7h16l-1.5 11a2 2 0 0 1-2 1.7H7.5a2 2 0 0 1-2-1.7L4 7Z"/><path d="M8 7V5a4 4 0 0 1 8 0v2"/></svg>
+          </div>
+          <div>
+            <div class="panel-title">Orders</div>
+            <div class="panel-count" id="ordersCount">— orders</div>
+          </div>
+        </div>
+        <div class="panel-actions">
+          <span class="live-pill" id="livePill"><span class="dot"></span> Live</span>
+          <div class="test-toggle-wrap">
+            <label class="switch">
+              <input type="checkbox" id="includeTestToggle" />
+              <span class="slider"></span>
+            </label>
+            <label for="includeTestToggle">Show Test Orders</label>
+          </div>
+          <select class="select" id="dateFilter"><option value="">All Dates</option></select>
+          <select class="select" id="statusFilter">
+            <option value="">All Statuses</option>
+            <option>Pending</option>
+            <option>Accepted</option>
+            <option>Cooking</option>
+            <option>Delivered</option>
+            <option>Cancelled</option>
+          </select>
+          <input class="search" id="orderSearch" placeholder="Search order # / customer…" />
+          <button class="btn small" id="refreshBtn">Refresh</button>
+        </div>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th></th>
+              <th>Order</th>
+              <th>Customer</th>
+              <th>Items</th>
+              <th>Total</th>
+              <th>Status</th>
+              <th>Time</th>
+            </tr>
+          </thead>
+          <tbody id="ordersBody"><tr class="empty-row"><td colspan="7">Loading…</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div id="toast-container" aria-live="polite" aria-atomic="true"></div>
+
+<script>
+  // ============ Config ============
+  const API_BASE = "/api/superadmin/orders";
+  const LOGIN_PAGE = "/superadminlogin.html";
+  const VALID_STATUSES = ["Pending", "Accepted", "Cooking", "Delivered", "Cancelled"];
+
+  // NOTE ON TEST ORDERS:
+  // The restaurant-admin dashboard (routes/orders.js GET /) hard-filters
+  // "WHERE is_test = 0" with no way to override it from the admin UI — so
+  // admins never see test orders and their normal order history/numbering
+  // is completely undisturbed by this toggle. This superadmin page is the
+  // ONLY place test orders are ever visible, and only when this switch
+  // is explicitly turned on (default: off, so the default view here
+  // matches what admin sees too).
+  const AUTO_REFRESH_MS = 20000; // background safety-net refresh, independent of sockets
+
+  let currentOrders = [];
+  let expandedIds = new Set();
+  let knownIds = new Set();
+  let firstLoad = true;
+  let autoRefreshTimer = null;
+
+  // ============ Toast ============
+  window.showToast = function showToast(message, type = 'success', duration = 3200) {
+    const container = document.getElementById('toast-container');
+    const toast = document.createElement('div');
+    toast.className = `toast ${type}`;
+    toast.innerHTML = `<span class="icon">${type === 'success' ? '✓' : type === 'info' ? 'i' : '!'}</span><span>${message}</span>`;
+    container.appendChild(toast);
+    setTimeout(() => {
+      toast.classList.add('hide');
+      toast.addEventListener('animationend', () => toast.remove(), { once: true });
+    }, duration);
+  };
+
+  // ============ Fetch helper ============
+  async function api(url, options = {}) {
+    const res = await fetch(url, {
+      credentials: 'include',
+      headers: { 'Content-Type': 'application/json' },
+      ...options
+    });
+    if (res.status === 401) {
+      window.location.href = LOGIN_PAGE;
+      return null;
+    }
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok || data.success === false) throw new Error(data.message || 'Request failed');
+    return data;
+  }
+
+  const escapeHtml = (s) => String(s ?? '').replace(/[&<>"']/g, c => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]));
+  const fmtMoney = (n) => `₹${Number(n || 0).toFixed(2)}`;
+  const fmtTime = (d) => d ? new Date(d).toLocaleString('en-IN', { day:'2-digit', month:'short', hour:'2-digit', minute:'2-digit' }) : '—';
+
+  function todayStr() {
+    const d = new Date();
+    return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+  }
+
+  function dateLabel(dateStr, count) {
+    const today = todayStr();
+    const yest = new Date(Date.now() - 86400000);
+    const yestStr = `${yest.getFullYear()}-${String(yest.getMonth()+1).padStart(2,'0')}-${String(yest.getDate()).padStart(2,'0')}`;
+    let label;
+    if (dateStr === today) label = 'Today';
+    else if (dateStr === yestStr) label = 'Yesterday';
+    else label = new Date(dateStr + 'T00:00:00').toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' });
+    return `${label} — ${count} order${count === 1 ? '' : 's'}`;
+  }
+
+  function includeTest() {
+    return document.getElementById('includeTestToggle').checked;
+  }
+
+  // ============ Load date dropdown ============
+  async function loadDates() {
+    try {
+      const params = new URLSearchParams();
+      if (includeTest()) params.set('includeTest', '1');
+
+      const data = await api(`${API_BASE}/dates?${params.toString()}`);
+      if (!data) return;
+      const sel = document.getElementById('dateFilter');
+      const currentVal = sel.value;
+      sel.innerHTML = `<option value="">All Dates</option>` + data.dates.map(d =>
+        `<option value="${d.date}">${dateLabel(d.date, d.count)}</option>`
+      ).join('');
+      // default to Today if this is the first load and today has orders
+      if (firstLoad) {
+        const today = todayStr();
+        if (data.dates.some(d => d.date === today)) sel.value = today;
+      } else if ([...sel.options].some(o => o.value === currentVal)) {
+        sel.value = currentVal;
+      }
+    } catch (e) {
+      window.showToast(e.message || 'Failed to load dates.', 'error');
+    }
+  }
+
+  // ============ Load orders ============
+  async function loadOrders(showLoadingState = false) {
+    const body = document.getElementById('ordersBody');
+    if (showLoadingState) body.innerHTML = `<tr class="empty-row"><td colspan="7">Loading…</td></tr>`;
+    try {
+      const date = document.getElementById('dateFilter').value;
+      const status = document.getElementById('statusFilter').value;
+      const q = document.getElementById('orderSearch').value.trim();
+
+      const params = new URLSearchParams();
+      if (date) params.set('date', date);
+      if (status) params.set('status', status);
+      if (q) params.set('q', q);
+      if (includeTest()) params.set('includeTest', '1');
+
+      const data = await api(`${API_BASE}?${params.toString()}`);
+      if (!data) return;
+
+      const orders = data.orders || [];
+      currentOrders = orders;
+
+      const testCount = orders.filter(o => o.isTest).length;
+      document.getElementById('ordersCount').textContent =
+        `${orders.length} order${orders.length === 1 ? '' : 's'}` +
+        (testCount ? ` (${testCount} test)` : '');
+
+      if (!orders.length) {
+        body.innerHTML = `<tr class="empty-row"><td colspan="7">No orders found for these filters.</td></tr>`;
+        knownIds = new Set();
+        firstLoad = false;
+        return;
+      }
+
+      body.innerHTML = orders.map(o => renderOrderRows(o)).join('');
+      knownIds = new Set(orders.map(o => o.id));
+      firstLoad = false;
+
+      setTimeout(() => {
+        document.querySelectorAll('#ordersBody tr.row-new').forEach(tr => tr.classList.remove('row-new'));
+      }, 1200);
+
+    } catch (e) {
+      body.innerHTML = `<tr class="empty-row"><td colspan="7">Failed to load orders.</td></tr>`;
+      window.showToast(e.message || 'Failed to load orders.', 'error');
+    }
+  }
+
+  function renderOrderRows(o) {
+    const isExpanded = expandedIds.has(o.id);
+    const isNew = !firstLoad && !knownIds.has(o.id);
+    const testCls = o.isTest ? ' row-test' : '';
+
+    const mainRow = `
+      <tr class="order-row${testCls} ${isExpanded ? 'expanded' : ''} ${isNew ? 'row-new' : ''}" data-order-row="${o.id}">
+        <td>
+          <span class="expand-icon">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 6l6 6-6 6"/></svg>
+          </span>
+        </td>
+        <td class="id-cell">#${o.id}${o.isTest ? '<span class="badge test">🧪 TEST</span>' : ''}</td>
+        <td class="customer-cell">
+          <div class="name-main">${escapeHtml(o.customerName)}</div>
+          <div class="table-sub">Table ${escapeHtml(o.tableNumber)}</div>
+        </td>
+        <td class="mono">${o.itemCount}</td>
+        <td class="total-cell">${fmtMoney(o.total)}</td>
+        <td><span class="badge ${o.status}">${o.status}</span></td>
+        <td class="mono">${fmtTime(o.createdAt)}</td>
+      </tr>`;
+
+    const detailRow = `
+      <tr class="detail-row${testCls} ${isExpanded ? 'show' : ''}" data-detail-row="${o.id}">
+        <td colspan="7">
+          <div class="detail-inner">
+            <div class="detail-grid">
+              <div>
+                ${o.items.map(it => `
+                  <div class="item-line">
+                    <div>
+                      <div class="item-name">${escapeHtml(it.name)}${it.size ? ` <span class="item-meta">(${escapeHtml(it.size)})</span>` : ''} × ${it.qty}</div>
+                      ${it.addons && it.addons.length ? `<div class="item-addons">+ ${it.addons.map(a => `${escapeHtml(a.name)} (${fmtMoney(a.price)})`).join(', ')}</div>` : ''}
+                    </div>
+                    <div class="item-price">${fmtMoney(it.price)}</div>
+                  </div>
+                `).join('') || '<div class="item-meta">No items recorded.</div>'}
+
+                ${o.instructions ? `
+                  <div class="instructions-box">
+                    <div class="label">Instructions</div>
+                    ${escapeHtml(o.instructions)}
+                  </div>` : ''}
+              </div>
+
+              <div>
+                <div class="summary-line"><span>Subtotal</span><span>${fmtMoney(o.subtotal)}</span></div>
+                <div class="summary-line"><span>Discount ${o.couponCode ? `(${escapeHtml(o.couponCode)})` : ''}</span><span>-${fmtMoney(o.discount)}</span></div>
+                <div class="summary-line total"><span>Total</span><span>${fmtMoney(o.total)}</span></div>
+
+                <div class="status-actions">
+                  <select data-status-select="${o.id}">
+                    ${VALID_STATUSES.map(s => `<option value="${s}" ${s === o.status ? 'selected' : ''}>${s}</option>`).join('')}
+                  </select>
+                  <button class="btn small primary" data-status-save="${o.id}">Update</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </td>
+      </tr>`;
+
+    return mainRow + detailRow;
+  }
+
+  // ============ Row expand / collapse ============
+  document.getElementById('ordersBody').addEventListener('click', (e) => {
+    // Status update button
+    const saveBtn = e.target.closest('[data-status-save]');
+    if (saveBtn) {
+      e.stopPropagation();
+      const id = saveBtn.dataset.statusSave;
+      const select = document.querySelector(`[data-status-select="${id}"]`);
+      updateStatus(id, select.value);
+      return;
+    }
+    if (e.target.closest('select[data-status-select]')) {
+      e.stopPropagation();
+      return;
+    }
+
+    const row = e.target.closest('tr.order-row');
+    if (!row) return;
+    const id = Number(row.dataset.orderRow);
+    if (expandedIds.has(id)) expandedIds.delete(id);
+    else expandedIds.add(id);
+
+    row.classList.toggle('expanded');
+    const detail = document.querySelector(`tr[data-detail-row="${id}"]`);
+    if (detail) detail.classList.toggle('show');
+  });
+
+  async function updateStatus(id, status) {
+    try {
+      await api(`${API_BASE}/${id}/status`, {
+        method: 'PUT',
+        body: JSON.stringify({ status })
+      });
+      window.showToast(`Order #${id} marked as ${status}.`, 'success');
+      const order = currentOrders.find(o => o.id === Number(id));
+      if (order) order.status = status;
+      loadOrders(false);
+    } catch (err) {
+      window.showToast(err.message || 'Failed to update status.', 'error');
+    }
+  }
+
+  // ============ Filters ============
+  let searchTimer;
+  document.getElementById('orderSearch').addEventListener('input', () => {
+    clearTimeout(searchTimer);
+    searchTimer = setTimeout(() => loadOrders(false), 350);
+  });
+  document.getElementById('dateFilter').addEventListener('change', () => loadOrders(true));
+  document.getElementById('statusFilter').addEventListener('change', () => loadOrders(true));
+  document.getElementById('includeTestToggle').addEventListener('change', () => {
+    expandedIds = new Set(); // collapse everything — indices/rows are about to change shape
+    loadDates();
+    loadOrders(true);
+  });
+  document.getElementById('refreshBtn').addEventListener('click', () => { loadDates(); loadOrders(true); });
+
+  // ============ Live updates via Socket.IO ============
+  function initSocket() {
+    const socket = io({ withCredentials: true });
+    const pill = document.getElementById('livePill');
+
+    socket.on('connect', () => {
+      pill.classList.remove('off');
+      pill.innerHTML = `<span class="dot"></span> Live`;
+    });
+    socket.on('disconnect', () => {
+      pill.classList.add('off');
+      pill.innerHTML = `<span class="dot"></span> Offline`;
+    });
+
+    // Fired globally by routes/orders.js when a new NON-test order is placed.
+    // Test orders never reach this event (routes/orders.js skips the emit
+    // for them), so they won't trigger this toast — they'll still show up
+    // here on the next auto-refresh if "Show Test Orders" is on.
+    socket.on('new-order', (order) => {
+      window.showToast(`New order #${order.id} from ${order.customer_name}.`, 'info');
+      loadDates();
+      loadOrders(false);
+    });
+
+    // Fired globally by superadmin-orders.js when any superadmin changes a status —
+    // keeps other open Orders tabs in sync without needing to poll.
+    socket.on('superadmin-order-status-changed', ({ orderId, status }) => {
+      const order = currentOrders.find(o => o.id === orderId);
+      if (order && order.status !== status) {
+        order.status = status;
+        loadOrders(false);
+      }
+    });
+  }
+
+  // ============ Background auto-refresh ============
+  // Safety net independent of the socket connection — quietly re-pulls
+  // orders on an interval so the page stays fresh even if a socket event
+  // is dropped (e.g. brief reconnect) or a test order was placed (which
+  // never emits a socket event at all). Silent: no loading state, no
+  // toast, just a background sync every AUTO_REFRESH_MS.
+  function startAutoRefresh() {
+    if (autoRefreshTimer) clearInterval(autoRefreshTimer);
+    autoRefreshTimer = setInterval(() => {
+      if (document.visibilityState === 'visible') {
+        loadOrders(false);
+      }
+    }, AUTO_REFRESH_MS);
+  }
+
+  // Also resync immediately whenever the tab regains focus, so a
+  // backgrounded tab doesn't sit stale until the next interval tick.
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible') {
+      loadOrders(false);
+    }
+  });
+
+  // ============ Load sidebar + header, then init ============
+  function loadComponent(url, placeholderId) {
+    return fetch(url)
+      .then(r => r.text())
+      .then(html => {
+        const el = document.getElementById(placeholderId);
+        el.innerHTML = html;
+        el.querySelectorAll('script').forEach(old => {
+          const s = document.createElement('script');
+          s.textContent = old.textContent;
+          old.replaceWith(s);
+        });
+      });
+  }
+
+  window.PAGE_TITLE = "Orders";
+  window.PAGE_SUB = "All orders across the platform";
+  window.onRefresh = () => { loadDates(); loadOrders(true); };
+
+  // Fire the orders fetch in parallel with the sidebar/header load instead
+  // of waiting for them — the table doesn't depend on either, so this
+  // shaves a full network round-trip off first paint of the actual data.
+  Promise.all([
+    loadDates(),
+    loadOrders(true)
+  ]);
+
+  Promise.all([
+    loadComponent('superadminsidedashboard.html', 'sidebar-placeholder'),
+    loadComponent('superadminheader.html', 'header-placeholder')
+  ]).then(() => {
+    initSocket();
+    startAutoRefresh();
+  });
+</script>
+</body>
+</html>

@@ -74,11 +74,20 @@ const promotionsRoutes = require("./routes/promotions");
 const superadminAuthRoutes = require("./routes/superadmin"); // NEW — separate superadmin auth system
 const superadminMaintenanceRoutes = require("./routes/superadmin-maintenance");
 const adminAddonRoutes = require("./routes/adminaddon"); // NEW — add-on groups & items
-
+const superadminManageRoutes = require("./routes/superadmin-manage"); // NEW — admins & superadmins CRUD
 const superadminDashboardRoutes = require("./routes/superadmin-dashboard");
 const superadminOrdersRoutes = require("./routes/superadmin-orders");
 const maintenanceGate = require("./middleware/maintenanceGate");
+const superadminTablesRoutes = require("./routes/superadmin-tables"); // NEW
+const superadminMenuRoutes = require("./routes/superadmin-menu"); // NEW
+const superadminCategoriesRoutes = require("./routes/superadmin-categories"); // NEW
+const superadminAddonRoutes = require("./routes/superadmin-addon"); // NEW
+const testModeRoutes = require("./routes/testmode"); // NEW — public status check
+const superadminTestModeRoutes = require("./routes/superadmin-testmode"); // NEW — superadmin toggle
 
+
+app.use("/api/tables", tablesRoutes);
+app.use("/api/test-mode", testModeRoutes); // NEW — public, must stay above maintenanceGate
 app.use("/api/tables", tablesRoutes);
 app.use(maintenanceGate);
 app.use("/api/auth", authRoutes);
@@ -93,6 +102,14 @@ app.use("/api/superadmin/auth", superadminAuthRoutes); // NEW
 app.use("/api/superadmin/maintenance", superadminMaintenanceRoutes);
 app.use("/api/superadmin/dashboard", superadminDashboardRoutes);
 app.use("/api/superadmin/orders", superadminOrdersRoutes);
+app.use("/api/superadmin", superadminManageRoutes);
+app.use("/api/superadmin/tables", superadminTablesRoutes);
+app.use("/api/superadmin/menu", superadminMenuRoutes);
+app.use("/api/superadmin/categories", superadminCategoriesRoutes);
+app.use("/api/superadmin/addons", superadminAddonRoutes);
+app.use("/api/superadmin/tables", superadminTablesRoutes);
+app.use("/api/superadmin/test-mode", superadminTestModeRoutes); // NEW
+
 
 // ================== TEST EMAIL ROUTE ==================
 app.get("/test-email", async (req, res) => {

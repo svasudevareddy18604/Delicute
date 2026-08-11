@@ -20,6 +20,28 @@ let renderTimeout = null;
 // been verified against the backend.
 let scannedTableNumber = null;
 
+/* =========================================================
+   TEST MODE
+   Global switch, controlled only from the superadmin panel (DB-backed),
+   NOT a URL param or localStorage flag anymore. cart.js fetches it fresh
+   here because customermenu.html is a separate page from index.html —
+   any window.DELICUTE_TEST_MODE set there does not carry over.
+   Defaults to false (real order) until the server confirms otherwise,
+   so a slow/failed request never accidentally tags a real order as test.
+   ========================================================= */
+window.DELICUTE_TEST_MODE = false;
+
+async function syncTestMode() {
+  try {
+    const res = await fetch('/api/test-mode', { cache: 'no-store' });
+    const data = await res.json();
+    window.DELICUTE_TEST_MODE = !!data.enabled;
+  } catch (err) {
+    console.error('Test Mode Sync Error:', err);
+    window.DELICUTE_TEST_MODE = false; // fail safe: never silently test-tag real orders
+  }
+}
+
 /* Effective per-unit price including any selected add-ons */
 function itemUnitPrice(item) {
   return (item.price || 0) + (item.addonsTotal || 0);
@@ -471,10 +493,11 @@ async function placeOrder() {
   let total = subtotal - discount;
   if (total < 0) total = 0;
 
-  // While test mode is on (index.html?test=1), every order is tagged
-  // is_test=true. The backend skips the email + admin dashboard entirely
-  // for these, so real staff never see or get notified about test orders.
-  const test_mode = localStorage.getItem('delicute_test_mode') === 'true';
+  // Re-check right before submitting — test mode can be flipped by a
+  // superadmin at any moment while the customer is mid-checkout, so we
+  // don't trust a value fetched minutes ago on page load.
+  await syncTestMode();
+  const test_mode = window.DELICUTE_TEST_MODE === true;
 
   const body = {
     customer_name,
@@ -575,6 +598,7 @@ async function placeOrder() {
 window.addEventListener("load", () => {
   loadCart();
   detectScannedTable();
+  syncTestMode();
   const openCart = localStorage.getItem("openCart");
   const couponCode = localStorage.getItem("appliedCoupon");
   if (openCart === "true" && cartSection) {
