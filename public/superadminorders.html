@@ -6,7 +6,6 @@
 <title>Delicute | Orders</title>
 <link rel="icon" href="https://i.postimg.cc/W3pgQx9q/DELICUTE-Imgur-1-modified.png" />
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Roboto+Mono:wght@500;600&family=Roboto:wght@400;500;600&display=swap" rel="stylesheet" />
-<script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
   html, body { width: 100%; overflow-x: hidden; }
@@ -285,6 +284,7 @@
 
 <div id="toast-container" aria-live="polite" aria-atomic="true"></div>
 
+<script src="/socket.io/socket.io.js"></script>
 <script>
   // ============ Config ============
   const API_BASE = "/api/superadmin/orders";
@@ -651,13 +651,10 @@
   window.PAGE_SUB = "All orders across the platform";
   window.onRefresh = () => { loadDates(); loadOrders(true); };
 
-  // Fire the orders fetch in parallel with the sidebar/header load instead
-  // of waiting for them — the table doesn't depend on either, so this
-  // shaves a full network round-trip off first paint of the actual data.
-  Promise.all([
-    loadDates(),
-    loadOrders(true)
-  ]);
+  // Load dates FIRST so the date filter gets set to "Today" before
+  // loadOrders reads that value — otherwise the initial fetch races
+  // ahead with an empty date filter and pulls the FULL order history.
+  loadDates().then(() => loadOrders(true));
 
   Promise.all([
     loadComponent('superadminsidedashboard.html', 'sidebar-placeholder'),
