@@ -1,0 +1,1053 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Delicute | Every Bite Tells a Story</title>
+  <link rel="icon" href="https://i.postimg.cc/W3pgQx9q/DELICUTE-Imgur-1-modified.png">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Great+Vibes&family=Cormorant+Garamond:wght@500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+<style>
+  :root {
+    --primary-purple: #9370DB;
+    --primary-purple-dark: #8A2BE2;
+    --lilac: #D8BFD8;
+    --bg-lavender: #E6E6FA;
+    --dark: #1A1A1A;
+    --muted: #4B5E8E;
+    --border: #D8BFD8;
+    --input-bg: #F0F8FF;
+    --gold: #FFD700;
+    --gold-soft: #F0E68C;
+    --cream: #FFF8DC;
+    --veg: #2E8B57;
+    --nonveg: #B23A2E;
+    --live-green: #2ECC71;
+    --shadow-sm: 0 2px 5px rgba(216, 183, 210, 0.2);
+    --shadow-md: 0 4px 14px rgba(142, 68, 173, 0.2);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+  html, body { width: 100%; }
+
+  body {
+    font-family: 'Playfair Display', serif;
+    background: linear-gradient(135deg, var(--lilac) 0%, var(--bg-lavender) 100%);
+    color: var(--dark);
+    min-height: 100vh;
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* =========================================================
+     WELCOME HERO — shown first. Hidden the moment "Explore Our
+     Menu" is tapped, which reveals #menuView in its place. No
+     navigation, no second file — just a view toggle.
+     ========================================================= */
+  #welcomeView.hidden, #menuView.hidden { display: none; }
+
+  .hero {
+    width: 100%;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 2rem 1rem;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+    font-family: 'Cormorant Garamond', serif;
+  }
+
+  .hero-bg {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    background-image: url('assests/wallimage.png');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    transform: scale(1.03);
+    animation: bgZoom 18s ease-in-out infinite alternate;
+  }
+
+  @keyframes bgZoom {
+    0%   { transform: scale(1.03); }
+    100% { transform: scale(1.12); }
+  }
+
+  .hero-overlay {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    background:
+      radial-gradient(circle at 15% 20%, rgba(217, 169, 76, 0.22), transparent 45%),
+      radial-gradient(circle at 85% 80%, rgba(142, 68, 173, 0.35), transparent 50%),
+      linear-gradient(180deg, rgba(42, 31, 38, 0.55) 0%, rgba(42, 31, 38, 0.72) 55%, rgba(42, 31, 38, 0.85) 100%);
+  }
+
+  .hero::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.12), transparent);
+    animation: shine 5s infinite;
+    z-index: 1;
+    pointer-events: none;
+  }
+
+  .hero::after {
+    content: '';
+    position: absolute;
+    top: 14px; left: 14px; right: 14px; bottom: 14px;
+    border: 1px solid rgba(217, 169, 76, 0.55);
+    pointer-events: none;
+    z-index: 1;
+  }
+
+  .corner-flourish {
+    position: absolute;
+    width: 110px;
+    height: 110px;
+    opacity: 0.4;
+    z-index: 1;
+    pointer-events: none;
+  }
+  .corner-flourish.tl { top: 6px; left: 6px; }
+  .corner-flourish.br { bottom: 6px; right: 6px; transform: rotate(180deg); }
+
+  .sparkle {
+    position: absolute;
+    font-size: 1.1rem;
+    opacity: 0.65;
+    z-index: 1;
+    color: #f2d49b;
+    animation: floatSparkle 6s ease-in-out infinite;
+    pointer-events: none;
+  }
+  .sparkle.s1 { top: 12%; left: 10%; animation-delay: 0s; }
+  .sparkle.s2 { top: 22%; right: 9%; animation-delay: 1.5s; }
+  .sparkle.s3 { bottom: 18%; left: 8%; animation-delay: 3s; }
+  .sparkle.s4 { bottom: 10%; right: 12%; animation-delay: 2s; }
+
+  @keyframes floatSparkle {
+    0%, 100% { transform: translateY(0) rotate(0deg); opacity: 0.45; }
+    50%      { transform: translateY(-12px) rotate(15deg); opacity: 0.85; }
+  }
+
+  .hero-content {
+    position: relative;
+    z-index: 2;
+    width: 100%;
+    max-width: 640px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .hero img.logo {
+    width: 170px;
+    max-width: 45%;
+    margin-bottom: 1.1rem;
+    filter: drop-shadow(0 4px 14px rgba(0, 0, 0, 0.45));
+    opacity: 0;
+    will-change: transform, opacity;
+    animation: logoRollIn 2.4s cubic-bezier(0.22, 0.61, 0.36, 1) forwards;
+  }
+
+  @keyframes logoRollIn {
+    0% { opacity: 0; transform: translateX(-220px) rotate(-540deg) scale(0.7); }
+    60% { opacity: 1; transform: translateX(12px) rotate(20deg) scale(1.05); }
+    80% { transform: translateX(-4px) rotate(-8deg) scale(0.98); }
+    100% { opacity: 1; transform: translateX(0) rotate(0deg) scale(1); }
+  }
+
+  .eyebrow {
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #f2d49b;
+    margin-bottom: 0.5rem;
+    opacity: 0;
+    animation: fadeInUp 0.8s ease-out 2.2s forwards;
+  }
+
+  .hero h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2rem, 7vw, 3.5rem);
+    font-weight: 800;
+    margin-bottom: 0.5rem;
+    color: #ffffff;
+    text-shadow: 0 3px 14px rgba(0, 0, 0, 0.55), 0 0 24px rgba(217, 169, 76, 0.35);
+    opacity: 0;
+    transform: translateY(20px);
+    animation: fadeInUp 0.8s ease-out 2.3s forwards;
+    letter-spacing: 0.5px;
+  }
+
+  .hero p.tagline {
+    font-size: clamp(1rem, 3.6vw, 1.3rem);
+    font-style: italic;
+    font-weight: 600;
+    color: #f0e6f7;
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+    margin-bottom: 1.6rem;
+    max-width: 92%;
+    opacity: 0;
+    transform: translateY(20px);
+    animation: fadeInUp 0.8s ease-out 2.5s forwards;
+  }
+
+  .anniversary-note {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.25rem;
+    margin: 0 auto 1.8rem;
+    opacity: 0;
+    transform: translateY(20px);
+    animation: fadeInUp 0.8s ease-out 2.6s forwards;
+  }
+
+  .anniversary-note .script {
+    font-family: 'Great Vibes', cursive;
+    font-size: clamp(2rem, 8vw, 2.7rem);
+    color: var(--gold);
+    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+    line-height: 1.15;
+  }
+
+  .anniversary-note .sub {
+    font-size: clamp(0.85rem, 3vw, 1rem);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    font-weight: 600;
+    color: #fff;
+    text-shadow: 0 1px 6px rgba(0, 0, 0, 0.5);
+  }
+
+  .anniversary-note .note-divider {
+    width: 46px;
+    height: 2px;
+    margin: 0.35rem 0 0.1rem;
+    background: linear-gradient(90deg, transparent, var(--gold), transparent);
+  }
+
+  .hero .btn {
+    position: relative;
+    z-index: 2;
+    background: linear-gradient(45deg, #ffa726, #ffca28);
+    color: #1a1a1a;
+    padding: 1rem 2.5rem;
+    font-size: clamp(0.95rem, 3.4vw, 1.1rem);
+    font-weight: 700;
+    font-family: 'Playfair Display', serif;
+    border: none;
+    border-radius: 50px;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-block;
+    width: auto;
+    max-width: 100%;
+    transition: all 0.3s ease;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+    opacity: 0;
+    transform: translateY(20px);
+    animation: fadeInUp 0.8s ease-out 2.8s forwards, pulseGlow 2.4s ease-in-out 3.8s infinite;
+  }
+
+  .hero .btn:hover {
+    background: linear-gradient(45deg, #ffca28, #ffb300);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 26px rgba(0, 0, 0, 0.5);
+  }
+  .hero .btn:active { transform: translateY(0); }
+
+  @keyframes pulseGlow {
+    0%, 100% { box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4); }
+    50%      { box-shadow: 0 6px 30px rgba(217, 169, 76, 0.6); }
+  }
+
+  @keyframes shine {
+    0% { left: -100%; }
+    50% { left: 100%; }
+    100% { left: 100%; }
+  }
+
+  @keyframes fadeInUp {
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .hero-footer {
+    width: 100%;
+    background: linear-gradient(135deg, var(--dark) 0%, #3a2a34 100%);
+    color: #f0e6f7;
+    text-align: center;
+    padding: 1.4rem 1rem;
+    position: relative;
+  }
+  .hero-footer .footer-divider {
+    width: 70px;
+    height: 2px;
+    margin: 0 auto 0.7rem;
+    background: linear-gradient(90deg, transparent, var(--gold), transparent);
+  }
+  .hero-footer p {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(0.8rem, 2.6vw, 0.95rem);
+    letter-spacing: 0.5px;
+    color: #ddc9d6;
+  }
+  .hero-footer p span { color: #f2d49b; font-weight: 600; }
+
+  @media (max-width: 480px) {
+    .hero { padding: 1.5rem 0.9rem; }
+    .hero img.logo { width: 110px; }
+    .hero .btn { width: 100%; max-width: 300px; padding: 0.85rem 1.5rem; }
+    .corner-flourish { width: 70px; height: 70px; opacity: 0.3; }
+    .sparkle { font-size: 0.9rem; }
+    .hero-bg { background-position: 60% center; }
+    .hero-footer { padding: 1.1rem 0.9rem; }
+
+    @keyframes logoRollIn {
+      0% { opacity: 0; transform: translateX(-140px) rotate(-540deg) scale(0.7); }
+      60% { opacity: 1; transform: translateX(10px) rotate(20deg) scale(1.05); }
+      80% { transform: translateX(-3px) rotate(-8deg) scale(0.98); }
+      100% { opacity: 1; transform: translateX(0) rotate(0deg) scale(1); }
+    }
+  }
+
+  header {
+    background: linear-gradient(90deg, var(--primary-purple) 0%, var(--lilac) 100%);
+    color: #FFFFFF;
+    padding: 0.9rem 0.8rem;
+    text-align: center;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    box-shadow: var(--shadow-md);
+  }
+  .header-inner { display: flex; flex-direction: column; align-items: center; position: relative; }
+  header img {
+    height: clamp(40px, 7vw, 50px);
+    filter: drop-shadow(0 1px 3px rgba(0, 0, 0, 0.2));
+  }
+  header h1 {
+    font-size: clamp(1.2rem, 2.5vw, 1.5rem);
+    font-weight: 800;
+    margin-top: 0.35rem;
+    text-shadow: 0 1px 3px rgba(138, 43, 226, 0.3);
+  }
+  header .tagline {
+    font-size: clamp(0.7rem, 1.8vw, 0.82rem);
+    font-weight: 600;
+    opacity: 0.9;
+    color: var(--gold-soft);
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+    display: block;
+    margin-top: 0.1rem;
+  }
+
+  /* Live-update indicator pill */
+  .live-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    margin-top: 0.55rem;
+    padding: 0.3rem 0.75rem;
+    border-radius: 20px;
+    background: rgba(255,255,255,0.16);
+    border: 1px solid rgba(255,255,255,0.35);
+    font-family: Arial, sans-serif;
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: #FFFFFF;
+  }
+  .live-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--live-green);
+    box-shadow: 0 0 0 0 rgba(46, 204, 113, 0.7);
+    animation: liveDotPulse 1.6s ease-out infinite;
+  }
+  @keyframes liveDotPulse {
+    0%   { box-shadow: 0 0 0 0 rgba(46, 204, 113, 0.65); }
+    70%  { box-shadow: 0 0 0 7px rgba(46, 204, 113, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(46, 204, 113, 0); }
+  }
+
+  .container { max-width: 1400px; margin: 0.5rem auto; padding: 0 0.6rem; }
+
+  h2 {
+    font-size: clamp(1.2rem, 2.8vw, 1.4rem);
+    font-weight: 800;
+    color: var(--primary-purple);
+    margin: 0.6rem 0 0.4rem;
+    text-align: center;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+    position: relative;
+    letter-spacing: 0.5px;
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.5s ease, transform 0.5s ease;
+  }
+  h2.visible { opacity: 1; transform: translateY(0); }
+  h2::after {
+    content: '';
+    position: absolute;
+    bottom: -4px; left: 50%;
+    transform: translateX(-50%);
+    width: clamp(60px, 8vw, 80px);
+    height: 2px;
+    background: linear-gradient(90deg, var(--primary-purple), var(--lilac));
+    border-radius: 2px;
+  }
+
+  .search-bar {
+    display: flex;
+    align-items: center;
+    max-width: 600px;
+    margin: 0.5rem auto;
+    background: #FFFFFF;
+    border: 2px solid var(--lilac);
+    border-radius: 8px;
+    padding: 0.3rem;
+    box-shadow: var(--shadow-sm);
+    position: relative;
+  }
+  .search-bar input {
+    flex: 1;
+    border: none;
+    padding: 0.6rem;
+    font-size: clamp(0.85rem, 1.8vw, 0.95rem);
+    font-family: 'Playfair Display', serif;
+    color: var(--dark);
+    outline: none;
+    background: transparent;
+  }
+  .search-bar button {
+    background: linear-gradient(45deg, var(--primary-purple), var(--lilac));
+    border: none;
+    padding: 0.6rem;
+    cursor: pointer;
+    color: #FFFFFF;
+    font-size: clamp(1rem, 2vw, 1.1rem);
+    border-radius: 6px;
+    transition: background 0.2s ease, transform 0.2s ease;
+    margin-right: 0.3rem;
+  }
+  .search-bar button:hover { background: linear-gradient(45deg, var(--primary-purple-dark), var(--lilac)); transform: scale(1.05); }
+
+  .filter-dropdown {
+    position: absolute;
+    top: 100%; right: 0;
+    background: #FFFFFF;
+    border: 1px solid var(--lilac);
+    border-radius: 8px;
+    box-shadow: var(--shadow-sm);
+    z-index: 1000;
+    min-width: 200px;
+    max-height: 300px;
+    overflow-y: auto;
+    display: none;
+    font-family: Arial, sans-serif;
+  }
+  .filter-dropdown.active { display: block; }
+  .filter-dropdown div {
+    padding: 0.6rem 1rem;
+    font-size: clamp(0.85rem, 1.8vw, 0.95rem);
+    color: var(--dark);
+    cursor: pointer;
+    transition: background 0.2s ease;
+  }
+  .filter-dropdown div:hover { background: var(--input-bg); }
+  .filter-dropdown div.selected { background: var(--lilac); color: #FFFFFF; font-weight: 600; }
+
+  .veg-filter-pills { display: flex; justify-content: center; gap: 0.5rem; margin: 0.4rem auto 0.2rem; }
+  .veg-pill {
+    display: flex; align-items: center; gap: 0.35rem;
+    padding: 0.4rem 0.85rem; border-radius: 20px;
+    background: #FFFFFF; border: 1px solid var(--lilac);
+    font-size: 0.78rem; font-weight: 600; color: var(--muted);
+    cursor: pointer; box-shadow: var(--shadow-sm);
+    transition: all 0.2s ease; font-family: Arial, sans-serif;
+  }
+  .veg-pill.active { color: #FFFFFF; border-color: transparent; }
+  .veg-pill[data-veg="veg"].active { background: var(--veg); }
+  .veg-pill[data-veg="nonveg"].active { background: var(--nonveg); }
+  .veg-pill[data-veg="all"].active { background: var(--primary-purple); }
+
+  .food-mark {
+    width: 13px; height: 13px;
+    border: 1.6px solid currentColor;
+    border-radius: 3px;
+    display: inline-flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .food-mark::after { content: ''; width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+
+  .category-row-container { display: flex; flex-direction: column; gap: 0.4rem; margin-bottom: 0.6rem; }
+  .category-row {
+    display: flex; flex-wrap: nowrap; gap: 0.4rem; padding: 0.4rem 0;
+    overflow-x: auto; scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch; scroll-behavior: smooth;
+    min-height: 250px;
+  }
+  .category-row::-webkit-scrollbar { height: 6px; }
+  .category-row::-webkit-scrollbar-thumb { background: var(--primary-purple); border-radius: 3px; }
+  .category-row::-webkit-scrollbar-track { background: rgba(216, 183, 210, 0.2); }
+
+  .card {
+    flex: 0 0 auto;
+    width: clamp(140px, 40vw, 170px);
+    min-height: 250px;
+    background: #FFFFFF;
+    border: 1px solid var(--lilac);
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 5px rgba(216, 183, 210, 0.1);
+    scroll-snap-align: start;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+  }
+  .card:hover { transform: translateY(-2px); box-shadow: 0 3px 8px rgba(216, 183, 210, 0.2); }
+  .card.top-pick::after {
+    content: 'Top Pick';
+    position: absolute; top: 6px; right: 6px;
+    background: var(--lilac); color: #1A1A1A;
+    padding: 0.2rem 0.5rem; border-radius: 5px;
+    font-size: clamp(0.6rem, 1.4vw, 0.7rem);
+    font-weight: 700; z-index: 2;
+  }
+  .card.unavailable { opacity: 0.5; }
+  .card.unavailable::before {
+    content: 'Sold Out';
+    position: absolute; top: 6px; left: 6px;
+    background: var(--nonveg); color: #FFFFFF;
+    padding: 0.2rem 0.5rem; border-radius: 5px;
+    font-size: clamp(0.6rem, 1.4vw, 0.7rem);
+    font-weight: 700; z-index: 2;
+  }
+  .card-img-wrap { position: relative; width: 100%; }
+  .card-img-wrap .food-badge {
+    position: absolute; top: 6px; left: 6px;
+    background: #FFFFFF; border-radius: 4px; padding: 2px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.2); z-index: 2;
+  }
+  .card img {
+    width: 100%; height: 130px; object-fit: cover;
+    display: block; background: var(--input-bg);
+    pointer-events: none; user-select: none;
+  }
+  .card-body { padding: 0.5rem 0.6rem 0.7rem; display: flex; flex-direction: column; flex-grow: 1; }
+  .card-body h3 {
+    font-size: clamp(0.8rem, 1.6vw, 0.9rem);
+    font-weight: 700; margin: 0.2rem 0;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .card-body p.desc {
+    font-size: clamp(0.7rem, 1.4vw, 0.8rem);
+    color: var(--muted); margin-bottom: 0.35rem; line-height: 1.25;
+    display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+  }
+  .price-row { display: flex; align-items: baseline; gap: 0.35rem; margin-top: auto; font-family: Arial, sans-serif; }
+  .price { color: var(--primary-purple); font-weight: 700; font-size: clamp(0.85rem, 1.7vw, 0.95rem); }
+  .old-price {
+    text-decoration: line-through; color: var(--primary-purple-dark);
+    font-size: clamp(0.7rem, 1.5vw, 0.8rem); opacity: 0.8; font-weight: 500;
+  }
+  .size-list {
+    display: flex; flex-wrap: wrap; gap: 0.3rem; margin-top: 0.4rem;
+    font-family: Arial, sans-serif;
+  }
+  .size-chip {
+    background: var(--input-bg);
+    border: 1px solid var(--lilac);
+    border-radius: 5px;
+    padding: 0.15rem 0.4rem;
+    font-size: 0.66rem;
+    font-weight: 700;
+    color: var(--muted);
+    white-space: nowrap;
+  }
+
+  .no-items-msg { text-align: center; color: var(--muted); font-size: clamp(0.8rem, 1.8vw, 0.9rem); padding: 1.5rem 0; }
+
+  #toast {
+    visibility: hidden;
+    min-width: 180px; max-width: 90%;
+    background: linear-gradient(135deg, var(--primary-purple), var(--lilac));
+    color: #FFFFFF; text-align: center;
+    border-radius: 8px; padding: 0.75rem 1rem;
+    position: fixed; z-index: 3000;
+    top: 12px; left: 50%; transform: translateX(-50%);
+    font-size: clamp(0.75rem, 1.8vw, 0.85rem);
+    font-weight: 600;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
+    font-family: Arial, sans-serif;
+    display: flex; align-items: center; justify-content: center; gap: 0.5rem;
+  }
+  #toast.show { visibility: visible; animation: fadeInOut 3s ease forwards; }
+  @keyframes fadeInOut {
+    0% { opacity: 0; } 10% { opacity: 1; } 85% { opacity: 1; } 100% { opacity: 0; }
+  }
+
+  @media (min-width: 769px) {
+    .container { padding: 0 0.8rem; }
+    .category-row { flex-wrap: wrap; gap: 0.8rem; overflow-x: hidden; justify-content: flex-start; }
+    .card { max-width: 190px; min-height: 270px; }
+    .card img { height: 160px; }
+    .search-bar { max-width: 700px; }
+    .filter-dropdown { min-width: 250px; }
+  }
+
+  @media (max-width: 360px) {
+    header img { height: 40px; }
+    header h1 { font-size: 1rem; }
+    header .tagline { font-size: 0.6rem; }
+    .container { margin: 0.4rem; padding: 0 0.3rem; }
+    h2 { font-size: 1.1rem; }
+    .card { width: clamp(130px, 38vw, 150px); min-height: 230px; }
+    .card img { height: 105px; }
+    .card-body h3 { font-size: 0.75rem; }
+    .card-body p.desc { font-size: 0.65rem; }
+    .price { font-size: 0.75rem; }
+  }
+</style>
+</head>
+<body>
+
+  <!-- =========================================================
+       WELCOME VIEW — first thing shown. Tapping "Explore Our
+       Menu" hides this and reveals the menu view below it, all
+       within this one file (no redirect, no backend calls here).
+       ========================================================= -->
+  <div id="welcomeView">
+    <section class="hero">
+      <div class="hero-bg"></div>
+      <div class="hero-overlay"></div>
+
+      <svg class="corner-flourish tl" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M5 5 Q40 5 40 40 Q40 5 90 10" stroke="#d9a94c" stroke-width="1.5"/>
+        <circle cx="30" cy="15" r="3" fill="#d9a94c"/>
+        <circle cx="12" cy="30" r="2" fill="#f2d49b"/>
+      </svg>
+      <svg class="corner-flourish br" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M5 5 Q40 5 40 40 Q40 5 90 10" stroke="#d9a94c" stroke-width="1.5"/>
+        <circle cx="30" cy="15" r="3" fill="#d9a94c"/>
+        <circle cx="12" cy="30" r="2" fill="#f2d49b"/>
+      </svg>
+
+      <span class="sparkle s1">✦</span>
+      <span class="sparkle s2">✧</span>
+      <span class="sparkle s3">✦</span>
+      <span class="sparkle s4">✧</span>
+
+      <div class="hero-content">
+        <img class="logo" src="https://i.postimg.cc/W3pgQx9q/DELICUTE-Imgur-1-modified.png" alt="Delicute Logo" />
+        <div class="eyebrow">Every Bite Tells a Story</div>
+        <h1>Welcome to Delicute</h1>
+        <p class="tagline">Where every dish is crafted with love, and every visit becomes a memory.</p>
+
+        <div class="anniversary-note">
+          <span class="script">Celebrating 1 Year</span>
+          <div class="note-divider"></div>
+          <span class="sub">Anniversary</span>
+        </div>
+
+        <button type="button" id="exploreBtn" class="btn">Explore Our Menu</button>
+      </div>
+    </section>
+
+    <footer class="hero-footer">
+      <div class="footer-divider"></div>
+      <p>&copy; 2025 <span>Delicute</span>. All Rights Reserved.</p>
+    </footer>
+  </div>
+
+  <!-- =========================================================
+       MENU VIEW — hidden until "Explore Our Menu" is tapped.
+       ========================================================= -->
+  <div id="menuView" class="hidden">
+  <header>
+    <div class="header-inner">
+      <img src="https://i.postimg.cc/W3pgQx9q/DELICUTE-Imgur-1-modified.png" alt="DELICUTE Logo" onerror="this.src='https://via.placeholder.com/50'">
+      <h1>DELICUTE</h1>
+      <span class="tagline">Every Bite Tells A Story</span>
+      <span class="live-badge"><span class="live-dot"></span> Live Menu</span>
+    </div>
+  </header>
+
+  <div class="container">
+    <h2>OUR DELICUTE SPECIALS</h2>
+    <div id="topPicks" class="category-row"></div>
+
+    <h2>OUR MENU</h2>
+    <div class="search-bar">
+      <input type="text" id="searchInput" placeholder="Search by name...">
+      <button id="filterBtn"><i class="fas fa-filter"></i></button>
+      <div class="filter-dropdown" id="filterDropdown">
+        <div data-category="All" class="selected">All Categories</div>
+      </div>
+    </div>
+
+    <div class="veg-filter-pills" id="vegFilterPills">
+      <div class="veg-pill active" data-veg="all">All</div>
+      <div class="veg-pill" data-veg="veg"><span class="food-mark" style="color:var(--veg)"></span> Veg</div>
+      <div class="veg-pill" data-veg="nonveg"><span class="food-mark" style="color:var(--nonveg)"></span> Non-Veg</div>
+    </div>
+
+    <div id="menuCategories"></div>
+  </div>
+
+  <div id="toast"></div>
+  </div><!-- /#menuView -->
+
+  <script>
+  /* =========================================================
+     READ-ONLY LIVE MENU
+     Same data shape/endpoint as the ordering flow (/api/menu),
+     but no cart, no add-ons, no add-to-cart. Polls every few
+     seconds and re-renders in place only when data actually
+     changed, so the page never needs a manual refresh.
+     ========================================================= */
+  let menuData = [];
+  const topPicksEl = document.getElementById("topPicks");
+  const categoriesEl = document.getElementById("menuCategories");
+  const searchInput = document.getElementById("searchInput");
+  const filterBtn = document.getElementById("filterBtn");
+  const filterDropdown = document.getElementById("filterDropdown");
+  const vegFilterPills = document.getElementById("vegFilterPills");
+
+  let selectedCategory = "All";
+  let selectedVegFilter = "all";
+  const defaultImage = 'https://via.placeholder.com/150';
+  const SIZE_ORDER = ['SMALL', 'REGULAR', 'MEDIUM', 'LARGE'];
+  const POLL_MS = 3000;
+
+  let isPolling = false;
+  let toastTimeoutHandle = null;
+  let lastDataStr = "";
+
+  function showToast(msg) {
+    const toast = document.getElementById("toast");
+    if (!toast) return;
+    toast.innerHTML = `<i class="fas fa-sync-alt"></i><span>${msg}</span>`;
+    toast.classList.remove("show");
+    void toast.offsetWidth;
+    toast.classList.add("show");
+    if (toastTimeoutHandle) clearTimeout(toastTimeoutHandle);
+    toastTimeoutHandle = setTimeout(() => toast.classList.remove("show"), 3000);
+  }
+
+  function setupCategoryAnimations() {
+    const headers = document.querySelectorAll('h2');
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+          observer.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.3 });
+    headers.forEach(header => observer.observe(header));
+  }
+
+  async function loadMenu(isFirstLoad) {
+    try {
+      const res = await fetch("/api/menu", { cache: "no-store" });
+      if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+      const data = await res.json();
+      if (!data.success || !Array.isArray(data.data)) throw new Error("Invalid menu data");
+
+      const newDataStr = JSON.stringify(data.data);
+      if (newDataStr === lastDataStr) return; // nothing changed, skip re-render
+
+      const wasFirst = lastDataStr === "";
+      lastDataStr = newDataStr;
+      menuData = data.data;
+
+      renderCategories();
+      filterMenu();
+      setupCategoryAnimations();
+
+      if (!wasFirst && !isFirstLoad) showToast("Menu updated");
+    } catch (err) {
+      console.error("Menu Load Error:", err);
+      if (lastDataStr === "") {
+        topPicksEl.innerHTML = "<p class='no-items-msg'>No top picks available</p>";
+        categoriesEl.innerHTML = "<p class='no-items-msg'>Unable to load menu right now</p>";
+      }
+    }
+  }
+
+  async function pollMenu() {
+    if (isPolling) return;
+    isPolling = true;
+    await loadMenu(false);
+    isPolling = false;
+  }
+
+  function startAutoRefresh() {
+    setInterval(pollMenu, POLL_MS);
+    // Also refresh instantly whenever the tab regains focus/visibility
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'visible') pollMenu();
+    });
+  }
+
+  function renderCategories() {
+    if (!Array.isArray(menuData) || menuData.length === 0) {
+      filterDropdown.innerHTML = '<div data-category="All" class="selected">All Categories</div>';
+      return;
+    }
+    const categories = [...new Set(menuData.filter(item => item?.category).map(item => item.category))]
+      .sort((a, b) => a.localeCompare(b));
+    const allOptions = ["All", ...categories];
+
+    if (selectedCategory !== "All" && !categories.includes(selectedCategory)) {
+      selectedCategory = "All";
+    }
+
+    filterDropdown.innerHTML = allOptions.map(cat => {
+      const label = cat === "All" ? "All Categories" : cat;
+      const isSelected = cat === selectedCategory ? " selected" : "";
+      return `<div data-category="${cat}" class="${isSelected}">${label}</div>`;
+    }).join('');
+
+    filterDropdown.querySelectorAll('div').forEach(div => {
+      div.addEventListener('click', () => {
+        selectedCategory = div.dataset.category;
+        filterDropdown.querySelectorAll('div').forEach(d => d.classList.remove('selected'));
+        div.classList.add('selected');
+        filterDropdown.classList.remove('active');
+        filterMenu();
+      });
+    });
+  }
+
+  function groupSizedItems(items) {
+    const grouped = {};
+    items.forEach(item => {
+      if (!item?.id || !item?.name || !item?.category) return;
+      const hasSize = !!item.size;
+      const baseName = hasSize
+        ? item.name.replace(/\s*(Small|Regular|Medium|Large)$/i, '').trim()
+        : item.name;
+      const key = `${baseName.toLowerCase()}__${item.category}`;
+
+      if (!grouped[key]) {
+        grouped[key] = {
+          id: item.id,
+          name: baseName,
+          description: item.description || "No description available",
+          category: item.category,
+          is_top_pick: item.is_top_pick,
+          image: item.image || defaultImage,
+          food_type: item.food_type === "nonveg" ? "nonveg" : "veg",
+          is_available: item.is_available !== false && item.is_available !== 0,
+          sizes: [],
+          order_index: item.order_index || item.id
+        };
+      }
+
+      if (hasSize) {
+        grouped[key].sizes.push({
+          size: item.size.toUpperCase(),
+          price: parseFloat(item.price) || 0,
+          original_price: item.original_price != null ? parseFloat(item.original_price) : null,
+          saved_price: item.saved_price != null ? parseFloat(item.saved_price) : null
+        });
+      } else {
+        grouped[key].price = parseFloat(item.price) || 0;
+        grouped[key].original_price = item.original_price != null ? parseFloat(item.original_price) : null;
+        grouped[key].saved_price = item.saved_price != null ? parseFloat(item.saved_price) : null;
+      }
+    });
+
+    return Object.values(grouped).map(item => {
+      if (item.sizes.length > 0) {
+        item.sizes.sort((a, b) => SIZE_ORDER.indexOf(a.size) - SIZE_ORDER.indexOf(b.size));
+        const preferred = item.sizes.find(s => s.size === "REGULAR") ||
+                           item.sizes.reduce((min, curr) => curr.price < min.price ? curr : min);
+        item.price = preferred.price;
+        item.original_price = preferred.original_price;
+        item.saved_price = preferred.saved_price;
+      }
+      return item;
+    });
+  }
+
+  function renderMenu(data) {
+    if (!Array.isArray(data) || data.length === 0) {
+      topPicksEl.innerHTML = "<p class='no-items-msg'>No top picks available</p>";
+      categoriesEl.innerHTML = "<p class='no-items-msg'>No menu items available</p>";
+      return;
+    }
+
+    const groupedData = groupSizedItems(data);
+    const sortedData = groupedData.sort((a, b) => (a.order_index || a.id) - (b.order_index || b.id));
+
+    const topPicks = sortedData.filter(item => item?.is_top_pick);
+    topPicksEl.innerHTML = topPicks.length > 0 && selectedCategory === "All"
+      ? topPicks.map(item => buildCard(item, true)).join("")
+      : "<p class='no-items-msg'>No top picks available</p>";
+
+    const groupedByCategory = {};
+    sortedData.forEach(item => {
+      if (!item?.category) return;
+      if (!groupedByCategory[item.category]) groupedByCategory[item.category] = [];
+      groupedByCategory[item.category].push(item);
+    });
+
+    const sortedCategories = Object.keys(groupedByCategory).sort((a, b) =>
+      a.localeCompare(b, undefined, { sensitivity: 'base' })
+    );
+
+    categoriesEl.innerHTML = "";
+    if (sortedCategories.length === 0 || (selectedCategory !== "All" && !sortedCategories.includes(selectedCategory))) {
+      categoriesEl.innerHTML = "<p class='no-items-msg'>No menu items available</p>";
+    } else {
+      const categoriesToShow = selectedCategory === "All" ? sortedCategories : [selectedCategory];
+      categoriesToShow.forEach(cat => {
+        const items = groupedByCategory[cat].sort((a, b) => (a.order_index || a.id) - (b.order_index || b.id));
+        const firstRow = items.slice(0, 9);
+        const secondRow = items.slice(9, 18);
+        categoriesEl.innerHTML += `
+          <h2>${cat}</h2>
+          <div class="category-row-container">
+            <div class="category-row">
+              ${firstRow.map(item => buildCard(item, false)).join("")}
+            </div>
+            ${secondRow.length > 0 ? `<div class="category-row">${secondRow.map(item => buildCard(item, false)).join("")}</div>` : ""}
+          </div>
+        `;
+      });
+    }
+    setupCategoryAnimations();
+  }
+
+  function foodMarkHTML(foodType) {
+    const isVeg = foodType !== "nonveg";
+    return `<span class="food-mark" style="color:${isVeg ? 'var(--veg)' : 'var(--nonveg)'}" title="${isVeg ? 'Veg' : 'Non-Veg'}"></span>`;
+  }
+
+  function buildCard(item, isTopPick) {
+    if (!item?.name || item.price == null || !item.id) return "";
+    const imageSrc = item.image || defaultImage;
+    const hasSizes = Array.isArray(item.sizes) && item.sizes.length > 0;
+    const unavailable = item.is_available === false;
+
+    const sizeChips = hasSizes
+      ? `<div class="size-list">${item.sizes.map(s => `<span class="size-chip">${s.size} ₹${s.price.toFixed(0)}</span>`).join("")}</div>`
+      : "";
+
+    return `
+      <div class="card ${isTopPick ? 'top-pick' : ''} ${unavailable ? 'unavailable' : ''}">
+        <div class="card-img-wrap">
+          <span class="food-badge">${foodMarkHTML(item.food_type)}</span>
+          <img src="${imageSrc}" alt="${item.name}" loading="lazy" onerror="this.src='${defaultImage}'">
+        </div>
+        <div class="card-body">
+          <h3>${item.name}</h3>
+          <p class="desc">${item.description || "No description available"}</p>
+          <div class="price-row">
+            <span class="price">₹${item.price.toFixed(2)}</span>
+            ${item.original_price ? `<span class="old-price">₹${item.original_price.toFixed(2)}</span>` : ""}
+          </div>
+          ${sizeChips}
+        </div>
+      </div>
+    `;
+  }
+
+  function filterMenu() {
+    if (!Array.isArray(menuData)) {
+      renderMenu([]);
+      return;
+    }
+    const searchTerm = (searchInput?.value || "").trim().toLowerCase();
+
+    const filtered = menuData.filter(item => {
+      if (!item?.name || !item?.category) return false;
+      const matchesCategory = selectedCategory === "All" || item.category === selectedCategory;
+      const itemFoodType = item.food_type === "nonveg" ? "nonveg" : "veg";
+      const matchesVeg = selectedVegFilter === "all" || itemFoodType === selectedVegFilter;
+      const matchesSearch = !searchTerm ||
+        item.name.toLowerCase().includes(searchTerm) ||
+        (item.description || "").toLowerCase().includes(searchTerm);
+      return matchesCategory && matchesVeg && matchesSearch;
+    });
+
+    renderMenu(filtered);
+  }
+
+  if (searchInput) {
+    searchInput.addEventListener('input', () => filterMenu());
+  }
+
+  if (filterBtn && filterDropdown) {
+    filterBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      filterDropdown.classList.toggle('active');
+    });
+    document.addEventListener('click', (e) => {
+      if (!filterDropdown.contains(e.target) && e.target !== filterBtn) {
+        filterDropdown.classList.remove('active');
+      }
+    });
+  }
+
+  if (vegFilterPills) {
+    vegFilterPills.querySelectorAll('[data-veg]').forEach(pill => {
+      pill.addEventListener('click', () => {
+        selectedVegFilter = pill.dataset.veg;
+        vegFilterPills.querySelectorAll('[data-veg]').forEach(p => p.classList.remove('active'));
+        pill.classList.add('active');
+        filterMenu();
+      });
+    });
+  }
+
+  /* =========================================================
+     WELCOME -> MENU TOGGLE
+     No navigation, no page reload — just swap which view is
+     visible. Menu data loading/polling only starts once the
+     menu is actually shown, so the welcome screen never makes
+     a network call.
+     ========================================================= */
+  const welcomeView = document.getElementById('welcomeView');
+  const menuView = document.getElementById('menuView');
+  const exploreBtn = document.getElementById('exploreBtn');
+  let menuStarted = false;
+
+  function showMenu() {
+    welcomeView.classList.add('hidden');
+    menuView.classList.remove('hidden');
+    window.scrollTo(0, 0);
+    if (!menuStarted) {
+      menuStarted = true;
+      loadMenu(true);
+      startAutoRefresh();
+    }
+  }
+
+  if (exploreBtn) {
+    exploreBtn.addEventListener('click', showMenu);
+  }
+  </script>
+</body>
+</html>

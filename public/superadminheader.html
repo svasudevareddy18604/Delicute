@@ -35,7 +35,7 @@
   /* spacer pushed into the page flow so content isn't hidden under fixed header */
   .topbar-spacer { height: 64px; flex-shrink: 0; }
 
-  .topbar-left { display: flex; align-items: center; gap: 0.9rem; position: relative; min-width: 0; }
+  .topbar-left { display: flex; align-items: center; gap: 0.9rem; position: relative; min-width: 0; flex: 1; }
   #menuToggle {
     display: none;
     background: var(--panel);
@@ -51,7 +51,7 @@
   }
   #menuToggle:hover { border-color: rgba(217,169,76,0.5); }
 
-  .title-block { display: flex; align-items: center; gap: 0.6rem; min-width: 0; }
+  .title-block { display: flex; align-items: center; gap: 0.6rem; min-width: 0; flex: 1; }
   .title-dot {
     width: 8px; height: 8px; border-radius: 50%;
     background: linear-gradient(45deg, var(--crimson-bright), var(--gold));
@@ -69,44 +69,66 @@
     white-space: nowrap;
   }
 
-  /* ---------- Scrolling ticker (replaces static page-sub) ---------- */
+  /* ---------- BIGGER, STUNNER scrolling ticker ---------- */
   .page-sub-ticker {
     width: 100%;
-    max-width: 320px;
+    max-width: 480px;
     overflow: hidden;
     position: relative;
-    margin-top: 0.2rem;
-    -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 8%, #000 92%, transparent 100%);
-    mask-image: linear-gradient(90deg, transparent 0, #000 8%, #000 92%, transparent 100%);
+    margin-top: 0.28rem;
+    padding: 0.15rem 0;
+    -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 6%, #000 94%, transparent 100%);
+    mask-image: linear-gradient(90deg, transparent 0, #000 6%, #000 94%, transparent 100%);
   }
   .page-sub-track {
     display: flex;
     width: max-content;
-    animation: tickerScroll 14s linear infinite;
+    animation: tickerScroll 16s linear infinite;
+    will-change: transform;
+  }
+  .page-sub-ticker:hover .page-sub-track {
+    animation-play-state: paused;
   }
   .page-sub-track span {
     font-family: 'Roboto Mono', monospace;
-    font-size: 0.62rem;
-    color: var(--muted);
-    letter-spacing: 1.2px;
+    font-size: 0.82rem;
+    font-weight: 600;
+    letter-spacing: 1.6px;
     white-space: nowrap;
-    padding-right: 1.6rem;
+    padding-right: 2.2rem;
     display: flex;
     align-items: center;
-    gap: 0.4rem;
+    gap: 0.55rem;
+    background: linear-gradient(90deg, var(--gold-light), var(--gold), var(--crimson-bright), var(--gold));
+    background-size: 250% 100%;
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: tickerShine 6s linear infinite;
+    text-shadow: 0 0 18px rgba(217,169,76,0.25);
   }
   .page-sub-track span::before {
     content: '';
-    width: 4px; height: 4px; border-radius: 50%;
+    width: 6px; height: 6px; border-radius: 50%;
     background: var(--gold);
+    box-shadow: 0 0 8px rgba(217,169,76,0.8);
     display: inline-block;
     flex-shrink: 0;
+    -webkit-text-fill-color: initial;
   }
   @keyframes tickerScroll {
     0% { transform: translateX(0); }
     100% { transform: translateX(-50%); }
   }
-  @media (max-width: 640px) { .page-sub-ticker { max-width: 160px; } }
+  @keyframes tickerShine {
+    0% { background-position: 0% 0; }
+    100% { background-position: 250% 0; }
+  }
+  @media (max-width: 900px) { .page-sub-ticker { max-width: 300px; } }
+  @media (max-width: 640px) {
+    .page-sub-ticker { max-width: 170px; }
+    .page-sub-track span { font-size: 0.72rem; letter-spacing: 1px; padding-right: 1.6rem; }
+  }
 
   .topbar-right { display: flex; align-items: center; gap: 0.8rem; flex-shrink: 0; }
 
@@ -201,9 +223,9 @@
     <button id="menuToggle" aria-label="Toggle sidebar">☰</button>
     <div class="title-block">
       <span class="title-dot"></span>
-      <div style="min-width:0;">
+      <div style="min-width:0; flex:1;">
         <div class="page-title" id="pageTitle">Page Title</div>
-        <div class="page-sub-ticker">
+        <div class="page-sub-ticker" id="pageSubTicker">
           <div class="page-sub-track" id="pageSubTrack">
             <!-- populated by JS: duplicated content for seamless loop -->
           </div>
@@ -241,11 +263,12 @@
     const titleEl = document.getElementById('pageTitle');
     if (window.PAGE_TITLE) titleEl.textContent = window.PAGE_TITLE;
 
-    // ---- Scrolling ticker for the subtitle ----
+    // ---- Scrolling ticker for the subtitle (bigger, shinier, seamless loop) ----
     const subText = window.PAGE_SUB || 'DELICUTE — EVERY BITE TELLS A STORY';
     const track = document.getElementById('pageSubTrack');
-    // duplicate content twice so the -50% translateX loop is seamless
-    track.innerHTML = `<span>${subText}</span><span>${subText}</span><span>${subText}</span><span>${subText}</span>`;
+    // duplicate content enough times so the -50% translateX loop is seamless
+    // regardless of container width or text length
+    track.innerHTML = `<span>${subText}</span><span>${subText}</span><span>${subText}</span><span>${subText}</span><span>${subText}</span><span>${subText}</span>`;
 
     // Mobile sidebar toggle — expects a #sidebar element in the DOM
     document.getElementById('menuToggle').addEventListener('click', () => {
