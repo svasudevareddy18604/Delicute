@@ -605,6 +605,126 @@
     0% { opacity: 0; } 10% { opacity: 1; } 85% { opacity: 1; } 100% { opacity: 0; }
   }
 
+  .addon-btn {
+    margin-top: 0.4rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    background: var(--input-bg);
+    border: 1px solid var(--lilac);
+    color: var(--primary-purple-dark);
+    font-family: Arial, sans-serif;
+    font-size: 0.68rem;
+    font-weight: 700;
+    padding: 0.3rem 0.55rem;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: background 0.2s ease, transform 0.15s ease;
+    align-self: flex-start;
+  }
+  .addon-btn:hover { background: var(--lilac); color: #fff; }
+  .addon-btn i { font-size: 0.65rem; }
+
+  /* ---------- Add-on info modal (view-only, no cart) ---------- */
+  .addon-info-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(26, 18, 46, 0.55);
+    backdrop-filter: blur(3px);
+    -webkit-backdrop-filter: blur(3px);
+    z-index: 4000;
+    align-items: flex-end;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.25s ease;
+  }
+  .addon-info-overlay.show { display: flex; opacity: 1; }
+
+  .addon-info-box {
+    background: #FFFFFF;
+    width: 100%;
+    max-width: 480px;
+    max-height: 85vh;
+    overflow-y: auto;
+    border-radius: 22px 22px 0 0;
+    box-shadow: 0 -10px 34px rgba(75, 46, 131, 0.32);
+    font-family: Arial, sans-serif;
+    -webkit-overflow-scrolling: touch;
+  }
+  @media (min-width: 769px) {
+    .addon-info-overlay { align-items: center; }
+    .addon-info-box { border-radius: 18px; max-height: 78vh; }
+  }
+
+  .addon-info-header {
+    padding: 1.1rem 1.2rem;
+    background: linear-gradient(90deg, var(--primary-purple) 0%, var(--primary-purple-dark) 55%, var(--lilac) 100%);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    border-radius: 22px 22px 0 0;
+  }
+  @media (min-width: 769px) { .addon-info-header { border-radius: 18px 18px 0 0; } }
+  .addon-info-header h3 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: #FFFFFF;
+    padding-right: 0.5rem;
+  }
+  .addon-info-close {
+    background: rgba(255,255,255,0.22);
+    border: none;
+    color: #FFFFFF;
+    width: 30px; height: 30px;
+    min-width: 30px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 0.85rem;
+    display: flex; align-items: center; justify-content: center;
+    transition: background 0.2s ease, transform 0.2s ease;
+  }
+  .addon-info-close:hover { background: rgba(255,255,255,0.38); transform: rotate(90deg); }
+
+  .addon-info-body { padding: 1rem 1.2rem 1.2rem; }
+
+  .addon-info-group { margin-bottom: 1.1rem; padding-bottom: 1rem; border-bottom: 1px dashed var(--border); }
+  .addon-info-group:last-child { margin-bottom: 0; border-bottom: none; padding-bottom: 0; }
+
+  .addon-info-group-title {
+    font-weight: 700;
+    font-size: 0.9rem;
+    color: var(--primary-purple-dark);
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 0.5rem;
+  }
+  .addon-info-group-sub {
+    font-weight: 600;
+    font-size: 0.68rem;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    margin-top: 0.1rem;
+  }
+
+  .addon-info-row {
+    display: flex;
+    align-items: center;
+    gap: 0.55rem;
+    padding: 0.5rem 0;
+  }
+  .addon-info-row + .addon-info-row { border-top: 1px solid var(--input-bg); }
+  .addon-info-name { flex: 1; font-size: 0.85rem; font-weight: 600; color: var(--dark); }
+  .addon-info-price { font-size: 0.8rem; font-weight: 700; color: var(--primary-purple); white-space: nowrap; }
+  .addon-info-unavailable { opacity: 0.45; }
+  .addon-info-unavailable .addon-info-price::after { content: ' (unavailable)'; font-weight: 500; font-size: 0.68rem; }
+
+  .addon-info-empty { text-align: center; color: var(--muted); font-size: 0.85rem; padding: 1rem 0; }
+
   @media (min-width: 769px) {
     .container { padding: 0 0.8rem; }
     .category-row { flex-wrap: wrap; gap: 0.8rem; overflow-x: hidden; justify-content: flex-start; }
@@ -613,6 +733,8 @@
     .search-bar { max-width: 700px; }
     .filter-dropdown { min-width: 250px; }
   }
+
+
 
   @media (max-width: 360px) {
     header img { height: 40px; }
@@ -711,6 +833,17 @@
     </div>
 
     <div id="menuCategories"></div>
+  </div>
+
+  <!-- Add-on info modal — view only, no cart, no selection -->
+  <div class="addon-info-overlay" id="addonInfoOverlay">
+    <div class="addon-info-box">
+      <div class="addon-info-header">
+        <h3 id="addonInfoTitle">Add-ons</h3>
+        <button class="addon-info-close" onclick="closeAddonInfo()"><i class="fas fa-times"></i></button>
+      </div>
+      <div class="addon-info-body" id="addonInfoBody"></div>
+    </div>
   </div>
 
   <div id="toast"></div>
@@ -969,6 +1102,9 @@
             ${item.original_price ? `<span class="old-price">₹${item.original_price.toFixed(2)}</span>` : ""}
           </div>
           ${sizeChips}
+          <button type="button" class="addon-btn" onclick="openAddonInfo(${item.id}, '${item.name.replace(/'/g, "\\'")}')">
+            <i class="fas fa-plus-circle"></i> Add-ons
+          </button>
         </div>
       </div>
     `;
@@ -1021,6 +1157,71 @@
       });
     });
   }
+
+  /* =========================================================
+     ADD-ON INFO MODAL (view-only)
+     Fetches the same public endpoint the ordering flow uses,
+     but only renders info — no checkboxes, no cart, no submit.
+     Fetched lazily per tap so page load never queries add-ons
+     for every item up front.
+     ========================================================= */
+  const addonInfoOverlay = document.getElementById('addonInfoOverlay');
+  const addonInfoTitle = document.getElementById('addonInfoTitle');
+  const addonInfoBody = document.getElementById('addonInfoBody');
+
+  function escapeHtml(str) {
+    const div = document.createElement('div');
+    div.textContent = str || '';
+    return div.innerHTML;
+  }
+
+  async function openAddonInfo(itemId, name) {
+    addonInfoTitle.textContent = name;
+    addonInfoBody.innerHTML = `<p class="addon-info-empty"><i class="fas fa-spinner fa-spin"></i> Loading add-ons…</p>`;
+    addonInfoOverlay.classList.add('show');
+    document.body.style.overflow = 'hidden';
+
+    try {
+      const res = await fetch(`/api/menu-items/${itemId}/addon-groups`);
+      const groups = res.ok ? await res.json() : [];
+
+      if (!Array.isArray(groups) || groups.length === 0) {
+        addonInfoBody.innerHTML = `<p class="addon-info-empty">No add-ons available for this item.</p>`;
+        return;
+      }
+
+      addonInfoBody.innerHTML = groups.map(g => {
+        const addons = Array.isArray(g.addons) ? g.addons : [];
+        return `
+          <div class="addon-info-group">
+            <div class="addon-info-group-title">
+              ${escapeHtml(g.name)}
+              <span class="addon-info-group-sub">${g.is_required ? 'Required' : 'Optional'} · Select ${g.min_selection}-${g.max_selection}</span>
+            </div>
+            ${addons.length > 0 ? addons.map(a => `
+              <div class="addon-info-row ${a.is_available === false ? 'addon-info-unavailable' : ''}">
+                <span class="food-mark" style="color:${a.is_veg === false ? 'var(--nonveg)' : 'var(--veg)'}"></span>
+                <span class="addon-info-name">${escapeHtml(a.name)}</span>
+                <span class="addon-info-price">+₹${Number(a.price).toFixed(0)}</span>
+              </div>
+            `).join('') : `<p class="addon-info-empty">No options in this group right now.</p>`}
+          </div>
+        `;
+      }).join('');
+    } catch (err) {
+      console.error('Addon Info Fetch Error:', err);
+      addonInfoBody.innerHTML = `<p class="addon-info-empty">Couldn't load add-ons right now.</p>`;
+    }
+  }
+
+  function closeAddonInfo() {
+    addonInfoOverlay.classList.remove('show');
+    document.body.style.overflow = 'auto';
+  }
+
+  addonInfoOverlay.addEventListener('click', (e) => {
+    if (e.target === addonInfoOverlay) closeAddonInfo();
+  });
 
   /* =========================================================
      WELCOME -> MENU TOGGLE
