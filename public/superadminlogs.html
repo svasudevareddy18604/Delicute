@@ -128,6 +128,8 @@
 
   .mono { font-family: 'Roboto Mono', monospace; font-size: 0.76rem; color: var(--muted); }
   .email-cell { font-weight: 600; }
+  .location-cell { font-size: 0.78rem; color: var(--text); white-space: nowrap; }
+  .location-cell.unknown { color: var(--muted); font-style: italic; }
   .ua-cell { max-width: 220px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-family: 'Roboto Mono', monospace; font-size: 0.7rem; color: var(--muted); }
 
   .badge {
@@ -192,7 +194,7 @@
         </div>
         <div class="panel-actions">
           <span class="live-pill" id="livePill"><span class="dot"></span> Live</span>
-          <input class="search" id="logSearch" placeholder="Search email / IP…" />
+          <input class="search" id="logSearch" placeholder="Search email / IP / location…" />
           <select class="select" id="statusFilter">
             <option value="">All status</option>
             <option value="1">Success</option>
@@ -215,11 +217,12 @@
               <th>Status</th>
               <th>Reason</th>
               <th>IP Address</th>
+              <th>Location</th>
               <th>Device / Agent</th>
               <th>Time</th>
             </tr>
           </thead>
-          <tbody id="logsBody"><tr class="empty-row"><td colspan="6">Loading…</td></tr></tbody>
+          <tbody id="logsBody"><tr class="empty-row"><td colspan="7">Loading…</td></tr></tbody>
         </table>
       </div>
       <div class="pagination">
@@ -274,7 +277,7 @@
   }
 
   const escapeHtml = (s) => String(s ?? '').replace(/[&<>"']/g, c => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]));
-  const fmtDate = (d) => d ? new Date(d).toLocaleString('en-IN', { day:'2-digit', month:'short', hour:'2-digit', minute:'2-digit', second:'2-digit' }) : '—';
+  const fmtDate = (l) => l.created_at_display || '—';
 
   function reasonBadge(reason) {
     const map = {
@@ -286,6 +289,11 @@
     };
     const m = map[reason] || { cls: 'gray', label: reason || '—' };
     return `<span class="badge ${m.cls}">${escapeHtml(m.label)}</span>`;
+  }
+
+  function locationCell(l) {
+    if (l.location) return `<span class="location-cell">${escapeHtml(l.location)}</span>`;
+    return `<span class="location-cell unknown">Unknown</span>`;
   }
 
   // ============ Load logs ============
@@ -310,7 +318,7 @@
       document.getElementById('lastUpdated').textContent = `Updated ${new Date().toLocaleTimeString('en-IN')}`;
 
       if (!rows.length) {
-        body.innerHTML = `<tr class="empty-row"><td colspan="6">No login attempts recorded.</td></tr>`;
+        body.innerHTML = `<tr class="empty-row"><td colspan="7">No login attempts recorded.</td></tr>`;
         lastSeenIds = new Set();
         return;
       }
@@ -323,8 +331,9 @@
           <td><span class="badge ${l.success ? 'green' : 'red'}">${l.success ? 'Success' : 'Failed'}</span></td>
           <td>${reasonBadge(l.reason)}</td>
           <td class="mono">${escapeHtml(l.ip_address || '—')}</td>
+          <td>${locationCell(l)}</td>
           <td class="ua-cell" title="${escapeHtml(l.user_agent || '')}">${escapeHtml(l.user_agent || '—')}</td>
-          <td class="mono">${fmtDate(l.created_at)}</td>
+          <td class="mono">${fmtDate(l)}</td>
         </tr>`;
       }).join('');
 
@@ -338,7 +347,7 @@
 
     } catch (e) {
       if (!silent) {
-        body.innerHTML = `<tr class="empty-row"><td colspan="6">Failed to load logs.</td></tr>`;
+        body.innerHTML = `<tr class="empty-row"><td colspan="7">Failed to load logs.</td></tr>`;
       }
       window.showToast(e.message || 'Failed to load logs.', 'error');
     }
