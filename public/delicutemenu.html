@@ -874,6 +874,8 @@
   let isPolling = false;
   let toastTimeoutHandle = null;
   let lastDataStr = "";
+  const itemDisplayNames = {};       // itemId -> display name, for the add-on modal title
+  const addonAvailabilityCache = {}; // itemId -> true | false | "pending"
 
   function showToast(msg) {
     const toast = document.getElementById("toast");
@@ -1071,6 +1073,55 @@
       });
     }
     setupCategoryAnimations();
+    populateAddonSlots();
+  }
+
+  /* =========================================================
+     ADD-ON AVAILABILITY CHECK
+     Only shows the "Add-ons" button on cards whose item
+     actually has add-on groups assigned. Checked once per
+     item id and cached — repeat renders (search, filter,
+     poll-triggered updates) reuse the cached result instead
+     of re-querying the server for the same item again.
+     ========================================================= */
+  function renderAddonButton(slot, itemId) {
+    slot.innerHTML = `<button type="button" class="addon-btn" onclick="openAddonInfo(${itemId})">
+      <i class="fas fa-plus-circle"></i> Add-ons
+    </button>`;
+  }
+
+  function populateAddonSlots() {
+    const slots = document.querySelectorAll('.addon-slot[data-addon-slot]');
+    const idsToFetch = new Set();
+
+    slots.forEach(slot => {
+      const id = slot.dataset.addonSlot;
+      const cached = addonAvailabilityCache[id];
+      if (cached === true) {
+        renderAddonButton(slot, id);
+      } else if (cached === undefined) {
+        idsToFetch.add(id);
+      }
+      // cached === false or "pending": leave the slot empty
+    });
+
+    idsToFetch.forEach(id => {
+      addonAvailabilityCache[id] = "pending";
+      fetch(`/api/menu-items/${id}/addon-groups`)
+        .then(res => res.ok ? res.json() : [])
+        .then(groups => {
+          const hasAddons = Array.isArray(groups) && groups.some(
+            g => Array.isArray(g.addons) && g.addons.length > 0
+          );
+          addonAvailabilityCache[id] = hasAddons;
+          if (hasAddons) {
+            document.querySelectorAll(`.addon-slot[data-addon-slot="${id}"]`).forEach(slot => {
+              renderAddonButton(slot, id);
+            });
+          }
+        })
+        .catch(() => { addonAvailabilityCache[id] = false; });
+    });
   }
 
   function foodMarkHTML(foodType) {
@@ -1080,6 +1131,7 @@
 
   function buildCard(item, isTopPick) {
     if (!item?.name || item.price == null || !item.id) return "";
+    itemDisplayNames[item.id] = item.name;
     const imageSrc = item.image || defaultImage;
     const hasSizes = Array.isArray(item.sizes) && item.sizes.length > 0;
     const unavailable = item.is_available === false;
@@ -1102,9 +1154,7 @@
             ${item.original_price ? `<span class="old-price">₹${item.original_price.toFixed(2)}</span>` : ""}
           </div>
           ${sizeChips}
-          <button type="button" class="addon-btn" onclick="openAddonInfo(${item.id}, '${item.name.replace(/'/g, "\\'")}')">
-            <i class="fas fa-plus-circle"></i> Add-ons
-          </button>
+          <div class="addon-slot" data-addon-slot="${item.id}"></div>
         </div>
       </div>
     `;
@@ -1175,8 +1225,8 @@
     return div.innerHTML;
   }
 
-  async function openAddonInfo(itemId, name) {
-    addonInfoTitle.textContent = name;
+  async function openAddonInfo(itemId) {
+    addonInfoTitle.textContent = itemDisplayNames[itemId] || 'Add-ons';
     addonInfoBody.innerHTML = `<p class="addon-info-empty"><i class="fas fa-spinner fa-spin"></i> Loading add-ons…</p>`;
     addonInfoOverlay.classList.add('show');
     document.body.style.overflow = 'hidden';
