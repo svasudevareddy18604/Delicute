@@ -13,6 +13,7 @@ const router = express.Router();
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const pool = require("../db"); // same MySQL pool used elsewhere
+const geoip = require("geoip-lite");
 
 const JWT_SECRET = process.env.SUPERADMIN_JWT_SECRET;
 const COOKIE_NAME = "superadmin_token";
@@ -42,6 +43,38 @@ function cookieOptions() {
   };
 }
 
+// Returns the exact current time in IST, formatted for MySQL DATETIME.
+// Computed in Node regardless of what timezone the MySQL server itself
+// runs in — avoids the UTC-vs-IST mismatch from relying on NOW().
+function mysqlNowIST() {
+  const istString = new Date().toLocaleString("en-US", { timeZone: "Asia/Kolkata" });
+  const d = new Date(istString);
+  const pad = (n) => String(n).padStart(2, "0");
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
+}
+
+// Resolves a rough "City, Region, Country" string from an IP using an
+// offline lookup table (no external API call, no network dependency).
+// Localhost / private-network IPs have no public geo record, so those
+// correctly return "Local network" — expected during local dev.
+function lookupLocation(ip) {
+  if (!ip) return null;
+  const cleanIp = ip.replace("::ffff:", ""); // strip IPv6-mapped-IPv4 prefix
+  if (
+    cleanIp === "127.0.0.1" ||
+    cleanIp === "::1" ||
+    cleanIp.startsWith("192.168.") ||
+    cleanIp.startsWith("10.") ||
+    cleanIp.startsWith("172.")
+  ) {
+    return "Local network";
+  }
+  const geo = geoip.lookup(cleanIp);
+  if (!geo) return null;
+  const parts = [geo.city, geo.region, geo.country].filter(Boolean);
+  return parts.length ? parts.join(", ") : null;
+}
+
 // ================== MIDDLEWARE ==================
 // Defined up top (not at the bottom) so it can be used by /logs and any
 // other protected route declared below in this same file.
@@ -59,11 +92,12 @@ function authenticateSuperadmin(req, res, next) {
 
 async function logAttempt({ superadminId, email, ip, userAgent, success, reason }) {
   try {
+    const location = lookupLocation(ip);
     await pool.query(
       `INSERT INTO superadmin_login_logs
-        (superadmin_id, email_attempted, ip_address, user_agent, success, reason)
-       VALUES (?, ?, ?, ?, ?, ?)`,
-      [superadminId || null, email, ip, userAgent || null, success ? 1 : 0, reason || null]
+        (superadmin_id, email_attempted, ip_address, location, user_agent, success, reason, created_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+      [superadminId || null, email, ip, location, userAgent || null, success ? 1 : 0, reason || null, mysqlNowIST()]
     );
   } catch (err) {
     // Never let logging failures break the login flow.
@@ -232,13 +266,14 @@ router.get("/logs", authenticateSuperadmin, async (req, res) => {
 
     const safeLimit = Math.min(Math.max(parseInt(limit, 10) || 50, 1), 500);
 
-    let sql = `SELECT id, superadmin_id, email_attempted, ip_address, user_agent, success, reason, created_at
+    let sql = `SELECT id, superadmin_id, email_attempted, ip_address, location, user_agent, success, reason, created_at,
+               DATE_FORMAT(created_at, '%d %b, %h:%i:%s %p') AS created_at_display
                FROM superadmin_login_logs WHERE 1=1`;
     const params = [];
 
     if (q.trim()) {
-      sql += ` AND (email_attempted LIKE ? OR ip_address LIKE ?)`;
-      params.push(`%${q.trim()}%`, `%${q.trim()}%`);
+      sql += ` AND (email_attempted LIKE ? OR ip_address LIKE ? OR location LIKE ?)`;
+      params.push(`%${q.trim()}%`, `%${q.trim()}%`, `%${q.trim()}%`);
     }
 
     if (success === "1" || success === "0") {
@@ -255,6 +290,51 @@ router.get("/logs", authenticateSuperadmin, async (req, res) => {
   } catch (err) {
     console.error("Fetch superadmin logs error:", err);
     res.status(500).json({ success: false, message: "Failed to fetch login logs" });
+  }
+});
+
+// ================== ADMIN LOGIN LOGS (restaurant admins, not superadmins) ==================
+// NOTE: this route is dead code in practice — the live /admin-logs endpoint
+// your frontend actually calls is served from routes/superadmin-adminlogs.js,
+// mounted separately in server.js at /api/superadmin. Kept here only so this
+// file matches its original shape; safe to delete if you want one less
+// place to keep in sync.
+router.get("/admin-logs", authenticateSuperadmin, async (req, res) => {
+  try {
+    const { q = "", success = "", limit = "50" } = req.query;
+
+    const safeLimit = Math.min(Math.max(parseInt(limit, 10) || 50, 1), 500);
+
+    let sql = `
+      SELECT
+        l.id, l.admin_id, l.email_attempted, l.ip_address, l.location, l.user_agent,
+        l.success, l.reason, l.created_at,
+        DATE_FORMAT(l.created_at, '%d %b, %h:%i:%s %p') AS created_at_display,
+        u.name AS admin_name
+      FROM admin_login_logs l
+      LEFT JOIN users u ON u.id = l.admin_id
+      WHERE 1=1`;
+    const params = [];
+
+    if (q.trim()) {
+      sql += ` AND (l.email_attempted LIKE ? OR l.ip_address LIKE ? OR l.location LIKE ?)`;
+      params.push(`%${q.trim()}%`, `%${q.trim()}%`, `%${q.trim()}%`);
+    }
+
+    if (success === "1" || success === "0") {
+      sql += ` AND l.success = ?`;
+      params.push(success === "1" ? 1 : 0);
+    }
+
+    sql += ` ORDER BY l.id DESC LIMIT ?`;
+    params.push(safeLimit);
+
+    const [rows] = await pool.query(sql, params);
+
+    res.json({ success: true, logs: rows });
+  } catch (err) {
+    console.error("Fetch admin logs error:", err);
+    res.status(500).json({ success: false, message: "Failed to fetch admin login logs" });
   }
 });
 

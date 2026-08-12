@@ -56,8 +56,6 @@
   .maint-pill .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--red); box-shadow: 0 0 0 0 rgba(214,69,69,0.6); animation: dotPulse 1.6s ease-out infinite; }
   @keyframes dotPulse { 0%{box-shadow:0 0 0 0 rgba(214,69,69,.55);}70%{box-shadow:0 0 0 6px rgba(214,69,69,0);}100%{box-shadow:0 0 0 0 rgba(214,69,69,0);} }
 
-  /* Test-mode pill — same visual language as maint-pill but amber, so
-     it's unmistakably a different state at a glance. */
   .testmode-pill {
     display: none;
     margin: 0.8rem 1rem 0;
@@ -160,7 +158,6 @@
   }
   .logout-btn:hover { color: var(--red); border-color: rgba(214,69,69,0.4); }
 
-  /* This spacer lives in the page, not here — pushes .main content right of the fixed sidebar */
   .sidebar-spacer { width: 240px; flex-shrink: 0; }
 
   @media (max-width: 860px) {
@@ -244,6 +241,13 @@
         Login Logs
       </a>
 
+      <!-- ============ NEW: Admin Logs (separate from superadmin's own Login Logs above) ============ -->
+      <a class="nav-item" data-page="superadminadminlogs.html" href="superadminadminlogs.html">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 19V5a2 2 0 0 1 2-2h8l6 6v10a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2Z"/><path d="M14 3v6h6"/><path d="M8 13h8M8 17h5"/></svg>
+        Admin Logs
+      </a>
+      <!-- ============ END NEW ============ -->
+
       <a class="nav-item" data-page="superadminmaintenancemode.html" href="superadminmaintenancemode.html">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M14.7 6.3a4 4 0 0 1-5.4 5.4L4 17l3 3 5.3-5.3a4 4 0 0 1 5.4-5.4l-3-3Z"/><path d="M14.7 6.3 21 12.6M4 17l3 3M9.3 11.7 3 18"/></svg>
         Maintenance Mode
@@ -271,7 +275,6 @@
 <div class="sidebar-spacer"></div>
 
 <script>
-  // ============ Sidebar behaviour ============
   (function initSidebar() {
     const currentPage = window.location.pathname.split('/').pop() || 'superadmindashboard.html';
     document.querySelectorAll('.nav-item[data-page]').forEach(item => {
@@ -297,9 +300,6 @@
       })
       .catch(() => {});
 
-    // Test-mode pill uses the same superadmin-only endpoint the
-    // Test Mode page itself reads from, so it reflects the true global
-    // DB state (not a URL param or localStorage).
     fetch('/api/superadmin/test-mode', { credentials: 'include' })
       .then(r => r.ok ? r.json() : null)
       .then(data => {

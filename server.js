@@ -87,10 +87,13 @@ const superadminTestModeRoutes = require("./routes/superadmin-testmode"); // sup
 const superadminTopPicksRoutes = require("./routes/superadmin-toppicks");
 const superadminPromotionsRoutes = require("./routes/superadmin-promotions"); // NEW
 const superadminCouponsRoutes = require("./routes/superadmin-coupons");
+const superadminAdminLogsRoutes = require("./routes/superadmin-adminlogs");
 
+app.use("/api/superadmin", superadminAdminLogsRoutes); 
 app.use("/api/tables", tablesRoutes);
 app.use("/api/test-mode", testModeRoutes); // public, must stay above maintenanceGate
 app.use(maintenanceGate);
+app.use("/api/superadmin/auth", superadminAuthRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/menu", menuRoutes);
 app.use("/api/categories", categoriesRoutes);
