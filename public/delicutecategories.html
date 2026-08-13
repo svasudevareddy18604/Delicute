@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Delicute | Menu</title>
+  <title>Delicute | Our Menu</title>
   <link rel="icon" href="https://i.postimg.cc/W3pgQx9q/DELICUTE-Imgur-1-modified.png">
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Cormorant+Garamond:wght@500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
@@ -21,7 +21,6 @@
     --gold-soft: #F0E68C;
     --veg: #2E8B57;
     --nonveg: #B23A2E;
-    --live-green: #2ECC71;
     --shadow-sm: 0 2px 5px rgba(216, 183, 210, 0.2);
     --shadow-md: 0 4px 14px rgba(142, 68, 173, 0.2);
   }
@@ -37,9 +36,11 @@
     -webkit-font-smoothing: antialiased;
     -webkit-overflow-scrolling: touch;
     overscroll-behavior-y: contain;
-    padding-bottom: 70px; /* room for floating cart bar */
+    scroll-behavior: smooth;
+    padding-bottom: 70px; /* room for cart bar */
   }
 
+  /* ---------- Header ---------- */
   header {
     background: linear-gradient(90deg, var(--primary-purple) 0%, var(--lilac) 100%);
     color: #FFFFFF;
@@ -50,120 +51,65 @@
     z-index: 1000;
     box-shadow: var(--shadow-md);
   }
-  .header-inner { display: flex; flex-direction: column; align-items: center; position: relative; }
-  .back-btn {
+  .header-inner { display: flex; align-items: center; justify-content: center; position: relative; }
+  .home-link {
     position: absolute;
-    top: 0; left: 0;
-    background: rgba(255,255,255,0.2);
-    border: none;
+    left: 0.3rem;
+    top: 50%;
+    transform: translateY(-50%);
     color: #fff;
-    width: 36px; height: 36px;
-    border-radius: 50%;
-    cursor: pointer;
-    font-size: 1rem;
+    font-size: 1.15rem;
+    text-decoration: none;
+    width: 34px; height: 34px;
     display: flex; align-items: center; justify-content: center;
-    transition: background 0.2s ease, transform 0.2s ease;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.15);
+    transition: background 0.2s ease;
   }
-  .back-btn:hover { background: rgba(255,255,255,0.35); transform: translateX(-2px); }
+  .home-link:hover { background: rgba(255,255,255,0.28); }
+  .header-text { display: flex; flex-direction: column; align-items: center; }
   header h1 {
-    font-size: clamp(1.25rem, 3vw, 1.6rem);
+    font-size: clamp(1.5rem, 4.4vw, 2rem);
     font-weight: 800;
     text-shadow: 0 1px 3px rgba(138, 43, 226, 0.3);
-    opacity: 0;
-    transform: translateY(-10px);
-    animation: headerTextIn 0.6s ease-out 0.1s forwards;
-    letter-spacing: 0.5px;
+    letter-spacing: 1px;
   }
-  header .cat-label {
-    font-size: clamp(0.72rem, 1.9vw, 0.88rem);
-    font-weight: 700;
+  header .tagline {
+    font-size: clamp(0.75rem, 2vw, 0.9rem);
+    font-weight: 600;
     color: var(--gold-soft);
     text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
     display: block;
-    margin-top: 0.2rem;
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
-    opacity: 0;
-    transform: translateY(-8px);
-    animation: headerTextIn 0.6s ease-out 0.3s forwards;
-  }
-  @keyframes headerTextIn {
-    to { opacity: 0.96; transform: translateY(0); }
-  }
-  .live-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.35rem;
-    margin-top: 0.55rem;
-    padding: 0.28rem 0.7rem;
-    border-radius: 20px;
-    background: rgba(255,255,255,0.16);
-    border: 1px solid rgba(255,255,255,0.35);
-    font-family: Arial, sans-serif;
-    font-size: 0.65rem;
-    font-weight: 700;
-    letter-spacing: 0.04em;
-    text-transform: uppercase;
-    color: #FFFFFF;
-    opacity: 0;
-    animation: fadeInLive 0.6s ease-out 0.5s forwards;
-  }
-  @keyframes fadeInLive { to { opacity: 1; } }
-  .live-dot {
-    width: 7px; height: 7px;
-    border-radius: 50%;
-    background: var(--live-green);
-    box-shadow: 0 0 0 0 rgba(46, 204, 113, 0.7);
-    animation: liveDotPulse 1.6s ease-out infinite;
-  }
-  @keyframes liveDotPulse {
-    0%   { box-shadow: 0 0 0 0 rgba(46, 204, 113, 0.65); }
-    70%  { box-shadow: 0 0 0 7px rgba(46, 204, 113, 0); }
-    100% { box-shadow: 0 0 0 0 rgba(46, 204, 113, 0); }
+    margin-top: 0.15rem;
+    letter-spacing: 0.5px;
   }
 
-  .container { max-width: 1400px; margin: 0.5rem auto; padding: 0 0.6rem 2rem; }
+  .container { max-width: 1400px; margin: 0.5rem auto; padding: 0 0.6rem; }
 
-  .search-bar {
-    display: flex;
-    align-items: center;
-    max-width: 600px;
-    margin: 0.6rem auto 0.4rem;
-    background: #FFFFFF;
-    border: 2px solid var(--lilac);
-    border-radius: 10px;
-    padding: 0.3rem 0.6rem;
-    box-shadow: var(--shadow-sm);
-  }
-  .search-bar input {
-    flex: 1;
-    border: none;
-    padding: 0.6rem 0.1rem;
-    font-size: clamp(0.85rem, 1.8vw, 0.95rem);
-    font-family: 'Playfair Display', serif;
-    color: var(--dark);
-    outline: none;
-    background: transparent;
-  }
-  .search-bar i {
+  h2 {
+    font-size: clamp(1.2rem, 2.8vw, 1.4rem);
+    font-weight: 800;
     color: var(--primary-purple);
-    padding-right: 0.5rem;
-    font-size: 1rem;
+    margin: 0.9rem 0 0.4rem;
+    text-align: center;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+    position: relative;
+    letter-spacing: 0.5px;
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.5s ease, transform 0.5s ease;
   }
-
-  .veg-filter-pills { display: flex; justify-content: center; gap: 0.5rem; margin: 0.5rem auto 0.6rem; }
-  .veg-pill {
-    display: flex; align-items: center; gap: 0.35rem;
-    padding: 0.4rem 0.85rem; border-radius: 20px;
-    background: #FFFFFF; border: 1px solid var(--lilac);
-    font-size: 0.78rem; font-weight: 600; color: var(--muted);
-    cursor: pointer; box-shadow: var(--shadow-sm);
-    transition: all 0.2s ease; font-family: Arial, sans-serif;
+  h2.visible { opacity: 1; transform: translateY(0); }
+  h2::after {
+    content: '';
+    position: absolute;
+    bottom: -4px; left: 50%;
+    transform: translateX(-50%);
+    width: clamp(60px, 8vw, 80px);
+    height: 2px;
+    background: linear-gradient(90deg, var(--primary-purple), var(--lilac));
+    border-radius: 2px;
   }
-  .veg-pill.active { color: #FFFFFF; border-color: transparent; }
-  .veg-pill[data-veg="veg"].active { background: var(--veg); }
-  .veg-pill[data-veg="nonveg"].active { background: var(--nonveg); }
-  .veg-pill[data-veg="all"].active { background: var(--primary-purple); }
 
   .food-mark {
     width: 13px; height: 13px;
@@ -174,31 +120,45 @@
   }
   .food-mark::after { content: ''; width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
 
-  .items-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(155px, 1fr));
-    gap: 0.85rem;
-    padding: 0.5rem 0;
+  /* ---------- Top picks row ---------- */
+  .category-row {
+    display: flex; flex-wrap: nowrap; gap: 0.4rem; padding: 0.4rem 0 0.8rem;
+    overflow-x: auto; scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch; scroll-behavior: smooth;
+    min-height: 250px;
   }
+  .category-row::-webkit-scrollbar { height: 6px; }
+  .category-row::-webkit-scrollbar-thumb { background: var(--primary-purple); border-radius: 3px; }
+  .category-row::-webkit-scrollbar-track { background: rgba(216, 183, 210, 0.2); }
 
   .card {
-    width: 100%;
-    min-height: 260px;
+    flex: 0 0 auto;
+    width: clamp(150px, 42vw, 175px);
+    min-height: 250px;
     background: #FFFFFF;
     border: 1px solid var(--lilac);
-    border-radius: 12px;
+    border-radius: 8px;
     overflow: hidden;
-    box-shadow: 0 3px 10px rgba(142, 68, 173, 0.12);
-    transition: transform 0.25s ease, box-shadow 0.25s ease;
+    box-shadow: 0 2px 5px rgba(216, 183, 210, 0.1);
+    scroll-snap-align: start;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
     position: relative;
     display: flex;
     flex-direction: column;
   }
-  .card:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(142, 68, 173, 0.22); }
+  .card:hover { transform: translateY(-2px); box-shadow: 0 3px 8px rgba(216, 183, 210, 0.2); }
+  .card.top-pick::after {
+    content: 'Top Pick';
+    position: absolute; top: 6px; right: 6px;
+    background: var(--lilac); color: #1A1A1A;
+    padding: 0.2rem 0.5rem; border-radius: 5px;
+    font-size: clamp(0.6rem, 1.4vw, 0.7rem);
+    font-weight: 700; z-index: 2;
+  }
   .card.unavailable { opacity: 0.5; }
   .card.unavailable::before {
     content: 'Sold Out';
-    position: absolute; top: 8px; left: 8px;
+    position: absolute; top: 6px; left: 6px;
     background: var(--nonveg); color: #FFFFFF;
     padding: 0.2rem 0.5rem; border-radius: 5px;
     font-size: clamp(0.6rem, 1.4vw, 0.7rem);
@@ -206,29 +166,24 @@
   }
   .card-img-wrap { position: relative; width: 100%; }
   .card-img-wrap .food-badge {
-    position: absolute; top: 8px; left: 8px;
+    position: absolute; top: 6px; left: 6px;
     background: #FFFFFF; border-radius: 4px; padding: 2px;
     box-shadow: 0 1px 4px rgba(0,0,0,0.2); z-index: 2;
   }
   .card img {
-    width: 100%;
-    height: 170px;
-    object-fit: cover;
-    display: block;
-    background: var(--input-bg);
+    width: 100%; height: 130px; object-fit: cover;
+    display: block; background: var(--input-bg);
     pointer-events: none; user-select: none;
-    transition: transform 0.5s ease;
   }
-  .card:hover img { transform: scale(1.07); }
-  .card-body { padding: 0.6rem 0.7rem 0.8rem; display: flex; flex-direction: column; flex-grow: 1; }
+  .card-body { padding: 0.5rem 0.6rem 0.7rem; display: flex; flex-direction: column; flex-grow: 1; }
   .card-body h3 {
-    font-size: clamp(0.82rem, 1.7vw, 0.92rem);
+    font-size: clamp(0.8rem, 1.6vw, 0.9rem);
     font-weight: 700; margin: 0.2rem 0;
     white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
   }
   .card-body p.desc {
     font-size: clamp(0.7rem, 1.4vw, 0.8rem);
-    color: var(--muted); margin-bottom: 0.4rem; line-height: 1.25;
+    color: var(--muted); margin-bottom: 0.35rem; line-height: 1.25;
     display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
   }
   .price-row { display: flex; align-items: baseline; gap: 0.35rem; margin-top: auto; font-family: Arial, sans-serif; }
@@ -272,7 +227,7 @@
     white-space: nowrap;
   }
 
-  .no-items-msg { text-align: center; color: var(--muted); font-size: clamp(0.8rem, 1.8vw, 0.9rem); padding: 2rem 0; width: 100%; grid-column: 1 / -1; }
+  .no-items-msg { text-align: center; color: var(--muted); font-size: clamp(0.8rem, 1.8vw, 0.9rem); padding: 1.5rem 0; width: 100%; }
 
   /* ---------- Add to cart controls ---------- */
   .cart-ctrl { margin-top: 0.45rem; }
@@ -292,25 +247,20 @@
     border-radius: 20px;
     cursor: pointer;
     transition: background 0.2s ease, transform 0.15s ease;
-    width: 100%;
-    justify-content: center;
   }
   .add-btn:hover { background: var(--primary-purple-dark); }
   .add-btn:active { transform: scale(0.95); }
-  .size-row .add-btn { padding: 0.24rem 0.5rem; font-size: 0.64rem; width: auto; }
+  .size-row .add-btn { padding: 0.24rem 0.5rem; font-size: 0.64rem; }
 
   .qty-stepper {
     display: inline-flex;
     align-items: center;
-    justify-content: center;
-    gap: 0.6rem;
+    gap: 0.5rem;
     background: var(--primary-purple-dark);
     border-radius: 20px;
-    padding: 0.2rem 0.6rem;
+    padding: 0.18rem 0.5rem;
     font-family: Arial, sans-serif;
-    width: 100%;
   }
-  .size-row .qty-stepper { width: auto; padding: 0.16rem 0.5rem; gap: 0.5rem; }
   .qty-stepper button {
     width: 20px; height: 20px;
     border: none;
@@ -325,7 +275,7 @@
   }
   .qty-stepper span { color: #fff; font-weight: 700; font-size: 0.78rem; min-width: 14px; text-align: center; }
 
-  /* ---------- Add-on button ---------- */
+  /* ---------- Add-on button (existing feature) ---------- */
   .addon-btn {
     margin-top: 0.4rem;
     display: inline-flex;
@@ -346,7 +296,7 @@
   .addon-btn:hover { background: var(--lilac); color: #fff; }
   .addon-btn i { font-size: 0.65rem; }
 
-  /* ---------- Shared bottom-sheet overlay (add-ons + cart) ---------- */
+  /* ---------- Shared bottom-sheet overlay (used by add-ons + cart) ---------- */
   .sheet-overlay {
     display: none;
     position: fixed;
@@ -412,6 +362,7 @@
 
   .sheet-body { padding: 1rem 1.2rem 1.2rem; }
 
+  /* add-on info specific */
   .addon-info-group { margin-bottom: 1.1rem; padding-bottom: 1rem; border-bottom: 1px dashed var(--border); }
   .addon-info-group:last-child { margin-bottom: 0; border-bottom: none; padding-bottom: 0; }
   .addon-info-group-title {
@@ -436,7 +387,6 @@
     align-items: center;
     gap: 0.6rem;
     padding: 0.65rem 0;
-    flex-wrap: wrap;
   }
   .cart-item-row + .cart-item-row { border-top: 1px solid var(--input-bg); }
   .cart-item-info { flex: 1; display: flex; flex-direction: column; min-width: 0; }
@@ -501,9 +451,69 @@
   .cart-bar i { margin-right: 0.35rem; }
   .cart-bar-cta { display: flex; align-items: center; gap: 0.35rem; color: var(--gold-soft); }
 
+  /* ---------- Category search ---------- */
+  .search-bar {
+    display: flex;
+    align-items: center;
+    max-width: 600px;
+    margin: 0.5rem auto 0.9rem;
+    background: #FFFFFF;
+    border: 2px solid var(--lilac);
+    border-radius: 10px;
+    padding: 0.3rem 0.7rem;
+    box-shadow: var(--shadow-sm);
+  }
+  .search-bar i { color: var(--primary-purple); font-size: 1rem; padding-right: 0.55rem; }
+  .search-bar input {
+    flex: 1; border: none; padding: 0.65rem 0.1rem;
+    font-size: clamp(0.85rem, 1.8vw, 0.95rem);
+    font-family: 'Playfair Display', serif;
+    color: var(--dark); outline: none; background: transparent;
+  }
+
+  /* ---------- Category grid ---------- */
+  .category-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(155px, 1fr));
+    gap: 1.1rem;
+    padding: 0.5rem 0 1.6rem;
+  }
+  .category-card {
+    background: #FFFFFF;
+    border: 1px solid var(--lilac);
+    border-radius: 16px;
+    overflow: hidden;
+    cursor: pointer;
+    box-shadow: 0 4px 14px rgba(142, 68, 173, 0.16);
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+    text-align: center;
+  }
+  .category-card:hover, .category-card:active {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 26px rgba(142, 68, 173, 0.32);
+  }
+  .category-card .cat-img-wrap {
+    width: 100%; height: 165px;
+    background: linear-gradient(135deg, var(--input-bg), var(--lilac));
+    display: flex; align-items: center; justify-content: center;
+    overflow: hidden; position: relative;
+  }
+  .category-card img {
+    width: 100%; height: 100%; object-fit: cover; object-position: center;
+    display: block; transition: transform 0.5s ease;
+  }
+  .category-card:hover img, .category-card:active img { transform: scale(1.1); }
+  .category-card .cat-icon-fallback { font-size: 2.2rem; color: var(--primary-purple); opacity: 0.6; }
+  .category-card .cat-card-name {
+    padding: 0.7rem 0.5rem; font-weight: 700;
+    font-size: clamp(0.82rem, 1.9vw, 0.95rem); color: var(--dark);
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis; letter-spacing: 0.3px;
+  }
+
+  /* ---------- Toast ---------- */
   #toast {
     visibility: hidden;
-    min-width: 180px; max-width: 90%;
+    min-width: 200px; max-width: 90%;
     background: linear-gradient(135deg, var(--primary-purple), var(--lilac));
     color: #FFFFFF; text-align: center;
     border-radius: 8px; padding: 0.75rem 1rem;
@@ -521,43 +531,52 @@
   }
 
   @media (min-width: 769px) {
-    .container { padding: 0 0.8rem 2rem; }
+    .container { padding: 0 0.8rem; }
+    .category-row { flex-wrap: wrap; gap: 0.8rem; overflow-x: hidden; justify-content: flex-start; }
+    .card { max-width: 195px; min-height: 270px; }
+    .card img { height: 160px; }
+    .category-grid { grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 1.3rem; }
+    .category-card .cat-img-wrap { height: 200px; }
     .search-bar { max-width: 700px; }
-    .items-grid { grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 1.1rem; }
-    .card img { height: 190px; }
   }
+
   @media (max-width: 360px) {
-    header h1 { font-size: 1.15rem; }
-    header .cat-label { font-size: 0.68rem; }
-    .items-grid { grid-template-columns: repeat(2, 1fr); gap: 0.6rem; }
-    .card { min-height: 230px; }
-    .card img { height: 130px; }
+    header h1 { font-size: 1.3rem; }
+    header .tagline { font-size: 0.68rem; }
+    .container { margin: 0.4rem; padding: 0 0.3rem; }
+    h2 { font-size: 1.1rem; }
+    .card { width: clamp(135px, 40vw, 155px); min-height: 235px; }
+    .card img { height: 105px; }
+    .card-body h3 { font-size: 0.75rem; }
+    .card-body p.desc { font-size: 0.65rem; }
+    .price { font-size: 0.75rem; }
+    .category-grid { grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 0.8rem; }
+    .category-card .cat-img-wrap { height: 130px; }
   }
 </style>
 </head>
 <body>
+
   <header>
     <div class="header-inner">
-      <button class="back-btn" onclick="window.location.href='delicutecategories.html'"><i class="fas fa-arrow-left"></i></button>
-      <h1>DELICUTE</h1>
-      <span class="cat-label" id="categoryLabel">Category</span>
-      <span class="live-badge"><span class="live-dot"></span> Live Menu</span>
+      <a href="delicutemenu.html" class="home-link" title="Home"><i class="fas fa-home"></i></a>
+      <div class="header-text">
+        <h1>DELICUTE</h1>
+        <span class="tagline">Every Bite Tells A Story</span>
+      </div>
     </div>
   </header>
 
   <div class="container">
+    <h2>OUR DELICUTE SPECIALS</h2>
+    <div id="topPicks" class="category-row"></div>
+
+    <h2>BROWSE BY CATEGORY</h2>
     <div class="search-bar">
       <i class="fas fa-search"></i>
-      <input type="text" id="searchInput" placeholder="Search in this category...">
+      <input type="text" id="categorySearchInput" placeholder="Search categories...">
     </div>
-
-    <div class="veg-filter-pills" id="vegFilterPills">
-      <div class="veg-pill active" data-veg="all">All</div>
-      <div class="veg-pill" data-veg="veg"><span class="food-mark" style="color:var(--veg)"></span> Veg</div>
-      <div class="veg-pill" data-veg="nonveg"><span class="food-mark" style="color:var(--nonveg)"></span> Non-Veg</div>
-    </div>
-
-    <div id="itemsGrid" class="items-grid"></div>
+    <div id="categoryGrid" class="category-grid"></div>
   </div>
 
   <!-- Add-on info sheet -->
@@ -600,21 +619,12 @@
   <div id="toast"></div>
 
   <script>
-  const params = new URLSearchParams(window.location.search);
-  const selectedCategory = params.get("category");
-
-  if (!selectedCategory) {
-    window.location.href = "delicutecategories.html";
-  }
-
-  document.getElementById("categoryLabel").textContent = selectedCategory || "";
-  document.title = `Delicute | ${selectedCategory || "Menu"}`;
-
   let menuData = [];
-  let selectedVegFilter = "all";
-  const itemsGrid = document.getElementById("itemsGrid");
-  const searchInput = document.getElementById("searchInput");
-  const vegFilterPills = document.getElementById("vegFilterPills");
+  let categoryData = [];
+  let categorySearchTerm = "";
+  const topPicksEl = document.getElementById("topPicks");
+  const categoryGridEl = document.getElementById("categoryGrid");
+  const categorySearchInput = document.getElementById("categorySearchInput");
 
   const defaultImage = 'https://via.placeholder.com/150';
   const SIZE_ORDER = ['SMALL', 'REGULAR', 'MEDIUM', 'LARGE'];
@@ -622,7 +632,8 @@
 
   let isPolling = false;
   let toastTimeoutHandle = null;
-  let lastDataStr = "";
+  let lastMenuStr = "";
+  let lastCatStr = "";
   const itemDisplayNames = {};
   const addonAvailabilityCache = {};
 
@@ -637,49 +648,123 @@
     toastTimeoutHandle = setTimeout(() => toast.classList.remove("show"), 3000);
   }
 
+  function setupCategoryAnimations() {
+    const headers = document.querySelectorAll('h2');
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+          observer.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.3 });
+    headers.forEach(header => observer.observe(header));
+  }
+
   function escapeHtml(str) {
     const div = document.createElement('div');
     div.textContent = str || '';
     return div.innerHTML;
   }
 
-  /* ================= MENU LOADING ================= */
+  /* ================= MENU + CATEGORY LOADING ================= */
 
-  async function loadMenu(isFirstLoad) {
+  async function loadTopPicks(isFirstLoad) {
     try {
       const res = await fetch("/api/menu", { cache: "no-store" });
       if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
       const data = await res.json();
       if (!data.success || !Array.isArray(data.data)) throw new Error("Invalid menu data");
 
-      const newDataStr = JSON.stringify(data.data);
-      if (newDataStr === lastDataStr) return;
-      const wasFirst = lastDataStr === "";
-      lastDataStr = newDataStr;
+      const newStr = JSON.stringify(data.data);
+      if (newStr === lastMenuStr) return;
+      const wasFirst = lastMenuStr === "";
+      lastMenuStr = newStr;
       menuData = data.data;
 
-      filterAndRender();
+      renderTopPicks();
       if (!wasFirst && !isFirstLoad) showToast("Menu updated");
     } catch (err) {
       console.error("Menu Load Error:", err);
-      if (lastDataStr === "") {
-        itemsGrid.innerHTML = "<p class='no-items-msg'>Unable to load menu right now</p>";
+      if (lastMenuStr === "") {
+        topPicksEl.innerHTML = "<p class='no-items-msg'>No top picks available</p>";
       }
     }
   }
 
-  async function pollMenu() {
+  async function loadCategoryGrid() {
+    try {
+      const res = await fetch("/api/categories", { cache: "no-store" });
+      if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+      const data = await res.json();
+      if (!data.success || !Array.isArray(data.data)) throw new Error("Invalid category data");
+
+      const newStr = JSON.stringify(data.data);
+      if (newStr === lastCatStr) return;
+      lastCatStr = newStr;
+      categoryData = data.data;
+
+      renderCategoryGrid();
+    } catch (err) {
+      console.error("Categories Load Error:", err);
+      if (lastCatStr === "") {
+        categoryGridEl.innerHTML = "<p class='no-items-msg'>Unable to load categories right now</p>";
+      }
+    }
+  }
+
+  async function pollAll() {
     if (isPolling) return;
     isPolling = true;
-    await loadMenu(false);
+    await Promise.all([loadTopPicks(false), loadCategoryGrid()]);
     isPolling = false;
   }
 
   function startAutoRefresh() {
-    setInterval(pollMenu, POLL_MS);
+    setInterval(pollAll, POLL_MS);
     document.addEventListener('visibilitychange', () => {
-      if (document.visibilityState === 'visible') pollMenu();
+      if (document.visibilityState === 'visible') pollAll();
     });
+  }
+
+  function renderCategoryGrid() {
+    if (!Array.isArray(categoryData) || categoryData.length === 0) {
+      categoryGridEl.innerHTML = "<p class='no-items-msg'>No categories available</p>";
+      return;
+    }
+
+    const filtered = categoryData.filter(cat =>
+      !categorySearchTerm || (cat.name || "").toLowerCase().includes(categorySearchTerm)
+    );
+
+    if (filtered.length === 0) {
+      categoryGridEl.innerHTML = "<p class='no-items-msg'>No categories match your search</p>";
+      return;
+    }
+
+    categoryGridEl.innerHTML = filtered.map(cat => {
+      const imgHtml = cat.image
+        ? `<img src="${cat.image}" alt="${cat.name}" loading="lazy" onerror="this.parentElement.innerHTML='<i class=\\'fas fa-utensils cat-icon-fallback\\'></i>'">`
+        : `<i class="fas fa-utensils cat-icon-fallback"></i>`;
+      return `
+        <div class="category-card" onclick='goToCategory(${JSON.stringify(cat.name)})'>
+          <div class="cat-img-wrap">${imgHtml}</div>
+          <div class="cat-card-name">${cat.name}</div>
+        </div>
+      `;
+    }).join("");
+    setupCategoryAnimations();
+  }
+
+  if (categorySearchInput) {
+    categorySearchInput.addEventListener('input', () => {
+      categorySearchTerm = categorySearchInput.value.trim().toLowerCase();
+      renderCategoryGrid();
+    });
+  }
+
+  function goToCategory(name) {
+    window.location.href = `delicuteviewmenu.html?category=${encodeURIComponent(name)}`;
   }
 
   function groupSizedItems(items) {
@@ -698,6 +783,7 @@
           name: baseName,
           description: item.description || "No description available",
           category: item.category,
+          is_top_pick: item.is_top_pick,
           image: item.image || defaultImage,
           food_type: item.food_type === "nonveg" ? "nonveg" : "veg",
           is_available: item.is_available !== false && item.is_available !== 0,
@@ -733,52 +819,22 @@
     });
   }
 
-  function foodMarkHTML(foodType) {
-    const isVeg = foodType !== "nonveg";
-    return `<span class="food-mark" style="color:${isVeg ? 'var(--veg)' : 'var(--nonveg)'}" title="${isVeg ? 'Veg' : 'Non-Veg'}"></span>`;
-  }
+  function renderTopPicks() {
+    if (!Array.isArray(menuData) || menuData.length === 0) {
+      topPicksEl.innerHTML = "<p class='no-items-msg'>No top picks available</p>";
+      return;
+    }
+    const groupedData = groupSizedItems(menuData);
+    const sortedData = groupedData.sort((a, b) => (a.order_index || a.id) - (b.order_index || b.id));
+    const topPicks = sortedData.filter(item => item?.is_top_pick);
 
-  function buildCard(item) {
-    if (!item?.name || item.price == null || !item.id) return "";
-    itemDisplayNames[item.id] = item.name;
-    const imageSrc = item.image || defaultImage;
-    const hasSizes = Array.isArray(item.sizes) && item.sizes.length > 0;
-    const unavailable = item.is_available === false;
+    topPicksEl.innerHTML = topPicks.length > 0
+      ? topPicks.map(item => buildCard(item, true)).join("")
+      : "<p class='no-items-msg'>No top picks available</p>";
 
-    const baseKey = `${item.id}|`;
-    const baseNameEnc = encodeURIComponent(item.name);
-
-    const sizeChips = hasSizes
-      ? `<div class="size-list">${item.sizes.map(s => {
-          const key = `${item.id}|${s.size}`;
-          const nameEnc = encodeURIComponent(`${item.name} (${s.size})`);
-          return `
-          <div class="size-row">
-            <span class="size-label">${s.size}</span>
-            <span class="size-price">₹${s.price.toFixed(0)}</span>
-            <div class="cart-ctrl" data-cart-id="${key}" data-name="${nameEnc}" data-price="${s.price}"></div>
-          </div>`;
-        }).join("")}</div>`
-      : `<div class="cart-ctrl" data-cart-id="${baseKey}" data-name="${baseNameEnc}" data-price="${item.price}"></div>`;
-
-    return `
-      <div class="card ${unavailable ? 'unavailable' : ''}">
-        <div class="card-img-wrap">
-          <span class="food-badge">${foodMarkHTML(item.food_type)}</span>
-          <img src="${imageSrc}" alt="${item.name}" loading="lazy" onerror="this.src='${defaultImage}'">
-        </div>
-        <div class="card-body">
-          <h3>${item.name}</h3>
-          <p class="desc">${item.description || "No description available"}</p>
-          <div class="price-row">
-            <span class="price">₹${item.price.toFixed(2)}</span>
-            ${item.original_price ? `<span class="old-price">₹${item.original_price.toFixed(2)}</span>` : ""}
-          </div>
-          ${sizeChips}
-          <div class="addon-slot" data-addon-slot="${item.id}"></div>
-        </div>
-      </div>
-    `;
+    setupCategoryAnimations();
+    populateAddonSlots();
+    renderCartControls();
   }
 
   function renderAddonButton(slot, itemId) {
@@ -820,47 +876,52 @@
     });
   }
 
-  function filterAndRender() {
-    if (!Array.isArray(menuData) || !selectedCategory) {
-      itemsGrid.innerHTML = "<p class='no-items-msg'>No menu items available</p>";
-      return;
-    }
-    const searchTerm = (searchInput?.value || "").trim().toLowerCase();
-
-    const categoryItems = menuData.filter(item => item?.category === selectedCategory);
-    const grouped = groupSizedItems(categoryItems);
-    const sorted = grouped.sort((a, b) => (a.order_index || a.id) - (b.order_index || b.id));
-
-    const filtered = sorted.filter(item => {
-      const itemFoodType = item.food_type === "nonveg" ? "nonveg" : "veg";
-      const matchesVeg = selectedVegFilter === "all" || itemFoodType === selectedVegFilter;
-      const matchesSearch = !searchTerm ||
-        item.name.toLowerCase().includes(searchTerm) ||
-        (item.description || "").toLowerCase().includes(searchTerm);
-      return matchesVeg && matchesSearch;
-    });
-
-    itemsGrid.innerHTML = filtered.length > 0
-      ? filtered.map(item => buildCard(item)).join("")
-      : "<p class='no-items-msg'>No items match your filters</p>";
-
-    populateAddonSlots();
-    renderCartControls();
+  function foodMarkHTML(foodType) {
+    const isVeg = foodType !== "nonveg";
+    return `<span class="food-mark" style="color:${isVeg ? 'var(--veg)' : 'var(--nonveg)'}" title="${isVeg ? 'Veg' : 'Non-Veg'}"></span>`;
   }
 
-  if (searchInput) {
-    searchInput.addEventListener('input', () => filterAndRender());
-  }
+  function buildCard(item, isTopPick) {
+    if (!item?.name || item.price == null || !item.id) return "";
+    itemDisplayNames[item.id] = item.name;
+    const imageSrc = item.image || defaultImage;
+    const hasSizes = Array.isArray(item.sizes) && item.sizes.length > 0;
+    const unavailable = item.is_available === false;
 
-  if (vegFilterPills) {
-    vegFilterPills.querySelectorAll('[data-veg]').forEach(pill => {
-      pill.addEventListener('click', () => {
-        selectedVegFilter = pill.dataset.veg;
-        vegFilterPills.querySelectorAll('[data-veg]').forEach(p => p.classList.remove('active'));
-        pill.classList.add('active');
-        filterAndRender();
-      });
-    });
+    const baseKey = `${item.id}|`;
+    const baseNameEnc = encodeURIComponent(item.name);
+
+    const sizeChips = hasSizes
+      ? `<div class="size-list">${item.sizes.map(s => {
+          const key = `${item.id}|${s.size}`;
+          const nameEnc = encodeURIComponent(`${item.name} (${s.size})`);
+          return `
+          <div class="size-row">
+            <span class="size-label">${s.size}</span>
+            <span class="size-price">₹${s.price.toFixed(0)}</span>
+            <div class="cart-ctrl" data-cart-id="${key}" data-name="${nameEnc}" data-price="${s.price}"></div>
+          </div>`;
+        }).join("")}</div>`
+      : `<div class="cart-ctrl" data-cart-id="${baseKey}" data-name="${baseNameEnc}" data-price="${item.price}"></div>`;
+
+    return `
+      <div class="card ${isTopPick ? 'top-pick' : ''} ${unavailable ? 'unavailable' : ''}">
+        <div class="card-img-wrap">
+          <span class="food-badge">${foodMarkHTML(item.food_type)}</span>
+          <img src="${imageSrc}" alt="${item.name}" loading="lazy" onerror="this.src='${defaultImage}'">
+        </div>
+        <div class="card-body">
+          <h3>${item.name}</h3>
+          <p class="desc">${item.description || "No description available"}</p>
+          <div class="price-row">
+            <span class="price">₹${item.price.toFixed(2)}</span>
+            ${item.original_price ? `<span class="old-price">₹${item.original_price.toFixed(2)}</span>` : ""}
+          </div>
+          ${sizeChips}
+          <div class="addon-slot" data-addon-slot="${item.id}"></div>
+        </div>
+      </div>
+    `;
   }
 
   /* ================= ADD-ON INFO SHEET ================= */
@@ -917,7 +978,7 @@
     if (e.target === addonInfoOverlay) closeAddonInfo();
   });
 
-  /* ================= CART (localStorage, shared across pages) ================= */
+  /* ================= CART (localStorage, device-specific, shared across pages) ================= */
 
   const CART_KEY = 'delicute_cart';
   const cartOverlay = document.getElementById('cartOverlay');
@@ -1005,7 +1066,7 @@
             <span class="cart-item-name">${escapeHtml(it.name)}</span>
             <span class="cart-item-price">₹${it.price.toFixed(0)} each</span>
           </div>
-          <div class="qty-stepper" style="width:auto;">
+          <div class="qty-stepper">
             <button onclick="updateQty('${key}',-1)">−</button>
             <span>${it.qty}</span>
             <button onclick="updateQty('${key}',1)">+</button>
@@ -1064,10 +1125,9 @@
   }
 
   /* ================= INIT ================= */
-  if (selectedCategory) {
-    loadMenu(true);
-    startAutoRefresh();
-  }
+  loadTopPicks(true);
+  loadCategoryGrid();
+  startAutoRefresh();
   renderCartBar();
   </script>
 </body>
