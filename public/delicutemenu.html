@@ -40,11 +40,6 @@
     -webkit-font-smoothing: antialiased;
   }
 
-  /* =========================================================
-     WELCOME HERO — shown first. Hidden the moment "Explore Our
-     Menu" is tapped, which reveals #menuView in its place. No
-     navigation, no second file — just a view toggle.
-     ========================================================= */
   #welcomeView.hidden, #menuView.hidden { display: none; }
 
   .hero {
@@ -357,7 +352,6 @@
     margin-top: 0.1rem;
   }
 
-  /* Live-update indicator pill */
   .live-badge {
     display: inline-flex;
     align-items: center;
@@ -569,18 +563,38 @@
     text-decoration: line-through; color: var(--primary-purple-dark);
     font-size: clamp(0.7rem, 1.5vw, 0.8rem); opacity: 0.8; font-weight: 500;
   }
+
+  /* ---------- NEAT SIZE / PRICE LIST (Regular, Large, etc.) ---------- */
   .size-list {
-    display: flex; flex-wrap: wrap; gap: 0.3rem; margin-top: 0.4rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.28rem;
+    margin-top: 0.5rem;
+    padding-top: 0.4rem;
+    border-top: 1px dashed var(--border);
     font-family: Arial, sans-serif;
   }
-  .size-chip {
+  .size-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.4rem;
     background: var(--input-bg);
     border: 1px solid var(--lilac);
-    border-radius: 5px;
-    padding: 0.15rem 0.4rem;
-    font-size: 0.66rem;
-    font-weight: 700;
-    color: var(--muted);
+    border-radius: 6px;
+    padding: 0.28rem 0.5rem;
+  }
+  .size-row .size-label {
+    font-size: 0.68rem;
+    font-weight: 800;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--primary-purple-dark);
+  }
+  .size-row .size-price {
+    font-size: 0.82rem;
+    font-weight: 800;
+    color: var(--primary-purple);
     white-space: nowrap;
   }
 
@@ -752,11 +766,6 @@
 </head>
 <body>
 
-  <!-- =========================================================
-       WELCOME VIEW — first thing shown. Tapping "Explore Our
-       Menu" hides this and reveals the menu view below it, all
-       within this one file (no redirect, no backend calls here).
-       ========================================================= -->
   <div id="welcomeView">
     <section class="hero">
       <div class="hero-bg"></div>
@@ -784,12 +793,6 @@
         <h1>Welcome to Delicute</h1>
         <p class="tagline">Where every dish is crafted with love, and every visit becomes a memory.</p>
 
-        <div class="anniversary-note">
-          <span class="script">Celebrating 1 Year</span>
-          <div class="note-divider"></div>
-          <span class="sub">Anniversary</span>
-        </div>
-
         <button type="button" id="exploreBtn" class="btn">Explore Our Menu</button>
       </div>
     </section>
@@ -800,9 +803,6 @@
     </footer>
   </div>
 
-  <!-- =========================================================
-       MENU VIEW — hidden until "Explore Our Menu" is tapped.
-       ========================================================= -->
   <div id="menuView" class="hidden">
   <header>
     <div class="header-inner">
@@ -835,7 +835,6 @@
     <div id="menuCategories"></div>
   </div>
 
-  <!-- Add-on info modal — view only, no cart, no selection -->
   <div class="addon-info-overlay" id="addonInfoOverlay">
     <div class="addon-info-box">
       <div class="addon-info-header">
@@ -850,13 +849,6 @@
   </div><!-- /#menuView -->
 
   <script>
-  /* =========================================================
-     READ-ONLY LIVE MENU
-     Same data shape/endpoint as the ordering flow (/api/menu),
-     but no cart, no add-ons, no add-to-cart. Polls every few
-     seconds and re-renders in place only when data actually
-     changed, so the page never needs a manual refresh.
-     ========================================================= */
   let menuData = [];
   const topPicksEl = document.getElementById("topPicks");
   const categoriesEl = document.getElementById("menuCategories");
@@ -874,8 +866,8 @@
   let isPolling = false;
   let toastTimeoutHandle = null;
   let lastDataStr = "";
-  const itemDisplayNames = {};       // itemId -> display name, for the add-on modal title
-  const addonAvailabilityCache = {}; // itemId -> true | false | "pending"
+  const itemDisplayNames = {};
+  const addonAvailabilityCache = {};
 
   function showToast(msg) {
     const toast = document.getElementById("toast");
@@ -909,7 +901,7 @@
       if (!data.success || !Array.isArray(data.data)) throw new Error("Invalid menu data");
 
       const newDataStr = JSON.stringify(data.data);
-      if (newDataStr === lastDataStr) return; // nothing changed, skip re-render
+      if (newDataStr === lastDataStr) return;
 
       const wasFirst = lastDataStr === "";
       lastDataStr = newDataStr;
@@ -938,7 +930,6 @@
 
   function startAutoRefresh() {
     setInterval(pollMenu, POLL_MS);
-    // Also refresh instantly whenever the tab regains focus/visibility
     document.addEventListener('visibilitychange', () => {
       if (document.visibilityState === 'visible') pollMenu();
     });
@@ -1076,14 +1067,6 @@
     populateAddonSlots();
   }
 
-  /* =========================================================
-     ADD-ON AVAILABILITY CHECK
-     Only shows the "Add-ons" button on cards whose item
-     actually has add-on groups assigned. Checked once per
-     item id and cached — repeat renders (search, filter,
-     poll-triggered updates) reuse the cached result instead
-     of re-querying the server for the same item again.
-     ========================================================= */
   function renderAddonButton(slot, itemId) {
     slot.innerHTML = `<button type="button" class="addon-btn" onclick="openAddonInfo(${itemId})">
       <i class="fas fa-plus-circle"></i> Add-ons
@@ -1102,7 +1085,6 @@
       } else if (cached === undefined) {
         idsToFetch.add(id);
       }
-      // cached === false or "pending": leave the slot empty
     });
 
     idsToFetch.forEach(id => {
@@ -1136,8 +1118,14 @@
     const hasSizes = Array.isArray(item.sizes) && item.sizes.length > 0;
     const unavailable = item.is_available === false;
 
+    /* Neat, clearly separated size rows (e.g. REGULAR / LARGE) */
     const sizeChips = hasSizes
-      ? `<div class="size-list">${item.sizes.map(s => `<span class="size-chip">${s.size} ₹${s.price.toFixed(0)}</span>`).join("")}</div>`
+      ? `<div class="size-list">${item.sizes.map(s => `
+          <div class="size-row">
+            <span class="size-label">${s.size}</span>
+            <span class="size-price">₹${s.price.toFixed(0)}</span>
+          </div>
+        `).join("")}</div>`
       : "";
 
     return `
@@ -1208,13 +1196,6 @@
     });
   }
 
-  /* =========================================================
-     ADD-ON INFO MODAL (view-only)
-     Fetches the same public endpoint the ordering flow uses,
-     but only renders info — no checkboxes, no cart, no submit.
-     Fetched lazily per tap so page load never queries add-ons
-     for every item up front.
-     ========================================================= */
   const addonInfoOverlay = document.getElementById('addonInfoOverlay');
   const addonInfoTitle = document.getElementById('addonInfoTitle');
   const addonInfoBody = document.getElementById('addonInfoBody');
@@ -1273,13 +1254,6 @@
     if (e.target === addonInfoOverlay) closeAddonInfo();
   });
 
-  /* =========================================================
-     WELCOME -> MENU TOGGLE
-     No navigation, no page reload — just swap which view is
-     visible. Menu data loading/polling only starts once the
-     menu is actually shown, so the welcome screen never makes
-     a network call.
-     ========================================================= */
   const welcomeView = document.getElementById('welcomeView');
   const menuView = document.getElementById('menuView');
   const exploreBtn = document.getElementById('exploreBtn');
