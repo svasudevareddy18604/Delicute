@@ -86,7 +86,7 @@
     nav a:hover { background: rgba(139, 107, 201, 0.25); color: #fff; }
 
     .container {
-      max-width: 700px;
+      max-width: 760px;
       margin: 1.5rem auto;
       padding: 0 1.25rem 2rem;
     }
@@ -102,16 +102,19 @@
     /* ---- Add form ---- */
     form#categoryForm {
       display: flex;
+      flex-wrap: wrap;
       gap: 0.6rem;
       margin-bottom: 1.25rem;
       background: white;
       padding: 0.9rem;
       border-radius: var(--radius);
       box-shadow: var(--shadow-sm);
+      align-items: center;
     }
 
-    form#categoryForm input {
+    form#categoryForm input[type="text"] {
       flex: 1;
+      min-width: 140px;
       padding: 0.7rem 0.85rem;
       border: 1px solid var(--border);
       border-radius: 8px;
@@ -121,15 +124,48 @@
       transition: border-color 0.2s ease, box-shadow 0.2s ease;
       outline: none;
     }
-    form#categoryForm input:focus {
+    form#categoryForm input[type="text"]:focus {
       border-color: var(--primary-purple);
       box-shadow: 0 0 0 2px rgba(142, 68, 173, 0.2);
     }
 
-    form#categoryForm button {
+    .img-upload-wrap {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .img-upload-btn {
+      background: var(--bg-lilac);
+      border: 1.5px dashed var(--primary-purple);
+      color: var(--primary-purple-dark);
+      font-size: 0.82rem;
+      font-weight: 600;
+      padding: 0.6rem 0.8rem;
+      border-radius: 8px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      white-space: nowrap;
+    }
+    .img-upload-btn:hover { background: #f2e9f7; }
+    .img-upload-wrap input[type="file"] { display: none; }
+    .img-preview {
+      width: 42px;
+      height: 42px;
+      border-radius: 8px;
+      object-fit: cover;
+      border: 1px solid var(--border);
+      display: none;
+      background: var(--bg-lilac);
+    }
+    .img-preview.show { display: block; }
+
+    form#categoryForm button[type="submit"] {
       background: var(--primary-purple-dark);
       border: none;
       padding: 0 1.3rem;
+      height: 42px;
       color: white;
       font-weight: 600;
       font-size: 0.9rem;
@@ -141,7 +177,8 @@
       align-items: center;
       gap: 0.4rem;
     }
-    form#categoryForm button:hover { background: var(--nav-dark); }
+    form#categoryForm button[type="submit"]:hover { background: var(--nav-dark); }
+    form#categoryForm button[type="submit"]:disabled { opacity: 0.6; cursor: not-allowed; }
 
     /* ---- Table ---- */
     .table-wrapper {
@@ -149,6 +186,7 @@
       border-radius: var(--radius);
       box-shadow: var(--shadow-sm);
       overflow: hidden;
+      overflow-x: auto;
     }
 
     table { width: 100%; border-collapse: collapse; }
@@ -163,12 +201,14 @@
       text-transform: uppercase;
       padding: 0.75rem 0.9rem;
       border-bottom: 1px solid var(--border);
+      white-space: nowrap;
     }
     th:last-child, td:last-child { text-align: right; }
-    th.sno-col, td.sno-col { width: 60px; }
+    th.sno-col, td.sno-col { width: 50px; }
+    th.img-col, td.img-col { width: 60px; }
 
     td {
-      padding: 0.85rem 0.9rem;
+      padding: 0.7rem 0.9rem;
       font-size: 0.92rem;
       border-bottom: 1px solid var(--border);
       color: var(--dark);
@@ -179,6 +219,28 @@
 
     .cat-sno { color: var(--muted); font-size: 0.85rem; font-weight: 600; }
     .cat-name { font-weight: 600; color: var(--dark); }
+
+    .cat-thumb {
+      width: 40px;
+      height: 40px;
+      border-radius: 8px;
+      object-fit: cover;
+      border: 1px solid var(--border);
+      background: var(--bg-lilac);
+      display: block;
+    }
+    .cat-thumb-placeholder {
+      width: 40px;
+      height: 40px;
+      border-radius: 8px;
+      background: var(--bg-lilac);
+      border: 1px dashed var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
 
     .action-btns { display: inline-flex; gap: 0.4rem; }
     .btn { border: none; border-radius: 7px; cursor: pointer; width: 32px; height: 32px; display: inline-flex; align-items: center; justify-content: center; font-size: 0.82rem; color: white; transition: opacity 0.2s ease; }
@@ -219,7 +281,7 @@
 
     .modal-box .field { display: flex; flex-direction: column; gap: 0.35rem; margin-bottom: 1rem; }
     .modal-box label { font-size: 0.82rem; font-weight: 600; color: var(--muted); }
-    .modal-box input {
+    .modal-box input[type="text"] {
       padding: 0.65rem 0.75rem;
       border: 1px solid var(--border);
       border-radius: 8px;
@@ -229,10 +291,26 @@
       outline: none;
       width: 100%;
     }
-    .modal-box input:focus {
+    .modal-box input[type="text"]:focus {
       border-color: var(--primary-purple);
       box-shadow: 0 0 0 2px rgba(142, 68, 173, 0.2);
     }
+
+    .edit-img-row {
+      display: flex;
+      align-items: center;
+      gap: 0.7rem;
+    }
+    .edit-img-preview {
+      width: 56px;
+      height: 56px;
+      border-radius: 8px;
+      object-fit: cover;
+      border: 1px solid var(--border);
+      background: var(--bg-lilac);
+    }
+    .edit-img-row input[type="file"] { display: none; }
+
     .modal-actions { display: flex; justify-content: flex-end; }
     .modal-actions button {
       background: var(--primary-purple-dark);
@@ -246,6 +324,7 @@
       transition: background 0.2s ease;
     }
     .modal-actions button:hover { background: var(--nav-dark); }
+    .modal-actions button:disabled { opacity: 0.6; cursor: not-allowed; }
 
     #toast {
       visibility: hidden;
@@ -278,9 +357,11 @@
       nav a { font-size: 0.82rem; padding: 0.7rem 0.85rem; }
       .container { margin: 1rem auto; padding: 0 0.9rem 1.5rem; }
       .section-title { font-size: 1.2rem; }
-      form#categoryForm { flex-direction: column; }
-      form#categoryForm button { padding: 0.7rem; justify-content: center; }
-      th, td { font-size: 0.85rem; padding: 0.7rem 0.75rem; }
+      form#categoryForm { flex-direction: column; align-items: stretch; }
+      form#categoryForm input[type="text"] { width: 100%; }
+      .img-upload-wrap { justify-content: space-between; }
+      form#categoryForm button[type="submit"] { padding: 0.7rem; justify-content: center; height: auto; }
+      th, td { font-size: 0.85rem; padding: 0.6rem 0.6rem; }
     }
   </style>
 </head>
@@ -309,7 +390,16 @@
 
     <form id="categoryForm">
       <input type="text" id="categoryName" placeholder="Enter new category" required>
-      <button type="submit"><i class="fas fa-plus"></i> Add</button>
+
+      <div class="img-upload-wrap">
+        <label class="img-upload-btn" for="categoryImage">
+          <i class="fas fa-image"></i> <span id="uploadLabel">Add Image</span>
+        </label>
+        <input type="file" id="categoryImage" accept="image/*">
+        <img id="addImgPreview" class="img-preview" alt="Preview">
+      </div>
+
+      <button type="submit" id="addSubmitBtn"><i class="fas fa-plus"></i> Add</button>
     </form>
 
     <div class="table-wrapper">
@@ -317,6 +407,7 @@
         <thead>
           <tr>
             <th class="sno-col">S.No</th>
+            <th class="img-col">Image</th>
             <th>Category Name</th>
             <th>Actions</th>
           </tr>
@@ -339,8 +430,18 @@
           <label for="editCategoryName">Category Name</label>
           <input type="text" id="editCategoryName" required>
         </div>
+        <div class="field">
+          <label>Category Image</label>
+          <div class="edit-img-row">
+            <img id="editImgPreview" class="edit-img-preview" alt="Preview">
+            <label class="img-upload-btn" for="editCategoryImage">
+              <i class="fas fa-camera"></i> Change
+            </label>
+            <input type="file" id="editCategoryImage" accept="image/*">
+          </div>
+        </div>
         <div class="modal-actions">
-          <button type="submit"><i class="fas fa-check"></i> Update</button>
+          <button type="submit" id="editSubmitBtn"><i class="fas fa-check"></i> Update</button>
         </div>
       </form>
     </div>
@@ -353,6 +454,17 @@
     const form = document.getElementById("categoryForm");
     const input = document.getElementById("categoryName");
     const editForm = document.getElementById("editCategoryForm");
+
+    const categoryImageInput = document.getElementById("categoryImage");
+    const addImgPreview = document.getElementById("addImgPreview");
+    const uploadLabel = document.getElementById("uploadLabel");
+    const addSubmitBtn = document.getElementById("addSubmitBtn");
+
+    const editCategoryImageInput = document.getElementById("editCategoryImage");
+    const editImgPreview = document.getElementById("editImgPreview");
+    const editSubmitBtn = document.getElementById("editSubmitBtn");
+
+    const PLACEHOLDER_IMG = "https://via.placeholder.com/80?text=%20";
 
     function showToast(msg, success = true) {
       const toast = document.getElementById("toast");
@@ -384,18 +496,23 @@
         tableBody.innerHTML = "";
 
         if (!data.success || data.data.length === 0) {
-          tableBody.innerHTML = `<tr><td colspan="3" class="empty-state">No categories yet — add one above.</td></tr>`;
+          tableBody.innerHTML = `<tr><td colspan="4" class="empty-state">No categories yet — add one above.</td></tr>`;
           return;
         }
 
         data.data.forEach((cat, index) => {
           const row = document.createElement("tr");
+          const thumbHtml = cat.image
+            ? `<img class="cat-thumb" src="${cat.image}" alt="${cat.name}">`
+            : `<div class="cat-thumb-placeholder"><i class="fas fa-image"></i></div>`;
+
           row.innerHTML = `
             <td class="sno-col cat-sno">${index + 1}</td>
+            <td class="img-col">${thumbHtml}</td>
             <td class="cat-name">${cat.name}</td>
             <td>
               <div class="action-btns">
-                <button class="btn btn-edit" onclick='openEditModal(${cat.id}, ${JSON.stringify(cat.name)})' title="Edit"><i class="fas fa-pen"></i></button>
+                <button class="btn btn-edit" onclick='openEditModal(${cat.id}, ${JSON.stringify(cat.name)}, ${JSON.stringify(cat.image || "")})' title="Edit"><i class="fas fa-pen"></i></button>
                 <button class="btn btn-delete" onclick="deleteCategory(${cat.id})" title="Delete"><i class="fas fa-trash"></i></button>
               </div>
             </td>
@@ -409,6 +526,18 @@
     }
 
     // ================= ADD =================
+    categoryImageInput.addEventListener("change", () => {
+      const file = categoryImageInput.files[0];
+      if (!file) {
+        addImgPreview.classList.remove("show");
+        uploadLabel.textContent = "Add Image";
+        return;
+      }
+      addImgPreview.src = URL.createObjectURL(file);
+      addImgPreview.classList.add("show");
+      uploadLabel.textContent = "Change Image";
+    });
+
     form.addEventListener("submit", async (e) => {
       e.preventDefault();
       const name = input.value.trim();
@@ -416,16 +545,26 @@
         showToast("Category name cannot be empty", false);
         return;
       }
+
+      const formData = new FormData();
+      formData.append("name", name);
+      if (categoryImageInput.files[0]) {
+        formData.append("image", categoryImageInput.files[0]);
+      }
+
+      addSubmitBtn.disabled = true;
       try {
         const res = await fetch("/api/categories", {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ name })
+          body: formData
         });
         const data = await res.json();
         if (res.ok) {
           showToast("Category added!");
           input.value = "";
+          categoryImageInput.value = "";
+          addImgPreview.classList.remove("show");
+          uploadLabel.textContent = "Add Image";
           loadCategories();
         } else {
           showToast(data.message || "Error adding category", false);
@@ -433,19 +572,28 @@
       } catch (err) {
         showToast("Error adding category", false);
         console.error("Add Category Error:", err);
+      } finally {
+        addSubmitBtn.disabled = false;
       }
     });
 
     // ================= EDIT =================
-    function openEditModal(id, name) {
+    function openEditModal(id, name, image) {
       document.getElementById("editCategoryId").value = id;
       document.getElementById("editCategoryName").value = name;
+      editCategoryImageInput.value = "";
+      editImgPreview.src = image || PLACEHOLDER_IMG;
       document.getElementById("editModal").classList.add("open");
     }
 
     function closeModal() {
       document.getElementById("editModal").classList.remove("open");
     }
+
+    editCategoryImageInput.addEventListener("change", () => {
+      const file = editCategoryImageInput.files[0];
+      if (file) editImgPreview.src = URL.createObjectURL(file);
+    });
 
     editForm.addEventListener("submit", async (e) => {
       e.preventDefault();
@@ -457,11 +605,17 @@
         return;
       }
 
+      const formData = new FormData();
+      formData.append("name", name);
+      if (editCategoryImageInput.files[0]) {
+        formData.append("image", editCategoryImageInput.files[0]);
+      }
+
+      editSubmitBtn.disabled = true;
       try {
         const res = await fetch(`/api/categories/${id}`, {
           method: "PUT",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ name })
+          body: formData
         });
         const data = await res.json();
         if (res.ok) {
@@ -474,6 +628,8 @@
       } catch (err) {
         showToast("Error updating category", false);
         console.error("Update Category Error:", err);
+      } finally {
+        editSubmitBtn.disabled = false;
       }
     });
 

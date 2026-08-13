@@ -22,7 +22,6 @@
     --cream: #FFF8DC;
     --veg: #2E8B57;
     --nonveg: #B23A2E;
-    --live-green: #2ECC71;
     --shadow-sm: 0 2px 5px rgba(216, 183, 210, 0.2);
     --shadow-md: 0 4px 14px rgba(142, 68, 173, 0.2);
   }
@@ -38,6 +37,9 @@
     min-height: 100vh;
     overflow-x: hidden;
     -webkit-font-smoothing: antialiased;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-y: contain;
+    scroll-behavior: smooth;
   }
 
   #welcomeView.hidden, #menuView.hidden { display: none; }
@@ -200,43 +202,6 @@
     animation: fadeInUp 0.8s ease-out 2.5s forwards;
   }
 
-  .anniversary-note {
-    position: relative;
-    z-index: 2;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 0.25rem;
-    margin: 0 auto 1.8rem;
-    opacity: 0;
-    transform: translateY(20px);
-    animation: fadeInUp 0.8s ease-out 2.6s forwards;
-  }
-
-  .anniversary-note .script {
-    font-family: 'Great Vibes', cursive;
-    font-size: clamp(2rem, 8vw, 2.7rem);
-    color: var(--gold);
-    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
-    line-height: 1.15;
-  }
-
-  .anniversary-note .sub {
-    font-size: clamp(0.85rem, 3vw, 1rem);
-    letter-spacing: 2px;
-    text-transform: uppercase;
-    font-weight: 600;
-    color: #fff;
-    text-shadow: 0 1px 6px rgba(0, 0, 0, 0.5);
-  }
-
-  .anniversary-note .note-divider {
-    width: 46px;
-    height: 2px;
-    margin: 0.35rem 0 0.1rem;
-    background: linear-gradient(90deg, transparent, var(--gold), transparent);
-  }
-
   .hero .btn {
     position: relative;
     z-index: 2;
@@ -324,7 +289,7 @@
   header {
     background: linear-gradient(90deg, var(--primary-purple) 0%, var(--lilac) 100%);
     color: #FFFFFF;
-    padding: 0.9rem 0.8rem;
+    padding: 1.1rem 0.8rem;
     text-align: center;
     position: sticky;
     top: 0;
@@ -333,52 +298,24 @@
   }
   .header-inner { display: flex; flex-direction: column; align-items: center; position: relative; }
   header img {
-    height: clamp(40px, 7vw, 50px);
+    height: clamp(58px, 11vw, 82px);
     filter: drop-shadow(0 1px 3px rgba(0, 0, 0, 0.2));
   }
   header h1 {
-    font-size: clamp(1.2rem, 2.5vw, 1.5rem);
+    font-size: clamp(1.55rem, 4vw, 2.1rem);
     font-weight: 800;
-    margin-top: 0.35rem;
+    margin-top: 0.4rem;
     text-shadow: 0 1px 3px rgba(138, 43, 226, 0.3);
+    letter-spacing: 0.5px;
   }
   header .tagline {
-    font-size: clamp(0.7rem, 1.8vw, 0.82rem);
+    font-size: clamp(0.8rem, 2vw, 0.95rem);
     font-weight: 600;
-    opacity: 0.9;
+    opacity: 0.92;
     color: var(--gold-soft);
     text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
     display: block;
-    margin-top: 0.1rem;
-  }
-
-  .live-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.35rem;
-    margin-top: 0.55rem;
-    padding: 0.3rem 0.75rem;
-    border-radius: 20px;
-    background: rgba(255,255,255,0.16);
-    border: 1px solid rgba(255,255,255,0.35);
-    font-family: Arial, sans-serif;
-    font-size: 0.68rem;
-    font-weight: 700;
-    letter-spacing: 0.04em;
-    text-transform: uppercase;
-    color: #FFFFFF;
-  }
-  .live-dot {
-    width: 8px; height: 8px;
-    border-radius: 50%;
-    background: var(--live-green);
-    box-shadow: 0 0 0 0 rgba(46, 204, 113, 0.7);
-    animation: liveDotPulse 1.6s ease-out infinite;
-  }
-  @keyframes liveDotPulse {
-    0%   { box-shadow: 0 0 0 0 rgba(46, 204, 113, 0.65); }
-    70%  { box-shadow: 0 0 0 7px rgba(46, 204, 113, 0); }
-    100% { box-shadow: 0 0 0 0 rgba(46, 204, 113, 0); }
+    margin-top: 0.15rem;
   }
 
   .container { max-width: 1400px; margin: 0.5rem auto; padding: 0 0.6rem; }
@@ -408,80 +345,6 @@
     border-radius: 2px;
   }
 
-  .search-bar {
-    display: flex;
-    align-items: center;
-    max-width: 600px;
-    margin: 0.5rem auto;
-    background: #FFFFFF;
-    border: 2px solid var(--lilac);
-    border-radius: 8px;
-    padding: 0.3rem;
-    box-shadow: var(--shadow-sm);
-    position: relative;
-  }
-  .search-bar input {
-    flex: 1;
-    border: none;
-    padding: 0.6rem;
-    font-size: clamp(0.85rem, 1.8vw, 0.95rem);
-    font-family: 'Playfair Display', serif;
-    color: var(--dark);
-    outline: none;
-    background: transparent;
-  }
-  .search-bar button {
-    background: linear-gradient(45deg, var(--primary-purple), var(--lilac));
-    border: none;
-    padding: 0.6rem;
-    cursor: pointer;
-    color: #FFFFFF;
-    font-size: clamp(1rem, 2vw, 1.1rem);
-    border-radius: 6px;
-    transition: background 0.2s ease, transform 0.2s ease;
-    margin-right: 0.3rem;
-  }
-  .search-bar button:hover { background: linear-gradient(45deg, var(--primary-purple-dark), var(--lilac)); transform: scale(1.05); }
-
-  .filter-dropdown {
-    position: absolute;
-    top: 100%; right: 0;
-    background: #FFFFFF;
-    border: 1px solid var(--lilac);
-    border-radius: 8px;
-    box-shadow: var(--shadow-sm);
-    z-index: 1000;
-    min-width: 200px;
-    max-height: 300px;
-    overflow-y: auto;
-    display: none;
-    font-family: Arial, sans-serif;
-  }
-  .filter-dropdown.active { display: block; }
-  .filter-dropdown div {
-    padding: 0.6rem 1rem;
-    font-size: clamp(0.85rem, 1.8vw, 0.95rem);
-    color: var(--dark);
-    cursor: pointer;
-    transition: background 0.2s ease;
-  }
-  .filter-dropdown div:hover { background: var(--input-bg); }
-  .filter-dropdown div.selected { background: var(--lilac); color: #FFFFFF; font-weight: 600; }
-
-  .veg-filter-pills { display: flex; justify-content: center; gap: 0.5rem; margin: 0.4rem auto 0.2rem; }
-  .veg-pill {
-    display: flex; align-items: center; gap: 0.35rem;
-    padding: 0.4rem 0.85rem; border-radius: 20px;
-    background: #FFFFFF; border: 1px solid var(--lilac);
-    font-size: 0.78rem; font-weight: 600; color: var(--muted);
-    cursor: pointer; box-shadow: var(--shadow-sm);
-    transition: all 0.2s ease; font-family: Arial, sans-serif;
-  }
-  .veg-pill.active { color: #FFFFFF; border-color: transparent; }
-  .veg-pill[data-veg="veg"].active { background: var(--veg); }
-  .veg-pill[data-veg="nonveg"].active { background: var(--nonveg); }
-  .veg-pill[data-veg="all"].active { background: var(--primary-purple); }
-
   .food-mark {
     width: 13px; height: 13px;
     border: 1.6px solid currentColor;
@@ -491,9 +354,8 @@
   }
   .food-mark::after { content: ''; width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
 
-  .category-row-container { display: flex; flex-direction: column; gap: 0.4rem; margin-bottom: 0.6rem; }
   .category-row {
-    display: flex; flex-wrap: nowrap; gap: 0.4rem; padding: 0.4rem 0;
+    display: flex; flex-wrap: nowrap; gap: 0.4rem; padding: 0.4rem 0 0.8rem;
     overflow-x: auto; scroll-snap-type: x mandatory;
     -webkit-overflow-scrolling: touch; scroll-behavior: smooth;
     min-height: 250px;
@@ -564,7 +426,6 @@
     font-size: clamp(0.7rem, 1.5vw, 0.8rem); opacity: 0.8; font-weight: 500;
   }
 
-  /* ---------- NEAT SIZE / PRICE LIST (Regular, Large, etc.) ---------- */
   .size-list {
     display: flex;
     flex-direction: column;
@@ -598,7 +459,7 @@
     white-space: nowrap;
   }
 
-  .no-items-msg { text-align: center; color: var(--muted); font-size: clamp(0.8rem, 1.8vw, 0.9rem); padding: 1.5rem 0; }
+  .no-items-msg { text-align: center; color: var(--muted); font-size: clamp(0.8rem, 1.8vw, 0.9rem); padding: 1.5rem 0; width: 100%; }
 
   #toast {
     visibility: hidden;
@@ -639,7 +500,6 @@
   .addon-btn:hover { background: var(--lilac); color: #fff; }
   .addon-btn i { font-size: 0.65rem; }
 
-  /* ---------- Add-on info modal (view-only, no cart) ---------- */
   .addon-info-overlay {
     display: none;
     position: fixed;
@@ -739,21 +599,99 @@
 
   .addon-info-empty { text-align: center; color: var(--muted); font-size: 0.85rem; padding: 1rem 0; }
 
+  /* ---------- Category search ---------- */
+  .search-bar {
+    display: flex;
+    align-items: center;
+    max-width: 600px;
+    margin: 0.5rem auto 0.9rem;
+    background: #FFFFFF;
+    border: 2px solid var(--lilac);
+    border-radius: 10px;
+    padding: 0.3rem 0.7rem;
+    box-shadow: var(--shadow-sm);
+  }
+  .search-bar i {
+    color: var(--primary-purple);
+    font-size: 1rem;
+    padding-right: 0.55rem;
+  }
+  .search-bar input {
+    flex: 1;
+    border: none;
+    padding: 0.65rem 0.1rem;
+    font-size: clamp(0.85rem, 1.8vw, 0.95rem);
+    font-family: 'Playfair Display', serif;
+    color: var(--dark);
+    outline: none;
+    background: transparent;
+  }
+
+  /* ---------- Category grid ---------- */
+  .category-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(135px, 1fr));
+    gap: 0.8rem;
+    padding: 0.4rem 0 1.5rem;
+  }
+  .category-card {
+    background: #FFFFFF;
+    border: 1px solid var(--lilac);
+    border-radius: 14px;
+    overflow: hidden;
+    cursor: pointer;
+    box-shadow: var(--shadow-sm);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    text-align: center;
+  }
+  .category-card:hover, .category-card:active {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 16px rgba(142, 68, 173, 0.25);
+  }
+  .category-card .cat-img-wrap {
+    width: 100%;
+    height: 110px;
+    background: linear-gradient(135deg, var(--input-bg), var(--lilac));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
+  .category-card img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+  .category-card .cat-icon-fallback {
+    font-size: 2rem;
+    color: var(--primary-purple);
+    opacity: 0.6;
+  }
+  .category-card .cat-card-name {
+    padding: 0.6rem 0.4rem;
+    font-weight: 700;
+    font-size: clamp(0.78rem, 1.8vw, 0.9rem);
+    color: var(--dark);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
   @media (min-width: 769px) {
     .container { padding: 0 0.8rem; }
     .category-row { flex-wrap: wrap; gap: 0.8rem; overflow-x: hidden; justify-content: flex-start; }
     .card { max-width: 190px; min-height: 270px; }
     .card img { height: 160px; }
+    .category-grid { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 1rem; }
+    .category-card .cat-img-wrap { height: 130px; }
     .search-bar { max-width: 700px; }
-    .filter-dropdown { min-width: 250px; }
   }
 
-
-
   @media (max-width: 360px) {
-    header img { height: 40px; }
-    header h1 { font-size: 1rem; }
-    header .tagline { font-size: 0.6rem; }
+    header img { height: 52px; }
+    header h1 { font-size: 1.35rem; }
+    header .tagline { font-size: 0.7rem; }
     .container { margin: 0.4rem; padding: 0 0.3rem; }
     h2 { font-size: 1.1rem; }
     .card { width: clamp(130px, 38vw, 150px); min-height: 230px; }
@@ -761,6 +699,8 @@
     .card-body h3 { font-size: 0.75rem; }
     .card-body p.desc { font-size: 0.65rem; }
     .price { font-size: 0.75rem; }
+    .category-grid { grid-template-columns: repeat(auto-fill, minmax(115px, 1fr)); }
+    .category-card .cat-img-wrap { height: 90px; }
   }
 </style>
 </head>
@@ -809,7 +749,6 @@
       <img src="https://i.postimg.cc/W3pgQx9q/DELICUTE-Imgur-1-modified.png" alt="DELICUTE Logo" onerror="this.src='https://via.placeholder.com/50'">
       <h1>DELICUTE</h1>
       <span class="tagline">Every Bite Tells A Story</span>
-      <span class="live-badge"><span class="live-dot"></span> Live Menu</span>
     </div>
   </header>
 
@@ -817,22 +756,12 @@
     <h2>OUR DELICUTE SPECIALS</h2>
     <div id="topPicks" class="category-row"></div>
 
-    <h2>OUR MENU</h2>
+    <h2>BROWSE BY CATEGORY</h2>
     <div class="search-bar">
-      <input type="text" id="searchInput" placeholder="Search by name...">
-      <button id="filterBtn"><i class="fas fa-filter"></i></button>
-      <div class="filter-dropdown" id="filterDropdown">
-        <div data-category="All" class="selected">All Categories</div>
-      </div>
+      <i class="fas fa-search"></i>
+      <input type="text" id="categorySearchInput" placeholder="Search categories...">
     </div>
-
-    <div class="veg-filter-pills" id="vegFilterPills">
-      <div class="veg-pill active" data-veg="all">All</div>
-      <div class="veg-pill" data-veg="veg"><span class="food-mark" style="color:var(--veg)"></span> Veg</div>
-      <div class="veg-pill" data-veg="nonveg"><span class="food-mark" style="color:var(--nonveg)"></span> Non-Veg</div>
-    </div>
-
-    <div id="menuCategories"></div>
+    <div id="categoryGrid" class="category-grid"></div>
   </div>
 
   <div class="addon-info-overlay" id="addonInfoOverlay">
@@ -850,22 +779,20 @@
 
   <script>
   let menuData = [];
+  let categoryData = [];
+  let categorySearchTerm = "";
   const topPicksEl = document.getElementById("topPicks");
-  const categoriesEl = document.getElementById("menuCategories");
-  const searchInput = document.getElementById("searchInput");
-  const filterBtn = document.getElementById("filterBtn");
-  const filterDropdown = document.getElementById("filterDropdown");
-  const vegFilterPills = document.getElementById("vegFilterPills");
+  const categoryGridEl = document.getElementById("categoryGrid");
+  const categorySearchInput = document.getElementById("categorySearchInput");
 
-  let selectedCategory = "All";
-  let selectedVegFilter = "all";
   const defaultImage = 'https://via.placeholder.com/150';
   const SIZE_ORDER = ['SMALL', 'REGULAR', 'MEDIUM', 'LARGE'];
   const POLL_MS = 3000;
 
   let isPolling = false;
   let toastTimeoutHandle = null;
-  let lastDataStr = "";
+  let lastMenuStr = "";
+  let lastCatStr = "";
   const itemDisplayNames = {};
   const addonAvailabilityCache = {};
 
@@ -893,76 +820,102 @@
     headers.forEach(header => observer.observe(header));
   }
 
-  async function loadMenu(isFirstLoad) {
+  async function loadTopPicks(isFirstLoad) {
     try {
       const res = await fetch("/api/menu", { cache: "no-store" });
       if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
       const data = await res.json();
       if (!data.success || !Array.isArray(data.data)) throw new Error("Invalid menu data");
 
-      const newDataStr = JSON.stringify(data.data);
-      if (newDataStr === lastDataStr) return;
-
-      const wasFirst = lastDataStr === "";
-      lastDataStr = newDataStr;
+      const newStr = JSON.stringify(data.data);
+      if (newStr === lastMenuStr) return;
+      const wasFirst = lastMenuStr === "";
+      lastMenuStr = newStr;
       menuData = data.data;
 
-      renderCategories();
-      filterMenu();
-      setupCategoryAnimations();
-
+      renderTopPicks();
       if (!wasFirst && !isFirstLoad) showToast("Menu updated");
     } catch (err) {
       console.error("Menu Load Error:", err);
-      if (lastDataStr === "") {
+      if (lastMenuStr === "") {
         topPicksEl.innerHTML = "<p class='no-items-msg'>No top picks available</p>";
-        categoriesEl.innerHTML = "<p class='no-items-msg'>Unable to load menu right now</p>";
       }
     }
   }
 
-  async function pollMenu() {
+  async function loadCategoryGrid() {
+    try {
+      const res = await fetch("/api/categories", { cache: "no-store" });
+      if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+      const data = await res.json();
+      if (!data.success || !Array.isArray(data.data)) throw new Error("Invalid category data");
+
+      const newStr = JSON.stringify(data.data);
+      if (newStr === lastCatStr) return;
+      lastCatStr = newStr;
+      categoryData = data.data;
+
+      renderCategoryGrid();
+    } catch (err) {
+      console.error("Categories Load Error:", err);
+      if (lastCatStr === "") {
+        categoryGridEl.innerHTML = "<p class='no-items-msg'>Unable to load categories right now</p>";
+      }
+    }
+  }
+
+  async function pollAll() {
     if (isPolling) return;
     isPolling = true;
-    await loadMenu(false);
+    await Promise.all([loadTopPicks(false), loadCategoryGrid()]);
     isPolling = false;
   }
 
   function startAutoRefresh() {
-    setInterval(pollMenu, POLL_MS);
+    setInterval(pollAll, POLL_MS);
     document.addEventListener('visibilitychange', () => {
-      if (document.visibilityState === 'visible') pollMenu();
+      if (document.visibilityState === 'visible') pollAll();
     });
   }
 
-  function renderCategories() {
-    if (!Array.isArray(menuData) || menuData.length === 0) {
-      filterDropdown.innerHTML = '<div data-category="All" class="selected">All Categories</div>';
+  function renderCategoryGrid() {
+    if (!Array.isArray(categoryData) || categoryData.length === 0) {
+      categoryGridEl.innerHTML = "<p class='no-items-msg'>No categories available</p>";
       return;
     }
-    const categories = [...new Set(menuData.filter(item => item?.category).map(item => item.category))]
-      .sort((a, b) => a.localeCompare(b));
-    const allOptions = ["All", ...categories];
 
-    if (selectedCategory !== "All" && !categories.includes(selectedCategory)) {
-      selectedCategory = "All";
+    const filtered = categoryData.filter(cat =>
+      !categorySearchTerm || (cat.name || "").toLowerCase().includes(categorySearchTerm)
+    );
+
+    if (filtered.length === 0) {
+      categoryGridEl.innerHTML = "<p class='no-items-msg'>No categories match your search</p>";
+      return;
     }
 
-    filterDropdown.innerHTML = allOptions.map(cat => {
-      const label = cat === "All" ? "All Categories" : cat;
-      const isSelected = cat === selectedCategory ? " selected" : "";
-      return `<div data-category="${cat}" class="${isSelected}">${label}</div>`;
-    }).join('');
+    categoryGridEl.innerHTML = filtered.map(cat => {
+      const imgHtml = cat.image
+        ? `<img src="${cat.image}" alt="${cat.name}" loading="lazy" onerror="this.parentElement.innerHTML='<i class=\\'fas fa-utensils cat-icon-fallback\\'></i>'">`
+        : `<i class="fas fa-utensils cat-icon-fallback"></i>`;
+      return `
+        <div class="category-card" onclick='goToCategory(${JSON.stringify(cat.name)})'>
+          <div class="cat-img-wrap">${imgHtml}</div>
+          <div class="cat-card-name">${cat.name}</div>
+        </div>
+      `;
+    }).join("");
+    setupCategoryAnimations();
+  }
 
-    filterDropdown.querySelectorAll('div').forEach(div => {
-      div.addEventListener('click', () => {
-        selectedCategory = div.dataset.category;
-        filterDropdown.querySelectorAll('div').forEach(d => d.classList.remove('selected'));
-        div.classList.add('selected');
-        filterDropdown.classList.remove('active');
-        filterMenu();
-      });
+  if (categorySearchInput) {
+    categorySearchInput.addEventListener('input', () => {
+      categorySearchTerm = categorySearchInput.value.trim().toLowerCase();
+      renderCategoryGrid();
     });
+  }
+
+  function goToCategory(name) {
+    window.location.href = `delicuteviewmenu.html?category=${encodeURIComponent(name)}`;
   }
 
   function groupSizedItems(items) {
@@ -1017,52 +970,19 @@
     });
   }
 
-  function renderMenu(data) {
-    if (!Array.isArray(data) || data.length === 0) {
+  function renderTopPicks() {
+    if (!Array.isArray(menuData) || menuData.length === 0) {
       topPicksEl.innerHTML = "<p class='no-items-msg'>No top picks available</p>";
-      categoriesEl.innerHTML = "<p class='no-items-msg'>No menu items available</p>";
       return;
     }
-
-    const groupedData = groupSizedItems(data);
+    const groupedData = groupSizedItems(menuData);
     const sortedData = groupedData.sort((a, b) => (a.order_index || a.id) - (b.order_index || b.id));
-
     const topPicks = sortedData.filter(item => item?.is_top_pick);
-    topPicksEl.innerHTML = topPicks.length > 0 && selectedCategory === "All"
+
+    topPicksEl.innerHTML = topPicks.length > 0
       ? topPicks.map(item => buildCard(item, true)).join("")
       : "<p class='no-items-msg'>No top picks available</p>";
 
-    const groupedByCategory = {};
-    sortedData.forEach(item => {
-      if (!item?.category) return;
-      if (!groupedByCategory[item.category]) groupedByCategory[item.category] = [];
-      groupedByCategory[item.category].push(item);
-    });
-
-    const sortedCategories = Object.keys(groupedByCategory).sort((a, b) =>
-      a.localeCompare(b, undefined, { sensitivity: 'base' })
-    );
-
-    categoriesEl.innerHTML = "";
-    if (sortedCategories.length === 0 || (selectedCategory !== "All" && !sortedCategories.includes(selectedCategory))) {
-      categoriesEl.innerHTML = "<p class='no-items-msg'>No menu items available</p>";
-    } else {
-      const categoriesToShow = selectedCategory === "All" ? sortedCategories : [selectedCategory];
-      categoriesToShow.forEach(cat => {
-        const items = groupedByCategory[cat].sort((a, b) => (a.order_index || a.id) - (b.order_index || b.id));
-        const firstRow = items.slice(0, 9);
-        const secondRow = items.slice(9, 18);
-        categoriesEl.innerHTML += `
-          <h2>${cat}</h2>
-          <div class="category-row-container">
-            <div class="category-row">
-              ${firstRow.map(item => buildCard(item, false)).join("")}
-            </div>
-            ${secondRow.length > 0 ? `<div class="category-row">${secondRow.map(item => buildCard(item, false)).join("")}</div>` : ""}
-          </div>
-        `;
-      });
-    }
     setupCategoryAnimations();
     populateAddonSlots();
   }
@@ -1118,7 +1038,6 @@
     const hasSizes = Array.isArray(item.sizes) && item.sizes.length > 0;
     const unavailable = item.is_available === false;
 
-    /* Neat, clearly separated size rows (e.g. REGULAR / LARGE) */
     const sizeChips = hasSizes
       ? `<div class="size-list">${item.sizes.map(s => `
           <div class="size-row">
@@ -1146,54 +1065,6 @@
         </div>
       </div>
     `;
-  }
-
-  function filterMenu() {
-    if (!Array.isArray(menuData)) {
-      renderMenu([]);
-      return;
-    }
-    const searchTerm = (searchInput?.value || "").trim().toLowerCase();
-
-    const filtered = menuData.filter(item => {
-      if (!item?.name || !item?.category) return false;
-      const matchesCategory = selectedCategory === "All" || item.category === selectedCategory;
-      const itemFoodType = item.food_type === "nonveg" ? "nonveg" : "veg";
-      const matchesVeg = selectedVegFilter === "all" || itemFoodType === selectedVegFilter;
-      const matchesSearch = !searchTerm ||
-        item.name.toLowerCase().includes(searchTerm) ||
-        (item.description || "").toLowerCase().includes(searchTerm);
-      return matchesCategory && matchesVeg && matchesSearch;
-    });
-
-    renderMenu(filtered);
-  }
-
-  if (searchInput) {
-    searchInput.addEventListener('input', () => filterMenu());
-  }
-
-  if (filterBtn && filterDropdown) {
-    filterBtn.addEventListener('click', (e) => {
-      e.stopPropagation();
-      filterDropdown.classList.toggle('active');
-    });
-    document.addEventListener('click', (e) => {
-      if (!filterDropdown.contains(e.target) && e.target !== filterBtn) {
-        filterDropdown.classList.remove('active');
-      }
-    });
-  }
-
-  if (vegFilterPills) {
-    vegFilterPills.querySelectorAll('[data-veg]').forEach(pill => {
-      pill.addEventListener('click', () => {
-        selectedVegFilter = pill.dataset.veg;
-        vegFilterPills.querySelectorAll('[data-veg]').forEach(p => p.classList.remove('active'));
-        pill.classList.add('active');
-        filterMenu();
-      });
-    });
   }
 
   const addonInfoOverlay = document.getElementById('addonInfoOverlay');
@@ -1265,13 +1136,18 @@
     window.scrollTo(0, 0);
     if (!menuStarted) {
       menuStarted = true;
-      loadMenu(true);
+      loadTopPicks(true);
+      loadCategoryGrid();
       startAutoRefresh();
     }
   }
 
   if (exploreBtn) {
     exploreBtn.addEventListener('click', showMenu);
+  }
+
+  if (window.location.hash === '#menu') {
+    showMenu();
   }
   </script>
 </body>

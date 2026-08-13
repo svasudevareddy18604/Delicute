@@ -1,0 +1,750 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Delicute | Menu</title>
+  <link rel="icon" href="https://i.postimg.cc/W3pgQx9q/DELICUTE-Imgur-1-modified.png">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Cormorant+Garamond:wght@500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+<style>
+  :root {
+    --primary-purple: #9370DB;
+    --primary-purple-dark: #8A2BE2;
+    --lilac: #D8BFD8;
+    --bg-lavender: #E6E6FA;
+    --dark: #1A1A1A;
+    --muted: #4B5E8E;
+    --border: #D8BFD8;
+    --input-bg: #F0F8FF;
+    --gold-soft: #F0E68C;
+    --veg: #2E8B57;
+    --nonveg: #B23A2E;
+    --live-green: #2ECC71;
+    --shadow-sm: 0 2px 5px rgba(216, 183, 210, 0.2);
+    --shadow-md: 0 4px 14px rgba(142, 68, 173, 0.2);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  html, body { width: 100%; }
+  body {
+    font-family: 'Playfair Display', serif;
+    background: linear-gradient(135deg, var(--lilac) 0%, var(--bg-lavender) 100%);
+    color: var(--dark);
+    min-height: 100vh;
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  header {
+    background: linear-gradient(90deg, var(--primary-purple) 0%, var(--lilac) 100%);
+    color: #FFFFFF;
+    padding: 0.9rem 0.8rem;
+    text-align: center;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    box-shadow: var(--shadow-md);
+  }
+  .header-inner { display: flex; flex-direction: column; align-items: center; position: relative; }
+  .back-btn {
+    position: absolute;
+    top: 0; left: 0;
+    background: rgba(255,255,255,0.2);
+    border: none;
+    color: #fff;
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 1rem;
+    display: flex; align-items: center; justify-content: center;
+    transition: background 0.2s ease;
+  }
+  .back-btn:hover { background: rgba(255,255,255,0.35); }
+  header img {
+    height: clamp(38px, 6vw, 46px);
+    filter: drop-shadow(0 1px 3px rgba(0, 0, 0, 0.2));
+  }
+  header h1 {
+    font-size: clamp(1.1rem, 2.4vw, 1.4rem);
+    font-weight: 800;
+    margin-top: 0.3rem;
+    text-shadow: 0 1px 3px rgba(138, 43, 226, 0.3);
+  }
+  header .cat-label {
+    font-size: clamp(0.7rem, 1.8vw, 0.85rem);
+    font-weight: 700;
+    opacity: 0.95;
+    color: var(--gold-soft);
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+    display: block;
+    margin-top: 0.1rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+  .live-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    margin-top: 0.5rem;
+    padding: 0.28rem 0.7rem;
+    border-radius: 20px;
+    background: rgba(255,255,255,0.16);
+    border: 1px solid rgba(255,255,255,0.35);
+    font-family: Arial, sans-serif;
+    font-size: 0.65rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: #FFFFFF;
+  }
+  .live-dot {
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    background: var(--live-green);
+    box-shadow: 0 0 0 0 rgba(46, 204, 113, 0.7);
+    animation: liveDotPulse 1.6s ease-out infinite;
+  }
+  @keyframes liveDotPulse {
+    0%   { box-shadow: 0 0 0 0 rgba(46, 204, 113, 0.65); }
+    70%  { box-shadow: 0 0 0 7px rgba(46, 204, 113, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(46, 204, 113, 0); }
+  }
+
+  .container { max-width: 1400px; margin: 0.5rem auto; padding: 0 0.6rem 2rem; }
+
+  .search-bar {
+    display: flex;
+    align-items: center;
+    max-width: 600px;
+    margin: 0.6rem auto 0.4rem;
+    background: #FFFFFF;
+    border: 2px solid var(--lilac);
+    border-radius: 8px;
+    padding: 0.3rem;
+    box-shadow: var(--shadow-sm);
+  }
+  .search-bar input {
+    flex: 1;
+    border: none;
+    padding: 0.6rem;
+    font-size: clamp(0.85rem, 1.8vw, 0.95rem);
+    font-family: 'Playfair Display', serif;
+    color: var(--dark);
+    outline: none;
+    background: transparent;
+  }
+  .search-bar i {
+    color: var(--primary-purple);
+    padding: 0 0.5rem;
+    font-size: 1rem;
+  }
+
+  .veg-filter-pills { display: flex; justify-content: center; gap: 0.5rem; margin: 0.5rem auto 0.6rem; }
+  .veg-pill {
+    display: flex; align-items: center; gap: 0.35rem;
+    padding: 0.4rem 0.85rem; border-radius: 20px;
+    background: #FFFFFF; border: 1px solid var(--lilac);
+    font-size: 0.78rem; font-weight: 600; color: var(--muted);
+    cursor: pointer; box-shadow: var(--shadow-sm);
+    transition: all 0.2s ease; font-family: Arial, sans-serif;
+  }
+  .veg-pill.active { color: #FFFFFF; border-color: transparent; }
+  .veg-pill[data-veg="veg"].active { background: var(--veg); }
+  .veg-pill[data-veg="nonveg"].active { background: var(--nonveg); }
+  .veg-pill[data-veg="all"].active { background: var(--primary-purple); }
+
+  .food-mark {
+    width: 13px; height: 13px;
+    border: 1.6px solid currentColor;
+    border-radius: 3px;
+    display: inline-flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .food-mark::after { content: ''; width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+
+  .items-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.7rem;
+    justify-content: flex-start;
+    padding: 0.4rem 0;
+  }
+
+  .card {
+    flex: 0 0 auto;
+    width: clamp(140px, 42vw, 190px);
+    min-height: 250px;
+    background: #FFFFFF;
+    border: 1px solid var(--lilac);
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 5px rgba(216, 183, 210, 0.1);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+  }
+  .card:hover { transform: translateY(-2px); box-shadow: 0 3px 8px rgba(216, 183, 210, 0.2); }
+  .card.unavailable { opacity: 0.5; }
+  .card.unavailable::before {
+    content: 'Sold Out';
+    position: absolute; top: 6px; left: 6px;
+    background: var(--nonveg); color: #FFFFFF;
+    padding: 0.2rem 0.5rem; border-radius: 5px;
+    font-size: clamp(0.6rem, 1.4vw, 0.7rem);
+    font-weight: 700; z-index: 2;
+  }
+  .card-img-wrap { position: relative; width: 100%; }
+  .card-img-wrap .food-badge {
+    position: absolute; top: 6px; left: 6px;
+    background: #FFFFFF; border-radius: 4px; padding: 2px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.2); z-index: 2;
+  }
+  .card img {
+    width: 100%; height: 150px; object-fit: cover;
+    display: block; background: var(--input-bg);
+    pointer-events: none; user-select: none;
+  }
+  .card-body { padding: 0.5rem 0.6rem 0.7rem; display: flex; flex-direction: column; flex-grow: 1; }
+  .card-body h3 {
+    font-size: clamp(0.8rem, 1.6vw, 0.9rem);
+    font-weight: 700; margin: 0.2rem 0;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .card-body p.desc {
+    font-size: clamp(0.7rem, 1.4vw, 0.8rem);
+    color: var(--muted); margin-bottom: 0.35rem; line-height: 1.25;
+    display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+  }
+  .price-row { display: flex; align-items: baseline; gap: 0.35rem; margin-top: auto; font-family: Arial, sans-serif; }
+  .price { color: var(--primary-purple); font-weight: 700; font-size: clamp(0.85rem, 1.7vw, 0.95rem); }
+  .old-price {
+    text-decoration: line-through; color: var(--primary-purple-dark);
+    font-size: clamp(0.7rem, 1.5vw, 0.8rem); opacity: 0.8; font-weight: 500;
+  }
+
+  .size-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.28rem;
+    margin-top: 0.5rem;
+    padding-top: 0.4rem;
+    border-top: 1px dashed var(--border);
+    font-family: Arial, sans-serif;
+  }
+  .size-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.4rem;
+    background: var(--input-bg);
+    border: 1px solid var(--lilac);
+    border-radius: 6px;
+    padding: 0.28rem 0.5rem;
+  }
+  .size-row .size-label {
+    font-size: 0.68rem;
+    font-weight: 800;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--primary-purple-dark);
+  }
+  .size-row .size-price {
+    font-size: 0.82rem;
+    font-weight: 800;
+    color: var(--primary-purple);
+    white-space: nowrap;
+  }
+
+  .no-items-msg { text-align: center; color: var(--muted); font-size: clamp(0.8rem, 1.8vw, 0.9rem); padding: 2rem 0; width: 100%; }
+
+  #toast {
+    visibility: hidden;
+    min-width: 180px; max-width: 90%;
+    background: linear-gradient(135deg, var(--primary-purple), var(--lilac));
+    color: #FFFFFF; text-align: center;
+    border-radius: 8px; padding: 0.75rem 1rem;
+    position: fixed; z-index: 3000;
+    top: 12px; left: 50%; transform: translateX(-50%);
+    font-size: clamp(0.75rem, 1.8vw, 0.85rem);
+    font-weight: 600;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
+    font-family: Arial, sans-serif;
+    display: flex; align-items: center; justify-content: center; gap: 0.5rem;
+  }
+  #toast.show { visibility: visible; animation: fadeInOut 3s ease forwards; }
+  @keyframes fadeInOut {
+    0% { opacity: 0; } 10% { opacity: 1; } 85% { opacity: 1; } 100% { opacity: 0; }
+  }
+
+  .addon-btn {
+    margin-top: 0.4rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    background: var(--input-bg);
+    border: 1px solid var(--lilac);
+    color: var(--primary-purple-dark);
+    font-family: Arial, sans-serif;
+    font-size: 0.68rem;
+    font-weight: 700;
+    padding: 0.3rem 0.55rem;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: background 0.2s ease, transform 0.15s ease;
+    align-self: flex-start;
+  }
+  .addon-btn:hover { background: var(--lilac); color: #fff; }
+  .addon-btn i { font-size: 0.65rem; }
+
+  .addon-info-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(26, 18, 46, 0.55);
+    backdrop-filter: blur(3px);
+    -webkit-backdrop-filter: blur(3px);
+    z-index: 4000;
+    align-items: flex-end;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.25s ease;
+  }
+  .addon-info-overlay.show { display: flex; opacity: 1; }
+  .addon-info-box {
+    background: #FFFFFF;
+    width: 100%;
+    max-width: 480px;
+    max-height: 85vh;
+    overflow-y: auto;
+    border-radius: 22px 22px 0 0;
+    box-shadow: 0 -10px 34px rgba(75, 46, 131, 0.32);
+    font-family: Arial, sans-serif;
+    -webkit-overflow-scrolling: touch;
+  }
+  @media (min-width: 769px) {
+    .addon-info-overlay { align-items: center; }
+    .addon-info-box { border-radius: 18px; max-height: 78vh; }
+  }
+  .addon-info-header {
+    padding: 1.1rem 1.2rem;
+    background: linear-gradient(90deg, var(--primary-purple) 0%, var(--primary-purple-dark) 55%, var(--lilac) 100%);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    border-radius: 22px 22px 0 0;
+  }
+  @media (min-width: 769px) { .addon-info-header { border-radius: 18px 18px 0 0; } }
+  .addon-info-header h3 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: #FFFFFF;
+    padding-right: 0.5rem;
+  }
+  .addon-info-close {
+    background: rgba(255,255,255,0.22);
+    border: none;
+    color: #FFFFFF;
+    width: 30px; height: 30px;
+    min-width: 30px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 0.85rem;
+    display: flex; align-items: center; justify-content: center;
+    transition: background 0.2s ease, transform 0.2s ease;
+  }
+  .addon-info-close:hover { background: rgba(255,255,255,0.38); transform: rotate(90deg); }
+  .addon-info-body { padding: 1rem 1.2rem 1.2rem; }
+  .addon-info-group { margin-bottom: 1.1rem; padding-bottom: 1rem; border-bottom: 1px dashed var(--border); }
+  .addon-info-group:last-child { margin-bottom: 0; border-bottom: none; padding-bottom: 0; }
+  .addon-info-group-title {
+    font-weight: 700;
+    font-size: 0.9rem;
+    color: var(--primary-purple-dark);
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 0.5rem;
+  }
+  .addon-info-group-sub {
+    font-weight: 600;
+    font-size: 0.68rem;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    margin-top: 0.1rem;
+  }
+  .addon-info-row { display: flex; align-items: center; gap: 0.55rem; padding: 0.5rem 0; }
+  .addon-info-row + .addon-info-row { border-top: 1px solid var(--input-bg); }
+  .addon-info-name { flex: 1; font-size: 0.85rem; font-weight: 600; color: var(--dark); }
+  .addon-info-price { font-size: 0.8rem; font-weight: 700; color: var(--primary-purple); white-space: nowrap; }
+  .addon-info-unavailable { opacity: 0.45; }
+  .addon-info-unavailable .addon-info-price::after { content: ' (unavailable)'; font-weight: 500; font-size: 0.68rem; }
+  .addon-info-empty { text-align: center; color: var(--muted); font-size: 0.85rem; padding: 1rem 0; }
+
+  @media (min-width: 769px) {
+    .container { padding: 0 0.8rem 2rem; }
+    .search-bar { max-width: 700px; }
+  }
+  @media (max-width: 360px) {
+    header img { height: 36px; }
+    header h1 { font-size: 1rem; }
+    .card { width: clamp(130px, 44vw, 160px); min-height: 230px; }
+    .card img { height: 110px; }
+  }
+</style>
+</head>
+<body>
+  <header>
+    <div class="header-inner">
+      <button class="back-btn" onclick="window.location.href='delicutemenu.html#menu'"><i class="fas fa-arrow-left"></i></button>
+      <img src="https://i.postimg.cc/W3pgQx9q/DELICUTE-Imgur-1-modified.png" alt="DELICUTE Logo" onerror="this.src='https://via.placeholder.com/50'">
+      <h1>DELICUTE</h1>
+      <span class="cat-label" id="categoryLabel">Category</span>
+      <span class="live-badge"><span class="live-dot"></span> Live Menu</span>
+    </div>
+  </header>
+
+  <div class="container">
+    <div class="search-bar">
+      <i class="fas fa-search"></i>
+      <input type="text" id="searchInput" placeholder="Search in this category...">
+    </div>
+
+    <div class="veg-filter-pills" id="vegFilterPills">
+      <div class="veg-pill active" data-veg="all">All</div>
+      <div class="veg-pill" data-veg="veg"><span class="food-mark" style="color:var(--veg)"></span> Veg</div>
+      <div class="veg-pill" data-veg="nonveg"><span class="food-mark" style="color:var(--nonveg)"></span> Non-Veg</div>
+    </div>
+
+    <div id="itemsGrid" class="items-grid"></div>
+  </div>
+
+  <div class="addon-info-overlay" id="addonInfoOverlay">
+    <div class="addon-info-box">
+      <div class="addon-info-header">
+        <h3 id="addonInfoTitle">Add-ons</h3>
+        <button class="addon-info-close" onclick="closeAddonInfo()"><i class="fas fa-times"></i></button>
+      </div>
+      <div class="addon-info-body" id="addonInfoBody"></div>
+    </div>
+  </div>
+
+  <div id="toast"></div>
+
+  <script>
+  const params = new URLSearchParams(window.location.search);
+  const selectedCategory = params.get("category");
+
+  if (!selectedCategory) {
+    window.location.href = "delicutemenu.html";
+  }
+
+  document.getElementById("categoryLabel").textContent = selectedCategory || "";
+  document.title = `Delicute | ${selectedCategory || "Menu"}`;
+
+  let menuData = [];
+  let selectedVegFilter = "all";
+  const itemsGrid = document.getElementById("itemsGrid");
+  const searchInput = document.getElementById("searchInput");
+  const vegFilterPills = document.getElementById("vegFilterPills");
+
+  const defaultImage = 'https://via.placeholder.com/150';
+  const SIZE_ORDER = ['SMALL', 'REGULAR', 'MEDIUM', 'LARGE'];
+  const POLL_MS = 3000;
+
+  let isPolling = false;
+  let toastTimeoutHandle = null;
+  let lastDataStr = "";
+  const itemDisplayNames = {};
+  const addonAvailabilityCache = {};
+
+  function showToast(msg) {
+    const toast = document.getElementById("toast");
+    if (!toast) return;
+    toast.innerHTML = `<i class="fas fa-sync-alt"></i><span>${msg}</span>`;
+    toast.classList.remove("show");
+    void toast.offsetWidth;
+    toast.classList.add("show");
+    if (toastTimeoutHandle) clearTimeout(toastTimeoutHandle);
+    toastTimeoutHandle = setTimeout(() => toast.classList.remove("show"), 3000);
+  }
+
+  async function loadMenu(isFirstLoad) {
+    try {
+      const res = await fetch("/api/menu", { cache: "no-store" });
+      if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+      const data = await res.json();
+      if (!data.success || !Array.isArray(data.data)) throw new Error("Invalid menu data");
+
+      const newDataStr = JSON.stringify(data.data);
+      if (newDataStr === lastDataStr) return;
+      const wasFirst = lastDataStr === "";
+      lastDataStr = newDataStr;
+      menuData = data.data;
+
+      filterAndRender();
+      if (!wasFirst && !isFirstLoad) showToast("Menu updated");
+    } catch (err) {
+      console.error("Menu Load Error:", err);
+      if (lastDataStr === "") {
+        itemsGrid.innerHTML = "<p class='no-items-msg'>Unable to load menu right now</p>";
+      }
+    }
+  }
+
+  async function pollMenu() {
+    if (isPolling) return;
+    isPolling = true;
+    await loadMenu(false);
+    isPolling = false;
+  }
+
+  function startAutoRefresh() {
+    setInterval(pollMenu, POLL_MS);
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'visible') pollMenu();
+    });
+  }
+
+  function groupSizedItems(items) {
+    const grouped = {};
+    items.forEach(item => {
+      if (!item?.id || !item?.name || !item?.category) return;
+      const hasSize = !!item.size;
+      const baseName = hasSize
+        ? item.name.replace(/\s*(Small|Regular|Medium|Large)$/i, '').trim()
+        : item.name;
+      const key = `${baseName.toLowerCase()}__${item.category}`;
+
+      if (!grouped[key]) {
+        grouped[key] = {
+          id: item.id,
+          name: baseName,
+          description: item.description || "No description available",
+          category: item.category,
+          image: item.image || defaultImage,
+          food_type: item.food_type === "nonveg" ? "nonveg" : "veg",
+          is_available: item.is_available !== false && item.is_available !== 0,
+          sizes: [],
+          order_index: item.order_index || item.id
+        };
+      }
+
+      if (hasSize) {
+        grouped[key].sizes.push({
+          size: item.size.toUpperCase(),
+          price: parseFloat(item.price) || 0,
+          original_price: item.original_price != null ? parseFloat(item.original_price) : null,
+          saved_price: item.saved_price != null ? parseFloat(item.saved_price) : null
+        });
+      } else {
+        grouped[key].price = parseFloat(item.price) || 0;
+        grouped[key].original_price = item.original_price != null ? parseFloat(item.original_price) : null;
+        grouped[key].saved_price = item.saved_price != null ? parseFloat(item.saved_price) : null;
+      }
+    });
+
+    return Object.values(grouped).map(item => {
+      if (item.sizes.length > 0) {
+        item.sizes.sort((a, b) => SIZE_ORDER.indexOf(a.size) - SIZE_ORDER.indexOf(b.size));
+        const preferred = item.sizes.find(s => s.size === "REGULAR") ||
+                           item.sizes.reduce((min, curr) => curr.price < min.price ? curr : min);
+        item.price = preferred.price;
+        item.original_price = preferred.original_price;
+        item.saved_price = preferred.saved_price;
+      }
+      return item;
+    });
+  }
+
+  function foodMarkHTML(foodType) {
+    const isVeg = foodType !== "nonveg";
+    return `<span class="food-mark" style="color:${isVeg ? 'var(--veg)' : 'var(--nonveg)'}" title="${isVeg ? 'Veg' : 'Non-Veg'}"></span>`;
+  }
+
+  function buildCard(item) {
+    if (!item?.name || item.price == null || !item.id) return "";
+    itemDisplayNames[item.id] = item.name;
+    const imageSrc = item.image || defaultImage;
+    const hasSizes = Array.isArray(item.sizes) && item.sizes.length > 0;
+    const unavailable = item.is_available === false;
+
+    const sizeChips = hasSizes
+      ? `<div class="size-list">${item.sizes.map(s => `
+          <div class="size-row">
+            <span class="size-label">${s.size}</span>
+            <span class="size-price">₹${s.price.toFixed(0)}</span>
+          </div>
+        `).join("")}</div>`
+      : "";
+
+    return `
+      <div class="card ${unavailable ? 'unavailable' : ''}">
+        <div class="card-img-wrap">
+          <span class="food-badge">${foodMarkHTML(item.food_type)}</span>
+          <img src="${imageSrc}" alt="${item.name}" loading="lazy" onerror="this.src='${defaultImage}'">
+        </div>
+        <div class="card-body">
+          <h3>${item.name}</h3>
+          <p class="desc">${item.description || "No description available"}</p>
+          <div class="price-row">
+            <span class="price">₹${item.price.toFixed(2)}</span>
+            ${item.original_price ? `<span class="old-price">₹${item.original_price.toFixed(2)}</span>` : ""}
+          </div>
+          ${sizeChips}
+          <div class="addon-slot" data-addon-slot="${item.id}"></div>
+        </div>
+      </div>
+    `;
+  }
+
+  function renderAddonButton(slot, itemId) {
+    slot.innerHTML = `<button type="button" class="addon-btn" onclick="openAddonInfo(${itemId})">
+      <i class="fas fa-plus-circle"></i> Add-ons
+    </button>`;
+  }
+
+  function populateAddonSlots() {
+    const slots = document.querySelectorAll('.addon-slot[data-addon-slot]');
+    const idsToFetch = new Set();
+
+    slots.forEach(slot => {
+      const id = slot.dataset.addonSlot;
+      const cached = addonAvailabilityCache[id];
+      if (cached === true) {
+        renderAddonButton(slot, id);
+      } else if (cached === undefined) {
+        idsToFetch.add(id);
+      }
+    });
+
+    idsToFetch.forEach(id => {
+      addonAvailabilityCache[id] = "pending";
+      fetch(`/api/menu-items/${id}/addon-groups`)
+        .then(res => res.ok ? res.json() : [])
+        .then(groups => {
+          const hasAddons = Array.isArray(groups) && groups.some(
+            g => Array.isArray(g.addons) && g.addons.length > 0
+          );
+          addonAvailabilityCache[id] = hasAddons;
+          if (hasAddons) {
+            document.querySelectorAll(`.addon-slot[data-addon-slot="${id}"]`).forEach(slot => {
+              renderAddonButton(slot, id);
+            });
+          }
+        })
+        .catch(() => { addonAvailabilityCache[id] = false; });
+    });
+  }
+
+  function filterAndRender() {
+    if (!Array.isArray(menuData) || !selectedCategory) {
+      itemsGrid.innerHTML = "<p class='no-items-msg'>No menu items available</p>";
+      return;
+    }
+    const searchTerm = (searchInput?.value || "").trim().toLowerCase();
+
+    const categoryItems = menuData.filter(item => item?.category === selectedCategory);
+    const grouped = groupSizedItems(categoryItems);
+    const sorted = grouped.sort((a, b) => (a.order_index || a.id) - (b.order_index || b.id));
+
+    const filtered = sorted.filter(item => {
+      const itemFoodType = item.food_type === "nonveg" ? "nonveg" : "veg";
+      const matchesVeg = selectedVegFilter === "all" || itemFoodType === selectedVegFilter;
+      const matchesSearch = !searchTerm ||
+        item.name.toLowerCase().includes(searchTerm) ||
+        (item.description || "").toLowerCase().includes(searchTerm);
+      return matchesVeg && matchesSearch;
+    });
+
+    itemsGrid.innerHTML = filtered.length > 0
+      ? filtered.map(item => buildCard(item)).join("")
+      : "<p class='no-items-msg'>No items match your filters</p>";
+
+    populateAddonSlots();
+  }
+
+  if (searchInput) {
+    searchInput.addEventListener('input', () => filterAndRender());
+  }
+
+  if (vegFilterPills) {
+    vegFilterPills.querySelectorAll('[data-veg]').forEach(pill => {
+      pill.addEventListener('click', () => {
+        selectedVegFilter = pill.dataset.veg;
+        vegFilterPills.querySelectorAll('[data-veg]').forEach(p => p.classList.remove('active'));
+        pill.classList.add('active');
+        filterAndRender();
+      });
+    });
+  }
+
+  const addonInfoOverlay = document.getElementById('addonInfoOverlay');
+  const addonInfoTitle = document.getElementById('addonInfoTitle');
+  const addonInfoBody = document.getElementById('addonInfoBody');
+
+  function escapeHtml(str) {
+    const div = document.createElement('div');
+    div.textContent = str || '';
+    return div.innerHTML;
+  }
+
+  async function openAddonInfo(itemId) {
+    addonInfoTitle.textContent = itemDisplayNames[itemId] || 'Add-ons';
+    addonInfoBody.innerHTML = `<p class="addon-info-empty"><i class="fas fa-spinner fa-spin"></i> Loading add-ons…</p>`;
+    addonInfoOverlay.classList.add('show');
+    document.body.style.overflow = 'hidden';
+
+    try {
+      const res = await fetch(`/api/menu-items/${itemId}/addon-groups`);
+      const groups = res.ok ? await res.json() : [];
+
+      if (!Array.isArray(groups) || groups.length === 0) {
+        addonInfoBody.innerHTML = `<p class="addon-info-empty">No add-ons available for this item.</p>`;
+        return;
+      }
+
+      addonInfoBody.innerHTML = groups.map(g => {
+        const addons = Array.isArray(g.addons) ? g.addons : [];
+        return `
+          <div class="addon-info-group">
+            <div class="addon-info-group-title">
+              ${escapeHtml(g.name)}
+              <span class="addon-info-group-sub">${g.is_required ? 'Required' : 'Optional'} · Select ${g.min_selection}-${g.max_selection}</span>
+            </div>
+            ${addons.length > 0 ? addons.map(a => `
+              <div class="addon-info-row ${a.is_available === false ? 'addon-info-unavailable' : ''}">
+                <span class="food-mark" style="color:${a.is_veg === false ? 'var(--nonveg)' : 'var(--veg)'}"></span>
+                <span class="addon-info-name">${escapeHtml(a.name)}</span>
+                <span class="addon-info-price">+₹${Number(a.price).toFixed(0)}</span>
+              </div>
+            `).join('') : `<p class="addon-info-empty">No options in this group right now.</p>`}
+          </div>
+        `;
+      }).join('');
+    } catch (err) {
+      console.error('Addon Info Fetch Error:', err);
+      addonInfoBody.innerHTML = `<p class="addon-info-empty">Couldn't load add-ons right now.</p>`;
+    }
+  }
+
+  function closeAddonInfo() {
+    addonInfoOverlay.classList.remove('show');
+    document.body.style.overflow = 'auto';
+  }
+
+  addonInfoOverlay.addEventListener('click', (e) => {
+    if (e.target === addonInfoOverlay) closeAddonInfo();
+  });
+
+  if (selectedCategory) {
+    loadMenu(true);
+    startAutoRefresh();
+  }
+  </script>
+</body>
+</html>
