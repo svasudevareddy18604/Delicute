@@ -21,6 +21,9 @@
     --gold-soft: #F0E68C;
     --veg: #2E8B57;
     --nonveg: #B23A2E;
+    --toast-bg-1: #8A2BE2;
+    --toast-bg-2: #FF8C42;
+    --toast-glow: rgba(138, 43, 226, 0.45);
     --shadow-sm: 0 2px 5px rgba(216, 183, 210, 0.2);
     --shadow-md: 0 4px 14px rgba(142, 68, 173, 0.2);
   }
@@ -586,24 +589,30 @@
     white-space: nowrap; overflow: hidden; text-overflow: ellipsis; letter-spacing: 0.3px;
   }
 
-  /* ---------- Toast ---------- */
+  /* ---------- Toast (stunner redesign) ---------- */
   #toast {
     visibility: hidden;
-    min-width: 200px; max-width: 90%;
-    background: linear-gradient(135deg, var(--primary-purple), var(--lilac));
+    min-width: 220px; max-width: 92%;
+    background: linear-gradient(135deg, var(--toast-bg-1) 0%, var(--toast-bg-2) 100%);
     color: #FFFFFF; text-align: center;
-    border-radius: 8px; padding: 0.75rem 1rem;
+    border-radius: 14px; padding: 0.9rem 1.3rem;
     position: fixed; z-index: 5000;
-    top: 12px; left: 50%; transform: translateX(-50%);
-    font-size: clamp(0.75rem, 1.8vw, 0.85rem);
-    font-weight: 600;
-    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
+    top: 14px; left: 50%; transform: translateX(-50%) translateY(-14px);
+    font-size: clamp(0.8rem, 1.9vw, 0.9rem);
+    font-weight: 700;
+    letter-spacing: 0.2px;
+    box-shadow: 0 10px 30px var(--toast-glow), 0 0 0 1px rgba(255,255,255,0.18) inset;
     font-family: Arial, sans-serif;
-    display: flex; align-items: center; justify-content: center; gap: 0.5rem;
+    display: flex; align-items: center; justify-content: center; gap: 0.6rem;
+    border: 1px solid rgba(255,255,255,0.25);
   }
-  #toast.show { visibility: visible; animation: fadeInOut 3s ease forwards; }
-  @keyframes fadeInOut {
-    0% { opacity: 0; } 10% { opacity: 1; } 85% { opacity: 1; } 100% { opacity: 0; }
+  #toast i { color: var(--gold-soft); font-size: 1rem; filter: drop-shadow(0 0 4px rgba(255,215,0,0.5)); }
+  #toast.show { visibility: visible; animation: toastPop 5s cubic-bezier(0.22, 1, 0.36, 1) forwards; }
+  @keyframes toastPop {
+    0%   { opacity: 0; transform: translateX(-50%) translateY(-14px) scale(0.92); }
+    8%   { opacity: 1; transform: translateX(-50%) translateY(0) scale(1); }
+    90%  { opacity: 1; transform: translateX(-50%) translateY(0) scale(1); }
+    100% { opacity: 0; transform: translateX(-50%) translateY(-10px) scale(0.96); }
   }
 
   @media (min-width: 769px) {
@@ -720,7 +729,8 @@
 
   const defaultImage = 'https://via.placeholder.com/150';
   const SIZE_ORDER = ['SMALL', 'REGULAR', 'MEDIUM', 'LARGE'];
-  const POLL_MS = 3000;
+  const POLL_MS = 1000;     // menu/category data refresh — every 1 second
+  const TOAST_MS = 5000;    // toast stays visible for at least 5 seconds
 
   let isPolling = false;
   let toastTimeoutHandle = null;
@@ -737,7 +747,7 @@
     void toast.offsetWidth;
     toast.classList.add("show");
     if (toastTimeoutHandle) clearTimeout(toastTimeoutHandle);
-    toastTimeoutHandle = setTimeout(() => toast.classList.remove("show"), 3000);
+    toastTimeoutHandle = setTimeout(() => toast.classList.remove("show"), TOAST_MS);
   }
 
   function setupCategoryAnimations() {
@@ -1183,6 +1193,16 @@
   }
   cartOverlay.addEventListener('click', (e) => {
     if (e.target === cartOverlay) closeCartModal();
+  });
+
+  /* Cross-tab / cross-page sync: if the cart is changed on another tab
+     (e.g. delicuteviewmenu.html) while this page is open, reflect it
+     here immediately — no manual refresh needed. */
+  window.addEventListener('storage', (e) => {
+    if (e.key !== CART_KEY) return;
+    renderCartBar();
+    renderCartControls();
+    if (cartOverlay.classList.contains('show')) renderCartModalBody();
   });
 
   /* ===== WhatsApp copy: ITEMS + ADDRESS ONLY (no price, no total) ===== */
