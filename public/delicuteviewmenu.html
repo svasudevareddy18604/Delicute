@@ -22,6 +22,8 @@
     --veg: #2E8B57;
     --nonveg: #B23A2E;
     --live-green: #2ECC71;
+    --toast-bg-1: hsl(140, 64%, 55%);
+    --toast-bg-2: hsl(73, 12%, 64%);
     --shadow-sm: 0 2px 5px rgba(216, 183, 210, 0.2);
     --shadow-md: 0 4px 14px rgba(142, 68, 173, 0.2);
   }
@@ -286,6 +288,7 @@
   }
   .add-btn:hover, .select-btn:hover { background: var(--primary-purple-dark); }
   .add-btn:active, .select-btn:active { transform: scale(0.96); }
+  .add-btn:disabled { cursor: wait; }
   .select-btn { background: linear-gradient(90deg, var(--primary-purple-dark), var(--primary-purple)); }
 
   .qty-stepper {
@@ -430,6 +433,7 @@
   .im-addon-info { flex: 1; display: flex; align-items: center; gap: 0.5rem; }
   .im-addon-name { font-size: 0.85rem; font-weight: 600; color: var(--dark); }
   .im-addon-price { font-size: 0.8rem; font-weight: 700; color: var(--primary-purple); white-space: nowrap; }
+  .im-addon-hint { font-size: 0.62rem; color: var(--muted); margin-left: auto; padding-left: 0.4rem; font-style: italic; }
 
   .im-footer {
     position: sticky; bottom: 0;
@@ -597,20 +601,22 @@
 
   #toast {
     visibility: hidden;
-    min-width: 180px; max-width: 90%;
-    background: linear-gradient(135deg, var(--primary-purple), var(--lilac));
+    min-width: 200px; max-width: 90%;
+    background: linear-gradient(135deg, var(--toast-bg-1), var(--toast-bg-2));
     color: #FFFFFF; text-align: center;
-    border-radius: 8px; padding: 0.75rem 1rem;
+    border-radius: 10px; padding: 0.85rem 1.2rem;
     position: fixed; z-index: 5000;
     top: 12px; left: 50%; transform: translateX(-50%);
-    font-size: clamp(0.75rem, 1.8vw, 0.85rem);
+    font-size: clamp(0.78rem, 1.8vw, 0.88rem);
     font-weight: 600;
-    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
+    box-shadow: 0 6px 18px rgba(36, 18, 66, 0.4);
     font-family: Arial, sans-serif;
-    display: flex; align-items: center; justify-content: center; gap: 0.5rem;
+    display: flex; align-items: center; justify-content: center; gap: 0.55rem;
+    border: 1px solid rgba(255,255,255,0.15);
   }
-  #toast.show { visibility: visible; animation: fadeInOut 3s ease forwards; }
-  @keyframes fadeInOut { 0% { opacity: 0; } 10% { opacity: 1; } 85% { opacity: 1; } 100% { opacity: 0; } }
+  #toast i { color: var(--gold-soft); }
+  #toast.show { visibility: visible; animation: fadeInOut 5s ease forwards; }
+  @keyframes fadeInOut { 0% { opacity: 0; } 8% { opacity: 1; } 90% { opacity: 1; } 100% { opacity: 0; } }
 
   @media (min-width: 769px) {
     .container { padding: 0 0.8rem 2rem; }
@@ -738,6 +744,7 @@
   const defaultImage = 'https://via.placeholder.com/150';
   const SIZE_ORDER = ['SMALL', 'REGULAR', 'MEDIUM', 'LARGE'];
   const POLL_MS = 3000;
+  const TOAST_MS = 5000;
 
   let isPolling = false;
   let toastTimeoutHandle = null;
@@ -753,7 +760,7 @@
     void toast.offsetWidth;
     toast.classList.add("show");
     if (toastTimeoutHandle) clearTimeout(toastTimeoutHandle);
-    toastTimeoutHandle = setTimeout(() => toast.classList.remove("show"), 3000);
+    toastTimeoutHandle = setTimeout(() => toast.classList.remove("show"), TOAST_MS);
   }
 
   function escapeHtml(str) {
@@ -874,12 +881,15 @@
       : "";
 
     const priceDisplay = hasSizes
-      ? `<span class="from-tag">Starts from</span><span class="price">₹${item.price.toFixed(2)}</span>`
-      : `<span class="price">₹${item.price.toFixed(2)}</span>${item.original_price ? `<span class="old-price">₹${item.original_price.toFixed(2)}</span>` : ""}`;
+      ? `<span class="from-tag">Starts from</span><span class="price">₹${item.price.toFixed(0)}</span>`
+      : `<span class="price">₹${item.price.toFixed(0)}</span>${item.original_price ? `<span class="old-price">₹${item.original_price.toFixed(0)}</span>` : ""}`;
 
+    // Non-sized items ALWAYS use the "id|BASE|" key format so this path
+    // and the customize-modal path can never create two different cart
+    // entries for the same item.
     const controlsHtml = hasSizes
       ? `<button type="button" class="select-btn" onclick="openItemModal(${item.id})"><i class="fas fa-sliders-h"></i> Select Options</button>`
-      : `<div class="cart-ctrl" data-item-id="${item.id}" data-cart-id="${item.id}|" data-name="${encodeURIComponent(item.name)}" data-price="${item.price}"></div>`;
+      : `<div class="cart-ctrl" data-item-id="${item.id}" data-cart-id="${item.id}|BASE|" data-name="${encodeURIComponent(item.name)}" data-price="${item.price}"></div>`;
 
     return `
       <div class="card ${unavailable ? 'unavailable' : ''}">
@@ -941,7 +951,12 @@
     });
   }
 
-  /* ================= ADD-ON DETECTION (for simple, non-sized items) ================= */
+  /* ================= ADD-ON DETECTION (for simple, non-sized items) =================
+     IMPORTANT: while a lookup is in flight, renderCartControls() shows a
+     "Please wait" placeholder instead of the normal Add button. This closes
+     the race condition where a plain "Add" click (before we know the item
+     has add-ons) and a later "Customize & Add" click (after we know it does)
+     could create two separate cart entries for the same item. */
 
   function detectAddonsForSimpleItems() {
     const ids = new Set();
@@ -950,14 +965,18 @@
     ids.forEach(id => {
       if (addonAvailabilityCache[id] !== undefined) return;
       addonAvailabilityCache[id] = "pending";
+      renderCartControls();
       fetch(`/api/menu-items/${id}/addon-groups`)
         .then(res => res.ok ? res.json() : [])
         .then(groups => {
           const hasAddons = Array.isArray(groups) && groups.some(g => Array.isArray(g.addons) && g.addons.length > 0);
           addonAvailabilityCache[id] = hasAddons;
-          if (hasAddons) renderCartControls();
+          renderCartControls();
         })
-        .catch(() => { addonAvailabilityCache[id] = false; });
+        .catch(() => {
+          addonAvailabilityCache[id] = false;
+          renderCartControls();
+        });
     });
   }
 
@@ -986,14 +1005,14 @@
   function addToCart(key, name, price, qty) {
     const cart = getCart();
     if (!cart[key]) cart[key] = { name, price, qty: 0 };
-    cart[key].qty += qty;
+    cart[key].qty = Math.max(0, Math.round(cart[key].qty + qty));
     saveCart(cart);
   }
 
   function updateQty(key, delta) {
     const cart = getCart();
     if (!cart[key]) return;
-    cart[key].qty += delta;
+    cart[key].qty = Math.round(cart[key].qty + delta);
     if (cart[key].qty <= 0) delete cart[key];
     saveCart(cart);
   }
@@ -1009,8 +1028,16 @@
     document.querySelectorAll('.cart-ctrl[data-item-id]').forEach(el => {
       const id = el.dataset.itemId;
       const key = el.dataset.cartId;
+      const addonStatus = addonAvailabilityCache[id];
 
-      if (addonAvailabilityCache[id] === true) {
+      // Still checking whether this item has add-ons — show a neutral,
+      // disabled placeholder so it can't be added via the wrong path.
+      if (addonStatus === undefined || addonStatus === "pending") {
+        el.innerHTML = `<button type="button" class="add-btn" disabled style="opacity:0.55;"><i class="fas fa-spinner fa-spin"></i> Please wait</button>`;
+        return;
+      }
+
+      if (addonStatus === true) {
         el.innerHTML = `<button type="button" class="select-btn" onclick="openItemModal(${id})"><i class="fas fa-plus-circle"></i> Customize &amp; Add</button>`;
         return;
       }
@@ -1206,7 +1233,7 @@
           <div class="im-section">
             <div class="im-section-title">
               ${escapeHtml(g.name)}
-              <span class="im-section-sub">${g.is_required ? 'Required' : 'Optional'} · Select ${g.min_selection}-${g.max_selection}</span>
+              <span class="im-section-sub">${g.is_required ? 'Required' : 'Optional'} · Select ${g.min_selection}-${g.max_selection} · tap again to remove</span>
             </div>
             ${addons.length > 0 ? addons.map((a, aIdx) => {
               const unavailable = a.is_available === false;
@@ -1243,6 +1270,8 @@
     updateModalFooter();
   }
 
+  // Both single-select (radio-style) and multi-select (checkbox-style)
+  // add-ons can now be tapped again to deselect them.
   function toggleModalAddon(groupIdx, addonIdx, isSingle) {
     if (!modalState) return;
     const group = modalState.groups[groupIdx];
@@ -1250,8 +1279,12 @@
     const maxSel = Number(group.max_selection) || 1;
 
     if (isSingle) {
-      set.clear();
-      set.add(addonIdx);
+      if (set.has(addonIdx)) {
+        set.delete(addonIdx);
+      } else {
+        set.clear();
+        set.add(addonIdx);
+      }
     } else {
       if (set.has(addonIdx)) {
         set.delete(addonIdx);
@@ -1328,6 +1361,9 @@
       });
     });
 
+    // Key format is always "id|SIZE|addonParts" — matches the plain
+    // "Add" button's key exactly when there are no sizes/add-ons, so the
+    // same item never ends up split across two cart lines.
     const key = `${item.id}|${sizeLabel}|${addonKeyParts.join(',')}`;
     const unitPrice = computeModalUnitPrice();
     const nameParts = [item.name];
