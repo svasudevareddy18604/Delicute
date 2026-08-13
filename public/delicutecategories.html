@@ -316,7 +316,7 @@
     background: #FFFFFF;
     width: 100%;
     max-width: 480px;
-    max-height: 85vh;
+    max-height: 88vh;
     overflow-y: auto;
     border-radius: 22px 22px 0 0;
     box-shadow: 0 -10px 34px rgba(75, 46, 131, 0.32);
@@ -325,7 +325,7 @@
   }
   @media (min-width: 769px) {
     .sheet-overlay { align-items: center; }
-    .sheet-box { border-radius: 18px; max-height: 78vh; }
+    .sheet-box { border-radius: 18px; max-height: 82vh; }
   }
 
   .sheet-header {
@@ -381,6 +381,30 @@
   .addon-info-unavailable .addon-info-price::after { content: ' (unavailable)'; font-weight: 500; font-size: 0.68rem; }
   .addon-info-empty { text-align: center; color: var(--muted); font-size: 0.85rem; padding: 1rem 0; }
 
+  /* ---------- Delivery address block (matches viewmenu page) ---------- */
+  .address-block { margin-bottom: 1rem; }
+  .address-block label {
+    display: flex; align-items: center; gap: 0.4rem;
+    font-size: 0.78rem; font-weight: 700; color: var(--primary-purple-dark);
+    margin-bottom: 0.45rem; text-transform: uppercase; letter-spacing: 0.03em;
+  }
+  .address-block textarea {
+    width: 100%;
+    min-height: 68px;
+    resize: vertical;
+    border: 1.5px solid var(--lilac);
+    border-radius: 10px;
+    padding: 0.6rem 0.7rem;
+    font-family: Arial, sans-serif;
+    font-size: 0.85rem;
+    color: var(--dark);
+    background: var(--input-bg);
+    outline: none;
+    transition: border-color 0.2s ease;
+  }
+  .address-block textarea:focus { border-color: var(--primary-purple); }
+  .address-block .address-hint { font-size: 0.66rem; color: var(--muted); margin-top: 0.35rem; display: flex; align-items: center; gap: 0.3rem; }
+
   /* cart modal specific */
   .cart-item-row {
     display: flex;
@@ -408,6 +432,18 @@
     font-weight: 800; font-size: 1rem; color: var(--dark); margin-bottom: 0.7rem;
   }
   .cart-total-line span:last-child { color: var(--primary-purple); }
+  .cart-copy-note {
+    font-size: 0.72rem;
+    color: var(--muted);
+    text-align: center;
+    margin-bottom: 0.6rem;
+    font-family: Arial, sans-serif;
+    line-height: 1.35;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.35rem;
+  }
   .copy-order-btn {
     width: 100%;
     background: linear-gradient(45deg, #ffa726, #ffca28);
@@ -425,31 +461,71 @@
   }
   .copy-order-btn:active { transform: scale(0.98); }
 
-  /* ---------- Floating cart bar ---------- */
+  /* ---------- Floating cart bar (bigger, neater, animated) ---------- */
   .cart-bar {
     position: fixed;
     left: 50%;
-    bottom: 14px;
+    bottom: 16px;
     transform: translateX(-50%);
-    width: min(94%, 460px);
-    background: linear-gradient(90deg, var(--primary-purple-dark), var(--primary-purple));
+    width: min(95%, 500px);
+    background: linear-gradient(90deg, var(--primary-purple-dark), var(--primary-purple), var(--primary-purple-dark));
+    background-size: 200% 100%;
     color: #fff;
     border-radius: 50px;
-    padding: 0.75rem 1.1rem;
+    padding: 1rem 1.35rem;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    box-shadow: 0 8px 22px rgba(75, 46, 131, 0.4);
+    box-shadow: 0 10px 30px rgba(75, 46, 131, 0.45), 0 0 0 2px rgba(255,255,255,0.10) inset;
     cursor: pointer;
     z-index: 2500;
     font-family: Arial, sans-serif;
-    font-weight: 700;
-    font-size: 0.85rem;
-    transition: transform 0.25s ease, opacity 0.25s ease;
+    font-weight: 800;
+    font-size: 0.92rem;
+    transition: transform 0.28s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.25s ease;
+    animation: cartBarGradientMove 3.5s ease infinite;
   }
-  .cart-bar.hidden { transform: translateX(-50%) translateY(120px); opacity: 0; pointer-events: none; }
-  .cart-bar i { margin-right: 0.35rem; }
-  .cart-bar-cta { display: flex; align-items: center; gap: 0.35rem; color: var(--gold-soft); }
+  .cart-bar.hidden { transform: translateX(-50%) translateY(130px); opacity: 0; pointer-events: none; }
+  .cart-bar:not(.hidden) { animation: cartBarGradientMove 3.5s ease infinite, cartBarPopIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1); }
+  .cart-bar:active { transform: translateX(-50%) scale(0.97); }
+  .cart-bar-info { display: flex; align-items: center; gap: 0.5rem; }
+  .cart-bar-info > i.fa-shopping-cart {
+    font-size: 1.1rem;
+    animation: cartBagBounce 1.8s ease-in-out infinite;
+  }
+  .cart-bar-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 22px;
+    height: 22px;
+    padding: 0 6px;
+    background: #fff;
+    color: var(--primary-purple-dark);
+    border-radius: 50%;
+    font-size: 0.78rem;
+    font-weight: 800;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+  }
+  .cart-bar-sep { opacity: 0.6; font-weight: 400; }
+  .cart-bar-cta { display: flex; align-items: center; gap: 0.4rem; color: var(--gold-soft); }
+  .cart-bar-cta i { transition: transform 0.25s ease; }
+  .cart-bar:hover .cart-bar-cta i { transform: translateX(4px); }
+
+  @keyframes cartBarGradientMove {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  }
+  @keyframes cartBarPopIn {
+    0% { transform: translateX(-50%) translateY(20px) scale(0.9); opacity: 0; }
+    100% { transform: translateX(-50%) translateY(0) scale(1); opacity: 1; }
+  }
+  @keyframes cartBagBounce {
+    0%, 100% { transform: translateY(0) rotate(0deg); }
+    25% { transform: translateY(-2px) rotate(-6deg); }
+    75% { transform: translateY(-2px) rotate(6deg); }
+  }
 
   /* ---------- Category search ---------- */
   .search-bar {
@@ -597,12 +673,22 @@
         <h3>Your Order</h3>
         <button class="sheet-close" onclick="closeCartModal()"><i class="fas fa-times"></i></button>
       </div>
-      <div class="sheet-body" id="cartModalBody" style="padding-bottom: 0;"></div>
+      <div class="sheet-body">
+        <div class="address-block">
+          <label><i class="fas fa-map-marker-alt"></i> Delivery Address</label>
+          <textarea id="addressInput" placeholder="Type your delivery address here (house no., street, landmark)..."></textarea>
+          <div class="address-hint"><i class="fas fa-lock"></i> Not saved — only added to your copied WhatsApp message.</div>
+        </div>
+        <div id="cartModalBody"></div>
+      </div>
       <div class="cart-footer">
         <div class="cart-total-line">
           <span>Total</span>
           <span id="cartModalTotal">₹0</span>
         </div>
+        <p class="cart-copy-note">
+          <i class="fas fa-info-circle"></i> This only copies your order — please paste it in the respective Delicute WhatsApp group. Orders can't be placed directly here.
+        </p>
         <button class="copy-order-btn" onclick="copyOrder()">
           <i class="fas fa-copy"></i> Copy Order for WhatsApp
         </button>
@@ -612,7 +698,13 @@
 
   <!-- Floating cart bar -->
   <div id="cartBar" class="cart-bar hidden" onclick="openCartModal()">
-    <span><i class="fas fa-shopping-cart"></i><span id="cartBarCount">0</span> items · <span id="cartBarTotal">₹0</span></span>
+    <span class="cart-bar-info">
+      <i class="fas fa-shopping-cart"></i>
+      <span class="cart-bar-badge" id="cartBarCount">0</span>
+      <span class="cart-bar-sep">items</span>
+      <span class="cart-bar-sep">·</span>
+      <span id="cartBarTotal">₹0</span>
+    </span>
     <span class="cart-bar-cta">View Order <i class="fas fa-arrow-right"></i></span>
   </div>
 
@@ -985,6 +1077,7 @@
   const cartModalBody = document.getElementById('cartModalBody');
   const cartModalTotal = document.getElementById('cartModalTotal');
   const cartBar = document.getElementById('cartBar');
+  const addressInput = document.getElementById('addressInput');
 
   function getCart() {
     try { return JSON.parse(localStorage.getItem(CART_KEY)) || {}; }
@@ -1092,16 +1185,25 @@
     if (e.target === cartOverlay) closeCartModal();
   });
 
+  /* ===== WhatsApp copy: ITEMS + ADDRESS ONLY (no price, no total) ===== */
   function copyOrder() {
     const cart = getCart();
     const items = Object.values(cart);
-    if (items.length === 0) return;
+    if (items.length === 0) {
+      showToast('Your cart is empty', 'fa-exclamation-circle');
+      return;
+    }
 
-    let text = "🍽️ *DELICUTE ORDER*\n\n";
+    const address = (addressInput?.value || '').trim();
+
+    let text = "";
     items.forEach((it, i) => {
-      text += `${i + 1}. ${it.name} x${it.qty} — ₹${(it.price * it.qty).toFixed(0)}\n`;
+      text += `${i + 1}. ${it.name} x${it.qty}\n`;
     });
-    text += `\n💰 *Total: ₹${cartTotal(cart).toFixed(0)}*`;
+
+    if (address) {
+      text += `\n📍 Delivery Address:\n${address}`;
+    }
 
     const done = () => showToast('Order copied! Paste it in WhatsApp', 'fa-copy');
 
