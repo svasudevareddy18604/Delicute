@@ -267,6 +267,151 @@
     50% { transform: scale(1.25) rotate(15deg); opacity: 1; }
   }
 
+  /* =====================================================
+     RESTAURANT STATUS BANNER (open / closed + why)
+     Driven by GET /api/restaurant-status
+     ===================================================== */
+  .rs-wrap {
+    max-width: 1400px;
+    margin: 0.7rem auto 0;
+    padding: 0 0.6rem;
+  }
+  .rs-wrap[hidden] { display: none; }
+
+  .rs-banner {
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    align-items: flex-start;
+    gap: 0.9rem;
+    padding: 1rem 1.1rem;
+    border-radius: 16px;
+    color: #FFFFFF;
+    font-family: Arial, sans-serif;
+    box-shadow: 0 8px 22px rgba(75, 46, 131, 0.22);
+    animation: rsIn 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+    transition: background 0.4s ease;
+  }
+  .rs-banner.open   { background: linear-gradient(135deg, #1B8A5A 0%, #2EA56E 55%, #3CC48A 100%); }
+  .rs-banner.closed { background: linear-gradient(135deg, #7B1F33 0%, #A5332F 55%, #C0392B 100%); }
+
+  /* soft light sweep + decorative circle */
+  .rs-banner::before {
+    content: '';
+    position: absolute;
+    top: 0; left: -60%;
+    width: 50%; height: 100%;
+    background: linear-gradient(120deg, transparent, rgba(255, 255, 255, 0.22), transparent);
+    animation: shineSweep 4.5s ease-in-out infinite;
+    pointer-events: none;
+  }
+  .rs-banner::after {
+    content: '';
+    position: absolute;
+    right: -34px; top: -44px;
+    width: 140px; height: 140px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.08);
+    pointer-events: none;
+  }
+
+  .rs-icon {
+    position: relative;
+    z-index: 1;
+    width: 50px; height: 50px;
+    flex-shrink: 0;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.2);
+    border: 1.5px solid rgba(255, 255, 255, 0.45);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.3rem;
+  }
+  .rs-main { position: relative; z-index: 1; flex: 1; min-width: 0; }
+
+  .rs-title {
+    font-family: 'Playfair Display', serif;
+    font-weight: 800;
+    font-size: clamp(1.1rem, 3.6vw, 1.4rem);
+    line-height: 1.2;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.18);
+  }
+  .rs-dot {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    background: #FFFFFF;
+    flex-shrink: 0;
+  }
+  .rs-banner.open .rs-dot { animation: rsPulse 1.8s ease-out infinite; }
+  .rs-banner.closed .rs-dot { opacity: 0.8; }
+
+  .rs-sub {
+    font-size: clamp(0.8rem, 2.2vw, 0.9rem);
+    opacity: 0.96;
+    margin-top: 0.2rem;
+    line-height: 1.4;
+  }
+
+  .rs-chips { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-top: 0.65rem; }
+  .rs-chips:empty { display: none; }
+  .rs-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    background: rgba(255, 255, 255, 0.18);
+    border: 1px solid rgba(255, 255, 255, 0.32);
+    border-radius: 20px;
+    padding: 0.28rem 0.7rem;
+    font-size: 0.74rem;
+    font-weight: 700;
+  }
+
+  .rs-msg {
+    margin-top: 0.65rem;
+    background: rgba(0, 0, 0, 0.2);
+    border-left: 3px solid var(--gold);
+    border-radius: 8px;
+    padding: 0.55rem 0.75rem;
+    font-size: 0.82rem;
+    line-height: 1.4;
+    font-style: italic;
+    word-break: break-word;
+  }
+  .rs-msg:empty { display: none; }
+
+  @keyframes rsIn { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: translateY(0); } }
+  @keyframes rsPulse {
+    0%   { box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.75); }
+    70%  { box-shadow: 0 0 0 9px rgba(255, 255, 255, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(255, 255, 255, 0); }
+  }
+
+  /* Small "closed" note shown inside the cart above the order form */
+  .cart-closed-note {
+    display: flex;
+    gap: 0.5rem;
+    align-items: flex-start;
+    margin: 0.6rem 0 0.4rem;
+    padding: 0.6rem 0.75rem;
+    border-radius: 8px;
+    background: #FDECEA;
+    border: 1px solid #F3B7B0;
+    color: #8F2E24;
+    font-size: 0.78rem;
+    font-weight: 600;
+    line-height: 1.35;
+  }
+  .cart-closed-note[hidden] { display: none; }
+  .cart-closed-note i { margin-top: 0.1rem; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .rs-banner, .rs-banner::before, .rs-dot { animation: none !important; }
+  }
+
   .container {
     max-width: 1400px;
     margin: 0.5rem auto;
@@ -751,6 +896,15 @@
     box-shadow: 0 2px 5px rgba(216, 183, 210, 0.1);
   }
   .order-form button:hover { background: linear-gradient(45deg, var(--lilac), var(--primary-purple-dark)); }
+  /* Place Order button while the restaurant is closed (or an order is being sent) */
+  .order-form button:disabled,
+  .order-form button:disabled:hover,
+  .order-form button.is-closed {
+    background: #B9B3C4;
+    color: #FFFFFF;
+    cursor: not-allowed;
+    box-shadow: none;
+  }
 
   .table-detect-banner {
     font-family: Arial, sans-serif;
@@ -773,7 +927,7 @@
 
   #toast {
     visibility: hidden;
-    min-width: 180px; max-width: 90%;
+    min-width: 180px; max-width: min(92vw, 340px);
     background: linear-gradient(135deg, var(--primary-purple), var(--lilac));
     color: #FFFFFF; text-align: center;
     border-radius: 8px; padding: 0.75rem 1rem;
@@ -781,6 +935,7 @@
     top: 50px; right: 10px;
     font-size: clamp(0.75rem, 1.8vw, 0.85rem);
     font-weight: 600;
+    line-height: 1.4;
     box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
     font-family: Arial, sans-serif;
     display: flex;
@@ -970,6 +1125,7 @@
 
   @media (min-width: 769px) {
     .container { padding: 0 0.8rem; }
+    .rs-wrap { padding: 0 0.8rem; }
     .category-row { flex-wrap: wrap; gap: 0.8rem; overflow-x: hidden; justify-content: flex-start; }
     .card { max-width: 190px; min-height: 300px; }
     .card img { height: 160px; }
@@ -990,6 +1146,9 @@
     header h1 { font-size: 1rem; }
     header .tagline { font-size: 0.6rem; }
     .container { margin: 0.4rem; padding: 0 0.3rem; }
+    .rs-wrap { padding: 0 0.4rem; }
+    .rs-banner { padding: 0.85rem 0.8rem; gap: 0.65rem; }
+    .rs-icon { width: 42px; height: 42px; font-size: 1.1rem; }
     h2 { font-size: 1.1rem; }
     h2::after { width: 60px; }
     .search-bar input { font-size: 0.8rem; padding: 0.5rem; }
@@ -1047,10 +1206,24 @@
         <h1>DELICUTE</h1>
         <span class="tagline">Every Bite Tells A Story</span>
       </div>
-     
-      </div>
     </div>
   </header>
+
+  <!-- ================= RESTAURANT STATUS BANNER =================
+       Hidden until the first successful response from /api/restaurant-status.
+       If that request fails, it stays hidden (customers can still browse/order;
+       the server enforces open/closed on its own). -->
+  <div class="rs-wrap" id="rsWrap" hidden>
+    <section class="rs-banner open" id="rsBanner" aria-live="polite">
+      <div class="rs-icon"><i class="fas fa-utensils" id="rsIcon"></i></div>
+      <div class="rs-main">
+        <div class="rs-title"><span class="rs-dot"></span><span id="rsTitle">We're open!</span></div>
+        <p class="rs-sub" id="rsSub"></p>
+        <div class="rs-chips" id="rsChips"></div>
+        <div class="rs-msg" id="rsMsg"></div>
+      </div>
+    </section>
+  </div>
 
   <div class="container">
     <h2>OUR DELICUTE SPECIALS</h2>
@@ -1090,12 +1263,19 @@
       <div class="line"><span>Discount:</span><span id="discount">₹0</span></div>
       <div class="line bold"><span>Total:</span><span id="total">₹0</span></div>
     </div>
+
+    <!-- Shown only while the restaurant is closed -->
+    <div class="cart-closed-note" id="cartClosedNote" hidden>
+      <i class="fas fa-lock"></i>
+      <span id="cartClosedText"></span>
+    </div>
+
     <div class="order-form">
       <input type="text" id="custName" placeholder="Your Name">
       <div id="tableDetectBanner"></div>
       <input type="number" id="tableNum" placeholder="Table Number" min="1">
       <textarea id="instructions" placeholder="Instructions"></textarea>
-      <button onclick="placeOrder()">Place Order</button>
+      <button id="placeOrderBtn" onclick="placeOrder()">Place Order</button>
     </div>
   </div>
 
@@ -1220,5 +1400,188 @@
        but both only run their logic after window 'load' so order here is safe -->
   <script src="menu.js"></script>
   <script src="cart.js"></script>
+
+  <!-- Socket.IO client (served automatically by your server). Used only to
+       get an instant push when an admin saves a new restaurant status. -->
+  <script src="/socket.io/socket.io.js"></script>
+
+  <!-- ================================================================
+       RESTAURANT STATUS
+       Reads GET /api/restaurant-status and expects:
+       { success, data: { accepting_orders, reason ("manual" | "closure" | "hours" | null),
+                          opening_time, closing_time, closure_from, closure_to,
+                          reopens_on, closed_message } }
+       - Updates the banner, the Place Order button and the cart note.
+       - Refreshes instantly on the "restaurant-status-changed" socket event,
+         every 30 seconds (hours-based open/close needs no admin action),
+         and whenever the tab becomes visible again.
+       - Fails open: if the request fails, the last known state stays.
+       ================================================================ -->
+  <script>
+    (function () {
+      const $ = (id) => document.getElementById(id);
+      const wrap = $('rsWrap'), banner = $('rsBanner'), icon = $('rsIcon');
+      const titleEl = $('rsTitle'), subEl = $('rsSub'), chipsEl = $('rsChips'), msgEl = $('rsMsg');
+      const cartNote = $('cartClosedNote'), cartNoteText = $('cartClosedText');
+
+      const OPEN_BTN_TEXT = 'Place Order';
+      const CLOSED_BTN_TEXT = 'Closed · Ordering is paused';
+
+      /* "HH:MM" -> "9:00 AM" */
+      function fT(t) {
+        if (!t) return '';
+        const parts = String(t).split(':');
+        const h = Number(parts[0]);
+        if (Number.isNaN(h)) return '';
+        return (h % 12 || 12) + ':' + (parts[1] || '00').slice(0, 2) + ' ' + (h >= 12 ? 'PM' : 'AM');
+      }
+
+      /* "YYYY-MM-DD" -> "Fri, 3 Oct" */
+      function fD(s) {
+        if (!s) return '';
+        const d = new Date(s + 'T00:00:00');
+        if (isNaN(d)) return '';
+        return d.toLocaleDateString('en-IN', { weekday: 'short', day: 'numeric', month: 'short' });
+      }
+
+      function todayStr() {
+        const d = new Date();
+        const p = (n) => String(n).padStart(2, '0');
+        return d.getFullYear() + '-' + p(d.getMonth() + 1) + '-' + p(d.getDate());
+      }
+
+      function rangeText(from, to) {
+        if (!from || !to) return '';
+        return from === to ? fD(from) : fD(from) + ' – ' + fD(to);
+      }
+
+      /* Build a chip with DOM APIs (no innerHTML, so admin text can't inject markup) */
+      function chip(iconClass, text) {
+        const el = document.createElement('span');
+        el.className = 'rs-chip';
+        const i = document.createElement('i');
+        i.className = 'fas ' + iconClass;
+        el.appendChild(i);
+        el.appendChild(document.createTextNode(' ' + text));
+        return el;
+      }
+
+      /* Disable / enable the Place Order button (never touches it mid-submit) */
+      function applyOrderButton(open) {
+        const btn = $('placeOrderBtn');
+        if (!btn) return;
+        if (typeof orderSubmitting !== 'undefined' && orderSubmitting) return;
+
+        if (open) {
+          if (btn.classList.contains('is-closed')) {
+            btn.classList.remove('is-closed');
+            btn.disabled = false;
+            btn.textContent = OPEN_BTN_TEXT;
+          }
+        } else {
+          btn.classList.add('is-closed');
+          btn.disabled = true;
+          btn.textContent = CLOSED_BTN_TEXT;
+        }
+      }
+
+      function render(s) {
+        if (!s) return;
+
+        const open = s.accepting_orders !== false;
+        const reason = s.reason || null;
+        const hasHours = !!(s.opening_time && s.closing_time);
+        const hoursTxt = hasHours ? fT(s.opening_time) + ' – ' + fT(s.closing_time) : '';
+        const chips = [];
+
+        let iconClass, title, sub, cartText = '';
+
+        if (open) {
+          iconClass = 'fa-utensils';
+          title = "We're open!";
+          sub = hasHours
+            ? 'Serving until ' + fT(s.closing_time) + '. Order right from your table.'
+            : 'Order right from your table.';
+          if (hasHours) chips.push(['fa-clock', 'Open ' + hoursTxt]);
+          // Heads-up about an upcoming scheduled closure
+          if (s.closure_from && s.closure_to && s.closure_from > todayStr()) {
+            chips.push(['fa-calendar-days', 'Closed ' + rangeText(s.closure_from, s.closure_to)]);
+          }
+        } else if (reason === 'closure') {
+          iconClass = 'fa-umbrella-beach';
+          title = "We're on a short break";
+          sub = s.reopens_on ? "We'll be back on " + fD(s.reopens_on) + '.' : "We'll be back soon.";
+          chips.push(['fa-circle-info', 'Scheduled break']);
+          if (s.closure_from && s.closure_to) chips.push(['fa-calendar-days', rangeText(s.closure_from, s.closure_to)]);
+          if (hasHours) chips.push(['fa-clock', 'Usual hours ' + hoursTxt]);
+          cartText = s.reopens_on ? 'Ordering opens on ' + fD(s.reopens_on) + '.' : 'Ordering will open again soon.';
+        } else if (reason === 'hours') {
+          iconClass = 'fa-moon';
+          title = "We're closed for now";
+          sub = s.opening_time ? 'We open at ' + fT(s.opening_time) + '.' : 'Please check back soon.';
+          chips.push(['fa-circle-info', 'Outside opening hours']);
+          if (hasHours) chips.push(['fa-clock', 'Hours ' + hoursTxt]);
+          cartText = s.opening_time ? 'Ordering opens at ' + fT(s.opening_time) + '.' : 'Ordering will open again soon.';
+        } else {
+          iconClass = 'fa-store-slash';
+          title = "We're closed right now";
+          sub = "We're not taking orders at the moment. Please check back soon.";
+          chips.push(['fa-circle-info', 'Temporarily closed']);
+          if (hasHours) chips.push(['fa-clock', 'Usual hours ' + hoursTxt]);
+          cartText = 'Ordering is paused for now.';
+        }
+
+        // Banner
+        banner.classList.toggle('open', open);
+        banner.classList.toggle('closed', !open);
+        icon.className = 'fas ' + iconClass;
+        titleEl.textContent = title;
+        subEl.textContent = sub;
+        chipsEl.textContent = '';
+        chips.forEach((c) => chipsEl.appendChild(chip(c[0], c[1])));
+        msgEl.textContent = !open && s.closed_message ? s.closed_message : '';
+        wrap.hidden = false;
+
+        // Cart note + Place Order button
+        if (open) {
+          cartNote.hidden = true;
+        } else {
+          cartNoteText.textContent = "We're closed. You can still build your cart. " + cartText;
+          cartNote.hidden = false;
+        }
+        applyOrderButton(open);
+      }
+
+      let loading = false;
+      async function load() {
+        if (loading) return;
+        loading = true;
+        try {
+          const res = await fetch('/api/restaurant-status', { cache: 'no-store' });
+          if (!res.ok) throw new Error('HTTP ' + res.status);
+          const json = await res.json();
+          render(json.data || json);
+        } catch (err) {
+          console.error('Restaurant status load failed:', err);
+        } finally {
+          loading = false;
+        }
+      }
+
+      document.addEventListener('DOMContentLoaded', load);
+      setInterval(load, 30000);
+      document.addEventListener('visibilitychange', () => { if (!document.hidden) load(); });
+
+      // Instant update when an admin saves a change
+      if (typeof io === 'function') {
+        try {
+          const socket = io();
+          socket.on('restaurant-status-changed', load);
+        } catch (err) {
+          console.error('Status socket error:', err);
+        }
+      }
+    })();
+  </script>
 </body>
 </html>
