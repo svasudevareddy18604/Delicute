@@ -865,7 +865,7 @@
       </div>
       <div class="sheet-body">
         <div class="address-block">
-          <label><i class="fas fa-map-marker-alt"></i> Delivery Address</label>
+          <label>Address</label>
           <textarea id="addressInput" placeholder="Type your delivery address here (house no., street, landmark)..."></textarea>
           <div class="address-hint"><i class="fas fa-lock"></i> Not saved — only added to your copied WhatsApp message.</div>
         </div>
@@ -1289,7 +1289,15 @@
     if (e.target === cartOverlay) closeCartModal();
   });
 
-  /* ===== WhatsApp copy: ITEMS + ADDRESS ONLY (no price, no total) ===== */
+  /* ===== WhatsApp copy =====
+     Format (items + address only, no prices, no total, no numbering):
+
+       Fried Rice * 1
+       Chicken Fried Rice * 2
+       Address
+       Vbhc
+
+     The "Address" lines are left out if no address is typed. */
   function copyOrder() {
     // Backup guard: the button is already disabled while closed, but this
     // also blocks any other way of triggering the function.
@@ -1307,14 +1315,12 @@
 
     const address = (addressInput?.value || '').trim();
 
-    let text = "";
-    items.forEach((it, i) => {
-      text += `${i + 1}. ${it.name} x${it.qty}\n`;
-    });
-
+    const lines = items.map(it => `${it.name} * ${it.qty}`);
     if (address) {
-      text += `\n📍 Delivery Address:\n${address}`;
+      lines.push('Address');
+      lines.push(address);
     }
+    const text = lines.join('\n');
 
     const done = () => showToast('Order copied! Paste it in WhatsApp', 'fa-copy');
 
