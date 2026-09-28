@@ -1,0 +1,800 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+  <title>Delicute | Every Bite Tells a Story</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Great+Vibes&family=Cormorant+Garamond:wght@500;600&display=swap" rel="stylesheet" />
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html, body {
+      width: 100%;
+      overflow-x: hidden;
+    }
+
+    :root {
+      --plum: #5c3a52;
+      --mauve: #8e44ad;
+      --gold: #d9a94c;
+      --gold-light: #f2d49b;
+      --cream: #fbf6ee;
+      --ink: #2a1f26;
+      --border: #ecdfe8;
+      --error: #b0413e;
+    }
+
+    body {
+      font-family: 'Cormorant Garamond', serif;
+      background: linear-gradient(135deg, #d8b7d2 0%, #e0e7fa 100%);
+      color: var(--ink);
+      line-height: 1.6;
+      min-height: 100vh;
+    }
+
+    /* ---------- Hero ---------- */
+    .hero {
+      width: 100%;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 2rem 1rem;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero-bg {
+      position: absolute;
+      inset: 0;
+      z-index: 0;
+      background-image: url('assests/wallimage.png');
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      transform: scale(1.03);
+      animation: bgZoom 18s ease-in-out infinite alternate;
+    }
+
+    @keyframes bgZoom {
+      0%   { transform: scale(1.03); }
+      100% { transform: scale(1.12); }
+    }
+
+    .hero-overlay {
+      position: absolute;
+      inset: 0;
+      z-index: 0;
+      background:
+        radial-gradient(circle at 15% 20%, rgba(217, 169, 76, 0.22), transparent 45%),
+        radial-gradient(circle at 85% 80%, rgba(142, 68, 173, 0.35), transparent 50%),
+        linear-gradient(180deg, rgba(42, 31, 38, 0.55) 0%, rgba(42, 31, 38, 0.72) 55%, rgba(42, 31, 38, 0.85) 100%);
+    }
+
+    .hero::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.12), transparent);
+      animation: shine 5s infinite;
+      z-index: 1;
+      pointer-events: none;
+    }
+
+    .hero::after {
+      content: '';
+      position: absolute;
+      top: 14px; left: 14px; right: 14px; bottom: 14px;
+      border: 1px solid rgba(217, 169, 76, 0.55);
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    .corner-flourish {
+      position: absolute;
+      width: 110px;
+      height: 110px;
+      opacity: 0.4;
+      z-index: 1;
+      pointer-events: none;
+    }
+    .corner-flourish.tl { top: 6px; left: 6px; }
+    .corner-flourish.br { bottom: 6px; right: 6px; transform: rotate(180deg); }
+
+    .sparkle {
+      position: absolute;
+      font-size: 1.1rem;
+      opacity: 0.65;
+      z-index: 1;
+      color: var(--gold-light);
+      animation: floatSparkle 6s ease-in-out infinite;
+      pointer-events: none;
+    }
+    .sparkle.s1 { top: 12%; left: 10%; animation-delay: 0s; }
+    .sparkle.s2 { top: 22%; right: 9%; animation-delay: 1.5s; }
+    .sparkle.s3 { bottom: 18%; left: 8%; animation-delay: 3s; }
+    .sparkle.s4 { bottom: 10%; right: 12%; animation-delay: 2s; }
+
+    @keyframes floatSparkle {
+      0%, 100% { transform: translateY(0) rotate(0deg); opacity: 0.45; }
+      50%      { transform: translateY(-12px) rotate(15deg); opacity: 0.85; }
+    }
+
+    .hero-content {
+      position: relative;
+      z-index: 2;
+      width: 100%;
+      max-width: 640px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .hero img.logo {
+      width: 170px;
+      max-width: 45%;
+      margin-bottom: 1.1rem;
+      filter: drop-shadow(0 4px 14px rgba(0, 0, 0, 0.45));
+      opacity: 0;
+      will-change: transform, opacity;
+      animation: logoRollIn 2.4s cubic-bezier(0.22, 0.61, 0.36, 1) forwards;
+    }
+
+    @keyframes logoRollIn {
+      0% {
+        opacity: 0;
+        transform: translateX(-220px) rotate(-540deg) scale(0.7);
+      }
+      60% {
+        opacity: 1;
+        transform: translateX(12px) rotate(20deg) scale(1.05);
+      }
+      80% {
+        transform: translateX(-4px) rotate(-8deg) scale(0.98);
+      }
+      100% {
+        opacity: 1;
+        transform: translateX(0) rotate(0deg) scale(1);
+      }
+    }
+
+    .eyebrow {
+      letter-spacing: 4px;
+      text-transform: uppercase;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--gold-light);
+      margin-bottom: 0.5rem;
+      opacity: 0;
+      animation: fadeInUp 0.8s ease-out 2.2s forwards;
+    }
+
+    .hero h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(2rem, 7vw, 3.5rem);
+      font-weight: 800;
+      margin-bottom: 0.5rem;
+      color: #ffffff;
+      text-shadow: 0 3px 14px rgba(0, 0, 0, 0.55), 0 0 24px rgba(217, 169, 76, 0.35);
+      opacity: 0;
+      transform: translateY(20px);
+      animation: fadeInUp 0.8s ease-out 2.3s forwards;
+      letter-spacing: 0.5px;
+    }
+
+    .hero p.tagline {
+      font-size: clamp(1rem, 3.6vw, 1.3rem);
+      font-style: italic;
+      font-weight: 600;
+      color: #f0e6f7;
+      text-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+      margin-bottom: 1.6rem;
+      max-width: 92%;
+      opacity: 0;
+      transform: translateY(20px);
+      animation: fadeInUp 0.8s ease-out 2.5s forwards;
+    }
+
+    /* Dine-out badge — purely informational, replaces the old
+       table-detected badge. No click behavior, no popup, just a
+       label so the customer knows which flow they're in. */
+    .mode-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      position: relative;
+      z-index: 2;
+      font-family: 'Playfair Display', serif;
+      font-weight: 700;
+      font-size: clamp(0.8rem, 3vw, 0.95rem);
+      color: #fff;
+      background: linear-gradient(45deg, var(--mauve), var(--plum));
+      padding: 0.5rem 1.1rem;
+      border-radius: 30px;
+      margin-bottom: 1.2rem;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+      opacity: 0;
+      transform: translateY(20px);
+      animation: fadeInUp 0.8s ease-out 2.55s forwards;
+    }
+
+    .anniversary-note {
+      position: relative;
+      z-index: 2;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.25rem;
+      margin: 0 auto 1.8rem;
+      opacity: 0;
+      transform: translateY(20px);
+      animation: fadeInUp 0.8s ease-out 2.6s forwards;
+    }
+
+    .anniversary-note .script {
+      font-family: 'Great Vibes', cursive;
+      font-size: clamp(2rem, 8vw, 2.7rem);
+      color: var(--gold);
+      text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+      line-height: 1.15;
+    }
+
+    .anniversary-note .sub {
+      font-size: clamp(0.85rem, 3vw, 1rem);
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      font-weight: 600;
+      color: #fff;
+      text-shadow: 0 1px 6px rgba(0, 0, 0, 0.5);
+    }
+
+    .anniversary-note .note-divider {
+      width: 46px;
+      height: 2px;
+      margin: 0.35rem 0 0.1rem;
+      background: linear-gradient(90deg, transparent, var(--gold), transparent);
+    }
+
+    /* Small badge shown only while test mode is active, so it's obvious
+       at a glance you're not creating real orders. */
+    .test-mode-badge {
+      display: none;
+      align-items: center;
+      gap: 0.35rem;
+      position: fixed;
+      top: 10px;
+      right: 10px;
+      z-index: 50;
+      font-family: Arial, sans-serif;
+      font-weight: 700;
+      font-size: 0.7rem;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      color: #1a1a1a;
+      background: #ffca28;
+      padding: 0.35rem 0.7rem;
+      border-radius: 20px;
+      box-shadow: 0 3px 10px rgba(0,0,0,0.3);
+    }
+    .test-mode-badge.show { display: inline-flex; }
+
+    .hero .btn {
+      position: relative;
+      z-index: 2;
+      background: linear-gradient(45deg, #ffa726, #ffca28);
+      color: #1a1a1a;
+      padding: 1rem 2.5rem;
+      font-size: clamp(0.95rem, 3.4vw, 1.1rem);
+      font-weight: 700;
+      font-family: 'Playfair Display', serif;
+      border: none;
+      border-radius: 50px;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-block;
+      width: auto;
+      max-width: 100%;
+      transition: all 0.3s ease;
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+      opacity: 0;
+      transform: translateY(20px);
+      animation: fadeInUp 0.8s ease-out 2.8s forwards, pulseGlow 2.4s ease-in-out 3.8s infinite;
+    }
+
+    .hero .btn:hover {
+      background: linear-gradient(45deg, #ffca28, #ffb300);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 26px rgba(0, 0, 0, 0.5);
+    }
+
+    @keyframes pulseGlow {
+      0%, 100% { box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4); }
+      50%      { box-shadow: 0 6px 30px rgba(217, 169, 76, 0.6); }
+    }
+
+    @keyframes shine {
+      0% { left: -100%; }
+      50% { left: 100%; }
+      100% { left: 100%; }
+    }
+
+    @keyframes fadeInUp {
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ---------- Offer Popup ---------- */
+    .offer-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.65);
+      z-index: 999;
+      align-items: center;
+      justify-content: center;
+      padding: 1.5rem;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    .offer-overlay.show {
+      display: flex;
+      opacity: 1;
+    }
+
+    .offer-modal {
+      position: relative;
+      max-width: 420px;
+      width: 100%;
+      background: #fff;
+      border-radius: 18px;
+      overflow: hidden;
+      box-shadow: 0 15px 40px rgba(0, 0, 0, 0.35);
+      transform: scale(0.85);
+      transition: transform 0.3s ease;
+    }
+
+    .offer-overlay.show .offer-modal {
+      transform: scale(1);
+    }
+
+    .offer-carousel {
+      position: relative;
+      width: 100%;
+      overflow: hidden;
+      background: #fff;
+    }
+
+    .offer-track {
+      display: flex;
+      transition: transform 0.35s ease;
+    }
+
+    .offer-slide {
+      flex: 0 0 100%;
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .offer-slide img {
+      display: block;
+      width: 100%;
+      height: auto;
+      max-height: 72vh;
+      object-fit: contain;
+      background: #fff;
+    }
+
+    .offer-slide-caption {
+      padding: 0.9rem 1.1rem 1.1rem;
+      text-align: center;
+      font-family: 'Cormorant Garamond', serif;
+    }
+    .offer-slide-caption .offer-title {
+      font-family: 'Playfair Display', serif;
+      font-weight: 700;
+      font-size: 1.15rem;
+      color: var(--plum);
+      margin-bottom: 0.2rem;
+    }
+    .offer-slide-caption .offer-desc {
+      font-size: 0.95rem;
+      color: #6b5a66;
+      line-height: 1.4;
+    }
+
+    .offer-close {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      background: rgba(0, 0, 0, 0.6);
+      color: #fff;
+      border: none;
+      font-size: 1.3rem;
+      line-height: 1;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.2s ease;
+      z-index: 3;
+    }
+
+    .offer-close:hover {
+      background: rgba(0, 0, 0, 0.85);
+    }
+
+    .offer-timer {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      background: rgba(0, 0, 0, 0.55);
+      color: #fff;
+      font-family: sans-serif;
+      font-size: 0.75rem;
+      padding: 3px 9px;
+      border-radius: 20px;
+      z-index: 3;
+    }
+
+    .offer-nav {
+      position: absolute;
+      top: 40%;
+      transform: translateY(-50%);
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      background: rgba(0, 0, 0, 0.45);
+      color: #fff;
+      border: none;
+      font-size: 1.1rem;
+      line-height: 1;
+      cursor: pointer;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 3;
+      transition: background 0.2s ease;
+    }
+    .offer-nav:hover { background: rgba(0, 0, 0, 0.75); }
+    .offer-nav.prev { left: 10px; }
+    .offer-nav.next { right: 10px; }
+    .offer-carousel.has-multiple .offer-nav { display: flex; }
+
+    .offer-dots {
+      display: none;
+      justify-content: center;
+      gap: 6px;
+      padding: 0.7rem 0 0.9rem;
+      background: #fff;
+    }
+    .offer-carousel.has-multiple + .offer-dots { display: flex; }
+    .offer-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--border);
+      border: none;
+      cursor: pointer;
+      padding: 0;
+      transition: background 0.2s ease, transform 0.2s ease;
+    }
+    .offer-dot.active {
+      background: var(--mauve);
+      transform: scale(1.25);
+    }
+
+    /* ---------- Footer ---------- */
+    .site-footer {
+      width: 100%;
+      background: linear-gradient(135deg, var(--ink) 0%, #3a2a34 100%);
+      color: #f0e6f7;
+      text-align: center;
+      padding: 1.4rem 1rem;
+      position: relative;
+    }
+    .site-footer .footer-divider {
+      width: 70px;
+      height: 2px;
+      margin: 0 auto 0.7rem;
+      background: linear-gradient(90deg, transparent, var(--gold), transparent);
+    }
+    .site-footer p {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(0.8rem, 2.6vw, 0.95rem);
+      letter-spacing: 0.5px;
+      color: #ddc9d6;
+    }
+    .site-footer p span {
+      color: var(--gold-light);
+      font-weight: 600;
+    }
+
+    /* ---------- Responsive ---------- */
+    @media (min-width: 1024px) {
+      .hero-content { max-width: 680px; }
+      .hero-bg { background-attachment: fixed; }
+    }
+
+    @media (max-width: 480px) {
+      .hero { padding: 1.5rem 0.9rem; }
+      .hero img.logo { width: 110px; }
+      .hero .btn { width: 100%; max-width: 300px; padding: 0.85rem 1.5rem; }
+      .corner-flourish { width: 70px; height: 70px; opacity: 0.3; }
+      .sparkle { font-size: 0.9rem; }
+      .hero-bg { background-position: 60% center; }
+      .site-footer { padding: 1.1rem 0.9rem; }
+
+      @keyframes logoRollIn {
+        0% {
+          opacity: 0;
+          transform: translateX(-140px) rotate(-540deg) scale(0.7);
+        }
+        60% {
+          opacity: 1;
+          transform: translateX(10px) rotate(20deg) scale(1.05);
+        }
+        80% {
+          transform: translateX(-3px) rotate(-8deg) scale(0.98);
+        }
+        100% {
+          opacity: 1;
+          transform: translateX(0) rotate(0deg) scale(1);
+        }
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="test-mode-badge" id="testModeBadge">🧪 Test Mode</div>
+
+  <section class="hero">
+
+    <div class="hero-bg"></div>
+    <div class="hero-overlay"></div>
+
+    <svg class="corner-flourish tl" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M5 5 Q40 5 40 40 Q40 5 90 10" stroke="#d9a94c" stroke-width="1.5"/>
+      <circle cx="30" cy="15" r="3" fill="#d9a94c"/>
+      <circle cx="12" cy="30" r="2" fill="#f2d49b"/>
+    </svg>
+    <svg class="corner-flourish br" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M5 5 Q40 5 40 40 Q40 5 90 10" stroke="#d9a94c" stroke-width="1.5"/>
+      <circle cx="30" cy="15" r="3" fill="#d9a94c"/>
+      <circle cx="12" cy="30" r="2" fill="#f2d49b"/>
+    </svg>
+
+    <span class="sparkle s1">✦</span>
+    <span class="sparkle s2">✧</span>
+    <span class="sparkle s3">✦</span>
+    <span class="sparkle s4">✧</span>
+
+    <div class="hero-content">
+      <img class="logo" src="https://i.postimg.cc/W3pgQx9q/DELICUTE-Imgur-1-modified.png" alt="Delicute Logo" />
+      <div class="eyebrow">Every Bite Tells a Story</div>
+      <h1>Welcome to Delicute</h1>
+      <p class="tagline">Where every dish is crafted with love, and every visit becomes a memory.</p>
+
+      <div class="mode-badge">
+        <span>🥡</span>
+        <span>Dine Out / Takeaway</span>
+      </div>
+
+      <div class="anniversary-note">
+        <span class="script">Celebrating 1 Year</span>
+        <div class="note-divider"></div>
+        <span class="sub">Anniversary</span>
+      </div>
+
+      <a href="#" id="exploreBtn" class="btn">Explore Our Menu</a>
+    </div>
+  </section>
+
+  <footer class="site-footer">
+    <div class="footer-divider"></div>
+    <p>&copy; 2025 <span>Delicute</span>. All Rights Reserved.</p>
+  </footer>
+
+  <!-- Offer Popup -->
+  <div class="offer-overlay" id="offerOverlay">
+    <div class="offer-modal">
+      <button class="offer-close" id="offerClose" aria-label="Close">&times;</button>
+      <span class="offer-timer" id="offerTimer">10</span>
+      <div class="offer-carousel" id="offerCarousel">
+        <button class="offer-nav prev" id="offerPrev" aria-label="Previous">&#8249;</button>
+        <div class="offer-track" id="offerTrack"></div>
+        <button class="offer-nav next" id="offerNext" aria-label="Next">&#8250;</button>
+      </div>
+      <div class="offer-dots" id="offerDots"></div>
+    </div>
+  </div>
+
+  <script>
+    const exploreBtn    = document.getElementById('exploreBtn');
+    const offerOverlay  = document.getElementById('offerOverlay');
+    const offerClose    = document.getElementById('offerClose');
+    const offerTimer    = document.getElementById('offerTimer');
+    const offerCarousel = document.getElementById('offerCarousel');
+    const offerTrack    = document.getElementById('offerTrack');
+    const offerDots     = document.getElementById('offerDots');
+    const offerPrev     = document.getElementById('offerPrev');
+    const offerNext     = document.getElementById('offerNext');
+    const testModeBadge = document.getElementById('testModeBadge');
+
+    // Dine-out goes straight to the menu page with an orderType flag —
+    // no table param at all, since there's no table to assign.
+    const MENU_PAGE            = 'customermenu.html';
+    const AUTO_CLOSE_SECS      = 10;
+    const PROMOTIONS_ENDPOINT  = '/api/promotions/active';
+
+    let countdownInterval;
+    let autoCloseTimeout;
+    let activePromotions = [];
+    let currentSlide = 0;
+
+    /* =========================================================
+       TEST MODE — controlled server-side by the superadmin, same
+       as the dine-in page. When ON, orders get tagged is_test=1
+       so they skip email + admin/kitchen dashboard.
+       ========================================================= */
+    window.DELICUTE_TEST_MODE = false; // default OFF until server responds
+
+    async function syncTestMode() {
+      try {
+        const res = await fetch('/api/test-mode', { cache: 'no-store' });
+        const data = await res.json();
+        window.DELICUTE_TEST_MODE = !!data.enabled;
+        testModeBadge.classList.toggle('show', window.DELICUTE_TEST_MODE);
+      } catch (err) {
+        console.error('Test Mode Sync Error:', err);
+        window.DELICUTE_TEST_MODE = false; // fail safe: never silently test-tag real orders
+        testModeBadge.classList.remove('show');
+      }
+    }
+    syncTestMode();
+
+    /* =========================================================
+       PERSISTENT ANONYMOUS SESSION
+       Kept separate from the dine-in session id so a customer who
+       has an active dine-in cart on the same device doesn't get it
+       mixed up with a dine-out order (and vice versa).
+       ========================================================= */
+    let sessionId = localStorage.getItem('delicute_dineout_session_id');
+    if (!sessionId) {
+      sessionId = crypto.randomUUID();
+      localStorage.setItem('delicute_dineout_session_id', sessionId);
+    }
+
+    /* =========================================================
+       NAVIGATE TO MENU
+       No table to resolve here — dine-out orders aren't tied to a
+       physical table, so we go straight through once a session id
+       exists.
+       ========================================================= */
+    function goToMenu() {
+      window.location.href = `${MENU_PAGE}?orderType=dineout&session=${encodeURIComponent(sessionId)}`;
+    }
+
+    /* =========================================================
+       Active promotions — identical behavior to the dine-in page.
+       ========================================================= */
+    async function loadActivePromotions() {
+      try {
+        const response = await fetch(PROMOTIONS_ENDPOINT, { cache: 'no-store' });
+        if (!response.ok) throw new Error('Request failed');
+        const { success, data } = await response.json();
+        if (success && Array.isArray(data)) {
+          activePromotions = data.filter(p => p.image);
+        }
+      } catch (err) {
+        console.error('Active Promotions Fetch Error:', err);
+        activePromotions = [];
+      }
+    }
+    loadActivePromotions();
+
+    function escapeHtml(text) {
+      const div = document.createElement('div');
+      div.textContent = text || '';
+      return div.innerHTML;
+    }
+
+    function buildSlides() {
+      offerTrack.innerHTML = activePromotions.map(p => `
+        <div class="offer-slide">
+          <img src="${escapeHtml(p.image)}" alt="${escapeHtml(p.title || 'Delicute Offer')}" />
+          ${(p.title || p.description) ? `
+            <div class="offer-slide-caption">
+              ${p.title ? `<div class="offer-title">${escapeHtml(p.title)}</div>` : ''}
+              ${p.description ? `<div class="offer-desc">${escapeHtml(p.description)}</div>` : ''}
+            </div>` : ''}
+        </div>
+      `).join('');
+
+      offerDots.innerHTML = activePromotions.map((_, i) =>
+        `<button class="offer-dot${i === 0 ? ' active' : ''}" data-index="${i}" aria-label="Go to offer ${i + 1}"></button>`
+      ).join('');
+
+      offerCarousel.classList.toggle('has-multiple', activePromotions.length > 1);
+      currentSlide = 0;
+      updateTrackPosition();
+
+      offerDots.querySelectorAll('.offer-dot').forEach(dot => {
+        dot.addEventListener('click', () => {
+          goToSlide(parseInt(dot.dataset.index, 10));
+        });
+      });
+    }
+
+    function updateTrackPosition() {
+      offerTrack.style.transform = `translateX(-${currentSlide * 100}%)`;
+      offerDots.querySelectorAll('.offer-dot').forEach((dot, i) => {
+        dot.classList.toggle('active', i === currentSlide);
+      });
+    }
+
+    function goToSlide(index) {
+      if (activePromotions.length === 0) return;
+      currentSlide = (index + activePromotions.length) % activePromotions.length;
+      updateTrackPosition();
+    }
+
+    offerPrev.addEventListener('click', () => goToSlide(currentSlide - 1));
+    offerNext.addEventListener('click', () => goToSlide(currentSlide + 1));
+
+    function openOfferPopup() {
+      buildSlides();
+      offerOverlay.classList.add('show');
+      document.body.style.overflow = 'hidden';
+
+      let secondsLeft = AUTO_CLOSE_SECS;
+      offerTimer.textContent = secondsLeft;
+
+      countdownInterval = setInterval(() => {
+        secondsLeft -= 1;
+        if (secondsLeft >= 0) offerTimer.textContent = secondsLeft;
+      }, 1000);
+
+      autoCloseTimeout = setTimeout(() => {
+        closeOfferPopup();
+      }, AUTO_CLOSE_SECS * 1000);
+    }
+
+    function closeOfferPopup() {
+      clearInterval(countdownInterval);
+      clearTimeout(autoCloseTimeout);
+      offerOverlay.classList.remove('show');
+      document.body.style.overflow = '';
+      goToMenu();
+    }
+
+    exploreBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      if (!activePromotions.length) {
+        goToMenu();
+        return;
+      }
+      openOfferPopup();
+    });
+
+    offerClose.addEventListener('click', closeOfferPopup);
+
+    offerOverlay.addEventListener('click', (e) => {
+      if (e.target === offerOverlay) closeOfferPopup();
+    });
+  </script>
+</body>
+</html>

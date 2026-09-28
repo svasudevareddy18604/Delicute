@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Delicute | Super Admin — Top Picks</title>
+<link rel="icon" href="https://i.postimg.cc/W3pgQx9q/DELICUTE-Imgur-1-modified.png" />
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Roboto+Mono:wght@500;600&family=Roboto:wght@400;500;600&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { width: 100%; overflow-x: hidden; }
+
+  :root {
+    --graphite: #100f14;
+    --graphite-2: #17161d;
+    --panel: #1b1a23;
+    --panel-2: #232230;
+    --crimson: #c0392b;
+    --crimson-bright: #e8543f;
+    --gold: #d9a94c;
+    --gold-light: #f2d49b;
+    --green: #2e9e6b;
+    --red: #d64545;
+    --blue: #4a90d9;
+    --purple: #9b6fd9;
+    --text: #eeecf5;
+    --muted: #8b889a;
+    --border: #302f3c;
+  }
+
+  body {
+    font-family: 'Roboto', sans-serif;
+    color: var(--text);
+    background:
+      radial-gradient(circle at 15% 0%, rgba(155,111,217,0.08), transparent 45%),
+      radial-gradient(circle at 85% 20%, rgba(217,169,76,0.06), transparent 40%),
+      var(--graphite);
+    min-height: 100vh;
+    display: flex;
+  }
+
+  a { color: inherit; text-decoration: none; }
+  button { font-family: inherit; cursor: pointer; }
+
+  .main { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+  .content { padding: 1.5rem; flex: 1; }
+
+  .section-label {
+    font-family: 'Roboto Mono', monospace;
+    font-size: 0.68rem;
+    text-transform: uppercase;
+    letter-spacing: 1.4px;
+    color: var(--muted);
+    margin: 1.6rem 0 0.7rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  .section-label::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+  .section-label:first-of-type { margin-top: 0; }
+
+  /* ---------- Stat cards ---------- */
+  .stat-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+    max-width: 560px;
+  }
+  .stat-card {
+    background: linear-gradient(155deg, var(--panel), var(--panel-2));
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 1.15rem 1.25rem;
+    position: relative;
+    overflow: hidden;
+  }
+  .stat-card::before {
+    content: ''; position: absolute; top: -40%; right: -30%; width: 140px; height: 140px;
+    background: radial-gradient(circle, var(--accent, var(--gold)) 0%, transparent 70%);
+    opacity: 0.14; border-radius: 50%; pointer-events: none;
+  }
+  .stat-card.c-purple { --accent: var(--purple); }
+  .stat-card.c-gold { --accent: var(--gold); }
+
+  .stat-icon {
+    width: 34px; height: 34px; border-radius: 9px;
+    display: flex; align-items: center; justify-content: center;
+    background: color-mix(in srgb, var(--accent, var(--gold)) 18%, transparent);
+    color: var(--accent, var(--gold));
+    margin-bottom: 0.7rem;
+    font-size: 0.9rem;
+  }
+
+  .stat-label { font-family: 'Roboto Mono', monospace; font-size: 0.63rem; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); }
+  .stat-value { font-family: 'Playfair Display', serif; font-weight: 800; font-size: 1.65rem; margin-top: 0.3rem; }
+
+  /* ---------- Toolbar ---------- */
+  .toolbar {
+    display: flex;
+    gap: 0.75rem;
+    margin: 1.4rem 0 1.3rem;
+    flex-wrap: wrap;
+  }
+  .search-bar {
+    flex: 1 1 240px;
+    display: flex;
+    align-items: center;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 0 0.7rem;
+  }
+  .search-bar i { color: var(--muted); font-size: 0.85rem; }
+  .search-bar input {
+    border: none;
+    background: transparent;
+    padding: 0.72rem 0.6rem;
+    font-family: 'Roboto', sans-serif;
+    font-size: 0.88rem;
+    width: 100%;
+    outline: none;
+    color: var(--text);
+  }
+  .search-bar input::placeholder { color: var(--muted); }
+
+  .filter-pills {
+    display: flex;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+    flex: 0 0 auto;
+  }
+  .filter-pill {
+    padding: 0.72rem 1rem;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--muted);
+    cursor: pointer;
+    border-right: 1px solid var(--border);
+    white-space: nowrap;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    transition: background 0.2s ease, color 0.2s ease;
+  }
+  .filter-pill:last-child { border-right: none; }
+  .filter-pill:hover { background: var(--panel-2); }
+  .filter-pill.active { background: var(--gold); color: #1b1a23; }
+
+  /* ---------- Grid & cards ---------- */
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 1.1rem;
+  }
+
+  .card {
+    background: var(--panel);
+    border-radius: 14px;
+    overflow: hidden;
+    border: 1px solid var(--border);
+    transition: transform 0.25s ease, border-color 0.25s ease;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+  }
+  .card:hover { transform: translateY(-4px); border-color: rgba(217,169,76,0.35); }
+  .card.is-top { border-color: var(--gold); box-shadow: 0 6px 20px rgba(217, 169, 76, 0.18); }
+
+  .card-img-wrap { position: relative; overflow: hidden; height: 150px; background: var(--graphite-2); }
+  .card-img-wrap img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform 0.4s ease; }
+  .card:hover .card-img-wrap img { transform: scale(1.06); }
+
+  .top-ribbon {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    background: linear-gradient(135deg, var(--gold), var(--crimson-bright));
+    color: #1b1a23;
+    font-size: 0.66rem;
+    font-weight: 800;
+    padding: 0.28rem 0.6rem;
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+  }
+
+  .card-body { padding: 0.9rem 1rem 1rem; display: flex; flex-direction: column; gap: 0.25rem; flex: 1; }
+  .card-cat { font-family: 'Roboto Mono', monospace; font-size: 0.65rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; color: var(--purple); }
+  .card h3 { font-family: 'Playfair Display', serif; font-size: 1.05rem; color: var(--text); font-weight: 700; }
+  .card .price { font-family: 'Roboto Mono', monospace; font-size: 0.85rem; font-weight: 700; color: var(--gold-light); margin: 0.1rem 0 0.5rem; }
+
+  .btn {
+    margin-top: auto;
+    border: none;
+    border-radius: 8px;
+    padding: 0.6rem 0.75rem;
+    font-size: 0.8rem;
+    font-weight: 700;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4rem;
+    transition: opacity 0.2s ease, transform 0.15s ease;
+  }
+  .btn:hover { opacity: 0.9; }
+  .btn:active { transform: scale(0.97); }
+  .btn-top { background: linear-gradient(135deg, var(--purple), #6f4fa8); color: #fff; }
+  .btn-remove { background: transparent; color: var(--red); border: 1.5px solid var(--red); }
+  .btn-remove:hover { background: rgba(214,69,69,0.1); }
+
+  .empty-msg {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 3rem 1rem;
+    color: var(--muted);
+    font-size: 0.9rem;
+    font-family: 'Roboto Mono', monospace;
+  }
+  .empty-msg i { font-size: 1.6rem; display: block; margin-bottom: 0.6rem; color: var(--border); }
+
+  /* ---------- Toast ---------- */
+  #toast-container { position: fixed; top: 20px; right: 20px; z-index: 2000; display: flex; flex-direction: column; gap: 0.6rem; max-width: 90vw; }
+  .toast {
+    display: flex; align-items: center; gap: 0.65rem; min-width: 260px; max-width: 340px;
+    background: var(--panel); border-radius: 10px; padding: 0.85rem 1.05rem;
+    box-shadow: 0 10px 28px rgba(0,0,0,0.4); border-left: 4px solid var(--crimson);
+    font-size: 0.9rem; font-weight: 500; color: var(--text);
+    opacity: 0; transform: translateX(40px); animation: toastIn 0.4s ease-out forwards;
+  }
+  .toast.success { border-left-color: var(--green); }
+  .toast.error { border-left-color: var(--red); }
+  .toast .icon {
+    flex-shrink: 0; width: 22px; height: 22px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center; font-size: 0.8rem; font-weight: 800; color: #fff;
+  }
+  .toast.success .icon { background: var(--green); }
+  .toast.error .icon { background: var(--red); }
+  .toast.hide { animation: toastOut 0.35s ease-in forwards; }
+  @keyframes toastIn { to { opacity: 1; transform: translateX(0); } }
+  @keyframes toastOut { to { opacity: 0; transform: translateX(40px); } }
+
+  /* ---------- Responsive ---------- */
+  @media (max-width: 560px) {
+    .content { padding: 1rem; }
+    .stat-grid { max-width: none; }
+    .toolbar { flex-direction: column; }
+    .filter-pills { width: 100%; }
+    .filter-pill { flex: 1; justify-content: center; }
+    .grid { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 0.8rem; }
+    #toast-container { top: auto; bottom: 16px; right: 16px; left: 16px; max-width: none; }
+    .toast { min-width: 0; max-width: none; width: 100%; }
+  }
+</style>
+</head>
+<body>
+
+<div id="sidebar-placeholder"></div>
+
+<div class="main">
+  <div id="header-placeholder"></div>
+
+  <div class="content">
+
+    <div class="stat-grid">
+      <div class="stat-card c-purple">
+        <div class="stat-icon"><i class="fas fa-utensils"></i></div>
+        <div class="stat-label">Total Items</div>
+        <div class="stat-value" id="totalCount">0</div>
+      </div>
+      <div class="stat-card c-gold">
+        <div class="stat-icon"><i class="fas fa-star"></i></div>
+        <div class="stat-label">Top Picks</div>
+        <div class="stat-value" id="pickedCount">0</div>
+      </div>
+    </div>
+
+    <div class="toolbar">
+      <div class="search-bar">
+        <i class="fas fa-search"></i>
+        <input type="text" id="searchInput" placeholder="Search by name or category...">
+      </div>
+      <div class="filter-pills" id="filterPills">
+        <div class="filter-pill active" data-filter="all">All</div>
+        <div class="filter-pill" data-filter="top"><i class="fas fa-star"></i> Top Picks</div>
+        <div class="filter-pill" data-filter="notop">Not Picked</div>
+      </div>
+    </div>
+
+    <div id="menuList" class="grid"></div>
+
+  </div>
+</div>
+
+<div id="toast-container" aria-live="polite" aria-atomic="true"></div>
+
+<script>
+  const API_BASE = "/api/superadmin";
+  const ENDPOINTS = {
+    menu: `${API_BASE}/menu`,
+    topPickToggle: (id) => `${API_BASE}/menu/top-picks/${id}`
+  };
+  const LOGIN_PAGE = "/superadminlogin.html";
+
+  let menuData = [];
+  let activeFilter = "all";
+
+  // ============ Toast ============
+  window.showToast = function showToast(message, type = 'success', duration = 3200) {
+    const container = document.getElementById('toast-container');
+    const toast = document.createElement('div');
+    toast.className = `toast ${type}`;
+    toast.innerHTML = `<span class="icon">${type === 'success' ? '✓' : '!'}</span><span>${escapeHtml(message)}</span>`;
+    container.appendChild(toast);
+    setTimeout(() => {
+      toast.classList.add('hide');
+      toast.addEventListener('animationend', () => toast.remove(), { once: true });
+    }, duration);
+  };
+
+  const escapeHtml = (s) => String(s ?? '').replace(/[&<>"']/g, c => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]));
+
+  // ============ Fetch helper ============
+  async function api(url, options = {}) {
+    const res = await fetch(url, {
+      credentials: 'include',
+      headers: { 'Content-Type': 'application/json' },
+      ...options
+    });
+    if (res.status === 401) {
+      window.location.href = LOGIN_PAGE;
+      return null;
+    }
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok || data.success === false) throw new Error(data.message || 'Request failed');
+    return data;
+  }
+
+  function debounce(func, wait) {
+    let timeout;
+    return function (...args) {
+      clearTimeout(timeout);
+      timeout = setTimeout(() => func.apply(this, args), wait);
+    };
+  }
+
+  document.getElementById("searchInput").addEventListener("input", debounce(applyFilters, 200));
+
+  document.getElementById("filterPills").addEventListener("click", (e) => {
+    const pill = e.target.closest(".filter-pill");
+    if (!pill) return;
+    document.querySelectorAll("#filterPills .filter-pill").forEach(p => p.classList.remove("active"));
+    pill.classList.add("active");
+    activeFilter = pill.dataset.filter;
+    applyFilters();
+  });
+
+  async function loadTopPicks() {
+    try {
+      const data = await api(ENDPOINTS.menu);
+      if (!data) return;
+      menuData = data.data || [];
+      updateStats();
+      applyFilters();
+    } catch (e) {
+      showToast(e.message || 'Could not load menu items.', 'error');
+      document.getElementById('menuList').innerHTML =
+        `<div class="empty-msg"><i class="fas fa-triangle-exclamation"></i>Failed to load items</div>`;
+    }
+  }
+
+  function updateStats() {
+    document.getElementById("totalCount").textContent = menuData.length;
+    document.getElementById("pickedCount").textContent =
+      menuData.filter(item => item.is_top_pick === 1).length;
+  }
+
+  // Top Picks always first, alphabetical within each group
+  function sortWithTopFirst(items) {
+    return [...items].sort((a, b) => {
+      const aTop = a.is_top_pick === 1 ? 1 : 0;
+      const bTop = b.is_top_pick === 1 ? 1 : 0;
+      if (aTop !== bTop) return bTop - aTop;
+      return (a.name || "").localeCompare(b.name || "");
+    });
+  }
+
+  function applyFilters() {
+    const query = document.getElementById("searchInput").value.toLowerCase().trim();
+    let filtered = menuData;
+
+    if (activeFilter === "top") {
+      filtered = filtered.filter(item => item.is_top_pick === 1);
+    } else if (activeFilter === "notop") {
+      filtered = filtered.filter(item => item.is_top_pick !== 1);
+    }
+
+    if (query) {
+      filtered = filtered.filter(item =>
+        (item.name || "").toLowerCase().includes(query) ||
+        (item.category || "").toLowerCase().includes(query)
+      );
+    }
+
+    renderMenu(sortWithTopFirst(filtered));
+  }
+
+  function renderMenu(items) {
+    const container = document.getElementById("menuList");
+    container.innerHTML = "";
+
+    if (items.length === 0) {
+      container.innerHTML = `<div class="empty-msg"><i class="fas fa-star-half-alt"></i>No matching items found</div>`;
+      return;
+    }
+
+    container.innerHTML = items.map(item => {
+      const isTop = item.is_top_pick === 1;
+      return `
+        <div class="card ${isTop ? "is-top" : ""}">
+          <div class="card-img-wrap">
+            ${isTop ? `<div class="top-ribbon"><i class="fas fa-star"></i> Top Pick</div>` : ""}
+            <img src="${escapeHtml(item.image)}" alt="${escapeHtml(item.name)}" onerror="this.src='https://i.postimg.cc/W3pgQx9q/DELICUTE-Imgur-1-modified.png'">
+          </div>
+          <div class="card-body">
+            <span class="card-cat">${escapeHtml(item.category || "")}</span>
+            <h3>${escapeHtml(item.name)}</h3>
+            <span class="price">₹${item.original_price || item.price}</span>
+            <button class="btn ${isTop ? "btn-remove" : "btn-top"}" onclick="toggleTopPick(${item.id}, ${isTop})">
+              <i class="fas ${isTop ? "fa-times" : "fa-star"}"></i>
+              ${isTop ? "Remove from Top Picks" : "Add to Top Picks"}
+            </button>
+          </div>
+        </div>
+      `;
+    }).join("");
+  }
+
+  async function toggleTopPick(id, isTop) {
+    try {
+      const method = isTop ? "DELETE" : "POST";
+      const data = await api(ENDPOINTS.topPickToggle(id), { method });
+      if (!data) return;
+      showToast(data.message || (isTop ? "Removed from Top Picks" : "Added to Top Picks"));
+      await loadTopPicks();
+    } catch (err) {
+      showToast(err.message || "Error toggling Top Pick", "error");
+    }
+  }
+
+  // ============ Load sidebar + header, then init ============
+  function loadComponent(url, placeholderId) {
+    return fetch(url)
+      .then(r => r.text())
+      .then(html => {
+        const el = document.getElementById(placeholderId);
+        el.innerHTML = html;
+        el.querySelectorAll('script').forEach(old => {
+          const s = document.createElement('script');
+          s.textContent = old.textContent;
+          old.replaceWith(s);
+        });
+      });
+  }
+
+  window.PAGE_TITLE = "Top Picks";
+  window.PAGE_SUB = "Manage featured menu items";
+  window.onRefresh = loadTopPicks;
+
+  Promise.all([
+    loadComponent('superadminsidedashboard.html', 'sidebar-placeholder'),
+    loadComponent('superadminheader.html', 'header-placeholder')
+  ]).then(() => {
+    loadTopPicks();
+  });
+</script>
+</body>
+</html>

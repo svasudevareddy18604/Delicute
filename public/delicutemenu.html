@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Delicute | Every Bite Tells a Story</title>
+  <link rel="preload" as="image" href="assests/wallimage.png">
+  <link rel="preload" as="image" href="https://i.postimg.cc/W3pgQx9q/DELICUTE-Imgur-1-modified.png">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Great+Vibes&family=Cormorant+Garamond:wght@500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --primary-purple: #9370DB;
+    --primary-purple-dark: #8A2BE2;
+    --lilac: #D8BFD8;
+    --bg-lavender: #E6E6FA;
+    --dark: #1A1A1A;
+    --gold: #FFD700;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  html, body { width: 100%; }
+  body {
+    font-family: 'Playfair Display', serif;
+    background: linear-gradient(135deg, var(--lilac) 0%, var(--bg-lavender) 100%);
+    color: var(--dark);
+    min-height: 100vh;
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .hero {
+    width: 100%;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 2rem 1rem;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+    font-family: 'Cormorant Garamond', serif;
+  }
+
+  .hero-bg {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    background-image: url('assests/wallimage.png');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    transform: scale(1.03);
+    animation: bgZoom 18s ease-in-out infinite alternate;
+  }
+
+  @keyframes bgZoom {
+    0%   { transform: scale(1.03); }
+    100% { transform: scale(1.12); }
+  }
+
+  .hero-overlay {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    background:
+      radial-gradient(circle at 15% 20%, rgba(217, 169, 76, 0.22), transparent 45%),
+      radial-gradient(circle at 85% 80%, rgba(142, 68, 173, 0.35), transparent 50%),
+      linear-gradient(180deg, rgba(42, 31, 38, 0.55) 0%, rgba(42, 31, 38, 0.72) 55%, rgba(42, 31, 38, 0.85) 100%);
+  }
+
+  .hero::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.12), transparent);
+    animation: shine 5s infinite;
+    z-index: 1;
+    pointer-events: none;
+  }
+
+  .hero::after {
+    content: '';
+    position: absolute;
+    top: 14px; left: 14px; right: 14px; bottom: 14px;
+    border: 1px solid rgba(217, 169, 76, 0.55);
+    pointer-events: none;
+    z-index: 1;
+  }
+
+  .corner-flourish {
+    position: absolute;
+    width: 110px;
+    height: 110px;
+    opacity: 0.4;
+    z-index: 1;
+    pointer-events: none;
+  }
+  .corner-flourish.tl { top: 6px; left: 6px; }
+  .corner-flourish.br { bottom: 6px; right: 6px; transform: rotate(180deg); }
+
+  .sparkle {
+    position: absolute;
+    font-size: 1.1rem;
+    opacity: 0.65;
+    z-index: 1;
+    color: #f2d49b;
+    animation: floatSparkle 6s ease-in-out infinite;
+    pointer-events: none;
+  }
+  .sparkle.s1 { top: 12%; left: 10%; animation-delay: 0s; }
+  .sparkle.s2 { top: 22%; right: 9%; animation-delay: 1.5s; }
+  .sparkle.s3 { bottom: 18%; left: 8%; animation-delay: 3s; }
+  .sparkle.s4 { bottom: 10%; right: 12%; animation-delay: 2s; }
+
+  @keyframes floatSparkle {
+    0%, 100% { transform: translateY(0) rotate(0deg); opacity: 0.45; }
+    50%      { transform: translateY(-12px) rotate(15deg); opacity: 0.85; }
+  }
+
+  .hero-content {
+    position: relative;
+    z-index: 2;
+    width: 100%;
+    max-width: 640px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .hero img.logo {
+    width: 170px;
+    max-width: 45%;
+    margin-bottom: 1.1rem;
+    filter: drop-shadow(0 4px 14px rgba(0, 0, 0, 0.45));
+    opacity: 0;
+    will-change: transform, opacity;
+    animation: logoRollIn 2.4s cubic-bezier(0.22, 0.61, 0.36, 1) forwards;
+  }
+
+  @keyframes logoRollIn {
+    0% { opacity: 0; transform: translateX(-220px) rotate(-540deg) scale(0.7); }
+    60% { opacity: 1; transform: translateX(12px) rotate(20deg) scale(1.05); }
+    80% { transform: translateX(-4px) rotate(-8deg) scale(0.98); }
+    100% { opacity: 1; transform: translateX(0) rotate(0deg) scale(1); }
+  }
+
+  .eyebrow {
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #f2d49b;
+    margin-bottom: 0.5rem;
+    opacity: 0;
+    animation: fadeInUp 0.8s ease-out 2.2s forwards;
+  }
+
+  .hero h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2rem, 7vw, 3.5rem);
+    font-weight: 800;
+    margin-bottom: 0.5rem;
+    color: #ffffff;
+    text-shadow: 0 3px 14px rgba(0, 0, 0, 0.55), 0 0 24px rgba(217, 169, 76, 0.35);
+    opacity: 0;
+    transform: translateY(20px);
+    animation: fadeInUp 0.8s ease-out 2.3s forwards;
+    letter-spacing: 0.5px;
+  }
+
+  .hero p.tagline {
+    font-size: clamp(1rem, 3.6vw, 1.3rem);
+    font-style: italic;
+    font-weight: 600;
+    color: #f0e6f7;
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+    margin-bottom: 1.6rem;
+    max-width: 92%;
+    opacity: 0;
+    transform: translateY(20px);
+    animation: fadeInUp 0.8s ease-out 2.5s forwards;
+  }
+
+  .hero .btn {
+    position: relative;
+    z-index: 2;
+    background: linear-gradient(45deg, #ffa726, #ffca28);
+    color: #1a1a1a;
+    padding: 1rem 2.5rem;
+    font-size: clamp(0.95rem, 3.4vw, 1.1rem);
+    font-weight: 700;
+    font-family: 'Playfair Display', serif;
+    border: none;
+    border-radius: 50px;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-block;
+    width: auto;
+    max-width: 100%;
+    transition: all 0.3s ease;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+    opacity: 0;
+    transform: translateY(20px);
+    animation: fadeInUp 0.8s ease-out 2.8s forwards, pulseGlow 2.4s ease-in-out 3.8s infinite;
+  }
+
+  .hero .btn:hover {
+    background: linear-gradient(45deg, #ffca28, #ffb300);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 26px rgba(0, 0, 0, 0.5);
+  }
+  .hero .btn:active { transform: translateY(0); }
+
+  @keyframes pulseGlow {
+    0%, 100% { box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4); }
+    50%      { box-shadow: 0 6px 30px rgba(217, 169, 76, 0.6); }
+  }
+
+  @keyframes shine {
+    0% { left: -100%; }
+    50% { left: 100%; }
+    100% { left: 100%; }
+  }
+
+  @keyframes fadeInUp {
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .hero-footer {
+    width: 100%;
+    background: linear-gradient(135deg, var(--dark) 0%, #3a2a34 100%);
+    color: #f0e6f7;
+    text-align: center;
+    padding: 1.4rem 1rem;
+    position: relative;
+  }
+  .hero-footer .footer-divider {
+    width: 70px;
+    height: 2px;
+    margin: 0 auto 0.7rem;
+    background: linear-gradient(90deg, transparent, var(--gold), transparent);
+  }
+  .hero-footer p {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(0.8rem, 2.6vw, 0.95rem);
+    letter-spacing: 0.5px;
+    color: #ddc9d6;
+  }
+  .hero-footer p span { color: #f2d49b; font-weight: 600; }
+
+  @media (max-width: 480px) {
+    .hero { padding: 1.5rem 0.9rem; }
+    .hero img.logo { width: 110px; }
+    .hero .btn { width: 100%; max-width: 300px; padding: 0.85rem 1.5rem; }
+    .corner-flourish { width: 70px; height: 70px; opacity: 0.3; }
+    .sparkle { font-size: 0.9rem; }
+    .hero-bg { background-position: 60% center; }
+    .hero-footer { padding: 1.1rem 0.9rem; }
+
+    @keyframes logoRollIn {
+      0% { opacity: 0; transform: translateX(-140px) rotate(-540deg) scale(0.7); }
+      60% { opacity: 1; transform: translateX(10px) rotate(20deg) scale(1.05); }
+      80% { transform: translateX(-3px) rotate(-8deg) scale(0.98); }
+      100% { opacity: 1; transform: translateX(0) rotate(0deg) scale(1); }
+    }
+  }
+</style>
+</head>
+<body>
+
+  <section class="hero">
+    <div class="hero-bg"></div>
+    <div class="hero-overlay"></div>
+
+    <svg class="corner-flourish tl" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M5 5 Q40 5 40 40 Q40 5 90 10" stroke="#d9a94c" stroke-width="1.5"/>
+      <circle cx="30" cy="15" r="3" fill="#d9a94c"/>
+      <circle cx="12" cy="30" r="2" fill="#f2d49b"/>
+    </svg>
+    <svg class="corner-flourish br" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M5 5 Q40 5 40 40 Q40 5 90 10" stroke="#d9a94c" stroke-width="1.5"/>
+      <circle cx="30" cy="15" r="3" fill="#d9a94c"/>
+      <circle cx="12" cy="30" r="2" fill="#f2d49b"/>
+    </svg>
+
+    <span class="sparkle s1">✦</span>
+    <span class="sparkle s2">✧</span>
+    <span class="sparkle s3">✦</span>
+    <span class="sparkle s4">✧</span>
+
+    <div class="hero-content">
+      <img class="logo" src="https://i.postimg.cc/W3pgQx9q/DELICUTE-Imgur-1-modified.png" alt="Delicute Logo" />
+      <div class="eyebrow">Every Bite Tells a Story</div>
+      <h1>Welcome to Delicute</h1>
+      <p class="tagline">Where every dish is crafted with love, and every visit becomes a memory.</p>
+
+      <button type="button" id="exploreBtn" class="btn">Explore Our Menu</button>
+    </div>
+  </section>
+
+  <footer class="hero-footer">
+    <div class="footer-divider"></div>
+    <p>&copy; 2025 <span>Delicute</span>. All Rights Reserved.</p>
+  </footer>
+
+  <script>
+    document.getElementById('exploreBtn').addEventListener('click', () => {
+      window.location.href = 'delicutecategories.html';
+    });
+  </script>
+</body>
+</html>

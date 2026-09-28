@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Delicute | Admins</title>
+<link rel="icon" href="https://i.postimg.cc/W3pgQx9q/DELICUTE-Imgur-1-modified.png" />
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Roboto+Mono:wght@500;600&family=Roboto:wght@400;500;600&display=swap" rel="stylesheet" />
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { width: 100%; overflow-x: hidden; }
+
+  :root {
+    --graphite: #14141a;
+    --graphite-2: #1a1a22;
+    --panel: #1d1d26;
+    --panel-2: #232330;
+    --crimson: #c0392b;
+    --crimson-bright: #e8543f;
+    --gold: #d9a94c;
+    --gold-light: #f2d49b;
+    --green: #2e9e6b;
+    --amber: #d9a94c;
+    --red: #d64545;
+    --blue: #4a90d9;
+    --purple: #9b6fd9;
+    --text: #e9e6ef;
+    --muted: #8b889a;
+    --border: #33333f;
+  }
+
+  body { font-family: 'Roboto', sans-serif; color: var(--text); background: var(--graphite); min-height: 100vh; display: flex; }
+  a { color: inherit; text-decoration: none; }
+  button { font-family: inherit; cursor: pointer; }
+
+  .main { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+  .content { padding: 1.4rem; flex: 1; }
+
+  /* ---------- Panel ---------- */
+  .panel {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 1.2rem 1.3rem;
+    margin-bottom: 1.2rem;
+    position: relative;
+    overflow: hidden;
+  }
+  .panel::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+    background: linear-gradient(90deg, var(--crimson-bright), var(--gold));
+    opacity: 0.75;
+  }
+  .panel.superadmin-panel::before { background: linear-gradient(90deg, var(--purple), var(--blue)); }
+
+  .panel-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.7rem; }
+  .panel-title-wrap { display: flex; align-items: center; gap: 0.6rem; }
+  .panel-icon {
+    width: 36px; height: 36px; border-radius: 9px;
+    display: flex; align-items: center; justify-content: center;
+    background: rgba(217,169,76,0.15); color: var(--gold-light);
+    flex-shrink: 0;
+  }
+  .panel.superadmin-panel .panel-icon { background: rgba(155,111,217,0.15); color: #c9aef2; }
+  .panel-icon svg { width: 18px; height: 18px; }
+  .panel-title { font-family: 'Playfair Display', serif; font-weight: 700; font-size: 1.05rem; }
+  .panel-count { font-family: 'Roboto Mono', monospace; font-size: 0.65rem; color: var(--muted); }
+
+  .panel-actions { display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap; }
+
+  input.search, select.select {
+    padding: 0.5rem 0.75rem;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: var(--graphite-2);
+    color: var(--text);
+    font-size: 0.8rem;
+    font-family: 'Roboto Mono', monospace;
+  }
+  input.search:focus, select.select:focus { outline: none; border-color: rgba(217,169,76,0.5); }
+
+  .btn {
+    padding: 0.5rem 0.9rem;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: var(--panel-2);
+    color: var(--text);
+    font-size: 0.78rem;
+    font-weight: 600;
+    display: inline-flex; align-items: center; gap: 0.35rem;
+    transition: all 0.15s ease;
+  }
+  .btn:hover { border-color: rgba(217,169,76,0.4); }
+  .btn.primary {
+    background: linear-gradient(135deg, var(--crimson), #8e2419);
+    border-color: transparent; color: #fff;
+    box-shadow: 0 4px 14px rgba(192,57,43,0.3);
+  }
+  .btn.primary:hover { background: linear-gradient(135deg, var(--crimson-bright), var(--crimson)); }
+  .panel.superadmin-panel .btn.primary {
+    background: linear-gradient(135deg, var(--purple), #6a4a99);
+    box-shadow: 0 4px 14px rgba(155,111,217,0.3);
+  }
+  .btn.danger { color: #f2a3a3; }
+  .btn.danger:hover { border-color: rgba(214,69,69,0.4); }
+  .btn.small { padding: 0.34rem 0.7rem; font-size: 0.7rem; }
+  .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  /* ---------- Table ---------- */
+  .table-wrap { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; font-size: 0.83rem; }
+  thead th {
+    text-align: left; font-family: 'Roboto Mono', monospace; font-size: 0.62rem;
+    text-transform: uppercase; letter-spacing: 0.8px; color: var(--muted);
+    padding: 0.6rem 0.7rem; border-bottom: 1px solid var(--border); white-space: nowrap;
+  }
+  tbody td { padding: 0.68rem 0.7rem; border-bottom: 1px solid rgba(255,255,255,0.04); vertical-align: middle; }
+  tbody tr:hover { background: rgba(255,255,255,0.02); }
+  .empty-row td { text-align: center; color: var(--muted); padding: 1.8rem; font-family: 'Roboto Mono', monospace; font-size: 0.78rem; }
+
+  .name-cell { display: flex; align-items: center; gap: 0.6rem; }
+  .avatar-mini {
+    width: 30px; height: 30px; border-radius: 50%;
+    background: linear-gradient(135deg, var(--crimson), var(--gold));
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 700; font-size: 0.75rem; color: #14141a; flex-shrink: 0;
+  }
+  .panel.superadmin-panel .avatar-mini { background: linear-gradient(135deg, var(--purple), var(--blue)); }
+  .name-main { font-weight: 600; }
+  .email-sub { font-family: 'Roboto Mono', monospace; font-size: 0.7rem; color: var(--muted); }
+
+  .badge {
+    display: inline-block; padding: 0.22rem 0.6rem; border-radius: 6px;
+    font-family: 'Roboto Mono', monospace; font-size: 0.66rem; font-weight: 600; letter-spacing: 0.4px;
+  }
+  .badge.green { background: rgba(46,158,107,0.15); color: #7fd9ac; }
+  .badge.red { background: rgba(214,69,69,0.15); color: #f2a3a3; }
+  .badge.gray { background: rgba(139,136,154,0.15); color: var(--muted); }
+  .badge.purple { background: rgba(155,111,217,0.15); color: #c9aef2; }
+
+  /* ---------- Modal ---------- */
+  .modal-overlay {
+    display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6);
+    z-index: 100; align-items: center; justify-content: center; padding: 1rem;
+    backdrop-filter: blur(3px);
+  }
+  .modal-overlay.show { display: flex; }
+  .modal-box {
+    background: var(--panel); border: 1px solid var(--border); border-radius: 14px;
+    padding: 1.4rem; width: 100%; max-width: 400px;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+  }
+  .modal-box h3 { font-family: 'Playfair Display', serif; font-size: 1.15rem; margin-bottom: 1rem; }
+  .form-group { margin-bottom: 0.9rem; }
+  .form-group label {
+    display: block; font-family: 'Roboto Mono', monospace; font-size: 0.65rem;
+    text-transform: uppercase; letter-spacing: 0.8px; color: var(--muted); margin-bottom: 0.4rem;
+  }
+  .form-group input, .form-group select {
+    width: 100%; padding: 0.6rem 0.8rem; border-radius: 8px;
+    border: 1px solid var(--border); background: var(--graphite-2); color: var(--text);
+    font-size: 0.85rem; font-family: 'Roboto Mono', monospace;
+  }
+  .form-group input:focus, .form-group select:focus { outline: none; border-color: rgba(217,169,76,0.5); }
+  .modal-actions { display: flex; gap: 0.6rem; justify-content: flex-end; margin-top: 1.2rem; }
+
+  /* ---------- Toast ---------- */
+  #toast-container { position: fixed; top: 80px; right: 20px; z-index: 2000; display: flex; flex-direction: column; gap: 0.6rem; max-width: 90vw; }
+  .toast {
+    display: flex; align-items: center; gap: 0.65rem; min-width: 260px; max-width: 340px;
+    background: var(--panel); border-radius: 10px; padding: 0.85rem 1.05rem;
+    box-shadow: 0 10px 28px rgba(0,0,0,0.4); border-left: 4px solid var(--crimson);
+    font-size: 0.9rem; font-weight: 500; color: var(--text);
+    opacity: 0; transform: translateX(40px); animation: toastIn 0.4s ease-out forwards;
+  }
+  .toast.success { border-left-color: var(--green); }
+  .toast.error { border-left-color: var(--red); }
+  .toast .icon {
+    flex-shrink: 0; width: 22px; height: 22px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center; font-size: 0.8rem; font-weight: 800; color: #fff;
+  }
+  .toast.success .icon { background: var(--green); }
+  .toast.error .icon { background: var(--red); }
+  .toast.hide { animation: toastOut 0.35s ease-in forwards; }
+  @keyframes toastIn { to { opacity: 1; transform: translateX(0); } }
+  @keyframes toastOut { to { opacity: 0; transform: translateX(40px); } }
+
+  @media (max-width: 560px) {
+    .content { padding: 1rem; }
+    .panel-head { flex-direction: column; align-items: flex-start; }
+  }
+</style>
+</head>
+<body>
+
+<div id="sidebar-placeholder"></div>
+
+<div class="main">
+  <div id="header-placeholder"></div>
+
+  <div class="content">
+
+    <!-- RESTAURANT ADMINS -->
+    <div class="panel">
+      <div class="panel-head">
+        <div class="panel-title-wrap">
+          <div class="panel-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-8 8-8s8 3.6 8 8"/></svg>
+          </div>
+          <div>
+            <div class="panel-title">Restaurant Admins</div>
+            <div class="panel-count" id="adminsCount">— accounts</div>
+          </div>
+        </div>
+        <div class="panel-actions">
+          <input class="search" id="adminSearch" placeholder="Search name / email…" />
+          <button class="btn primary" id="addAdminBtn">+ Add Admin</button>
+        </div>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Admin</th><th>Role</th><th>Status</th><th>Created</th><th></th></tr></thead>
+          <tbody id="adminsBody"><tr class="empty-row"><td colspan="5">Loading…</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- SUPER ADMINS -->
+    <div class="panel superadmin-panel">
+      <div class="panel-head">
+        <div class="panel-title-wrap">
+          <div class="panel-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M12 2 4 5v6c0 5 3.4 8.7 8 11 4.6-2.3 8-6 8-11V5l-8-3Z"/><path d="M9 12l2 2 4-4"/></svg>
+          </div>
+          <div>
+            <div class="panel-title">Super Admins</div>
+            <div class="panel-count" id="superadminsCount">— accounts</div>
+          </div>
+        </div>
+        <div class="panel-actions">
+          <input class="search" id="superadminSearch" placeholder="Search name / email…" />
+          <button class="btn primary" id="addSuperAdminBtn">+ Add Super Admin</button>
+        </div>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Super Admin</th><th>2FA</th><th>Status</th><th>Last Login</th><th></th></tr></thead>
+          <tbody id="superadminsBody"><tr class="empty-row"><td colspan="5">Loading…</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ADD ADMIN MODAL -->
+<div class="modal-overlay" id="addAdminModal">
+  <div class="modal-box">
+    <h3>Add Restaurant Admin</h3>
+    <div class="form-group"><label>Name</label><input type="text" id="newAdminName" placeholder="Full name" /></div>
+    <div class="form-group"><label>Email</label><input type="email" id="newAdminEmail" placeholder="admin@delicute.com" /></div>
+    <div class="form-group"><label>Temporary Password</label><input type="password" id="newAdminPassword" placeholder="Min 8 characters" /></div>
+    <div class="modal-actions">
+      <button class="btn" id="cancelAddAdmin">Cancel</button>
+      <button class="btn primary" id="confirmAddAdmin">Create Admin</button>
+    </div>
+  </div>
+</div>
+
+<!-- ADD SUPERADMIN MODAL -->
+<div class="modal-overlay" id="addSuperAdminModal">
+  <div class="modal-box">
+    <h3>Add Super Admin</h3>
+    <div class="form-group"><label>Name</label><input type="text" id="newSuperAdminName" placeholder="Full name" /></div>
+    <div class="form-group"><label>Email</label><input type="email" id="newSuperAdminEmail" placeholder="owner@delicute.com" /></div>
+    <div class="form-group"><label>Temporary Password</label><input type="password" id="newSuperAdminPassword" placeholder="Min 8 characters" /></div>
+    <div class="form-group">
+      <label>2FA (Email OTP)</label>
+      <select id="newSuperAdminOtp">
+        <option value="1">Enabled (recommended)</option>
+        <option value="0">Disabled</option>
+      </select>
+    </div>
+    <div class="modal-actions">
+      <button class="btn" id="cancelAddSuperAdmin">Cancel</button>
+      <button class="btn primary" id="confirmAddSuperAdmin">Create Super Admin</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast-container" aria-live="polite" aria-atomic="true"></div>
+
+<script>
+  // ============ Config ============
+  const API_BASE = "/api/superadmin";
+  const ENDPOINTS = {
+    admins: `${API_BASE}/admins`,
+    superadmins: `${API_BASE}/superadmins`
+  };
+  const LOGIN_PAGE = "/superadminlogin.html";
+
+  // ============ Toast ============
+  window.showToast = function showToast(message, type = 'success', duration = 3200) {
+    const container = document.getElementById('toast-container');
+    const toast = document.createElement('div');
+    toast.className = `toast ${type}`;
+    toast.innerHTML = `<span class="icon">${type === 'success' ? '✓' : '!'}</span><span>${message}</span>`;
+    container.appendChild(toast);
+    setTimeout(() => {
+      toast.classList.add('hide');
+      toast.addEventListener('animationend', () => toast.remove(), { once: true });
+    }, duration);
+  };
+
+  // ============ Fetch helper ============
+  async function api(url, options = {}) {
+    const res = await fetch(url, {
+      credentials: 'include',
+      headers: { 'Content-Type': 'application/json' },
+      ...options
+    });
+    if (res.status === 401) {
+      window.location.href = LOGIN_PAGE;
+      return null;
+    }
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok || data.success === false) throw new Error(data.message || 'Request failed');
+    return data;
+  }
+
+  const escapeHtml = (s) => String(s ?? '').replace(/[&<>"']/g, c => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]));
+  const fmtDate = (d) => d ? new Date(d).toLocaleString('en-IN', { day:'2-digit', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit' }) : '—';
+  const initials = (name) => (name || '?').trim().charAt(0).toUpperCase();
+
+  // ============ Restaurant Admins ============
+  async function loadAdmins() {
+    const body = document.getElementById('adminsBody');
+    try {
+      const q = document.getElementById('adminSearch').value.trim();
+      const params = new URLSearchParams();
+      if (q) params.set('q', q);
+      const data = await api(`${ENDPOINTS.admins}?${params.toString()}`);
+      if (!data) return;
+      const rows = data.admins || [];
+      document.getElementById('adminsCount').textContent = `${rows.length} account${rows.length === 1 ? '' : 's'}`;
+
+      body.innerHTML = rows.length ? rows.map(a => `
+        <tr>
+          <td>
+            <div class="name-cell">
+              <div class="avatar-mini">${initials(a.name)}</div>
+              <div>
+                <div class="name-main">${escapeHtml(a.name)}</div>
+                <div class="email-sub">${escapeHtml(a.email)}</div>
+              </div>
+            </div>
+          </td>
+          <td>${escapeHtml(a.role || 'admin')}</td>
+          <td><span class="badge ${a.active ? 'green' : 'red'}">${a.active ? 'Active' : 'Suspended'}</span></td>
+          <td>${fmtDate(a.createdAt)}</td>
+          <td>
+            <button class="btn small ${a.active ? 'danger' : ''}" data-toggle-admin="${a.id}" data-active="${a.active ? 1 : 0}">
+              ${a.active ? 'Suspend' : 'Reactivate'}
+            </button>
+          </td>
+        </tr>`).join('') : `<tr class="empty-row"><td colspan="5">No restaurant admins yet.</td></tr>`;
+    } catch (e) {
+      body.innerHTML = `<tr class="empty-row"><td colspan="5">Failed to load admins.</td></tr>`;
+      window.showToast(e.message || 'Failed to load admins.', 'error');
+    }
+  }
+
+  document.getElementById('adminsBody').addEventListener('click', async (e) => {
+    const id = e.target.dataset.toggleAdmin;
+    if (!id) return;
+    const currentlyActive = e.target.dataset.active === '1';
+    const action = currentlyActive ? 'suspend' : 'reactivate';
+    if (!confirm(`${currentlyActive ? 'Suspend' : 'Reactivate'} this admin?`)) return;
+    try {
+      await api(`${ENDPOINTS.admins}/${id}/status`, {
+        method: 'PUT',
+        body: JSON.stringify({ active: !currentlyActive })
+      });
+      window.showToast(`Admin ${action}d.`, 'success');
+      loadAdmins();
+    } catch (err) {
+      window.showToast(err.message || `Failed to ${action} admin.`, 'error');
+    }
+  });
+
+  let adminSearchTimer;
+  document.getElementById('adminSearch').addEventListener('input', () => {
+    clearTimeout(adminSearchTimer);
+    adminSearchTimer = setTimeout(loadAdmins, 350);
+  });
+
+  // Add Admin modal
+  const addAdminModal = document.getElementById('addAdminModal');
+  document.getElementById('addAdminBtn').addEventListener('click', () => addAdminModal.classList.add('show'));
+  document.getElementById('cancelAddAdmin').addEventListener('click', () => addAdminModal.classList.remove('show'));
+  document.getElementById('confirmAddAdmin').addEventListener('click', async () => {
+    const name = document.getElementById('newAdminName').value.trim();
+    const email = document.getElementById('newAdminEmail').value.trim();
+    const password = document.getElementById('newAdminPassword').value;
+    if (!name || !email || !password) {
+      window.showToast('All fields are required.', 'error'); return;
+    }
+    if (password.length < 8) {
+      window.showToast('Password must be at least 8 characters.', 'error'); return;
+    }
+    try {
+      await api(ENDPOINTS.admins, { method: 'POST', body: JSON.stringify({ name, email, password }) });
+      window.showToast('Admin created.', 'success');
+      addAdminModal.classList.remove('show');
+      document.getElementById('newAdminName').value = '';
+      document.getElementById('newAdminEmail').value = '';
+      document.getElementById('newAdminPassword').value = '';
+      loadAdmins();
+    } catch (err) {
+      window.showToast(err.message || 'Failed to create admin.', 'error');
+    }
+  });
+
+  // ============ Super Admins ============
+  async function loadSuperAdmins() {
+    const body = document.getElementById('superadminsBody');
+    try {
+      const q = document.getElementById('superadminSearch').value.trim();
+      const params = new URLSearchParams();
+      if (q) params.set('q', q);
+      const data = await api(`${ENDPOINTS.superadmins}?${params.toString()}`);
+      if (!data) return;
+      const rows = data.superadmins || [];
+      document.getElementById('superadminsCount').textContent = `${rows.length} account${rows.length === 1 ? '' : 's'}`;
+
+      body.innerHTML = rows.length ? rows.map(s => `
+        <tr>
+          <td>
+            <div class="name-cell">
+              <div class="avatar-mini">${initials(s.name)}</div>
+              <div>
+                <div class="name-main">${escapeHtml(s.name)}</div>
+                <div class="email-sub">${escapeHtml(s.email)}</div>
+              </div>
+            </div>
+          </td>
+          <td><span class="badge ${s.otpEnabled ? 'purple' : 'gray'}">${s.otpEnabled ? 'Enabled' : 'Disabled'}</span></td>
+          <td><span class="badge ${s.active ? 'green' : 'red'}">${s.active ? 'Active' : 'Suspended'}</span></td>
+          <td>${fmtDate(s.lastLoginAt)}</td>
+          <td>
+            <button class="btn small ${s.active ? 'danger' : ''}" data-toggle-superadmin="${s.id}" data-active="${s.active ? 1 : 0}">
+              ${s.active ? 'Suspend' : 'Reactivate'}
+            </button>
+          </td>
+        </tr>`).join('') : `<tr class="empty-row"><td colspan="5">No super admins yet.</td></tr>`;
+    } catch (e) {
+      body.innerHTML = `<tr class="empty-row"><td colspan="5">Failed to load super admins.</td></tr>`;
+      window.showToast(e.message || 'Failed to load super admins.', 'error');
+    }
+  }
+
+  document.getElementById('superadminsBody').addEventListener('click', async (e) => {
+    const id = e.target.dataset.toggleSuperadmin;
+    if (!id) return;
+    const currentlyActive = e.target.dataset.active === '1';
+    const action = currentlyActive ? 'suspend' : 'reactivate';
+    if (!confirm(`${currentlyActive ? 'Suspend' : 'Reactivate'} this super admin?`)) return;
+    try {
+      await api(`${ENDPOINTS.superadmins}/${id}/status`, {
+        method: 'PUT',
+        body: JSON.stringify({ active: !currentlyActive })
+      });
+      window.showToast(`Super admin ${action}d.`, 'success');
+      loadSuperAdmins();
+    } catch (err) {
+      window.showToast(err.message || `Failed to ${action} super admin.`, 'error');
+    }
+  });
+
+  let superadminSearchTimer;
+  document.getElementById('superadminSearch').addEventListener('input', () => {
+    clearTimeout(superadminSearchTimer);
+    superadminSearchTimer = setTimeout(loadSuperAdmins, 350);
+  });
+
+  // Add Super Admin modal
+  const addSuperAdminModal = document.getElementById('addSuperAdminModal');
+  document.getElementById('addSuperAdminBtn').addEventListener('click', () => addSuperAdminModal.classList.add('show'));
+  document.getElementById('cancelAddSuperAdmin').addEventListener('click', () => addSuperAdminModal.classList.remove('show'));
+  document.getElementById('confirmAddSuperAdmin').addEventListener('click', async () => {
+    const name = document.getElementById('newSuperAdminName').value.trim();
+    const email = document.getElementById('newSuperAdminEmail').value.trim();
+    const password = document.getElementById('newSuperAdminPassword').value;
+    const otpEnabled = document.getElementById('newSuperAdminOtp').value === '1';
+    if (!name || !email || !password) {
+      window.showToast('All fields are required.', 'error'); return;
+    }
+    if (password.length < 8) {
+      window.showToast('Password must be at least 8 characters.', 'error'); return;
+    }
+    try {
+      await api(ENDPOINTS.superadmins, { method: 'POST', body: JSON.stringify({ name, email, password, otpEnabled }) });
+      window.showToast('Super admin created.', 'success');
+      addSuperAdminModal.classList.remove('show');
+      document.getElementById('newSuperAdminName').value = '';
+      document.getElementById('newSuperAdminEmail').value = '';
+      document.getElementById('newSuperAdminPassword').value = '';
+      loadSuperAdmins();
+    } catch (err) {
+      window.showToast(err.message || 'Failed to create super admin.', 'error');
+    }
+  });
+
+  // Close modals on backdrop click
+  [addAdminModal, addSuperAdminModal].forEach(modal => {
+    modal.addEventListener('click', (e) => { if (e.target === modal) modal.classList.remove('show'); });
+  });
+
+  // ============ Load sidebar + header, then init ============
+  function loadComponent(url, placeholderId) {
+    return fetch(url)
+      .then(r => r.text())
+      .then(html => {
+        const el = document.getElementById(placeholderId);
+        el.innerHTML = html;
+        el.querySelectorAll('script').forEach(old => {
+          const s = document.createElement('script');
+          s.textContent = old.textContent;
+          old.replaceWith(s);
+        });
+      });
+  }
+
+  window.PAGE_TITLE = "Admins";
+  window.PAGE_SUB = "Restaurant admins & super admin accounts";
+  window.onRefresh = () => { loadAdmins(); loadSuperAdmins(); };
+
+  Promise.all([
+    loadComponent('superadminsidedashboard.html', 'sidebar-placeholder'),
+    loadComponent('superadminheader.html', 'header-placeholder')
+  ]).then(() => {
+    loadAdmins();
+    loadSuperAdmins();
+  });
+</script>
+</body>
+</html>

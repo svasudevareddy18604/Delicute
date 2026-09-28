@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Delicute | Test Mode</title>
+<link rel="icon" href="https://i.postimg.cc/W3pgQx9q/DELICUTE-Imgur-1-modified.png" />
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Roboto+Mono:wght@500;600&family=Roboto:wght@400;500;600&display=swap" rel="stylesheet" />
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { width: 100%; overflow-x: hidden; }
+  :root {
+    --graphite: #14141a; --graphite-2: #1a1a22; --panel: #1d1d26; --panel-2: #232330;
+    --gold: #d9a94c; --gold-light: #f2d49b; --green: #2e9e6b; --red: #d64545;
+    --purple: #9b6fd9; --blue: #4a90d9; --text: #e9e6ef; --muted: #8b889a; --border: #33333f;
+  }
+  body { font-family: 'Roboto', sans-serif; color: var(--text); background: var(--graphite); min-height: 100vh; display: flex; }
+  a { color: inherit; text-decoration: none; }
+  button { font-family: inherit; cursor: pointer; }
+  .main { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+  .content { padding: 1.4rem; flex: 1; }
+  .panel { background: var(--panel); border: 1px solid var(--border); border-radius: 14px; padding: 1.3rem; margin-bottom: 1.2rem; position: relative; overflow: hidden; }
+  .panel::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: linear-gradient(90deg, var(--purple), var(--blue)); opacity: 0.75; }
+  .panel-title-wrap { display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.4rem; }
+  .panel-icon { width: 36px; height: 36px; border-radius: 9px; display: flex; align-items: center; justify-content: center; background: rgba(155,111,217,0.15); color: #c9aef2; flex-shrink: 0; }
+  .panel-icon svg { width: 18px; height: 18px; }
+  .panel-title { font-family: 'Playfair Display', serif; font-weight: 700; font-size: 1.05rem; }
+  .panel-sub { font-size: 0.85rem; color: var(--muted); margin: 0.6rem 0 1.2rem; line-height: 1.6; max-width: 560px; }
+
+  .status-row { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem;
+    background: var(--panel-2); border: 1px solid var(--border); border-radius: 12px; padding: 1.1rem 1.3rem; }
+  .status-label { font-family: 'Roboto Mono', monospace; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); margin-bottom: 0.3rem; }
+  .status-value { font-family: 'Playfair Display', serif; font-weight: 700; font-size: 1.2rem; }
+  .status-value.on { color: #ffca6b; }
+  .status-value.off { color: #7fd9ac; }
+  .status-updated { font-family: 'Roboto Mono', monospace; font-size: 0.68rem; color: var(--muted); margin-top: 0.3rem; }
+
+  .switch { position: relative; width: 58px; height: 30px; flex-shrink: 0; }
+  .switch input { opacity: 0; width: 0; height: 0; }
+  .slider { position: absolute; inset: 0; background: var(--graphite-2); border: 1px solid var(--border); border-radius: 30px; cursor: pointer; transition: 0.2s; }
+  .slider::before { content: ''; position: absolute; width: 22px; height: 22px; left: 3px; top: 3px; background: var(--muted); border-radius: 50%; transition: 0.2s; }
+  .switch input:checked + .slider { background: rgba(217,169,76,0.25); border-color: rgba(217,169,76,0.5); }
+  .switch input:checked + .slider::before { transform: translateX(28px); background: var(--gold); }
+  .switch input:disabled + .slider { opacity: 0.5; cursor: not-allowed; }
+
+  .warn-box { margin-top: 1.2rem; display: flex; gap: 0.7rem; align-items: flex-start;
+    background: rgba(217,169,76,0.08); border: 1px solid rgba(217,169,76,0.3); border-radius: 10px; padding: 0.9rem 1.1rem; }
+  .warn-box svg { flex-shrink: 0; color: var(--gold-light); margin-top: 0.1rem; }
+  .warn-box p { font-size: 0.82rem; color: var(--muted); line-height: 1.55; }
+  .warn-box p b { color: var(--text); }
+
+  #toast-container { position: fixed; top: 80px; right: 20px; z-index: 2000; display: flex; flex-direction: column; gap: 0.6rem; max-width: 90vw; }
+  .toast { display: flex; align-items: center; gap: 0.65rem; min-width: 260px; max-width: 340px; background: var(--panel); border-radius: 10px;
+    padding: 0.85rem 1.05rem; box-shadow: 0 10px 28px rgba(0,0,0,0.4); border-left: 4px solid var(--gold); font-size: 0.9rem; font-weight: 500;
+    opacity: 0; transform: translateX(40px); animation: toastIn 0.4s ease-out forwards; }
+  .toast.success { border-left-color: var(--green); }
+  .toast.error { border-left-color: var(--red); }
+  .toast .icon { flex-shrink: 0; width: 22px; height: 22px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; font-weight: 800; color: #fff; }
+  .toast.success .icon { background: var(--green); }
+  .toast.error .icon { background: var(--red); }
+  .toast.hide { animation: toastOut 0.35s ease-in forwards; }
+  @keyframes toastIn { to { opacity: 1; transform: translateX(0); } }
+  @keyframes toastOut { to { opacity: 0; transform: translateX(40px); } }
+
+  @media (max-width: 560px) { .content { padding: 1rem; } .status-row { flex-direction: column; align-items: flex-start; } }
+</style>
+</head>
+<body>
+
+<div id="sidebar-placeholder"></div>
+
+<div class="main">
+  <div id="header-placeholder"></div>
+
+  <div class="content">
+    <div class="panel">
+      <div class="panel-title-wrap">
+        <div class="panel-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="9"/></svg>
+        </div>
+        <div class="panel-title">Test Mode</div>
+      </div>
+      <p class="panel-sub">
+        When ON, every order placed on the live customer site is tagged as a test order — it's skipped from the
+        confirmation email and hidden from the restaurant admin's order dashboard entirely. Only superadmins can
+        see this setting or view test orders, so you can walk through the full customer → kitchen flow yourself
+        without staff noticing or real orders getting mixed in.
+      </p>
+
+      <div class="status-row">
+        <div>
+          <div class="status-label">Current status</div>
+          <div class="status-value" id="statusValue">—</div>
+          <div class="status-updated" id="statusUpdated"></div>
+        </div>
+        <label class="switch">
+          <input type="checkbox" id="testModeToggle" disabled />
+          <span class="slider"></span>
+        </label>
+      </div>
+
+      <div class="warn-box">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M12 9v4M12 17h.01"/><path d="M10.3 3.9 2.4 18a2 2 0 0 0 1.7 3h15.8a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z"/></svg>
+        <p><b>This is a global switch.</b> While ON, real customers browsing the live site will also have their orders
+        tagged as test orders and hidden from the kitchen. Turn it off as soon as you're done testing.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="toast-container" aria-live="polite" aria-atomic="true"></div>
+
+<script>
+  const API_BASE = "/api/superadmin/test-mode";
+  const LOGIN_PAGE = "/superadminlogin.html";
+
+  window.showToast = function showToast(message, type = 'success', duration = 3200) {
+    const container = document.getElementById('toast-container');
+    const toast = document.createElement('div');
+    toast.className = `toast ${type}`;
+    toast.innerHTML = `<span class="icon">${type === 'success' ? '✓' : '!'}</span><span>${message}</span>`;
+    container.appendChild(toast);
+    setTimeout(() => {
+      toast.classList.add('hide');
+      toast.addEventListener('animationend', () => toast.remove(), { once: true });
+    }, duration);
+  };
+
+  async function api(url, options = {}) {
+    const res = await fetch(url, { credentials: 'include', headers: { 'Content-Type': 'application/json' }, ...options });
+    if (res.status === 401) { window.location.href = LOGIN_PAGE; return null; }
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok || data.success === false) throw new Error(data.message || 'Request failed');
+    return data;
+  }
+
+  const toggle = document.getElementById('testModeToggle');
+  const statusValue = document.getElementById('statusValue');
+  const statusUpdated = document.getElementById('statusUpdated');
+
+  function renderStatus(enabled, updatedAt) {
+    toggle.checked = enabled;
+    statusValue.textContent = enabled ? 'ON — test orders active' : 'OFF — live orders only';
+    statusValue.className = `status-value ${enabled ? 'on' : 'off'}`;
+    statusUpdated.textContent = updatedAt ? `Last changed: ${new Date(updatedAt).toLocaleString('en-IN')}` : '';
+  }
+
+  async function loadStatus() {
+    try {
+      const data = await api(API_BASE);
+      if (!data) return;
+      renderStatus(data.enabled, data.updatedAt);
+      toggle.disabled = false;
+    } catch (e) {
+      statusValue.textContent = 'Failed to load';
+      window.showToast(e.message || 'Failed to load test mode status.', 'error');
+    }
+  }
+
+  toggle.addEventListener('change', async () => {
+    const next = toggle.checked;
+    toggle.disabled = true;
+    try {
+      const data = await api(API_BASE, { method: 'PUT', body: JSON.stringify({ enabled: next }) });
+      renderStatus(data.enabled, new Date().toISOString());
+      window.showToast(`Test mode turned ${data.enabled ? 'ON' : 'OFF'}.`, 'success');
+    } catch (e) {
+      toggle.checked = !next;
+      window.showToast(e.message || 'Failed to update test mode.', 'error');
+    } finally {
+      toggle.disabled = false;
+    }
+  });
+
+  function loadComponent(url, placeholderId) {
+    return fetch(url).then(r => r.text()).then(html => {
+      const el = document.getElementById(placeholderId);
+      el.innerHTML = html;
+      el.querySelectorAll('script').forEach(old => {
+        const s = document.createElement('script');
+        s.textContent = old.textContent;
+        old.replaceWith(s);
+      });
+    });
+  }
+
+  window.PAGE_TITLE = "Test Mode";
+  window.PAGE_SUB = "Toggle global test mode for the customer site";
+  window.onRefresh = loadStatus;
+
+  Promise.all([
+    loadComponent('superadminsidedashboard.html', 'sidebar-placeholder'),
+    loadComponent('superadminheader.html', 'header-placeholder')
+  ]).then(loadStatus);
+</script>
+</body>
+</html>

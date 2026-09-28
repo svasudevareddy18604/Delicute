@@ -1,0 +1,1224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>DELICUTE | Customer's Menu</title>
+  <link rel="icon" href="https://i.postimg.cc/W3pgQx9q/DELICUTE-Imgur-1-modified.png">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+<style>
+  :root {
+    --primary-purple: #9370DB;
+    --primary-purple-dark: #8A2BE2;
+    --lilac: #D8BFD8;
+    --bg-lavender: #E6E6FA;
+    --dark: #1A1A1A;
+    --muted: #4B5E8E;
+    --border: #D8BFD8;
+    --input-bg: #F0F8FF;
+    --gold: #FFD700;
+    --gold-soft: #F0E68C;
+    --cream: #FFF8DC;
+    --cart-fab: #4B2E83;
+    --delivered: #2E8B57;
+    --cancelled: #C0392B;
+    --veg: #2E8B57;
+    --nonveg: #B23A2E;
+    --radius: 10px;
+    --shadow-sm: 0 2px 5px rgba(216, 183, 210, 0.2);
+    --shadow-md: 0 4px 14px rgba(142, 68, 173, 0.2);
+    --toast-success-1: #2E8B57;
+    --toast-success-2: #3CB371;
+    --toast-error-1: #C0392B;
+    --toast-error-2: #E74C3C;
+    --apply-1: #2E8B57;
+    --apply-2: #43B77B;
+    --remove-1: #C0392B;
+    --remove-2: #E05B4A;
+    --clear-1: #B23A2E;
+    --clear-2: #D9483A;
+    --coupon-gold-1: #E8A93B;
+    --coupon-gold-2: #F2C464;
+  }
+
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  body {
+    font-family: 'Playfair Display', serif;
+    background: linear-gradient(135deg, var(--lilac) 0%, var(--bg-lavender) 100%);
+    color: var(--dark);
+    min-height: 100vh;
+    overflow-x: hidden;
+    overflow-y: auto;
+    -webkit-font-smoothing: antialiased;
+    -webkit-overflow-scrolling: touch;
+    touch-action: pan-y;
+  }
+
+  /* Small badge shown only while test mode is active, so it's obvious
+     at a glance you're not creating real orders. Same style as
+     index.html's badge for visual consistency across the flow. */
+  .test-mode-badge {
+    display: none;
+    align-items: center;
+    gap: 0.35rem;
+    position: fixed;
+    top: 10px;
+    right: 10px;
+    z-index: 5000;
+    font-family: Arial, sans-serif;
+    font-weight: 700;
+    font-size: 0.7rem;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    color: #1a1a1a;
+    background: #ffca28;
+    padding: 0.35rem 0.7rem;
+    border-radius: 20px;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.3);
+  }
+  .test-mode-badge.show { display: inline-flex; }
+
+  header {
+    background: linear-gradient(90deg, var(--primary-purple) 0%, var(--lilac) 100%);
+    color: #FFFFFF;
+    padding: 0.9rem 0.8rem;
+    text-align: center;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    box-shadow: var(--shadow-md);
+    position: sticky;
+  }
+  header { position: sticky; }
+  .header-inner {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  header img {
+    height: clamp(40px, 7vw, 50px);
+    filter: drop-shadow(0 1px 3px rgba(0, 0, 0, 0.2));
+    transition: transform 0.2s ease;
+    order: 1;
+  }
+  header img:hover { transform: scale(1.05); }
+  .header-titles { order: 2; }
+  header h1 {
+    font-size: clamp(1.2rem, 2.5vw, 1.5rem);
+    font-weight: 800;
+    margin-top: 0.35rem;
+    text-shadow: 0 1px 3px rgba(138, 43, 226, 0.3);
+  }
+  header .tagline {
+    font-size: clamp(0.7rem, 1.8vw, 0.82rem);
+    font-weight: 600;
+    opacity: 0.9;
+    color: var(--gold-soft);
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+    display: block;
+    margin-top: 0.1rem;
+  }
+
+  /* ---------- Track My Order — pinned top-right of header on desktop ---------- */
+  .track-order-btn {
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    order: 4;
+    display: none;
+    align-items: center;
+    gap: 0.5rem;
+    background: linear-gradient(135deg, #FFD700 0%, #FFC107 55%, #FFB300 100%);
+    border: 2.5px solid #FFFFFF;
+    color: #3B2266;
+    text-decoration: none;
+    font-family: Arial, sans-serif;
+    font-weight: 800;
+    font-size: clamp(0.72rem, 2.4vw, 0.85rem);
+    padding: 0.5rem 0.85rem 0.5rem 0.55rem;
+    border-radius: 32px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.28), 0 0 0 4px rgba(255, 215, 0, 0.18);
+    animation: trackBtnPulseGlow 2.2s ease-in-out infinite;
+    transition: transform 0.15s ease, box-shadow 0.2s ease;
+    white-space: nowrap;
+    z-index: 10;
+  }
+  .track-order-btn.show { display: inline-flex; }
+  .track-order-btn:hover {
+    transform: scale(1.06);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.35), 0 0 0 5px rgba(255, 215, 0, 0.28);
+  }
+  .track-order-btn:active { transform: scale(0.95); }
+
+  .track-icon-wrap {
+    width: 27px;
+    height: 27px;
+    background: #3B2266;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    box-shadow: inset 0 0 0 1.5px rgba(255, 255, 255, 0.25);
+  }
+  .track-order-btn i.fa-receipt {
+    font-size: 0.95rem;
+    color: #FFD700;
+  }
+
+  .track-order-btn .track-dot {
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    background: #2ECC71;
+    box-shadow: 0 0 0 0 rgba(46, 204, 113, 0.7);
+    animation: trackDotPulse 1.6s ease-out infinite;
+    flex-shrink: 0;
+    margin-left: 0.1rem;
+  }
+  @keyframes trackBtnPulseGlow {
+    0%, 100% { box-shadow: 0 4px 12px rgba(0, 0, 0, 0.28), 0 0 0 4px rgba(255, 215, 0, 0.18); }
+    50%      { box-shadow: 0 4px 16px rgba(0, 0, 0, 0.32), 0 0 0 8px rgba(255, 215, 0, 0.04); }
+  }
+  @keyframes trackDotPulse {
+    0%   { box-shadow: 0 0 0 0 rgba(46, 204, 113, 0.65); }
+    70%  { box-shadow: 0 0 0 7px rgba(46, 204, 113, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(46, 204, 113, 0); }
+  }
+  .track-order-btn .track-label-full { display: inline; }
+  .track-order-btn .track-label-short { display: none; }
+
+  /* ---------- MOBILE: pull the button out of the corner, into normal flow ----------
+     Instead of floating absolutely over the logo (which caused the overlap/clutter
+     seen on phones), it becomes a normal flex child that sits on its own row,
+     centered, below the anniversary banner. No overlap possible at any width. */
+  @media (max-width: 480px) {
+    .header-inner { position: static; }
+    .track-order-btn {
+      position: static;
+      top: auto; right: auto;
+      order: 4;
+      margin: 0.55rem auto 0;
+      align-self: center;
+    }
+    .anniversary-banner { order: 3; }
+  }
+
+  @media (max-width: 420px) {
+    .track-order-btn { padding: 0.42rem 0.65rem 0.42rem 0.42rem; gap: 0.35rem; }
+    .track-icon-wrap { width: 23px; height: 23px; }
+    .track-order-btn i.fa-receipt { font-size: 0.8rem; }
+    .track-order-btn .track-label-full { display: none; }
+    .track-order-btn .track-label-short { display: inline; }
+  }
+
+  .anniversary-banner {
+    margin: 0.6rem auto 0;
+    max-width: 420px;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.35rem 0.9rem;
+    border-radius: 30px;
+    background: linear-gradient(90deg, #FFFFFF10, #FFFFFF25, #FFFFFF10);
+    border: 1px solid rgba(255,255,255,0.5);
+    position: relative;
+    overflow: hidden;
+    order: 3;
+  }
+  .anniversary-banner::before {
+    content: '';
+    position: absolute;
+    top: 0; left: -60%;
+    width: 60%; height: 100%;
+    background: linear-gradient(120deg, transparent, rgba(255,255,255,0.55), transparent);
+    animation: shineSweep 2.8s ease-in-out infinite;
+  }
+  .anniversary-text {
+    font-size: clamp(0.68rem, 1.7vw, 0.8rem);
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    background: linear-gradient(90deg, var(--gold), var(--cream), var(--gold));
+    background-size: 200% auto;
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    animation: shimmerText 3s linear infinite;
+    white-space: nowrap;
+  }
+  .anniversary-icon {
+    font-size: clamp(0.8rem, 2vw, 0.95rem);
+    display: inline-block;
+    animation: sparklePulse 1.6s ease-in-out infinite;
+  }
+  .anniversary-icon.delay { animation-delay: 0.8s; }
+  @keyframes shineSweep { 0% { left: -60%; } 100% { left: 120%; } }
+  @keyframes shimmerText { 0% { background-position: 0% center; } 100% { background-position: 200% center; } }
+  @keyframes sparklePulse {
+    0%, 100% { transform: scale(1) rotate(0deg); opacity: 0.85; }
+    50% { transform: scale(1.25) rotate(15deg); opacity: 1; }
+  }
+
+  .container {
+    max-width: 1400px;
+    margin: 0.5rem auto;
+    padding: 0 0.6rem;
+  }
+  h2 {
+    font-size: clamp(1.2rem, 2.8vw, 1.4rem);
+    font-weight: 800;
+    color: var(--primary-purple);
+    margin: 0.6rem 0 0.4rem;
+    text-align: center;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+    position: relative;
+    letter-spacing: 0.5px;
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.5s ease, transform 0.5s ease, color 0.3s ease;
+  }
+  h2.visible { opacity: 1; transform: translateY(0); }
+  h2:hover { color: var(--primary-purple-dark); }
+  h2:hover::after {
+    width: clamp(100px, 12vw, 120px);
+    background: linear-gradient(90deg, var(--primary-purple), var(--primary-purple-dark));
+  }
+  h2::after {
+    content: '';
+    position: absolute;
+    bottom: -4px; left: 50%;
+    transform: translateX(-50%);
+    width: clamp(60px, 8vw, 80px);
+    height: 2px;
+    background: linear-gradient(90deg, var(--primary-purple), var(--lilac));
+    border-radius: 2px;
+    transition: width 0.3s ease, background 0.3s ease;
+  }
+
+  .search-bar {
+    display: flex;
+    align-items: center;
+    max-width: 600px;
+    margin: 0.5rem auto;
+    background: #FFFFFF;
+    border: 2px solid var(--lilac);
+    border-radius: 8px;
+    padding: 0.3rem;
+    box-shadow: var(--shadow-sm);
+    transition: box-shadow 0.2s ease;
+    position: relative;
+  }
+  .search-bar:hover { box-shadow: 0 3px 7px rgba(216, 183, 210, 0.3); }
+  .search-bar input {
+    flex: 1;
+    border: none;
+    padding: 0.6rem;
+    font-size: clamp(0.85rem, 1.8vw, 0.95rem);
+    font-family: 'Playfair Display', serif;
+    color: var(--dark);
+    outline: none;
+    background: transparent;
+  }
+  .search-bar button {
+    background: linear-gradient(45deg, var(--primary-purple), var(--lilac));
+    border: none;
+    padding: 0.6rem;
+    cursor: pointer;
+    color: #FFFFFF;
+    font-size: clamp(1rem, 2vw, 1.1rem);
+    border-radius: 6px;
+    transition: background 0.2s ease, transform 0.2s ease;
+    margin-right: 0.3rem;
+  }
+  .search-bar button:hover { background: linear-gradient(45deg, var(--primary-purple-dark), var(--lilac)); transform: scale(1.05); }
+
+  .filter-dropdown {
+    position: absolute;
+    top: 100%; right: 0;
+    background: #FFFFFF;
+    border: 1px solid var(--lilac);
+    border-radius: 8px;
+    box-shadow: var(--shadow-sm);
+    z-index: 1000;
+    min-width: 200px;
+    max-height: 300px;
+    overflow-y: auto;
+    display: none;
+    font-family: Arial, sans-serif;
+  }
+  .filter-dropdown.active { display: block; }
+  .filter-dropdown div {
+    padding: 0.6rem 1rem;
+    font-size: clamp(0.85rem, 1.8vw, 0.95rem);
+    color: var(--dark);
+    cursor: pointer;
+    transition: background 0.2s ease;
+  }
+  .filter-dropdown div:hover { background: var(--input-bg); }
+  .filter-dropdown div.selected { background: var(--lilac); color: #FFFFFF; font-weight: 600; }
+
+  .veg-filter-pills {
+    display: flex;
+    justify-content: center;
+    gap: 0.5rem;
+    margin: 0.4rem auto 0.2rem;
+  }
+  .veg-pill {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.4rem 0.85rem;
+    border-radius: 20px;
+    background: #FFFFFF;
+    border: 1px solid var(--lilac);
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: var(--muted);
+    cursor: pointer;
+    box-shadow: var(--shadow-sm);
+    transition: all 0.2s ease;
+    font-family: Arial, sans-serif;
+  }
+  .veg-pill.active { color: #FFFFFF; border-color: transparent; }
+  .veg-pill[data-veg="veg"].active { background: var(--veg); }
+  .veg-pill[data-veg="nonveg"].active { background: var(--nonveg); }
+  .veg-pill[data-veg="all"].active { background: var(--primary-purple); }
+
+  .food-mark {
+    width: 13px;
+    height: 13px;
+    border: 1.6px solid currentColor;
+    border-radius: 3px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .food-mark::after {
+    content: '';
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: currentColor;
+  }
+
+  .category-row-container { display: flex; flex-direction: column; gap: 0.4rem; margin-bottom: 0.6rem; }
+  .category-row {
+    display: flex;
+    flex-wrap: nowrap;
+    gap: 0.4rem;
+    padding: 0.4rem 0;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    scroll-behavior: smooth;
+    touch-action: pan-x pan-y;
+    min-height: 280px;
+  }
+  .category-row::-webkit-scrollbar { height: 6px; }
+  .category-row::-webkit-scrollbar-thumb { background: var(--primary-purple); border-radius: 3px; }
+  .category-row::-webkit-scrollbar-track { background: rgba(216, 183, 210, 0.2); }
+
+  .card {
+    flex: 0 0 auto;
+    width: clamp(140px, 40vw, 170px);
+    min-height: 280px;
+    background: #FFFFFF;
+    border: 1px solid var(--lilac);
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 5px rgba(216, 183, 210, 0.1);
+    scroll-snap-align: start;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  .card:hover { transform: translateY(-2px); box-shadow: 0 3px 8px rgba(216, 183, 210, 0.2); }
+  .card.top-pick::after {
+    content: 'Top Pick';
+    position: absolute;
+    top: 6px; right: 6px;
+    background: var(--lilac);
+    color: #1A1A1A;
+    padding: 0.2rem 0.5rem;
+    border-radius: 5px;
+    font-size: clamp(0.6rem, 1.4vw, 0.7rem);
+    font-weight: 700;
+    z-index: 2;
+  }
+  .card-img-wrap { position: relative; width: 100%; }
+  .card-img-wrap .food-badge {
+    position: absolute;
+    top: 6px; left: 6px;
+    background: #FFFFFF;
+    border-radius: 4px;
+    padding: 2px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+    z-index: 2;
+  }
+  .card img {
+    width: 100%;
+    height: 130px;
+    object-fit: cover;
+    display: block;
+    background: var(--input-bg);
+    max-width: 100%;
+    pointer-events: none;
+    user-select: none;
+  }
+  .card-body {
+    padding: 0.3rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    flex-grow: 1;
+    width: 100%;
+  }
+  .card-body h3 {
+    font-size: clamp(0.8rem, 1.6vw, 0.9rem);
+    font-weight: 700;
+    margin: 0.2rem 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .card-body p.desc {
+    font-size: clamp(0.7rem, 1.4vw, 0.8rem);
+    color: var(--muted);
+    margin-bottom: 0.2rem;
+    line-height: 1.2;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .price {
+    color: var(--primary-purple);
+    font-weight: 700;
+    font-size: clamp(0.8rem, 1.6vw, 0.9rem);
+    margin-bottom: 0.2rem;
+    font-family: Arial, sans-serif;
+  }
+  .old-price {
+    text-decoration: line-through;
+    color: var(--primary-purple-dark);
+    font-size: clamp(0.7rem, 1.5vw, 0.8rem);
+    margin-left: 0.3rem;
+    font-family: Arial, sans-serif;
+    opacity: 0.8;
+    font-weight: 500;
+  }
+  .add-btn {
+    background: linear-gradient(45deg, var(--primary-purple), var(--lilac));
+    color: #1A1A1A;
+    border: none;
+    padding: 0.5rem;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: clamp(0.75rem, 1.6vw, 0.85rem);
+    font-weight: 600;
+    width: 100%;
+    margin-top: auto;
+    transition: background 0.2s ease;
+    box-shadow: 0 2px 5px rgba(147, 112, 219, 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.3rem;
+  }
+  .add-btn:hover { background: linear-gradient(45deg, var(--primary-purple-dark), var(--lilac)); }
+
+  .size-select {
+    width: 100%;
+    padding: 0.5rem;
+    border: 1px solid var(--lilac);
+    border-radius: 6px;
+    font-size: clamp(0.75rem, 1.6vw, 0.85rem);
+    font-family: Arial, sans-serif;
+    background: var(--input-bg);
+    color: var(--dark);
+    cursor: pointer;
+    margin-bottom: 0.3rem;
+    transition: border-color 0.2s ease;
+  }
+  .size-select:focus { border-color: var(--primary-purple); outline: none; }
+
+  .cart-section {
+    position: fixed;
+    right: 0; bottom: 0;
+    width: 100%;
+    max-width: 500px;
+    height: 70%;
+    background: rgba(255, 255, 255, 0.98);
+    border-top: 1px solid var(--lilac);
+    border-radius: 18px 18px 0 0;
+    padding: 0.5rem 0.8rem 0.8rem;
+    overflow-y: auto;
+    box-shadow: 0 -6px 24px rgba(75, 46, 131, 0.18);
+    transform: translateY(100%);
+    transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+    z-index: 1000;
+    -webkit-overflow-scrolling: touch;
+    font-family: Arial, sans-serif;
+    touch-action: pan-y;
+  }
+  .cart-section.active { transform: translateY(0); }
+  .cart-section.dragging { transition: none; }
+  .cart-handle {
+    width: 46px; height: 5px;
+    background: var(--lilac);
+    border-radius: 4px;
+    margin: 0.5rem auto 0.6rem;
+    cursor: grab;
+    touch-action: none;
+  }
+  .cart-handle:active { cursor: grabbing; background: var(--primary-purple); }
+  .cart-toggle {
+    position: fixed;
+    bottom: 1.2rem; right: 1.2rem;
+    width: 58px; height: 58px;
+    background: var(--cart-fab);
+    color: #FFFFFF;
+    border: 3px solid #FFFFFF;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: clamp(1.1rem, 2.2vw, 1.3rem);
+    box-shadow: 0 4px 14px rgba(75, 46, 131, 0.45), 0 2px 6px rgba(0, 0, 0, 0.15);
+    transition: background 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+    z-index: 1001;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .cart-toggle:hover { background: #3B2266; transform: scale(1.08); box-shadow: 0 6px 18px rgba(75, 46, 131, 0.55); }
+  .cart-toggle::after {
+    content: attr(data-count);
+    position: absolute;
+    top: -6px; right: -6px;
+    background: #FFC107;
+    color: #1A1A1A;
+    border-radius: 50%;
+    min-width: 22px; height: 22px;
+    align-items: center; justify-content: center;
+    padding: 0 4px;
+    font-size: clamp(0.65rem, 1.5vw, 0.75rem);
+    font-weight: 800;
+    border: 2px solid #FFFFFF;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.25);
+    display: none;
+  }
+  .cart-toggle.has-items::after { display: flex; }
+
+  .cart-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 0.5rem 0;
+    padding: 0.5rem;
+    border: 1px solid var(--lilac);
+    border-radius: 8px;
+    background: var(--input-bg);
+    box-shadow: 0 1px 3px rgba(216, 183, 210, 0.05);
+  }
+  .cart-item img {
+    width: clamp(35px, 8vw, 45px);
+    height: clamp(35px, 8vw, 45px);
+    object-fit: cover;
+    border-radius: 4px;
+    margin-right: 0.5rem;
+    background: var(--input-bg);
+  }
+  .cart-item .cart-item-info { flex: 1; overflow: hidden; }
+  .cart-item .cart-item-info h4 {
+    font-size: clamp(0.8rem, 1.8vw, 0.9rem);
+    font-weight: 600;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    font-family: Arial, sans-serif;
+    display: flex; align-items: center; gap: 0.3rem;
+  }
+  .cart-item-addons {
+    font-size: 0.7rem;
+    color: var(--muted);
+    margin-top: 0.15rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 160px;
+  }
+  .qty-controls { display: flex; align-items: center; gap: 0.3rem; }
+  .qty-controls button {
+    background: linear-gradient(45deg, var(--primary-purple), var(--lilac));
+    color: #FFFFFF; border: none;
+    padding: 0.4rem 0.7rem; border-radius: 6px;
+    cursor: pointer; font-size: clamp(0.8rem, 1.8vw, 0.9rem);
+    transition: background 0.2s ease;
+  }
+  .qty-controls button:hover { background: linear-gradient(45deg, var(--primary-purple-dark), var(--lilac)); }
+  .qty-controls span { margin: 0 0.3rem; font-size: clamp(0.8rem, 1.8vw, 0.9rem); font-weight: 600; font-family: Arial, sans-serif; }
+  .cart-item .line-total {
+    font-weight: 700; color: var(--primary-purple);
+    min-width: clamp(40px, 10vw, 50px); text-align: right;
+    font-size: clamp(0.8rem, 1.8vw, 0.9rem);
+    font-family: Arial, sans-serif;
+  }
+
+  .coupon-box { margin: 0.6rem 0; display: flex; flex-wrap: wrap; gap: 0.4rem; align-items: center; }
+  .coupon-box input {
+    flex: 1; min-width: 140px; padding: 0.6rem;
+    border: 1px solid var(--primary-purple); border-radius: 6px;
+    font-size: clamp(0.75rem, 1.8vw, 0.85rem); color: var(--dark);
+    background: #FFFFFF; outline: none; font-family: Arial, sans-serif;
+  }
+
+  .apply-btn {
+    background: linear-gradient(45deg, var(--apply-1), var(--apply-2));
+    color: #FFFFFF; border: none;
+    padding: 0.6rem 0.9rem; border-radius: 6px; cursor: pointer;
+    font-size: clamp(0.75rem, 1.8vw, 0.85rem); font-weight: 700;
+    transition: background 0.2s ease, transform 0.15s ease;
+    box-shadow: 0 2px 6px rgba(46, 139, 87, 0.3);
+    display: inline-flex; align-items: center; gap: 0.3rem;
+  }
+  .apply-btn:hover { background: linear-gradient(45deg, #256E46, var(--apply-1)); transform: translateY(-1px); }
+
+  .remove-btn {
+    background: #FFFFFF;
+    color: var(--remove-1);
+    border: 1.5px solid var(--remove-1);
+    padding: 0.55rem 0.9rem; border-radius: 6px; cursor: pointer;
+    font-size: clamp(0.75rem, 1.8vw, 0.85rem); font-weight: 700;
+    transition: background 0.2s ease, color 0.2s ease, transform 0.15s ease;
+    display: inline-flex; align-items: center; gap: 0.3rem;
+  }
+  .remove-btn:hover { background: var(--remove-1); color: #FFFFFF; transform: translateY(-1px); }
+
+  .clear-cart-btn {
+    width: 100%;
+    background: linear-gradient(45deg, var(--clear-1), var(--clear-2));
+    color: #FFFFFF; border: none;
+    padding: 0.65rem; border-radius: 6px; cursor: pointer;
+    font-size: clamp(0.75rem, 1.8vw, 0.85rem); font-weight: 700;
+    margin-top: 0.5rem; transition: background 0.2s ease, transform 0.15s ease;
+    box-shadow: 0 3px 8px rgba(178, 58, 46, 0.35);
+    display: flex; align-items: center; justify-content: center; gap: 0.4rem;
+    letter-spacing: 0.3px;
+  }
+  .clear-cart-btn:hover { background: linear-gradient(45deg, #8F2E24, var(--clear-1)); transform: translateY(-1px); }
+
+  .coupon-btn {
+    width: 100%;
+    background: linear-gradient(45deg, var(--coupon-gold-1), var(--coupon-gold-2));
+    color: #4A2E00; border: none;
+    padding: 0.65rem; border-radius: 6px; cursor: pointer;
+    font-size: clamp(0.75rem, 1.8vw, 0.85rem); font-weight: 700;
+    margin-top: 0.3rem;
+    box-shadow: 0 3px 8px rgba(232, 169, 59, 0.4);
+    display: flex; align-items: center; justify-content: center; gap: 0.4rem;
+    text-decoration: none;
+    transition: background 0.2s ease, transform 0.15s ease;
+    letter-spacing: 0.3px;
+  }
+  .coupon-btn:hover { background: linear-gradient(45deg, #D89425, var(--coupon-gold-1)); transform: translateY(-1px); }
+
+  .total-box { margin-top: 0.6rem; border-top: 1px solid var(--lilac); padding-top: 0.6rem; font-family: Arial, sans-serif; }
+  .line { display: flex; justify-content: space-between; margin: 0.3rem 0; font-size: clamp(0.8rem, 1.8vw, 0.9rem); }
+  .line span:last-child { font-weight: 600; color: var(--primary-purple); }
+  .line.bold { font-weight: 700; font-size: clamp(0.9rem, 2vw, 1rem); }
+
+  .order-form input, .order-form textarea {
+    width: 100%; padding: 0.6rem;
+    border: 1px solid var(--primary-purple); border-radius: 6px;
+    font-size: clamp(0.75rem, 1.8vw, 0.85rem); color: var(--dark);
+    background: #FFFFFF; margin-bottom: 0.5rem; outline: none; font-family: Arial, sans-serif;
+  }
+  .order-form textarea { resize: vertical; min-height: 70px; }
+  .order-form button {
+    width: 100%; background: linear-gradient(45deg, var(--lilac), var(--primary-purple));
+    color: #1A1A1A; border: none;
+    padding: 0.7rem; border-radius: 6px; cursor: pointer;
+    font-size: clamp(0.85rem, 1.8vw, 0.95rem); font-weight: 700;
+    transition: background 0.2s ease;
+    box-shadow: 0 2px 5px rgba(216, 183, 210, 0.1);
+  }
+  .order-form button:hover { background: linear-gradient(45deg, var(--lilac), var(--primary-purple-dark)); }
+
+  .table-detect-banner {
+    font-family: Arial, sans-serif;
+    font-size: 0.75rem;
+    font-weight: 600;
+    margin-bottom: 0.35rem;
+    padding: 0.4rem 0.6rem;
+    border-radius: 6px;
+  }
+  .table-detect-banner.success { color: #fff; background: linear-gradient(45deg, var(--delivered), #3CB371); }
+  .table-detect-banner.error { color: #fff; background: linear-gradient(45deg, var(--cancelled), #E74C3C); }
+
+  .order-form input#tableNum[readonly] {
+    background: var(--bg-lavender);
+    font-weight: 700;
+    color: var(--primary-purple-dark);
+    cursor: not-allowed;
+    border-color: var(--delivered);
+  }
+
+  #toast {
+    visibility: hidden;
+    min-width: 180px; max-width: 90%;
+    background: linear-gradient(135deg, var(--primary-purple), var(--lilac));
+    color: #FFFFFF; text-align: center;
+    border-radius: 8px; padding: 0.75rem 1rem;
+    position: fixed; z-index: 3000;
+    top: 50px; right: 10px;
+    font-size: clamp(0.75rem, 1.8vw, 0.85rem);
+    font-weight: 600;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
+    font-family: Arial, sans-serif;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    letter-spacing: 0.2px;
+  }
+  #toast i { font-size: 1rem; }
+  #toast.show { visibility: visible; animation: slideDown 0.4s ease-out, slideUp 0.4s ease-in 4s forwards; }
+  @keyframes slideDown { from { opacity: 0; top: -100%; } to { opacity: 1; top: 50px; } }
+  @keyframes slideUp { from { opacity: 1; top: 50px; } to { opacity: 0; top: -100%; } }
+
+  .no-items-msg { text-align: center; color: var(--muted); font-size: clamp(0.8rem, 1.8vw, 0.9rem); padding: 1.5rem 0; }
+
+  /* =====================================================
+     ADD-ON MODAL — "stunner" polish pass
+     ===================================================== */
+  .addon-modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(26, 18, 46, 0.55);
+    backdrop-filter: blur(3px);
+    -webkit-backdrop-filter: blur(3px);
+    z-index: 4000;
+    align-items: flex-end;
+    justify-content: center;
+    padding: 0;
+    opacity: 0;
+    transition: opacity 0.25s ease;
+  }
+  .addon-modal-overlay.show { display: flex; opacity: 1; }
+
+  .addon-modal-box {
+    background: #FFFFFF;
+    width: 100%;
+    max-width: 480px;
+    max-height: 88vh;
+    overflow-y: auto;
+    border-radius: 22px 22px 0 0;
+    box-shadow: 0 -10px 34px rgba(75, 46, 131, 0.32), 0 -2px 8px rgba(0,0,0,0.08);
+    font-family: Arial, sans-serif;
+    animation: addonSlideUp 0.32s cubic-bezier(0.22, 1, 0.36, 1);
+    -webkit-overflow-scrolling: touch;
+  }
+  @keyframes addonSlideUp {
+    from { transform: translateY(40px); opacity: 0; }
+    to   { transform: translateY(0);    opacity: 1; }
+  }
+
+  .addon-modal-header {
+    padding: 1.1rem 1.2rem;
+    background: linear-gradient(90deg, var(--primary-purple) 0%, var(--primary-purple-dark) 55%, var(--lilac) 100%);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 2;
+    border-radius: 22px 22px 0 0;
+    box-shadow: 0 2px 8px rgba(75, 46, 131, 0.15);
+  }
+  .addon-modal-header h3 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #FFFFFF;
+    text-shadow: 0 1px 3px rgba(0,0,0,0.2);
+    padding-right: 0.5rem;
+    line-height: 1.3;
+  }
+  .addon-modal-close {
+    background: rgba(255,255,255,0.22);
+    border: none;
+    color: #FFFFFF;
+    width: 32px; height: 32px;
+    min-width: 32px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s ease, transform 0.2s ease;
+  }
+  .addon-modal-close:hover { background: rgba(255,255,255,0.38); transform: rotate(90deg); }
+
+  .addon-modal-body { padding: 1.1rem 1.2rem 0.4rem; }
+
+  .addon-group-block {
+    margin-bottom: 1.3rem;
+    padding-bottom: 1.1rem;
+    border-bottom: 1px dashed var(--border);
+  }
+  .addon-group-block:last-child { margin-bottom: 0.3rem; border-bottom: none; padding-bottom: 0; }
+
+  .addon-group-title {
+    font-weight: 700;
+    font-size: 0.95rem;
+    color: var(--primary-purple-dark);
+    margin-bottom: 0.2rem;
+    display: flex;
+    flex-direction: column;
+  }
+  .addon-group-sub {
+    font-weight: 600;
+    font-size: 0.7rem;
+    color: var(--muted);
+    margin-top: 0.15rem;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+  }
+
+  .addon-option-list { display: flex; flex-direction: column; gap: 0.5rem; margin-top: 0.6rem; }
+
+  .addon-option-row {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    background: var(--input-bg);
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    padding: 0.6rem 0.8rem;
+    cursor: pointer;
+    transition: border-color 0.15s ease, background 0.15s ease, box-shadow 0.15s ease, opacity 0.15s ease;
+  }
+  .addon-option-row:has(input:checked) {
+    border-color: var(--primary-purple);
+    background: #F3ECFB;
+    box-shadow: 0 2px 8px rgba(147, 112, 219, 0.18);
+  }
+  .addon-option-row.disabled { opacity: 0.45; cursor: not-allowed; }
+  .addon-option-row input {
+    width: 18px; height: 18px;
+    accent-color: var(--primary-purple-dark);
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+  .addon-option-mark {
+    width: 13px; height: 13px;
+    border: 1.6px solid var(--veg);
+    border-radius: 3px;
+    display: inline-flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .addon-option-mark::after { content: ''; width: 6px; height: 6px; border-radius: 50%; background: var(--veg); }
+  .addon-option-mark.nonveg { border-color: var(--nonveg); }
+  .addon-option-mark.nonveg::after { background: var(--nonveg); }
+  .addon-option-name { flex: 1; font-size: 0.87rem; font-weight: 600; color: var(--dark); }
+  .addon-option-price { font-size: 0.82rem; font-weight: 700; color: var(--primary-purple); white-space: nowrap; }
+
+  .addon-modal-footer {
+    padding: 0.9rem 1.2rem;
+    border-top: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.7rem;
+    position: sticky;
+    bottom: 0;
+    background: #FFFFFF;
+    box-shadow: 0 -2px 8px rgba(0,0,0,0.05);
+  }
+  .addon-modal-total { font-size: 1.1rem; font-weight: 800; color: var(--primary-purple-dark); }
+  .addon-modal-add-btn {
+    background: linear-gradient(45deg, var(--primary-purple), var(--primary-purple-dark));
+    color: #FFFFFF;
+    border: none;
+    padding: 0.75rem 1.3rem;
+    border-radius: 10px;
+    cursor: pointer;
+    font-weight: 700;
+    font-size: 0.9rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    box-shadow: 0 3px 10px rgba(138, 43, 226, 0.35);
+    transition: background 0.2s ease, transform 0.15s ease, box-shadow 0.2s ease;
+  }
+  .addon-modal-add-btn:hover {
+    background: linear-gradient(45deg, var(--primary-purple-dark), #6E1FB0);
+    transform: translateY(-1px);
+    box-shadow: 0 5px 14px rgba(138, 43, 226, 0.45);
+  }
+  .addon-modal-add-btn:active { transform: translateY(0); }
+
+  @media (min-width: 769px) {
+    .container { padding: 0 0.8rem; }
+    .category-row { flex-wrap: wrap; gap: 0.8rem; overflow-x: hidden; justify-content: flex-start; }
+    .card { max-width: 190px; min-height: 300px; }
+    .card img { height: 160px; }
+    .cart-section { max-width: 400px; right: 0.8rem; border-radius: 18px 18px 0 0; }
+    .search-bar { max-width: 700px; }
+    .filter-dropdown { min-width: 250px; }
+    .addon-modal-overlay { align-items: center; }
+    .addon-modal-box { border-radius: 18px; max-height: 80vh; animation: addonPopIn 0.28s cubic-bezier(0.22, 1, 0.36, 1); }
+    .addon-modal-header { border-radius: 18px 18px 0 0; }
+    @keyframes addonPopIn {
+      from { transform: translateY(20px) scale(0.97); opacity: 0; }
+      to   { transform: translateY(0) scale(1);       opacity: 1; }
+    }
+  }
+
+  @media (max-width: 360px) {
+    header img { height: 40px; }
+    header h1 { font-size: 1rem; }
+    header .tagline { font-size: 0.6rem; }
+    .container { margin: 0.4rem; padding: 0 0.3rem; }
+    h2 { font-size: 1.1rem; }
+    h2::after { width: 60px; }
+    .search-bar input { font-size: 0.8rem; padding: 0.5rem; }
+    .search-bar button { font-size: 0.85rem; padding: 0.5rem; }
+    .card { width: clamp(130px, 38vw, 150px); min-height: 260px; }
+    .card img { height: 110px; }
+    .card-body h3 { font-size: 0.75rem; }
+    .card-body p.desc { font-size: 0.65rem; }
+    .price { font-size: 0.75rem; }
+    .old-price { font-size: 0.65rem; }
+    .add-btn { font-size: 0.7rem; padding: 0.4rem; }
+    .size-select { font-size: 0.7rem; padding: 0.4rem; }
+    .cart-section { height: 80%; padding: 0.5rem 0.6rem 0.6rem; }
+    .cart-toggle { bottom: 0.9rem; right: 0.9rem; width: 50px; height: 50px; font-size: 1rem; }
+    .cart-item img { width: 30px; height: 30px; }
+    .cart-item .cart-item-info h4 { font-size: 0.75rem; }
+    .qty-controls button { padding: 0.3rem 0.6rem; font-size: 0.75rem; }
+    .qty-controls span { font-size: 0.75rem; }
+    .cart-item .line-total { font-size: 0.75rem; min-width: 35px; }
+    .coupon-box input { font-size: 0.7rem; padding: 0.5rem; }
+    .apply-btn, .remove-btn { font-size: 0.7rem; padding: 0.5rem 0.7rem; }
+    .coupon-btn { font-size: 0.7rem; padding: 0.5rem; }
+    .order-form input, .order-form textarea { font-size: 0.7rem; padding: 0.5rem; }
+    .order-form button { font-size: 0.75rem; padding: 0.6rem; }
+    .clear-cart-btn { font-size: 0.7rem; padding: 0.5rem; }
+    .line { font-size: 0.75rem; }
+    .line.bold { font-size: 0.85rem; }
+    .filter-dropdown { min-width: 180px; }
+    .filter-dropdown div { font-size: 0.8rem; padding: 0.5rem 0.8rem; }
+    #toast { font-size: 0.65rem; padding: 0.6rem 0.8rem; }
+    .addon-modal-header h3 { font-size: 0.95rem; }
+    .addon-modal-body { padding: 0.9rem 0.9rem 0.3rem; }
+    .addon-option-name { font-size: 0.8rem; }
+    .addon-modal-total { font-size: 0.95rem; }
+    .addon-modal-add-btn { font-size: 0.8rem; padding: 0.65rem 1rem; }
+  }
+</style>
+</head>
+<body>
+  <div class="test-mode-badge" id="testModeBadge">🧪 Test Mode</div>
+
+  <header>
+    <div class="header-inner">
+      <a href="customerorderstatus.html" class="track-order-btn" id="trackOrderBtn">
+        <span class="track-icon-wrap">
+          <i class="fas fa-receipt"></i>
+        </span>
+        <span class="track-label-full">Track My Order</span>
+        <span class="track-label-short">Track</span>
+        <span class="track-dot"></span>
+      </a>
+
+      <img src="https://i.postimg.cc/W3pgQx9q/DELICUTE-Imgur-1-modified.png" alt="DELICUTE Logo" onerror="this.src='https://via.placeholder.com/50'">
+      <div class="header-titles">
+        <h1>DELICUTE</h1>
+        <span class="tagline">Every Bite Tells A Story</span>
+      </div>
+     
+      </div>
+    </div>
+  </header>
+
+  <div class="container">
+    <h2>OUR DELICUTE SPECIALS</h2>
+    <div id="topPicks" class="category-row"></div>
+
+    <h2>OUR MENU</h2>
+    <div class="search-bar">
+      <input type="text" id="searchInput" placeholder="Search by name...">
+      <button id="filterBtn"><i class="fas fa-filter"></i></button>
+      <div class="filter-dropdown" id="filterDropdown">
+        <div data-category="All" class="selected">All Categories</div>
+      </div>
+    </div>
+
+    <div class="veg-filter-pills" id="vegFilterPills">
+      <div class="veg-pill active" data-veg="all">All</div>
+      <div class="veg-pill" data-veg="veg"><span class="food-mark" style="color:var(--veg)"></span> Veg</div>
+      <div class="veg-pill" data-veg="nonveg"><span class="food-mark" style="color:var(--nonveg)"></span> Non-Veg</div>
+    </div>
+
+    <div id="menuCategories"></div>
+  </div>
+
+  <div class="cart-section" id="cartSection">
+    <div class="cart-handle" id="cartHandle"></div>
+    <h2><i class="fas fa-shopping-cart"></i> Your Cart</h2>
+    <div id="cartItems"></div>
+    <div class="coupon-box">
+      <input type="text" id="couponCode" placeholder="Enter coupon code">
+      <button class="apply-btn" onclick="applyCoupon()"><i class="fas fa-check"></i> Apply</button>
+      <button class="remove-btn" onclick="removeCoupon()"><i class="fas fa-times"></i> Remove</button>
+    </div>
+    <button class="clear-cart-btn" onclick="clearCart()"><i class="fas fa-trash-alt"></i> Clear Cart</button>
+    <a href="customercoupons.html" class="coupon-btn"><i class="fas fa-ticket-alt"></i> View Available Coupons</a>
+    <div class="total-box">
+      <div class="line"><span>Subtotal:</span><span id="subtotal">₹0</span></div>
+      <div class="line"><span>Discount:</span><span id="discount">₹0</span></div>
+      <div class="line bold"><span>Total:</span><span id="total">₹0</span></div>
+    </div>
+    <div class="order-form">
+      <input type="text" id="custName" placeholder="Your Name">
+      <div id="tableDetectBanner"></div>
+      <input type="number" id="tableNum" placeholder="Table Number" min="1">
+      <textarea id="instructions" placeholder="Instructions"></textarea>
+      <button onclick="placeOrder()">Place Order</button>
+    </div>
+  </div>
+
+  <button class="cart-toggle" id="cartToggle" onclick="toggleCart()"><i class="fas fa-shopping-cart"></i></button>
+
+  <!-- Add-on selection modal -->
+  <div class="addon-modal-overlay" id="addonModalOverlay">
+    <div class="addon-modal-box">
+      <div class="addon-modal-header">
+        <h3 id="addonModalTitle">Customize Item</h3>
+        <button class="addon-modal-close" onclick="closeAddonModal()"><i class="fas fa-times"></i></button>
+      </div>
+      <div class="addon-modal-body" id="addonModalBody"></div>
+      <div class="addon-modal-footer">
+        <span class="addon-modal-total" id="addonModalTotal">₹0.00</span>
+        <button class="addon-modal-add-btn" onclick="confirmAddonSelection()"><i class="fas fa-cart-plus"></i> Add to Cart</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast"></div>
+
+  <!-- ================================================================
+       TABLE / SESSION DETECTION
+       Runs before menu.js / cart.js. Resolves table+session in this
+       priority: URL params (from index.html, always fresh/wins) ->
+       localStorage (only if NOT stale) -> if neither is usable, send
+       back to index.html to pick a table fresh. A saved table older
+       than TABLE_TTL_MS is treated as belonging to a previous visit,
+       so it can't silently carry over to a new dining session.
+       Exposes window.DELICUTE_TABLE_ID and window.DELICUTE_SESSION_ID
+       for cart.js's placeOrder() to use when it sends the order.
+       ================================================================ -->
+  <script>
+    (function () {
+      const TABLE_TTL_MS = 4 * 60 * 60 * 1000; // keep this in sync with index.html
+
+      const params = new URLSearchParams(window.location.search);
+      const urlTable = params.get('table');
+      const urlSession = params.get('session');
+
+      if (urlTable) {
+        localStorage.setItem('delicute_table', urlTable);
+        localStorage.setItem('delicute_table_ts', Date.now().toString());
+      }
+      if (urlSession) localStorage.setItem('delicute_session_id', urlSession);
+
+      let sessionId = localStorage.getItem('delicute_session_id');
+      if (!sessionId) {
+        sessionId = crypto.randomUUID();
+        localStorage.setItem('delicute_session_id', sessionId);
+      }
+
+      const ts = localStorage.getItem('delicute_table_ts');
+      const isStale = !ts || (Date.now() - Number(ts)) > TABLE_TTL_MS;
+      const tableId = localStorage.getItem('delicute_table');
+
+      // No table known, or it's too old to trust -> go pick one fresh
+      if (!tableId || isStale) {
+        localStorage.removeItem('delicute_table');
+        localStorage.removeItem('delicute_table_ts');
+        window.location.href = 'index.html';
+        return;
+      }
+
+      window.DELICUTE_TABLE_ID = tableId;
+      window.DELICUTE_SESSION_ID = sessionId;
+
+      document.addEventListener('DOMContentLoaded', function () {
+        const tableInput = document.getElementById('tableNum');
+        const banner = document.getElementById('tableDetectBanner');
+        const trackBtn = document.getElementById('trackOrderBtn');
+
+        if (tableInput) {
+          tableInput.value = tableId;
+          tableInput.readOnly = true;
+        }
+        if (banner) {
+          banner.className = 'table-detect-banner success';
+          banner.textContent = '✓ Table ' + tableId + ' detected automatically';
+        }
+        // Show "Track My Order" in the header the moment we have a valid
+        // session — it doesn't matter yet whether an order exists;
+        // customerstatus.html itself handles the "no orders yet" state.
+        if (trackBtn) trackBtn.classList.add('show');
+      });
+    })();
+  </script>
+
+  <!-- ================================================================
+       TEST MODE BADGE
+       cart.js already fetches /api/test-mode on window 'load' and sets
+       window.DELICUTE_TEST_MODE (used by placeOrder() to tag orders).
+       This tiny listener just reflects that same state onto the visual
+       badge here, polling briefly right after load since cart.js's own
+       fetch is async and may resolve a moment after this file runs.
+       ================================================================ -->
+  <script>
+    (function () {
+      const testModeBadge = document.getElementById('testModeBadge');
+
+      function reflectTestModeBadge() {
+        if (window.DELICUTE_TEST_MODE === true) {
+          testModeBadge.classList.add('show');
+        } else {
+          testModeBadge.classList.remove('show');
+        }
+      }
+
+      window.addEventListener('load', () => {
+        // cart.js's syncTestMode() runs on 'load' too — give it a brief
+        // moment to resolve, then reflect the result onto the badge.
+        // Also re-checks periodically so if a superadmin flips test mode
+        // while this tab is open, the badge updates without a refresh.
+        setTimeout(reflectTestModeBadge, 400);
+        setInterval(reflectTestModeBadge, 5000);
+      });
+    })();
+  </script>
+
+  <!-- menu.js must load before cart.js references addToCartFromCard's DOM,
+       but both only run their logic after window 'load' so order here is safe -->
+  <script src="menu.js"></script>
+  <script src="cart.js"></script>
+</body>
+</html>

@@ -1,0 +1,754 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin | Manage Coupons</title>
+  <link rel="icon" href="https://i.postimg.cc/W3pgQx9q/DELICUTE-Imgur-1-modified.png">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+  <style>
+    :root {
+      --primary-purple: #8e44ad;
+      --primary-purple-dark: #5c3a52;
+      --nav-dark: #3f2838;
+      --bg-lilac: #fbf6ee;
+      --dark: #2a1f26;
+      --muted: #8a7688;
+      --border: #ecdfe8;
+      --delivered: #2e9e6b;
+      --cancelled: #d64545;
+      --radius: 10px;
+      --shadow-sm: 0 1px 3px rgba(92, 58, 82, 0.08);
+      --shadow-md: 0 4px 14px rgba(92, 58, 82, 0.12);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+    body {
+      font-family: 'Roboto', sans-serif;
+      background: var(--bg-lilac);
+      color: var(--dark);
+      min-height: 100vh;
+      line-height: 1.5;
+      overscroll-behavior: contain;
+    }
+
+    header {
+      background: linear-gradient(90deg, var(--primary-purple-dark), var(--primary-purple));
+      color: white;
+      padding: 1rem 1.25rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      box-shadow: var(--shadow-md);
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      text-align: center;
+    }
+
+    header img { height: 50px; border-radius: 50%; box-shadow: 0 2px 8px rgba(0,0,0,0.25); }
+    header h1 { font-family: 'Playfair Display', serif; font-size: 1.8rem; margin-top: 0.4rem; }
+    header span { font-size: 0.8rem; opacity: 0.85; }
+
+    .logout {
+      background: white;
+      color: var(--primary-purple-dark);
+      border: none;
+      padding: 0 0.9rem;
+      height: 38px;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 0.85rem;
+      cursor: pointer;
+      position: absolute;
+      top: 0.8rem;
+      right: 0.8rem;
+    }
+
+    nav {
+      background: var(--nav-dark);
+      display: flex;
+      justify-content: center;
+      overflow-x: auto;
+    }
+    nav a {
+      flex: 0 0 auto;
+      padding: 0.85rem 1.1rem;
+      color: #ddd;
+      text-decoration: none;
+      font-size: 0.9rem;
+      font-weight: 500;
+      white-space: nowrap;
+      transition: color 0.2s ease, background 0.2s ease;
+    }
+    nav a:hover { background: rgba(139, 107, 201, 0.25); color: #fff; }
+
+    .container {
+      max-width: 1100px;
+      margin: 1.5rem auto;
+      padding: 0 1.25rem 2rem;
+    }
+
+    .section-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.4rem;
+      color: var(--primary-purple-dark);
+      margin: 1.5rem 0 0.9rem;
+      text-align: center;
+    }
+    .section-title:first-of-type { margin-top: 0; }
+
+    .banner {
+      grid-column: 1 / -1;
+      background: linear-gradient(45deg, var(--primary-purple-dark), var(--primary-purple));
+      color: white;
+      padding: 0.7rem 0.9rem;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    /* ---- Form ---- */
+    .form-card {
+      background: white;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow-sm);
+      padding: 1.25rem;
+    }
+
+    form { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem 1.25rem; }
+    .field { display: flex; flex-direction: column; gap: 0.35rem; }
+    .field.full { grid-column: 1 / -1; }
+
+    .field label { font-size: 0.82rem; font-weight: 600; color: var(--muted); }
+
+    input, textarea, select {
+      padding: 0.65rem 0.75rem;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font-family: 'Roboto', sans-serif;
+      font-size: 0.9rem;
+      background: var(--bg-lilac);
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+      width: 100%;
+    }
+    input:focus, textarea:focus, select:focus {
+      border-color: var(--primary-purple);
+      box-shadow: 0 0 0 2px rgba(142, 68, 173, 0.2);
+      outline: none;
+    }
+    textarea { resize: vertical; min-height: 70px; }
+    input[type="file"] { background: white; padding: 0.5rem; }
+
+    .form-actions { grid-column: 1 / -1; display: flex; justify-content: flex-end; }
+
+    button[type="submit"] {
+      background: var(--primary-purple-dark);
+      border: none;
+      padding: 0.75rem 1.6rem;
+      color: white;
+      font-weight: 600;
+      font-size: 0.92rem;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.2s ease;
+    }
+    button[type="submit"]:hover { background: var(--nav-dark); }
+
+    /* ---- Tier builder ---- */
+    .tier-section {
+      grid-column: 1 / -1;
+      background: var(--bg-lilac);
+      border: 1px dashed var(--border);
+      border-radius: 8px;
+      padding: 0.9rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.6rem;
+    }
+    .tier-section-label {
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: var(--muted);
+    }
+    .tier-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr auto;
+      gap: 0.6rem;
+      align-items: center;
+    }
+    .tier-row input {
+      background: white;
+    }
+    .tier-row .btn-remove-tier {
+      border: none;
+      background: var(--cancelled);
+      color: white;
+      width: 34px;
+      height: 34px;
+      border-radius: 7px;
+      cursor: pointer;
+      font-size: 0.85rem;
+      flex-shrink: 0;
+    }
+    .tier-row .btn-remove-tier:hover { opacity: 0.85; }
+    #addTierBtn {
+      align-self: flex-start;
+      border: 1px solid var(--primary-purple);
+      background: white;
+      color: var(--primary-purple-dark);
+      padding: 0.5rem 0.9rem;
+      border-radius: 7px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    #addTierBtn:hover { background: var(--bg-lilac); }
+    .tier-hint {
+      font-size: 0.76rem;
+      color: var(--muted);
+      grid-column: 1 / -1;
+    }
+
+    /* ---- Table (desktop) ---- */
+    .table-wrapper {
+      background: white;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow-sm);
+      overflow-x: auto;
+    }
+
+    table { width: 100%; border-collapse: collapse; min-width: 720px; }
+
+    th {
+      background: var(--bg-lilac);
+      color: var(--primary-purple-dark);
+      text-align: left;
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+      text-transform: uppercase;
+      padding: 0.7rem 0.8rem;
+      white-space: nowrap;
+      border-bottom: 1px solid var(--border);
+    }
+
+    td {
+      padding: 0.75rem 0.8rem;
+      font-size: 0.86rem;
+      border-bottom: 1px solid var(--border);
+      color: var(--dark);
+      vertical-align: middle;
+    }
+    tbody tr:last-child td { border-bottom: none; }
+    tbody tr:hover { background: var(--bg-lilac); }
+
+    .coupon-thumb {
+      width: 42px;
+      height: 42px;
+      object-fit: cover;
+      border-radius: 6px;
+      display: block;
+    }
+
+    .coupon-code { font-weight: 700; color: var(--primary-purple-dark); }
+    .coupon-desc { color: var(--muted); font-size: 0.82rem; max-width: 220px; }
+    .type-badge {
+      display: inline-block;
+      padding: 0.2rem 0.55rem;
+      border-radius: 20px;
+      font-size: 0.72rem;
+      font-weight: 600;
+      background: var(--bg-lilac);
+      color: var(--primary-purple-dark);
+    }
+    .tier-list { display: flex; flex-direction: column; gap: 0.15rem; font-size: 0.8rem; }
+    .tier-list span { white-space: nowrap; }
+
+    .action-btns { display: flex; gap: 0.4rem; }
+    .btn { border: none; border-radius: 7px; cursor: pointer; width: 32px; height: 32px; display: inline-flex; align-items: center; justify-content: center; font-size: 0.82rem; color: white; transition: opacity 0.2s ease; }
+    .btn:hover { opacity: 0.85; }
+    .btn-edit { background: var(--primary-purple); }
+    .btn-delete { background: var(--cancelled); }
+
+    .no-coupons { text-align: center; padding: 2rem 1rem; color: var(--muted); font-size: 0.9rem; }
+
+    #toast {
+      visibility: hidden;
+      min-width: 200px;
+      max-width: 300px;
+      background: var(--delivered);
+      color: white;
+      text-align: center;
+      border-radius: 10px;
+      padding: 0.8rem 1rem;
+      position: fixed;
+      z-index: 2000;
+      top: 20px;
+      right: 20px;
+      font-size: 0.85rem;
+      box-shadow: var(--shadow-md);
+    }
+    #toast.show { visibility: visible; animation: slideIn 0.4s ease-out, slideOut 0.4s ease-in 2.6s forwards; }
+
+    @keyframes slideIn { from { opacity: 0; transform: translateY(-15px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes slideOut { from { opacity: 1; transform: translateY(0); } to { opacity: 0; transform: translateY(-15px); } }
+
+    /* ================= TABLET ================= */
+    @media (max-width: 900px) {
+      form { grid-template-columns: 1fr; }
+    }
+
+    /* ================= MOBILE CARD TABLE ================= */
+    @media (max-width: 760px) {
+      header h1 { font-size: 1.5rem; }
+      header img { height: 42px; }
+      .logout { height: 34px; padding: 0 0.7rem; font-size: 0.8rem; top: 0.6rem; right: 0.6rem; }
+      nav a { font-size: 0.82rem; padding: 0.7rem 0.85rem; }
+      .container { margin: 1rem auto; padding: 0 0.9rem 1.5rem; }
+      .section-title { font-size: 1.2rem; }
+      .form-card { padding: 1rem; }
+      .tier-row { grid-template-columns: 1fr 1fr auto; }
+
+      .table-wrapper { overflow: visible; background: none; box-shadow: none; border-radius: 0; }
+      table, thead, tbody, th, td, tr { display: block; width: 100%; min-width: 0; }
+      thead { display: none; }
+      tbody#couponTable { display: flex; flex-direction: column; gap: 0.75rem; padding: 0.75rem; background: white; border-radius: 0 0 var(--radius) var(--radius); box-shadow: var(--shadow-sm); }
+
+      tr {
+        background: var(--bg-lilac);
+        border-radius: 8px;
+        padding: 0.85rem 0.9rem;
+        border: 1px solid var(--border);
+      }
+      tr.no-coupons-row { box-shadow: none; border: none; background: none; padding: 0; }
+
+      td {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 0.4rem 0;
+        border-bottom: 1px dashed var(--border);
+        font-size: 0.85rem;
+        text-align: right;
+      }
+      td:last-child { border-bottom: none; padding-bottom: 0; }
+      td:first-child { padding-top: 0; }
+
+      td::before {
+        content: attr(data-label);
+        font-size: 0.7rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        color: var(--muted);
+        letter-spacing: 0.02em;
+        text-align: left;
+      }
+
+      td.cell-image { padding-top: 0; }
+      td.cell-image::before { display: none; }
+      td.cell-image { justify-content: flex-start; }
+
+      td.cell-actions::before { display: none; }
+      td.cell-actions { padding-top: 0.6rem; }
+      .action-btns { width: 100%; justify-content: flex-end; }
+
+      .coupon-desc { max-width: 60%; text-align: right; }
+      .tier-list { align-items: flex-end; }
+    }
+
+    @media (max-width: 420px) {
+      .field label, input, textarea, select { font-size: 0.85rem; }
+      td { font-size: 0.82rem; }
+      td::before { font-size: 0.68rem; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <button class="logout" onclick="logout()">Logout</button>
+    <img src="https://i.postimg.cc/W3pgQx9q/DELICUTE-Imgur-1-modified.png" alt="DELICUTE Logo">
+    <div>
+      <h1>DELICUTE</h1>
+      <span>Every Bite Tells A Story</span>
+    </div>
+  </header>
+
+  <nav>
+    <a href="admindashboard.html">Dashboard</a>
+    <a href="adminorders.html">Orders</a>
+    <a href="adminmenu.html">Menu</a>
+    <a href="admincoupons.html">Coupons</a>
+    <a href="admincategories.html">Categories</a>
+    <a href="admintoppicks.html">Top Picks</a>
+    <a href="adminpromotions.html">Promotions</a>
+  </nav>
+
+  <div class="container">
+    <h2 class="section-title">Manage Coupons 🎟️</h2>
+
+    <div class="form-card">
+      <form id="couponForm" novalidate>
+        <input type="hidden" id="couponId">
+
+        <div class="field full banner">
+          <i class="fas fa-fire"></i> Two coupon types available right now: a flat storewide % off, or cart-amount tiers (e.g. ₹1000+ → 25%, ₹2000+ → 50%).
+        </div>
+
+        <div class="field">
+          <label for="code">Coupon Code</label>
+          <input type="text" id="code" required placeholder="e.g., FLAT50">
+        </div>
+
+        <div class="field">
+          <label for="type">Coupon Type</label>
+          <select id="type" required>
+            <option value="min_cart_amount">Storewide Flat % Off</option>
+            <option value="cart_tier">Cart Amount Tiers</option>
+          </select>
+        </div>
+
+        <div class="field full">
+          <label for="description">Description</label>
+          <textarea id="description" required placeholder="e.g., Flat 50% off dine-in, today only"></textarea>
+        </div>
+
+        <div class="field">
+          <label for="image">Image</label>
+          <input type="file" id="image" accept="image/*">
+        </div>
+
+        <!-- ============ STOREWIDE FLAT % FIELDS ============ -->
+        <div class="field" id="discountField">
+          <label for="discount">Discount % (all items, all categories)</label>
+          <input type="number" id="discount" min="0" max="100" placeholder="e.g., 50">
+        </div>
+
+        <div class="field" id="minCartField">
+          <label for="min_cart_amount">Minimum Cart Amount (₹) — optional</label>
+          <input type="number" id="min_cart_amount" min="0" placeholder="Leave blank = no minimum">
+        </div>
+
+        <div class="field full" id="freeItemField">
+          <label for="free_item">Free Item (optional — use instead of a % discount)</label>
+          <input type="text" id="free_item" placeholder="e.g., Free Coffee">
+        </div>
+
+        <!-- ============ CART TIER FIELDS ============ -->
+        <div class="tier-section" id="tierSection" style="display:none;">
+          <div class="tier-section-label">Cart Amount Tiers — customer gets the highest tier their cart total qualifies for</div>
+          <div id="tierRows"></div>
+          <button type="button" id="addTierBtn"><i class="fas fa-plus"></i> Add Tier</button>
+          <div class="tier-hint">Example: ₹1000 → 25%, ₹2000 → 50%. Order doesn't matter, they'll be sorted automatically.</div>
+        </div>
+
+        <div class="form-actions">
+          <button type="submit">Save Coupon</button>
+        </div>
+      </form>
+    </div>
+
+    <h2 class="section-title">Coupons List</h2>
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>Image</th>
+            <th>Code</th>
+            <th>Description</th>
+            <th>Type</th>
+            <th>Discount</th>
+            <th>Min Cart</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="couponTable">
+          <tr class="no-coupons-row"><td colspan="7" class="no-coupons">Loading coupons...</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div id="toast"></div>
+
+  <script>
+    const API_URL = "/api/coupons";
+    let tierIndex = 0;
+
+    function showToast(msg, success = true) {
+      const toast = document.getElementById("toast");
+      toast.textContent = msg;
+      toast.style.background = success ? "#2e9e6b" : "#d64545";
+      toast.className = "show";
+      setTimeout(() => toast.className = toast.className.replace("show", ""), 3000);
+    }
+
+    // ================= TIER ROW HELPERS =================
+    function addTierRow(amount = "", discount = "") {
+      const wrapper = document.createElement("div");
+      wrapper.className = "tier-row";
+      wrapper.dataset.tierId = tierIndex++;
+      wrapper.innerHTML = `
+        <input type="number" class="tier-amount" min="0" placeholder="Cart Amount (₹) e.g. 1000" value="${amount}">
+        <input type="number" class="tier-discount" min="0" max="100" placeholder="Discount % e.g. 25" value="${discount}">
+        <button type="button" class="btn-remove-tier" title="Remove tier"><i class="fas fa-times"></i></button>
+      `;
+      wrapper.querySelector(".btn-remove-tier").addEventListener("click", () => {
+        // Always keep at least one row while the tier section is visible
+        if (document.querySelectorAll("#tierRows .tier-row").length > 1) {
+          wrapper.remove();
+        } else {
+          wrapper.querySelector(".tier-amount").value = "";
+          wrapper.querySelector(".tier-discount").value = "";
+        }
+      });
+      document.getElementById("tierRows").appendChild(wrapper);
+    }
+
+    function resetTierRows(tiers = []) {
+      document.getElementById("tierRows").innerHTML = "";
+      if (tiers.length === 0) {
+        addTierRow();
+        addTierRow();
+      } else {
+        tiers.forEach(t => addTierRow(t.min_cart_amount ?? t.amount ?? "", t.discount ?? ""));
+      }
+    }
+
+    function collectTiers() {
+      const rows = document.querySelectorAll("#tierRows .tier-row");
+      const tiers = [];
+      for (const row of rows) {
+        const amount = row.querySelector(".tier-amount").value;
+        const discount = row.querySelector(".tier-discount").value;
+        if (amount === "" && discount === "") continue; // skip fully empty rows
+        tiers.push({ amount: Number(amount), discount: Number(discount) });
+      }
+      return tiers.sort((a, b) => a.amount - b.amount);
+    }
+
+    // ================= TYPE TOGGLE =================
+    function toggleTypeFields() {
+      const type = document.getElementById("type").value;
+      const isStorewide = type === "min_cart_amount";
+      const isTiered = type === "cart_tier";
+
+      document.getElementById("discountField").style.display = isStorewide ? "flex" : "none";
+      document.getElementById("minCartField").style.display = isStorewide ? "flex" : "none";
+      document.getElementById("freeItemField").style.display = isStorewide ? "flex" : "none";
+      document.getElementById("tierSection").style.display = isTiered ? "flex" : "none";
+
+      document.getElementById("discount").toggleAttribute("required", false); // discount is optional if free_item set — validated in JS, not HTML
+      if (isTiered && document.querySelectorAll("#tierRows .tier-row").length === 0) {
+        resetTierRows();
+      }
+    }
+
+    document.getElementById("type").addEventListener("change", toggleTypeFields);
+    document.getElementById("addTierBtn").addEventListener("click", () => addTierRow());
+
+    window.addEventListener("DOMContentLoaded", async () => {
+      try {
+        const res = await fetch("/api/auth/check", { credentials: "include" });
+        if (!res.ok) {
+          window.location.href = "/admin.html";
+          return;
+        }
+        resetTierRows();
+        toggleTypeFields();
+        await fetchCoupons();
+      } catch (err) {
+        window.location.href = "/admin.html";
+        console.error("Auth Check Error:", err);
+      }
+    });
+
+    // ================= DISPLAY HELPERS =================
+    function discountCellHTML(coupon) {
+      if (coupon.type === "cart_tier") {
+        let tiers = [];
+        try { tiers = typeof coupon.tiers === "string" ? JSON.parse(coupon.tiers) : (coupon.tiers || []); } catch { tiers = []; }
+        if (tiers.length === 0) return "-";
+        return `<div class="tier-list">${tiers.map(t => `<span>₹${t.amount ?? t.min_cart_amount}+ → ${t.discount}%</span>`).join("")}</div>`;
+      }
+      if (coupon.discount && Number(coupon.discount) > 0) return `${coupon.discount}%`;
+      if (coupon.free_item) return coupon.free_item;
+      return `${coupon.discount || 0}%`;
+    }
+
+    function minCartCellHTML(coupon) {
+      if (coupon.type === "cart_tier") return "Tiered (see left)";
+      return coupon.min_cart_amount ? `₹${coupon.min_cart_amount}` : "No minimum";
+    }
+
+    // ================= FETCH & RENDER LIST =================
+    async function fetchCoupons() {
+      try {
+        const res = await fetch(API_URL);
+        const data = await res.json();
+        const table = document.getElementById("couponTable");
+        table.innerHTML = "";
+
+        if (!data.success || data.data.length === 0) {
+          table.innerHTML = "<tr class='no-coupons-row'><td colspan='7' class='no-coupons'>No coupons found</td></tr>";
+          return;
+        }
+
+        data.data.forEach(coupon => {
+          table.innerHTML += `
+            <tr>
+              <td class="cell-image" data-label="Image">
+                <img class="coupon-thumb" src="${coupon.image}" alt="${coupon.code}" onerror="this.src='https://i.postimg.cc/W3pgQx9q/DELICUTE-Imgur-1-modified.png'">
+              </td>
+              <td data-label="Code"><span class="coupon-code">${coupon.code}</span></td>
+              <td data-label="Description"><span class="coupon-desc">${coupon.description}</span></td>
+              <td data-label="Type"><span class="type-badge">${coupon.type === "cart_tier" ? "Cart Tiers" : "Storewide"}</span></td>
+              <td data-label="Discount">${discountCellHTML(coupon)}</td>
+              <td data-label="Min Cart">${minCartCellHTML(coupon)}</td>
+              <td class="cell-actions" data-label="Actions">
+                <div class="action-btns">
+                  <button class="btn btn-edit" onclick="editCoupon(${coupon.id})" title="Edit"><i class="fas fa-pen"></i></button>
+                  <button class="btn btn-delete" onclick="deleteCoupon(${coupon.id})" title="Delete"><i class="fas fa-trash"></i></button>
+                </div>
+              </td>
+            </tr>
+          `;
+        });
+      } catch (err) {
+        showToast("Error loading coupons", false);
+        console.error("Coupon Load Error:", err);
+      }
+    }
+
+    // ================= SUBMIT =================
+    document.getElementById("couponForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      const type = document.getElementById("type").value;
+      const formData = new FormData();
+      formData.append("code", document.getElementById("code").value);
+      formData.append("description", document.getElementById("description").value);
+      formData.append("type", type);
+
+      if (type === "min_cart_amount") {
+        const discount = document.getElementById("discount").value;
+        const freeItem = document.getElementById("free_item").value;
+        if (!discount && !freeItem) {
+          showToast("Enter a discount % or a free item", false);
+          return;
+        }
+        formData.append("discount", discount || 0);
+        const minCartAmount = document.getElementById("min_cart_amount").value;
+        if (minCartAmount) formData.append("min_cart_amount", minCartAmount);
+        if (freeItem) formData.append("free_item", freeItem);
+      } else if (type === "cart_tier") {
+        const tiers = collectTiers();
+        if (tiers.length === 0) {
+          showToast("Add at least one cart tier", false);
+          return;
+        }
+        for (const t of tiers) {
+          if (isNaN(t.amount) || t.amount < 0 || isNaN(t.discount) || t.discount < 0 || t.discount > 100) {
+            showToast("Every tier needs a valid cart amount and a discount between 0–100%", false);
+            return;
+          }
+        }
+        formData.append("tiers", JSON.stringify(tiers));
+      }
+
+      const imageFile = document.getElementById("image").files[0];
+      if (imageFile) formData.append("image", imageFile);
+
+      const id = document.getElementById("couponId").value;
+      const method = id ? "PUT" : "POST";
+      const url = id ? `${API_URL}/${id}` : API_URL;
+
+      try {
+        const res = await fetch(url, { method, body: formData });
+        const data = await res.json();
+        if (res.ok) {
+          showToast(data.message || (id ? "Coupon updated!" : "Coupon added!"), true);
+          document.getElementById("couponForm").reset();
+          document.getElementById("couponId").value = "";
+          document.getElementById("type").value = "min_cart_amount";
+          resetTierRows();
+          toggleTypeFields();
+          fetchCoupons();
+        } else {
+          showToast(data.message || "Error saving coupon", false);
+        }
+      } catch (err) {
+        showToast("Error saving coupon", false);
+        console.error("Save Error:", err);
+      }
+    });
+
+    // ================= EDIT =================
+    async function editCoupon(id) {
+      try {
+        const res = await fetch(`${API_URL}/${id}`);
+        const data = await res.json();
+        if (data.success) {
+          const c = data.data;
+          document.getElementById("couponId").value = c.id;
+          document.getElementById("code").value = c.code;
+          document.getElementById("description").value = c.description;
+          document.getElementById("type").value = c.type === "cart_tier" ? "cart_tier" : "min_cart_amount";
+
+          if (c.type === "cart_tier") {
+            let tiers = [];
+            try { tiers = typeof c.tiers === "string" ? JSON.parse(c.tiers) : (c.tiers || []); } catch { tiers = []; }
+            resetTierRows(tiers);
+          } else {
+            document.getElementById("discount").value = c.discount || "";
+            document.getElementById("min_cart_amount").value = c.min_cart_amount || "";
+            document.getElementById("free_item").value = c.free_item || "";
+            resetTierRows();
+          }
+
+          toggleTypeFields();
+          window.scrollTo({ top: 0, behavior: "smooth" });
+        } else {
+          showToast("Error loading coupon data", false);
+        }
+      } catch (err) {
+        showToast("Error loading coupon data", false);
+        console.error("Edit Error:", err);
+      }
+    }
+
+    async function deleteCoupon(id) {
+      if (!confirm("Delete this coupon?")) return;
+      try {
+        const res = await fetch(`${API_URL}/${id}`, { method: "DELETE" });
+        const data = await res.json();
+        if (res.ok) {
+          showToast(data.message || "Coupon deleted!", true);
+          fetchCoupons();
+        } else {
+          showToast(data.message || "Error deleting coupon", false);
+        }
+      } catch (err) {
+        showToast("Error deleting coupon", false);
+        console.error("Delete Error:", err);
+      }
+    }
+
+    async function logout() {
+      try {
+        await fetch("/api/auth/logout", { method: "POST", credentials: "include" });
+        window.location.href = "/admin.html";
+      } catch (err) {
+        showToast("Error logging out", false);
+        console.error("Logout Error:", err);
+      }
+    }
+  </script>
+</body>
+</html>

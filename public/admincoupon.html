@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Admin - Manage Coupons</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0; padding: 0;
+      background: #f4f4f4;
+    }
+    header {
+      background: #333; color: #fff;
+      padding: 15px; text-align: center;
+    }
+    .container {
+      max-width: 1000px; margin: 20px auto;
+      background: #fff; padding: 20px;
+      border-radius: 10px; box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+    }
+    h2 { margin-top: 0; }
+    form {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 15px;
+      margin-bottom: 20px;
+    }
+    form input, form select, form textarea {
+      width: 100%;
+      padding: 8px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+    }
+    form button {
+      grid-column: span 2;
+      padding: 10px;
+      background: #007bff;
+      border: none;
+      color: #fff;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    form button:hover { background: #0056b3; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    table th, table td {
+      border: 1px solid #ddd;
+      padding: 10px;
+      text-align: center;
+    }
+    table th { background: #f2f2f2; }
+    .btn-edit {
+      background: #ffc107; border: none; padding: 5px 10px; border-radius: 5px;
+    }
+    .btn-delete {
+      background: #dc3545; color: #fff; border: none; padding: 5px 10px; border-radius: 5px;
+    }
+    .btn-edit:hover { background: #e0a800; }
+    .btn-delete:hover { background: #c82333; }
+    .back-btn {
+      display: inline-block;
+      margin-bottom: 15px;
+      padding: 8px 12px;
+      background: #6c757d;
+      color: #fff; text-decoration: none;
+      border-radius: 6px;
+    }
+    .back-btn:hover { background: #5a6268; }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>🎟 Manage Coupons</h1>
+  </header>
+
+  <div class="container">
+    <a href="admindashboard.html" class="back-btn">⬅ Back to Dashboard</a>
+    <h2>Add / Edit Coupon</h2>
+    <form id="couponForm">
+      <input type="hidden" id="couponId">
+      <input type="text" id="code" placeholder="Coupon Code" required>
+      <input type="text" id="description" placeholder="Description" required>
+      <input type="text" id="image" placeholder="Image URL">
+      <input type="text" id="category" placeholder="Category (e.g. Shakes, Pizza)" required>
+      <input type="number" id="buy_x" placeholder="Buy X Items" required>
+      <input type="number" id="quantity" placeholder="Min Quantity" required>
+      <label>Valid From: <input type="date" id="validFrom" required></label>
+      <label>Valid To: <input type="date" id="validTo" required></label>
+      <button type="submit">Save Coupon</button>
+    </form>
+
+    <h2>Existing Coupons</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Code</th>
+          <th>Description</th>
+          <th>Category</th>
+          <th>Buy X</th>
+          <th>Quantity</th>
+          <th>Valid From</th>
+          <th>Valid To</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody id="couponTable"></tbody>
+    </table>
+  </div>
+
+  <script>
+    async function fetchCoupons() {
+      try {
+        const res = await fetch("/api/coupons");
+        const data = await res.json();
+        const tbody = document.getElementById("couponTable");
+        tbody.innerHTML = "";
+
+        if (!data.success || data.data.length === 0) {
+          tbody.innerHTML = "<tr><td colspan='8'>No coupons available</td></tr>";
+          return;
+        }
+
+        data.data.forEach(coupon => {
+          tbody.innerHTML += `
+            <tr>
+              <td>${coupon.code}</td>
+              <td>${coupon.description}</td>
+              <td>${coupon.category}</td>
+              <td>${coupon.buy_x}</td>
+              <td>${coupon.quantity}</td>
+              <td>${new Date(coupon.valid_from).toLocaleDateString()}</td>
+              <td>${new Date(coupon.valid_to).toLocaleDateString()}</td>
+              <td>
+                <button class="btn-edit" onclick="editCoupon(${coupon.id})">Edit</button>
+                <button class="btn-delete" onclick="deleteCoupon(${coupon.id})">Delete</button>
+              </td>
+            </tr>
+          `;
+        });
+      } catch (err) {
+        console.error("Fetch Coupons Error:", err);
+      }
+    }
+
+    document.getElementById("couponForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const id = document.getElementById("couponId").value;
+      const coupon = {
+        code: document.getElementById("code").value,
+        description: document.getElementById("description").value,
+        image: document.getElementById("image").value,
+        category: document.getElementById("category").value,
+        buy_x: parseInt(document.getElementById("buy_x").value),
+        quantity: parseInt(document.getElementById("quantity").value),
+        valid_from: document.getElementById("validFrom").value,
+        valid_to: document.getElementById("validTo").value
+      };
+
+      const method = id ? "PUT" : "POST";
+      const url = id ? `/api/coupons/${id}` : "/api/coupons";
+
+      try {
+        const res = await fetch(url, {
+          method,
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(coupon)
+        });
+        const data = await res.json();
+        alert(data.message);
+        document.getElementById("couponForm").reset();
+        document.getElementById("couponId").value = "";
+        fetchCoupons();
+      } catch (err) {
+        console.error("Save Coupon Error:", err);
+      }
+    });
+
+    async function editCoupon(id) {
+      try {
+        const res = await fetch(`/api/coupons/${id}`);
+        const data = await res.json();
+        if (data.success) {
+          const c = data.data;
+          document.getElementById("couponId").value = c.id;
+          document.getElementById("code").value = c.code;
+          document.getElementById("description").value = c.description;
+          document.getElementById("image").value = c.image || "";
+          document.getElementById("category").value = c.category;
+          document.getElementById("buy_x").value = c.buy_x;
+          document.getElementById("quantity").value = c.quantity;
+          document.getElementById("validFrom").value = c.valid_from.split("T")[0];
+          document.getElementById("validTo").value = c.valid_to.split("T")[0];
+        } else {
+          alert("❌ Coupon not found");
+        }
+      } catch (err) {
+        console.error("Edit Coupon Error:", err);
+      }
+    }
+
+    async function deleteCoupon(id) {
+      if (!confirm("Are you sure you want to delete this coupon?")) return;
+      try {
+        const res = await fetch(`/api/coupons/${id}`, { method: "DELETE" });
+        const data = await res.json();
+        alert(data.message);
+        fetchCoupons();
+      } catch (err) {
+        console.error("Delete Coupon Error:", err);
+      }
+    }
+
+    fetchCoupons();
+  </script>
+</body>
+</html>

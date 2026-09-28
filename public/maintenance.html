@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+  <title>Delicute | We'll be right back</title>
+  <link rel="icon" href="https://i.postimg.cc/W3pgQx9q/DELICUTE-Imgur-1-modified.png" />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Roboto+Mono:wght@500;600&family=Roboto:wght@400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { width: 100%; height: 100%; overflow-x: hidden; }
+
+    :root {
+      --graphite: #121218;
+      --panel: #1d1d26;
+      --crimson: #c0392b;
+      --crimson-bright: #e8543f;
+      --gold: #d9a94c;
+      --gold-light: #f2d49b;
+      --text: #ece9f2;
+      --muted: #9a97a8;
+      --border: #302f3b;
+    }
+
+    body {
+      font-family: 'Roboto', sans-serif;
+      color: var(--text);
+      background: var(--graphite);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      padding: 2rem 1.5rem;
+      gap: 1.7rem;
+    }
+
+    /* ---------- Ambient background ---------- */
+    .bg-glow {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      background:
+        radial-gradient(circle at 50% 0%, rgba(192, 57, 43, 0.16), transparent 45%),
+        radial-gradient(circle at 10% 95%, rgba(217, 169, 76, 0.09), transparent 50%),
+        radial-gradient(circle at 92% 90%, rgba(142, 68, 173, 0.07), transparent 50%);
+      animation: glowPulse 9s ease-in-out infinite;
+      pointer-events: none;
+    }
+    @keyframes glowPulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.8; } }
+
+    .bg-grid {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      background-image:
+        linear-gradient(rgba(217, 169, 76, 0.035) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(217, 169, 76, 0.035) 1px, transparent 1px);
+      background-size: 46px 46px;
+      mask-image: radial-gradient(circle at 50% 42%, rgba(0,0,0,0.85), transparent 70%);
+      -webkit-mask-image: radial-gradient(circle at 50% 42%, rgba(0,0,0,0.85), transparent 70%);
+      pointer-events: none;
+    }
+
+    /* ---------- Card ---------- */
+    .card {
+      position: relative;
+      z-index: 1;
+      max-width: 440px;
+      width: 100%;
+      text-align: center;
+      background: rgba(29, 29, 38, 0.78);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(217, 169, 76, 0.18);
+      border-radius: 22px;
+      padding: 2.8rem 2.3rem 2.5rem;
+      box-shadow: 0 30px 80px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.02) inset;
+      opacity: 0;
+      transform: translateY(18px);
+      animation: cardIn 0.65s cubic-bezier(.2,.7,.3,1) forwards;
+      overflow: hidden;
+    }
+    @keyframes cardIn { to { opacity: 1; transform: translateY(0); } }
+
+    .card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, var(--crimson-bright), var(--gold), transparent);
+      opacity: 0.85;
+    }
+
+    .logo {
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      box-shadow: 0 0 0 2px rgba(217,169,76,0.32), 0 6px 18px rgba(0,0,0,0.4);
+      margin-bottom: 1.3rem;
+      opacity: 0;
+      transform: scale(0.85);
+      animation: fadeInScale 0.6s ease-out 0.15s forwards;
+    }
+    @keyframes fadeInScale { to { opacity: 1; transform: scale(1); } }
+
+    .icon-wrap {
+      width: 68px;
+      height: 68px;
+      margin: 0 auto 1.5rem;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(217,169,76,0.14), transparent 70%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+    .icon-wrap svg {
+      width: 30px;
+      height: 30px;
+      color: var(--gold-light);
+      animation: gentleSpin 3.2s ease-in-out infinite;
+      transform-origin: center;
+      position: relative;
+      z-index: 1;
+    }
+    @keyframes gentleSpin {
+      0%, 100% { transform: rotate(0deg); }
+      50% { transform: rotate(32deg); }
+    }
+    .icon-wrap .ring {
+      position: absolute;
+      inset: 0;
+      border-radius: 50%;
+      border: 1.5px solid rgba(217,169,76,0.32);
+      animation: ringPulse 2.4s ease-out infinite;
+    }
+    .icon-wrap .ring.delay { animation-delay: 1.2s; }
+    @keyframes ringPulse {
+      0% { transform: scale(0.85); opacity: 0.75; }
+      100% { transform: scale(1.4); opacity: 0; }
+    }
+
+    h1 {
+      font-family: 'Playfair Display', serif;
+      font-weight: 800;
+      font-size: 1.55rem;
+      letter-spacing: 0.2px;
+      line-height: 1.3;
+      margin-bottom: 0.75rem;
+      opacity: 0;
+      transform: translateY(10px);
+      animation: fadeInUp 0.6s ease-out 0.28s forwards;
+    }
+
+    #maintMessage {
+      font-size: 0.93rem;
+      line-height: 1.68;
+      color: var(--muted);
+      max-width: 360px;
+      margin: 0 auto 1.7rem;
+      opacity: 0;
+      transform: translateY(10px);
+      animation: fadeInUp 0.6s ease-out 0.4s forwards;
+    }
+
+    @keyframes fadeInUp { to { opacity: 1; transform: translateY(0); } }
+
+    .status-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-family: 'Roboto Mono', monospace;
+      font-size: 0.66rem;
+      letter-spacing: 1.4px;
+      text-transform: uppercase;
+      font-weight: 600;
+      color: var(--gold-light);
+      background: rgba(217, 169, 76, 0.09);
+      border: 1px solid rgba(217, 169, 76, 0.28);
+      padding: 0.45rem 1rem;
+      border-radius: 20px;
+      margin-bottom: 1.7rem;
+      opacity: 0;
+      animation: fadeInUp 0.6s ease-out 0.52s forwards;
+    }
+    .status-pill .dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--gold);
+      box-shadow: 0 0 0 0 rgba(217,169,76,0.55);
+      animation: dotPulse 1.7s ease-out infinite;
+      flex-shrink: 0;
+    }
+    @keyframes dotPulse {
+      0%   { box-shadow: 0 0 0 0 rgba(217,169,76,0.5); }
+      70%  { box-shadow: 0 0 0 7px rgba(217,169,76,0); }
+      100% { box-shadow: 0 0 0 0 rgba(217,169,76,0); }
+    }
+
+    .progress-track {
+      width: 100%;
+      height: 4px;
+      background: rgba(255,255,255,0.055);
+      border-radius: 4px;
+      overflow: hidden;
+      margin-bottom: 0.9rem;
+      opacity: 0;
+      animation: fadeInUp 0.6s ease-out 0.62s forwards;
+    }
+    .progress-fill {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, var(--crimson), var(--gold));
+      border-radius: 4px;
+      transition: width 1s linear;
+    }
+
+    .refresh-note {
+      font-family: 'Roboto Mono', monospace;
+      font-size: 0.65rem;
+      color: var(--muted);
+      letter-spacing: 0.3px;
+      opacity: 0;
+      animation: fadeInUp 0.6s ease-out 0.7s forwards;
+    }
+
+    .divider {
+      width: 100%;
+      height: 1px;
+      background: rgba(255,255,255,0.06);
+      margin: 1.7rem 0 1.3rem;
+      opacity: 0;
+      animation: fadeInUp 0.6s ease-out 0.78s forwards;
+    }
+
+    .contact-note {
+      font-size: 0.78rem;
+      color: var(--muted);
+      opacity: 0;
+      animation: fadeInUp 0.6s ease-out 0.85s forwards;
+    }
+    .contact-note a {
+      color: var(--gold-light);
+      text-decoration: none;
+      font-weight: 600;
+    }
+    .contact-note a:hover { text-decoration: underline; }
+
+    /* ---------- Footer ---------- */
+    .footer-note {
+      position: relative;
+      z-index: 1;
+      font-family: 'Roboto Mono', monospace;
+      font-size: 0.65rem;
+      color: var(--muted);
+      letter-spacing: 0.5px;
+      text-align: center;
+      opacity: 0;
+      animation: fadeInUp 0.6s ease-out 0.95s forwards;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.001ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.001ms !important;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .card { padding: 2.3rem 1.6rem 2.1rem; border-radius: 18px; }
+      h1 { font-size: 1.3rem; }
+      #maintMessage { font-size: 0.88rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="bg-grid"></div>
+  <div class="bg-glow"></div>
+
+  <div class="card">
+    <img class="logo" src="https://i.postimg.cc/W3pgQx9q/DELICUTE-Imgur-1-modified.png" alt="Delicute" />
+
+    <div class="icon-wrap">
+      <span class="ring"></span>
+      <span class="ring delay"></span>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7">
+        <path d="M14.7 6.3a4 4 0 0 1-5.4 5.4L4 17l3 3 5.3-5.3a4 4 0 0 1 5.4-5.4l-3-3-2.6 2.6a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0L18 9" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </div>
+
+    <h1>We're setting the table</h1>
+    <p id="maintMessage">Delicute is briefly offline for a few improvements. We'll be back shortly — thanks for your patience.</p>
+
+    <div class="status-pill"><span class="dot"></span> Maintenance in progress</div>
+
+    <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+    <div class="refresh-note" id="refreshNote">Checking again in 30s…</div>
+
+    <div class="divider"></div>
+    <p class="contact-note">Something urgent? <a href="mailto:contactdelicute@gmail.com">contactdelicute@gmail.com</a></p>
+  </div>
+
+  <div class="footer-note">DELICUTE &middot; Back online automatically, no action needed</div>
+
+  <script>
+    const CHECK_INTERVAL_MS = 30000;
+    const STATUS_ENDPOINT = "/api/superadmin/maintenance";
+    let secondsLeft = CHECK_INTERVAL_MS / 1000;
+
+    const messageEl = document.getElementById('maintMessage');
+    const progressFill = document.getElementById('progressFill');
+    const refreshNote = document.getElementById('refreshNote');
+
+    async function loadMessage() {
+      try {
+        const res = await fetch(STATUS_ENDPOINT, { credentials: 'include' });
+        const data = await res.json();
+        if (data.message && data.message.trim()) {
+          messageEl.textContent = data.message.trim();
+        }
+        if (data.enabled === false) {
+          // Maintenance was switched off while the user was on this page — send them home.
+          window.location.href = "/";
+        }
+      } catch (e) {
+        // Silent — page still shows the default message, no need to alarm the visitor.
+      }
+    }
+
+    function tick() {
+      secondsLeft -= 1;
+      const pct = Math.max(0, 100 - (secondsLeft / (CHECK_INTERVAL_MS / 1000)) * 100);
+      progressFill.style.width = pct + '%';
+      refreshNote.textContent = secondsLeft > 0
+        ? `Checking again in ${secondsLeft}s…`
+        : `Checking now…`;
+
+      if (secondsLeft <= 0) {
+        secondsLeft = CHECK_INTERVAL_MS / 1000;
+        progressFill.style.width = '0%';
+        loadMessage();
+      }
+    }
+
+    loadMessage();
+    setInterval(tick, 1000);
+  </script>
+</body>
+</html>
