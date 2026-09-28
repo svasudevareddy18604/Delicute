@@ -1,0 +1,1167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Restaurant Status | DELICUTE Super Admin</title>
+<link rel="icon" href="https://i.postimg.cc/W3pgQx9q/DELICUTE-Imgur-1-modified.png">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Roboto:wght@400;500;700&family=Roboto+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+<style>
+  /* ============ THEME ============ */
+  :root {
+    --graphite: #121218;
+    --graphite-2: #1c1c25;
+    --panel: #20202b;
+    --panel-2: #262633;
+    --border: #2e2e3b;
+    --text: #ece8f1;
+    --muted: #8d8a9a;
+    --gold: #d9a94c;
+    --gold-light: #f2d49b;
+    --crimson: #a93226;
+    --crimson-bright: #c0392b;
+    --red: #d64545;
+    --green: #2ea56e;
+    --purple: #9b6fd9;
+    --shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  html { color-scheme: dark; }
+  body {
+    font-family: 'Roboto', sans-serif;
+    background:
+      radial-gradient(900px 400px at 85% -10%, rgba(155, 111, 217, 0.10), transparent 60%),
+      radial-gradient(700px 380px at 10% 0%, rgba(192, 57, 43, 0.10), transparent 60%),
+      var(--graphite);
+    color: var(--text);
+    min-height: 100vh;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+  a { color: inherit; text-decoration: none; }
+  button { font-family: inherit; }
+
+  .app { display: flex; min-height: 100vh; }
+  .content { flex: 1; min-width: 0; padding-bottom: calc(120px + env(safe-area-inset-bottom)); }
+
+  /* ============ SIDEBAR ============ */
+  .sidebar {
+    width: 240px;
+    flex-shrink: 0;
+    background: linear-gradient(180deg, var(--graphite-2), #16161d);
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    position: fixed;
+    left: 0;
+    top: 0;
+    z-index: 20;
+    transition: transform 0.25s ease;
+  }
+
+  .sidebar-brand {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 1.1rem 1.2rem;
+    border-bottom: 1px solid var(--border);
+    position: relative;
+    overflow: hidden;
+  }
+  .sidebar-brand::before {
+    content: '';
+    position: absolute; left: 0; right: 0; bottom: -1px; height: 2px;
+    background: linear-gradient(90deg, var(--crimson-bright), var(--gold), var(--purple, #9b6fd9));
+    opacity: 0.6;
+  }
+  .sidebar-brand img { width: 32px; height: 32px; border-radius: 50%; box-shadow: 0 0 0 2px rgba(217,169,76,0.35), 0 0 14px rgba(217,169,76,0.15); }
+  .sidebar-brand .name {
+    font-family: 'Playfair Display', serif; font-weight: 800; font-size: 1.05rem;
+    background: linear-gradient(90deg, var(--text), var(--gold-light));
+    -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+  }
+  .sidebar-brand .sub { font-family: 'Roboto Mono', monospace; font-size: 0.6rem; color: var(--muted); letter-spacing: 1px; text-transform: uppercase; }
+
+  .rstatus-pill {
+    display: none;
+    margin: 0.8rem 1rem 0;
+    padding: 0.4rem 0.7rem;
+    border-radius: 7px;
+    font-family: 'Roboto Mono', monospace;
+    font-size: 0.62rem;
+    letter-spacing: 0.5px;
+    align-items: center;
+    gap: 0.4rem;
+    text-decoration: none;
+    cursor: pointer;
+    transition: transform 0.15s ease, border-color 0.2s ease;
+  }
+  .rstatus-pill.show { display: flex; }
+  .rstatus-pill:hover { transform: translateX(2px); }
+  .rstatus-pill .dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+
+  .rstatus-pill.open {
+    background: rgba(46, 165, 110, 0.12);
+    border: 1px solid rgba(46, 165, 110, 0.4);
+    color: #8fe0b6;
+  }
+  .rstatus-pill.open .dot {
+    background: #2ea56e;
+    box-shadow: 0 0 0 0 rgba(46,165,110,0.6);
+    animation: dotPulseGreen 1.6s ease-out infinite;
+  }
+  .rstatus-pill.closed {
+    background: rgba(214, 69, 69, 0.12);
+    border: 1px solid rgba(214, 69, 69, 0.4);
+    color: #f2a3a3;
+  }
+  .rstatus-pill.closed .dot { background: var(--red, #d64545); }
+  @keyframes dotPulseGreen { 0%{box-shadow:0 0 0 0 rgba(46,165,110,.55);}70%{box-shadow:0 0 0 6px rgba(46,165,110,0);}100%{box-shadow:0 0 0 0 rgba(46,165,110,0);} }
+
+  .maint-pill {
+    display: none;
+    margin: 0.8rem 1rem 0;
+    padding: 0.4rem 0.7rem;
+    border-radius: 7px;
+    background: rgba(214, 69, 69, 0.12);
+    border: 1px solid rgba(214, 69, 69, 0.4);
+    font-family: 'Roboto Mono', monospace;
+    font-size: 0.62rem;
+    letter-spacing: 0.5px;
+    color: #f2a3a3;
+    align-items: center;
+    gap: 0.4rem;
+  }
+  .maint-pill.show { display: flex; }
+  .maint-pill .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--red); box-shadow: 0 0 0 0 rgba(214,69,69,0.6); animation: dotPulse 1.6s ease-out infinite; }
+  @keyframes dotPulse { 0%{box-shadow:0 0 0 0 rgba(214,69,69,.55);}70%{box-shadow:0 0 0 6px rgba(214,69,69,0);}100%{box-shadow:0 0 0 0 rgba(214,69,69,0);} }
+
+  .testmode-pill {
+    display: none;
+    margin: 0.8rem 1rem 0;
+    padding: 0.4rem 0.7rem;
+    border-radius: 7px;
+    background: rgba(217, 169, 76, 0.12);
+    border: 1px solid rgba(217, 169, 76, 0.4);
+    font-family: 'Roboto Mono', monospace;
+    font-size: 0.62rem;
+    letter-spacing: 0.5px;
+    color: var(--gold-light);
+    align-items: center;
+    gap: 0.4rem;
+  }
+  .testmode-pill.show { display: flex; }
+  .testmode-pill .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--gold); box-shadow: 0 0 0 0 rgba(217,169,76,0.6); animation: dotPulseGold 1.6s ease-out infinite; }
+  @keyframes dotPulseGold { 0%{box-shadow:0 0 0 0 rgba(217,169,76,.55);}70%{box-shadow:0 0 0 6px rgba(217,169,76,0);}100%{box-shadow:0 0 0 0 rgba(217,169,76,0);} }
+
+  .sidebar-scroll { flex: 1; overflow-y: auto; overflow-x: hidden; }
+  .sidebar-scroll::-webkit-scrollbar { width: 5px; }
+  .sidebar-scroll::-webkit-scrollbar-thumb { background: var(--border); border-radius: 10px; }
+
+  .nav-group { padding: 0.9rem 0.6rem; }
+  .nav-label {
+    font-family: 'Roboto Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--muted);
+    padding: 0.5rem 0.6rem 0.35rem;
+  }
+
+  .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+    padding: 0.62rem 0.7rem;
+    border-radius: 8px;
+    font-size: 0.86rem;
+    font-weight: 500;
+    color: var(--text);
+    margin-bottom: 0.15rem;
+    border: 1px solid transparent;
+    transition: background 0.15s ease, border-color 0.15s ease, transform 0.15s ease;
+    cursor: pointer;
+    position: relative;
+  }
+  .nav-item svg { width: 17px; height: 17px; flex-shrink: 0; opacity: 0.85; }
+  .nav-item:hover { background: rgba(255,255,255,0.04); transform: translateX(2px); }
+  .nav-item.active {
+    background: linear-gradient(90deg, rgba(192,57,43,0.22), rgba(217,169,76,0.06));
+    border-color: rgba(217,169,76,0.35);
+    color: var(--gold-light);
+  }
+  .nav-item.active::before {
+    content: '';
+    position: absolute; left: -0.6rem; top: 0.2rem; bottom: 0.2rem; width: 3px;
+    border-radius: 3px;
+    background: linear-gradient(180deg, var(--crimson-bright), var(--gold));
+  }
+  .nav-item.active svg { opacity: 1; }
+
+  .nav-item.stub { opacity: 0.55; }
+  .nav-item.stub .badge-inline {
+    margin-left: auto;
+    font-family: 'Roboto Mono', monospace;
+    font-size: 0.55rem;
+    padding: 0.12rem 0.4rem;
+    border-radius: 4px;
+    background: rgba(217,169,76,0.15);
+    color: var(--gold-light);
+    letter-spacing: 0.5px;
+  }
+
+  .sidebar-footer { padding: 0.9rem; border-top: 1px solid var(--border); flex-shrink: 0; }
+  .logout-btn {
+    width: 100%;
+    padding: 0.6rem;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: var(--panel);
+    color: var(--muted);
+    font-size: 0.8rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4rem;
+    transition: color 0.2s ease, border-color 0.2s ease;
+    cursor: pointer;
+    font-family: inherit;
+  }
+  .logout-btn:hover { color: var(--red); border-color: rgba(214,69,69,0.4); }
+
+  .sidebar-spacer { width: 240px; flex-shrink: 0; }
+
+  @media (max-width: 860px) {
+    .sidebar {
+      transform: translateX(-100%);
+      width: 230px; box-shadow: 20px 0 40px rgba(0,0,0,0.4);
+    }
+    .sidebar.open { transform: translateX(0); }
+    .sidebar-spacer { display: none; }
+  }
+
+  /* ============ TOP BAR ============ */
+  .topbar {
+    position: sticky; top: 0; z-index: 10;
+    display: flex; align-items: center; gap: 0.9rem;
+    padding: 0.9rem 1.4rem;
+    padding-top: calc(0.9rem + env(safe-area-inset-top));
+    background: rgba(18, 18, 24, 0.85);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--border);
+  }
+  .menu-btn {
+    display: none;
+    width: 42px; height: 42px; border-radius: 10px;
+    background: var(--panel); border: 1px solid var(--border);
+    color: var(--text); font-size: 1rem; cursor: pointer;
+    align-items: center; justify-content: center; flex-shrink: 0;
+  }
+  .tb-title { flex: 1; min-width: 0; }
+  .tb-title h1 {
+    font-family: 'Playfair Display', serif; font-size: 1.35rem; font-weight: 800; line-height: 1.15;
+    background: linear-gradient(90deg, var(--text), var(--gold-light));
+    -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+  }
+  .tb-title small {
+    font-family: 'Roboto Mono', monospace; font-size: 0.62rem; letter-spacing: 1.2px;
+    text-transform: uppercase; color: var(--muted);
+  }
+  .tb-btn {
+    height: 42px; padding: 0 1rem; border-radius: 10px;
+    background: var(--panel); border: 1px solid var(--border);
+    color: var(--text); font-size: 0.82rem; font-weight: 700; cursor: pointer;
+    display: inline-flex; align-items: center; gap: 0.5rem;
+    transition: border-color 0.2s ease, color 0.2s ease;
+  }
+  .tb-btn:hover { border-color: rgba(217, 169, 76, 0.5); color: var(--gold-light); }
+  .tb-btn.spin i { animation: spin 0.8s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  main { max-width: 900px; margin: 0 auto; padding: 1.4rem; }
+
+  /* ============ HERO (main switch) ============ */
+  .hero {
+    position: relative; overflow: hidden;
+    display: flex; align-items: center; gap: 1.1rem;
+    padding: 1.4rem; border-radius: 18px; color: #fff;
+    background: linear-gradient(135deg, #1B8A5A, #2EA56E 60%, #3CC48A);
+    box-shadow: var(--shadow);
+    transition: background 0.4s ease;
+  }
+  .hero.closed { background: linear-gradient(135deg, #7B1F33, #A5332F 55%, #C0392B); }
+  .hero::after {
+    content: ''; position: absolute; right: -40px; top: -50px;
+    width: 170px; height: 170px; border-radius: 50%; background: rgba(255, 255, 255, 0.08);
+    pointer-events: none;
+  }
+  .hero-ic {
+    width: 62px; height: 62px; border-radius: 50%; flex-shrink: 0;
+    background: rgba(255, 255, 255, 0.2); border: 1.5px solid rgba(255, 255, 255, 0.4);
+    display: flex; align-items: center; justify-content: center; font-size: 1.55rem;
+    position: relative; z-index: 1;
+  }
+  .hero-t { flex: 1; min-width: 0; position: relative; z-index: 1; }
+  .hero-t small { font-size: 0.8rem; opacity: 0.9; font-weight: 500; }
+  .hero-t h2 { font-family: 'Playfair Display', serif; font-size: 2.2rem; font-weight: 800; line-height: 1.1; }
+  .hero-t p { font-size: 0.85rem; opacity: 0.94; margin-top: 0.15rem; }
+  .hero .sw { position: relative; z-index: 1; width: 74px; height: 42px; }
+  .hero .sw span { background: rgba(255, 255, 255, 0.35); }
+  .hero .sw span::before { width: 34px; height: 34px; }
+  .hero .sw input:checked + span { background: rgba(255, 255, 255, 0.35); }
+  .hero .sw input:checked + span::before { transform: translateX(32px); }
+
+  /* ============ SWITCH ============ */
+  .sw { position: relative; width: 58px; height: 32px; flex-shrink: 0; display: inline-block; }
+  .sw input { opacity: 0; width: 0; height: 0; position: absolute; }
+  .sw span { position: absolute; inset: 0; background: #3a3a48; border-radius: 32px; cursor: pointer; transition: 0.25s; }
+  .sw span::before {
+    content: ''; position: absolute; width: 24px; height: 24px; left: 4px; top: 4px;
+    background: #fff; border-radius: 50%; box-shadow: 0 2px 6px rgba(0, 0, 0, 0.35); transition: 0.25s;
+  }
+  .sw input:checked + span { background: linear-gradient(135deg, var(--crimson-bright), var(--gold)); }
+  .sw input:checked + span::before { transform: translateX(26px); }
+  .sw input:focus-visible + span { outline: 3px solid var(--gold-light); outline-offset: 2px; }
+
+  /* ============ QUICK STATS ============ */
+  .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.8rem; margin-top: 1rem; }
+  .stat {
+    background: linear-gradient(180deg, var(--panel), var(--graphite-2));
+    border: 1px solid var(--border); border-radius: 14px; padding: 0.9rem 1rem; min-width: 0;
+  }
+  .stat .k {
+    font-family: 'Roboto Mono', monospace; font-size: 0.58rem; letter-spacing: 1.3px;
+    text-transform: uppercase; color: var(--muted);
+  }
+  .stat .v { font-weight: 700; font-size: 0.95rem; margin-top: 0.25rem; color: var(--gold-light); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .stat .v.off { color: var(--muted); font-weight: 500; }
+
+  /* ============ CARDS ============ */
+  .card {
+    background: linear-gradient(180deg, var(--panel), var(--graphite-2));
+    border: 1px solid var(--border); border-radius: 16px;
+    margin-top: 1rem; overflow: hidden; box-shadow: var(--shadow);
+  }
+  .ch { display: flex; align-items: center; gap: 0.9rem; padding: 1.05rem 1.1rem; }
+  .ch > div:nth-child(2) { flex: 1; min-width: 0; }
+  .ci {
+    width: 44px; height: 44px; border-radius: 12px; flex-shrink: 0;
+    background: rgba(217, 169, 76, 0.1); border: 1px solid rgba(217, 169, 76, 0.28);
+    color: var(--gold); display: flex; align-items: center; justify-content: center; font-size: 1.05rem;
+  }
+  .ch h3 { font-family: 'Playfair Display', serif; font-size: 1.05rem; line-height: 1.2; }
+  .ch p { font-size: 0.78rem; color: var(--muted); }
+  .cb { display: none; padding: 1.1rem; border-top: 1px solid var(--border); }
+  .card.on .cb, .card.always .cb { display: block; }
+  .card.on .cb { animation: fade 0.25s ease; }
+  @keyframes fade { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: none; } }
+
+  .row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.9rem; }
+  label.f { display: block; font-size: 0.72rem; font-weight: 700; color: var(--muted); margin-bottom: 0.35rem; letter-spacing: 0.4px; text-transform: uppercase; }
+  .in {
+    width: 100%; min-height: 50px; padding: 0.7rem 0.85rem;
+    background: var(--graphite); color: var(--text);
+    border: 1.5px solid var(--border); border-radius: 12px;
+    font: 500 1rem 'Roboto', sans-serif; transition: border-color 0.2s, box-shadow 0.2s;
+  }
+  .in:focus { outline: none; border-color: var(--gold); box-shadow: 0 0 0 3px rgba(217, 169, 76, 0.18); }
+  textarea.in { min-height: 92px; resize: none; line-height: 1.4; }
+  .cnt { text-align: right; font-family: 'Roboto Mono', monospace; font-size: 0.68rem; color: var(--muted); margin-top: 0.3rem; }
+
+  .chips { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-top: 0.8rem; }
+  .chip {
+    border: 1px solid var(--border); background: var(--panel-2); color: var(--gold-light);
+    border-radius: 20px; padding: 0.5rem 0.95rem; min-height: 40px;
+    font: 700 0.8rem 'Roboto', sans-serif; cursor: pointer;
+    transition: border-color 0.2s, background 0.2s;
+  }
+  .chip:hover { border-color: rgba(217, 169, 76, 0.5); background: rgba(217, 169, 76, 0.1); }
+
+  .note {
+    margin-top: 0.9rem; font-size: 0.84rem; color: var(--gold-light);
+    background: rgba(217, 169, 76, 0.1); border: 1px solid rgba(217, 169, 76, 0.22);
+    border-radius: 10px; padding: 0.65rem 0.8rem; display: flex; gap: 0.6rem; align-items: center;
+  }
+  .note i { color: var(--gold); }
+  .note:empty { display: none; }
+
+  /* ============ CUSTOMER PREVIEW ============ */
+  .pv {
+    position: relative; overflow: hidden;
+    display: flex; align-items: flex-start; gap: 0.85rem;
+    padding: 1rem 1.05rem; border-radius: 14px; color: #fff;
+    background: linear-gradient(135deg, #1B8A5A, #2EA56E 55%, #3CC48A);
+    transition: background 0.4s ease;
+  }
+  .pv.closed { background: linear-gradient(135deg, #7B1F33, #A5332F 55%, #C0392B); }
+  .pv-ic {
+    width: 46px; height: 46px; border-radius: 50%; flex-shrink: 0;
+    background: rgba(255, 255, 255, 0.2); border: 1.5px solid rgba(255, 255, 255, 0.4);
+    display: flex; align-items: center; justify-content: center; font-size: 1.15rem;
+  }
+  .pv-main { flex: 1; min-width: 0; }
+  .pv-title { font-family: 'Playfair Display', serif; font-weight: 800; font-size: 1.2rem; line-height: 1.2; }
+  .pv-sub { font-size: 0.86rem; opacity: 0.95; margin-top: 0.15rem; }
+  .pv-chips { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-top: 0.6rem; }
+  .pv-chips:empty { display: none; }
+  .pv-chip {
+    display: inline-flex; align-items: center; gap: 0.35rem;
+    background: rgba(255, 255, 255, 0.18); border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 20px; padding: 0.25rem 0.65rem; font-size: 0.72rem; font-weight: 700;
+  }
+  .pv-msg {
+    margin-top: 0.6rem; background: rgba(0, 0, 0, 0.22); border-left: 3px solid #FFD700;
+    border-radius: 8px; padding: 0.5rem 0.7rem; font-size: 0.82rem; font-style: italic; word-break: break-word;
+  }
+  .pv-msg:empty { display: none; }
+
+  /* ============ SAVE BAR ============ */
+  .bar {
+    position: fixed; left: 240px; right: 0; bottom: 0; z-index: 12;
+    background: rgba(28, 28, 37, 0.96); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+    border-top: 1px solid rgba(217, 169, 76, 0.35);
+    box-shadow: 0 -10px 30px rgba(0, 0, 0, 0.45);
+    padding: 0.85rem 1.4rem calc(0.85rem + env(safe-area-inset-bottom));
+    display: flex; align-items: center; gap: 0.7rem;
+    transform: translateY(115%); transition: transform 0.3s ease;
+  }
+  .bar.show { transform: none; }
+  .bar .txt { flex: 1; font-size: 0.85rem; font-weight: 700; color: var(--gold-light); display: flex; align-items: center; gap: 0.5rem; }
+  .bar .txt i { color: var(--gold); }
+  .btn {
+    min-height: 48px; border: none; border-radius: 12px; padding: 0 1.3rem;
+    font: 700 0.92rem 'Roboto', sans-serif; cursor: pointer; transition: transform 0.15s ease, opacity 0.2s;
+  }
+  .btn:active { transform: scale(0.97); }
+  .btn.pri { background: linear-gradient(135deg, var(--crimson-bright), var(--gold)); color: #1a1208; box-shadow: 0 4px 14px rgba(217, 169, 76, 0.3); }
+  .btn.sec { background: var(--panel-2); color: var(--text); border: 1px solid var(--border); }
+  .btn.bad { background: var(--red); color: #fff; }
+  .btn:disabled { opacity: 0.55; cursor: not-allowed; }
+
+  /* ============ MODAL ============ */
+  #modal {
+    position: fixed; inset: 0; z-index: 100; display: none;
+    background: rgba(5, 5, 10, 0.7); backdrop-filter: blur(3px); -webkit-backdrop-filter: blur(3px);
+    align-items: center; justify-content: center; padding: 1rem;
+  }
+  #modal.show { display: flex; }
+  .sheet {
+    background: linear-gradient(180deg, var(--panel), var(--graphite-2));
+    border: 1px solid var(--border); border-radius: 18px;
+    width: 100%; max-width: 440px; padding: 1.5rem 1.3rem 1.3rem;
+    box-shadow: var(--shadow); animation: pop 0.25s ease;
+  }
+  @keyframes pop { from { transform: translateY(14px) scale(0.97); opacity: 0; } to { transform: none; opacity: 1; } }
+  .sheet h3 { font-family: 'Playfair Display', serif; font-size: 1.25rem; color: var(--gold-light); }
+  .sheet p { color: var(--muted); font-size: 0.9rem; margin: 0.45rem 0 1.2rem; }
+  .sheet .row .btn { width: 100%; }
+
+  /* ============ TOAST ============ */
+  #toast {
+    position: fixed; top: calc(14px + env(safe-area-inset-top)); left: 50%;
+    transform: translate(-50%, -20px); opacity: 0; pointer-events: none;
+    background: var(--green); color: #fff; padding: 0.8rem 1.15rem; border-radius: 10px;
+    font-weight: 700; font-size: 0.88rem; box-shadow: var(--shadow);
+    z-index: 200; max-width: 92vw; text-align: center; transition: 0.3s;
+  }
+  #toast.show { opacity: 1; transform: translate(-50%, 0); }
+
+  .scrim { display: none; position: fixed; inset: 0; background: rgba(0, 0, 0, 0.55); z-index: 15; }
+  .scrim.show { display: block; }
+
+  /* ============ RESPONSIVE ============ */
+  @media (max-width: 860px) {
+    .menu-btn { display: inline-flex; }
+    .bar { left: 0; }
+    .topbar { padding: 0.8rem 1rem; padding-top: calc(0.8rem + env(safe-area-inset-top)); }
+    main { padding: 1rem; }
+    .tb-btn span { display: none; }
+    .tb-btn { padding: 0; width: 42px; justify-content: center; }
+  }
+  @media (max-width: 560px) {
+    .stats { grid-template-columns: 1fr; }
+    .hero { padding: 1.1rem; gap: 0.8rem; }
+    .hero-t h2 { font-size: 1.8rem; }
+    .hero-ic { width: 52px; height: 52px; font-size: 1.3rem; }
+    .row { grid-template-columns: 1fr; }
+    .sheet .row { grid-template-columns: 1fr 1fr; }
+    .bar .txt span { display: none; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation-duration: 0.001ms !important; transition-duration: 0.001ms !important; }
+  }
+</style>
+</head>
+<body>
+
+<div class="app">
+
+  <!-- ===================== SIDEBAR (embedded) ===================== -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+      <img src="https://i.postimg.cc/W3pgQx9q/DELICUTE-Imgur-1-modified.png" alt="Delicute" />
+      <div>
+        <div class="name">DELICUTE</div>
+        <div class="sub">Super Admin</div>
+      </div>
+    </div>
+
+    <a class="rstatus-pill" id="rstatusPill" href="superadminrestaurantstatus.html" title="Manage restaurant status">
+      <span class="dot"></span>
+      <span id="rstatusPillText">Restaurant status</span>
+    </a>
+
+    <div class="maint-pill" id="maintPill"><span class="dot"></span> Maintenance mode is ON</div>
+    <div class="testmode-pill" id="testModePill"><span class="dot"></span> Test mode is ON</div>
+
+    <div class="sidebar-scroll">
+      <div class="nav-group">
+        <div class="nav-label">Delicute</div>
+
+        <a class="nav-item" data-page="superadmindashboard.html" href="superadmindashboard.html">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg>
+          Overview
+        </a>
+
+        <a class="nav-item" data-page="superadminorders.html" href="superadminorders.html">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 7h16l-1.5 11a2 2 0 0 1-2 1.7H7.5a2 2 0 0 1-2-1.7L4 7Z"/><path d="M8 7V5a4 4 0 0 1 8 0v2"/></svg>
+          Orders
+        </a>
+
+        <a class="nav-item" data-page="superadmintables.html" href="superadmintables.html">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M3 15h18M9 3v18M15 3v18"/></svg>
+          Tables
+        </a>
+
+        <a class="nav-item" data-page="superadminrestaurantstatus.html" href="superadminrestaurantstatus.html">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M3 9.5 4.5 4h15L21 9.5"/><path d="M4 9.5V20h16V9.5"/><path d="M3 9.5a3 3 0 0 0 6 0 3 3 0 0 0 6 0 3 3 0 0 0 6 0"/><path d="M10 20v-5h4v5"/></svg>
+          Restaurant Status
+        </a>
+
+        <a class="nav-item" data-page="superadmintestmode.html" href="superadmintestmode.html">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="9"/></svg>
+          Test Mode
+        </a>
+
+        <a class="nav-item" data-page="superadminmenu.html" href="superadminmenu.html">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 6h16M4 12h16M4 18h10"/></svg>
+          Menu &amp; Categories
+        </a>
+
+        <a class="nav-item" data-page="superadminaddons.html" href="superadminaddons.html">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg>
+          Add-ons
+        </a>
+
+        <a class="nav-item" data-page="superadmintoppicks.html" href="superadmintoppicks.html">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M12 2l2.9 6.6L22 9.3l-5 4.9 1.2 7-6.2-3.6L5.8 21.2 7 14.2l-5-4.9 7.1-.7L12 2z"/></svg>
+          Top Picks
+        </a>
+
+        <a class="nav-item" data-page="superadminpromos.html" href="superadminpromos.html">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M20.6 12.3 12.7 4.4a2 2 0 0 0-1.4-.6H5a1 1 0 0 0-1 1v6.3c0 .5.2 1 .6 1.4l7.9 7.9a2 2 0 0 0 2.8 0l5.3-5.3a2 2 0 0 0 0-2.8Z"/><circle cx="8.5" cy="8.5" r="1.2"/></svg>
+          Coupons &amp; Promotions
+        </a>
+
+        <a class="nav-item" data-page="superadminusers.html" href="superadminusers.html">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-8 8-8s8 3.6 8 8"/></svg>
+          Users
+        </a>
+
+        <a class="nav-item" data-page="superadminadmins.html" href="superadminadmins.html">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M12 2 4 5v6c0 5 3.4 8.7 8 11 4.6-2.3 8-6 8-11V5l-8-3Z"/><path d="M9 12l2 2 4-4"/></svg>
+          Admins
+        </a>
+
+        <a class="nav-item" data-page="superadminlogs.html" href="superadminlogs.html">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
+          Login Logs
+        </a>
+
+        <a class="nav-item" data-page="superadminadminlogs.html" href="superadminadminlogs.html">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 19V5a2 2 0 0 1 2-2h8l6 6v10a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2Z"/><path d="M14 3v6h6"/><path d="M8 13h8M8 17h5"/></svg>
+          Admin Logs
+        </a>
+
+        <a class="nav-item" data-page="superadminmaintenancemode.html" href="superadminmaintenancemode.html">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M14.7 6.3a4 4 0 0 1-5.4 5.4L4 17l3 3 5.3-5.3a4 4 0 0 1 5.4-5.4l-3-3Z"/><path d="M14.7 6.3 21 12.6M4 17l3 3M9.3 11.7 3 18"/></svg>
+          Maintenance Mode
+        </a>
+      </div>
+
+      <div class="nav-group" style="padding-top:0;">
+        <div class="nav-label">Platform</div>
+        <div class="nav-item stub" data-page="superadminclientsites.html">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="3" y="4" width="18" height="14" rx="2"/><path d="M3 9h18M8 21h8"/></svg>
+          Client Sites
+          <span class="badge-inline">soon</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="sidebar-footer">
+      <button class="logout-btn" id="logoutBtn">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg>
+        Sign out
+      </button>
+    </div>
+  </aside>
+
+  <div class="sidebar-spacer"></div>
+  <!-- =================== END SIDEBAR =================== -->
+
+  <div class="scrim" id="scrim"></div>
+
+  <div class="content">
+    <div class="topbar">
+      <button class="menu-btn" id="menuBtn" aria-label="Open menu"><i class="fas fa-bars"></i></button>
+      <div class="tb-title">
+        <h1>Restaurant Status</h1>
+        <small>Control when customers can order</small>
+      </div>
+      <button class="tb-btn" id="refreshBtn" title="Reload current status"><i class="fas fa-rotate"></i><span>Refresh</span></button>
+    </div>
+
+    <main>
+      <!-- Main open / closed switch -->
+      <section class="hero" id="hero">
+        <div class="hero-ic"><i class="fas fa-store" id="hi"></i></div>
+        <div class="hero-t">
+          <small>The restaurant is</small>
+          <h2 id="st">Open</h2>
+          <p id="sub"></p>
+        </div>
+        <label class="sw"><input type="checkbox" id="tOpen" aria-label="Restaurant open"><span></span></label>
+      </section>
+
+      <!-- Quick summary -->
+      <section class="stats">
+        <div class="stat"><div class="k">Live right now</div><div class="v" id="sLive">-</div></div>
+        <div class="stat"><div class="k">Opening hours</div><div class="v" id="sHours">-</div></div>
+        <div class="stat"><div class="k">Scheduled break</div><div class="v" id="sBreak">-</div></div>
+      </section>
+
+      <!-- Opening hours -->
+      <section class="card" id="cH">
+        <div class="ch">
+          <div class="ci"><i class="fas fa-clock"></i></div>
+          <div><h3>Opening hours</h3><p>Optional. Orders are accepted only in this window.</p></div>
+          <label class="sw"><input type="checkbox" id="tH" aria-label="Use opening hours"><span></span></label>
+        </div>
+        <div class="cb">
+          <div class="row">
+            <div><label class="f" for="oT">Opens at</label><input type="time" class="in" id="oT"></div>
+            <div><label class="f" for="cT">Closes at</label><input type="time" class="in" id="cT"></div>
+          </div>
+          <div class="chips">
+            <button type="button" class="chip" data-o="09:00" data-c="23:00">9 AM – 11 PM</button>
+            <button type="button" class="chip" data-o="10:00" data-c="22:00">10 AM – 10 PM</button>
+            <button type="button" class="chip" data-o="11:00" data-c="23:30">11 AM – 11:30 PM</button>
+          </div>
+          <div class="note" id="nH"></div>
+        </div>
+      </section>
+
+      <!-- Closed dates -->
+      <section class="card" id="cC">
+        <div class="ch">
+          <div class="ci"><i class="fas fa-calendar-days"></i></div>
+          <div><h3>Closed dates</h3><p>Optional. Close for a holiday or a break.</p></div>
+          <label class="sw"><input type="checkbox" id="tC" aria-label="Schedule closed dates"><span></span></label>
+        </div>
+        <div class="cb">
+          <div class="row">
+            <div><label class="f" for="dF">From</label><input type="date" class="in" id="dF"></div>
+            <div><label class="f" for="dT">To</label><input type="date" class="in" id="dT"></div>
+          </div>
+          <div class="chips">
+            <button type="button" class="chip" data-f="0" data-n="1">Today</button>
+            <button type="button" class="chip" data-f="1" data-n="1">Tomorrow</button>
+            <button type="button" class="chip" data-f="0" data-n="3">Next 3 days</button>
+            <button type="button" class="chip" data-f="0" data-n="7">Next 7 days</button>
+          </div>
+          <div class="note" id="nC"></div>
+        </div>
+      </section>
+
+      <!-- Customer message -->
+      <section class="card always">
+        <div class="ch">
+          <div class="ci"><i class="fas fa-message"></i></div>
+          <div><h3>Message for customers</h3><p>Optional. Shown when the restaurant is closed.</p></div>
+        </div>
+        <div class="cb">
+          <textarea class="in" id="msg" maxlength="140" placeholder="e.g. We're closed for Diwali. See you on the 25th!"></textarea>
+          <div class="cnt" id="cnt">0/140</div>
+        </div>
+      </section>
+
+      <!-- Preview -->
+      <section class="card always">
+        <div class="ch">
+          <div class="ci"><i class="fas fa-eye"></i></div>
+          <div><h3>What customers see</h3><p>Live preview of the banner on the customer menu.</p></div>
+        </div>
+        <div class="cb">
+          <div class="pv" id="pv">
+            <div class="pv-ic"><i class="fas fa-utensils" id="pvI"></i></div>
+            <div class="pv-main">
+              <div class="pv-title" id="pvT">We're open!</div>
+              <div class="pv-sub" id="pvS"></div>
+              <div class="pv-chips" id="pvC"></div>
+              <div class="pv-msg" id="pvM"></div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+</div>
+
+<!-- Unsaved changes bar -->
+<div class="bar" id="bar">
+  <div class="txt"><i class="fas fa-circle-exclamation"></i><span>You have unsaved changes</span></div>
+  <button type="button" class="btn sec" id="discard">Discard</button>
+  <button type="button" class="btn pri" id="save">Save changes</button>
+</div>
+
+<!-- Confirm modal -->
+<div id="modal">
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="mt">
+    <h3 id="mt"></h3>
+    <p id="mp"></p>
+    <div class="row">
+      <button type="button" class="btn sec" id="mno">Cancel</button>
+      <button type="button" class="btn bad" id="mok"></button>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script src="/socket.io/socket.io.js"></script>
+
+<!-- ===================== SIDEBAR SCRIPT ===================== -->
+<script>
+  (function initSidebar() {
+    const currentPage = window.location.pathname.split('/').pop() || 'superadmindashboard.html';
+    document.querySelectorAll('.nav-item[data-page]').forEach(item => {
+      item.classList.toggle('active', item.dataset.page === currentPage);
+    });
+
+    const logoutBtn = document.getElementById('logoutBtn');
+    if (logoutBtn) {
+      logoutBtn.addEventListener('click', async () => {
+        try {
+          await fetch('/api/superadmin/auth/logout', { method: 'POST', credentials: 'include' });
+        } catch (e) { /* ignore, redirect anyway */ }
+        window.location.href = '/superadminlogin.html';
+      });
+    }
+
+    fetch('/api/superadmin/maintenance', { credentials: 'include' })
+      .then(r => r.ok ? r.json() : null)
+      .then(data => {
+        if (data && data.enabled) document.getElementById('maintPill').classList.add('show');
+      })
+      .catch(() => {});
+
+    fetch('/api/superadmin/test-mode', { credentials: 'include' })
+      .then(r => r.ok ? r.json() : null)
+      .then(data => {
+        if (data && data.enabled) document.getElementById('testModePill').classList.add('show');
+      })
+      .catch(() => {});
+
+    /* Restaurant open / closed pill */
+    const rPill = document.getElementById('rstatusPill');
+    const rPillText = document.getElementById('rstatusPillText');
+
+    function renderRestaurantPill(s) {
+      if (!rPill || !s) return;
+      const open = s.accepting_orders !== false;
+      let text;
+      if (open) text = 'Restaurant is OPEN';
+      else if (s.reason === 'closure') text = 'Restaurant on BREAK';
+      else if (s.reason === 'hours') text = 'Closed (outside hours)';
+      else text = 'Restaurant is CLOSED';
+      rPill.classList.toggle('open', open);
+      rPill.classList.toggle('closed', !open);
+      rPill.classList.add('show');
+      rPillText.textContent = text;
+    }
+
+    let rLoading = false;
+    async function loadRestaurantPill() {
+      if (rLoading) return;
+      rLoading = true;
+      try {
+        const res = await fetch('/api/restaurant-status', { cache: 'no-store' });
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        const json = await res.json();
+        renderRestaurantPill(json.data || json);
+      } catch (e) {
+        /* keep last state */
+      } finally {
+        rLoading = false;
+      }
+    }
+
+    loadRestaurantPill();
+    setInterval(loadRestaurantPill, 30000);
+    document.addEventListener('visibilitychange', () => { if (!document.hidden) loadRestaurantPill(); });
+
+    /* Let the main page refresh the pill right after a save */
+    window.refreshRestaurantPill = loadRestaurantPill;
+
+    if (typeof io === 'function') {
+      try { io().on('restaurant-status-changed', loadRestaurantPill); } catch (e) { /* ignore */ }
+    }
+  })();
+</script>
+
+<!-- ===================== PAGE SCRIPT ===================== -->
+<script>
+/* ===================== CONFIG ===================== */
+const CFG = {
+  STATUS_URL:   '/api/restaurant-status',
+  SAVE_URL:     '/api/restaurant-status',
+  SAVE_METHOD:  'PUT',
+  AUTH_URL:     '/api/superadmin/auth/check',
+  LOGIN_PAGE:   '/superadminlogin.html'
+};
+
+const $ = id => document.getElementById(id);
+
+/* ===================== STATE ===================== */
+const D = {
+  is_open: true,
+  use_hours: false, opening_time: '09:00', closing_time: '23:00',
+  use_closure: false, closure_from: '', closure_to: '',
+  closed_message: ''
+};
+let S = { ...D };
+let SV = { ...D };
+let loaded = false, busy = false;
+
+/* ===================== HELPERS ===================== */
+const pad = n => String(n).padStart(2, '0');
+const iso = d => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+const addDays = (s, n) => { const d = s ? new Date(s + 'T00:00:00') : new Date(); d.setDate(d.getDate() + n); return iso(d); };
+const fT = t => { if (!t) return ''; const [h, m] = t.split(':'); return `${(+h % 12) || 12}:${m} ${+h >= 12 ? 'PM' : 'AM'}`; };
+const fD = s => s ? new Date(s + 'T00:00:00').toLocaleDateString('en-IN', { weekday: 'short', day: 'numeric', month: 'short' }) : '';
+const mins = t => { const [h, m] = t.split(':'); return +h * 60 + +m; };
+const dirty = () => JSON.stringify(S) !== JSON.stringify(SV);
+const setV = (id, v) => { if ($(id).value !== v) $(id).value = v; };
+
+function toast(msg, ok = true) {
+  const t = $('toast');
+  t.textContent = msg;
+  t.style.background = ok ? '#2ea56e' : '#d64545';
+  t.className = 'show';
+  clearTimeout(toast.t);
+  toast.t = setTimeout(() => (t.className = ''), 2800);
+}
+
+/* API shape <-> UI shape */
+function fromApi(d) {
+  d = d || {};
+  return {
+    is_open: d.is_open === true || d.is_open === 1 || d.is_open === '1',
+    use_hours: !!(d.opening_time && d.closing_time),
+    opening_time: d.opening_time ? String(d.opening_time).slice(0, 5) : D.opening_time,
+    closing_time: d.closing_time ? String(d.closing_time).slice(0, 5) : D.closing_time,
+    use_closure: !!(d.closure_from && d.closure_to),
+    closure_from: d.closure_from ? String(d.closure_from).slice(0, 10) : '',
+    closure_to: d.closure_to ? String(d.closure_to).slice(0, 10) : '',
+    closed_message: d.closed_message || ''
+  };
+}
+function toApi() {
+  return {
+    is_open: S.is_open,
+    opening_time: S.use_hours ? S.opening_time : null,
+    closing_time: S.use_hours ? S.closing_time : null,
+    closure_from: S.use_closure ? S.closure_from : null,
+    closure_to: S.use_closure ? S.closure_to : null,
+    closed_message: S.closed_message.trim()
+  };
+}
+
+function validate() {
+  if (S.use_hours) {
+    if (!S.opening_time || !S.closing_time) return 'Set both opening and closing time';
+    if (S.opening_time === S.closing_time) return "Opening and closing time can't be the same";
+  }
+  if (S.use_closure) {
+    if (!S.closure_from || !S.closure_to) return 'Pick both closed dates';
+    if (S.closure_to < S.closure_from) return "The 'To' date must be on or after 'From'";
+    if (S.closure_to < iso(new Date())) return 'Closed dates are already in the past';
+  }
+  return '';
+}
+
+function inHours() {
+  const n = new Date(), c = n.getHours() * 60 + n.getMinutes();
+  const o = mins(S.opening_time), e = mins(S.closing_time);
+  return o < e ? c >= o && c < e : c >= o || c < e;
+}
+
+function computeState() {
+  const today = iso(new Date());
+  const validClosure = S.use_closure && S.closure_from && S.closure_to && S.closure_to >= S.closure_from;
+  if (!S.is_open) return { open: false, reason: 'manual', validClosure };
+  if (validClosure && today >= S.closure_from && today <= S.closure_to) return { open: false, reason: 'closure', validClosure };
+  if (S.use_hours && S.opening_time && S.closing_time && !inHours()) return { open: false, reason: 'hours', validClosure };
+  return { open: true, reason: null, validClosure };
+}
+
+/* ===================== RENDER ===================== */
+function chip(icon, text) {
+  const el = document.createElement('span');
+  el.className = 'pv-chip';
+  const i = document.createElement('i'); i.className = 'fas ' + icon;
+  el.appendChild(i);
+  el.appendChild(document.createTextNode(' ' + text));
+  return el;
+}
+
+function renderPreview(st) {
+  const today = iso(new Date());
+  const hasHours = S.use_hours && S.opening_time && S.closing_time;
+  const hoursTxt = hasHours ? `${fT(S.opening_time)} – ${fT(S.closing_time)}` : '';
+  const chips = [];
+  let icon, title, sub;
+
+  if (st.open) {
+    icon = 'fa-utensils'; title = "We're open!";
+    sub = hasHours ? `Serving until ${fT(S.closing_time)}. Order right from your table.` : 'Order right from your table.';
+    if (hasHours) chips.push(['fa-clock', 'Open ' + hoursTxt]);
+    if (st.validClosure && S.closure_from > today) {
+      chips.push(['fa-calendar-days', 'Closed ' + (S.closure_from === S.closure_to ? fD(S.closure_from) : `${fD(S.closure_from)} – ${fD(S.closure_to)}`)]);
+    }
+  } else if (st.reason === 'closure') {
+    icon = 'fa-umbrella-beach'; title = "We're on a short break";
+    sub = `We'll be back on ${fD(addDays(S.closure_to, 1))}.`;
+    chips.push(['fa-circle-info', 'Scheduled break']);
+    chips.push(['fa-calendar-days', S.closure_from === S.closure_to ? fD(S.closure_from) : `${fD(S.closure_from)} – ${fD(S.closure_to)}`]);
+    if (hasHours) chips.push(['fa-clock', 'Usual hours ' + hoursTxt]);
+  } else if (st.reason === 'hours') {
+    icon = 'fa-moon'; title = "We're closed for now";
+    sub = `We open at ${fT(S.opening_time)}.`;
+    chips.push(['fa-circle-info', 'Outside opening hours']);
+    chips.push(['fa-clock', 'Hours ' + hoursTxt]);
+  } else {
+    icon = 'fa-store-slash'; title = "We're closed right now";
+    sub = "We're not taking orders at the moment. Please check back soon.";
+    chips.push(['fa-circle-info', 'Temporarily closed']);
+    if (hasHours) chips.push(['fa-clock', 'Usual hours ' + hoursTxt]);
+  }
+
+  $('pv').classList.toggle('closed', !st.open);
+  $('pvI').className = 'fas ' + icon;
+  $('pvT').textContent = title;
+  $('pvS').textContent = sub;
+  $('pvC').textContent = '';
+  chips.forEach(c => $('pvC').appendChild(chip(c[0], c[1])));
+  $('pvM').textContent = !st.open ? S.closed_message.trim() : '';
+}
+
+function render() {
+  const o = S.is_open, today = iso(new Date());
+  const st = computeState();
+
+  /* hero */
+  $('hero').classList.toggle('closed', !o);
+  $('st').textContent = o ? 'Open' : 'Closed';
+  $('hi').className = 'fas ' + (o ? 'fa-store' : 'fa-store-slash');
+  $('sub').textContent = o ? 'Customers can place orders' : "Customers can't place orders";
+  $('tOpen').checked = o;
+
+  /* toggles + cards */
+  $('cH').classList.toggle('on', S.use_hours); $('tH').checked = S.use_hours;
+  $('cC').classList.toggle('on', S.use_closure); $('tC').checked = S.use_closure;
+
+  /* inputs */
+  setV('oT', S.opening_time); setV('cT', S.closing_time);
+  setV('dF', S.closure_from); setV('dT', S.closure_to); setV('msg', S.closed_message);
+  $('dF').min = today; $('dT').min = S.closure_from || today;
+  $('cnt').textContent = `${S.closed_message.length}/140`;
+
+  /* stats */
+  const live = $('sLive');
+  live.textContent = st.open ? 'Open for orders' : (st.reason === 'closure' ? 'On a break' : st.reason === 'hours' ? 'Outside hours' : 'Closed');
+  live.className = 'v';
+  $('sHours').textContent = S.use_hours ? `${fT(S.opening_time)} – ${fT(S.closing_time)}` : 'Not set';
+  $('sHours').className = 'v' + (S.use_hours ? '' : ' off');
+  const hasBreak = st.validClosure;
+  $('sBreak').textContent = hasBreak ? (S.closure_from === S.closure_to ? fD(S.closure_from) : `${fD(S.closure_from)} – ${fD(S.closure_to)}`) : 'None';
+  $('sBreak').className = 'v' + (hasBreak ? '' : ' off');
+
+  /* notes */
+  $('nH').innerHTML = S.use_hours && S.opening_time && S.closing_time
+    ? (mins(S.closing_time) <= mins(S.opening_time)
+        ? `<i class="fas fa-moon"></i><span>Closes after midnight, at ${fT(S.closing_time)} the next day.</span>`
+        : `<i class="fas fa-circle-check"></i><span>Open ${fT(S.opening_time)} to ${fT(S.closing_time)} every day.</span>`)
+    : '';
+
+  let nc = '';
+  if (st.validClosure) {
+    const days = Math.round((new Date(S.closure_to) - new Date(S.closure_from)) / 864e5) + 1;
+    nc = `<i class="fas fa-umbrella-beach"></i><span>Closed ${days} day${days > 1 ? 's' : ''}. Reopens ${fD(addDays(S.closure_to, 1))}.</span>`;
+  }
+  $('nC').innerHTML = nc;
+
+  renderPreview(st);
+
+  /* save bar */
+  $('bar').classList.toggle('show', dirty());
+  $('save').disabled = busy; $('discard').disabled = busy;
+  $('save').textContent = busy ? 'Saving...' : 'Save changes';
+}
+
+/* ===================== CONFIRM MODAL ===================== */
+function ask(title, text, okLabel) {
+  return new Promise(res => {
+    $('mt').textContent = title; $('mp').textContent = text; $('mok').textContent = okLabel;
+    $('modal').classList.add('show');
+    const done = v => {
+      $('modal').classList.remove('show');
+      document.removeEventListener('keydown', onKey);
+      res(v);
+    };
+    const onKey = e => { if (e.key === 'Escape') done(false); };
+    document.addEventListener('keydown', onKey);
+    $('mok').onclick = () => done(true);
+    $('mno').onclick = () => done(false);
+  });
+}
+
+/* ===================== SAVE / LOAD ===================== */
+async function save() {
+  if (busy) return;
+  if (!loaded) return toast("Current status didn't load. Refresh first.", false);
+  const err = validate();
+  if (err) return toast(err, false);
+
+  if (SV.is_open && !S.is_open) {
+    const ok = await ask('Close the restaurant?', "Customers won't be able to place orders until you open it again.", 'Yes, close');
+    if (!ok) return;
+  }
+
+  busy = true; render();
+  try {
+    const res = await fetch(CFG.SAVE_URL, {
+      method: CFG.SAVE_METHOD,
+      credentials: 'include',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(toApi())
+    });
+    if (res.status === 401 || res.status === 403) throw new Error('Session expired. Please log in again.');
+    const json = await res.json().catch(() => ({}));
+    if (!res.ok || json.success === false) throw new Error(json.message || `HTTP ${res.status}`);
+    SV = { ...S };
+    toast('Status saved. Customers see it now.');
+    if (typeof window.refreshRestaurantPill === 'function') window.refreshRestaurantPill();
+  } catch (e) {
+    console.error('Save error:', e);
+    toast("Couldn't save: " + e.message, false);
+  } finally {
+    busy = false; render();
+  }
+}
+
+async function load(silent) {
+  const btn = $('refreshBtn');
+  btn.classList.add('spin');
+  try {
+    const r = await fetch(CFG.STATUS_URL, { credentials: 'include', cache: 'no-store' });
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+    const j = await r.json();
+    S = fromApi(j.data || j); SV = { ...S }; loaded = true;
+    if (!silent) toast('Status loaded');
+  } catch (e) {
+    console.error('Load error:', e);
+    if (!loaded) toast("Couldn't load current status", false);
+  } finally {
+    btn.classList.remove('spin');
+    render();
+  }
+}
+
+/* ===================== EVENTS ===================== */
+$('tOpen').onchange = e => { S.is_open = e.target.checked; render(); };
+$('tH').onchange = e => { S.use_hours = e.target.checked; render(); };
+$('tC').onchange = e => {
+  S.use_closure = e.target.checked;
+  if (S.use_closure && !S.closure_from) { S.closure_from = addDays('', 0); S.closure_to = S.closure_from; }
+  render();
+};
+
+[['oT', 'opening_time'], ['cT', 'closing_time'], ['dF', 'closure_from'], ['dT', 'closure_to'], ['msg', 'closed_message']].forEach(([id, key]) => {
+  $(id).addEventListener('input', e => {
+    S[key] = e.target.value;
+    if (key === 'closure_from' && S.closure_to && S.closure_to < S.closure_from) S.closure_to = S.closure_from;
+    render();
+  });
+});
+
+document.addEventListener('click', e => {
+  const c = e.target.closest('.chip');
+  if (!c) return;
+  if (c.dataset.o) { S.opening_time = c.dataset.o; S.closing_time = c.dataset.c; }
+  else { S.closure_from = addDays('', +c.dataset.f); S.closure_to = addDays('', +c.dataset.f + +c.dataset.n - 1); }
+  render();
+});
+
+$('save').onclick = save;
+$('discard').onclick = () => { S = { ...SV }; render(); };
+$('refreshBtn').onclick = async () => {
+  if (dirty() && !(await ask('Discard your changes?', 'Reloading will replace the unsaved edits on this page.', 'Reload'))) return;
+  load(false);
+};
+
+window.addEventListener('beforeunload', e => { if (dirty()) { e.preventDefault(); e.returnValue = ''; } });
+
+/* Re-check the "outside hours" state every minute so the preview stays accurate */
+setInterval(() => { if (loaded) render(); }, 60000);
+
+/* Live sync: if another admin changes the status, refresh (only if no unsaved edits) */
+if (typeof io === 'function') {
+  try {
+    io().on('restaurant-status-changed', () => { if (!dirty() && !busy) load(true); });
+  } catch (e) { console.error('Socket error:', e); }
+}
+
+/* ===================== MOBILE SIDEBAR ===================== */
+const scrim = $('scrim');
+function setMenu(open) {
+  const sb = $('sidebar');
+  if (sb) sb.classList.toggle('open', open);
+  scrim.classList.toggle('show', open);
+}
+$('menuBtn').onclick = () => setMenu(!$('sidebar').classList.contains('open'));
+scrim.onclick = () => setMenu(false);
+window.addEventListener('resize', () => { if (window.innerWidth > 860) setMenu(false); });
+
+/* ===================== INIT ===================== */
+(async () => {
+  try {
+    const r = await fetch(CFG.AUTH_URL, { credentials: 'include', cache: 'no-store' });
+    if (r.status === 401 || r.status === 403) {
+      toast('Please log in again', false);
+      return setTimeout(() => (window.location.href = CFG.LOGIN_PAGE), 1500);
+    }
+  } catch (e) {
+    console.warn('Auth check skipped:', e);
+  }
+  load(true);
+})();
+</script>
+</body>
+</html>

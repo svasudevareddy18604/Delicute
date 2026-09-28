@@ -38,6 +38,43 @@
   }
   .sidebar-brand .sub { font-family: 'Roboto Mono', monospace; font-size: 0.6rem; color: var(--muted); letter-spacing: 1px; text-transform: uppercase; }
 
+  /* ---------- Restaurant status pill (open / closed) ---------- */
+  .rstatus-pill {
+    display: none;
+    margin: 0.8rem 1rem 0;
+    padding: 0.4rem 0.7rem;
+    border-radius: 7px;
+    font-family: 'Roboto Mono', monospace;
+    font-size: 0.62rem;
+    letter-spacing: 0.5px;
+    align-items: center;
+    gap: 0.4rem;
+    text-decoration: none;
+    cursor: pointer;
+    transition: transform 0.15s ease, border-color 0.2s ease;
+  }
+  .rstatus-pill.show { display: flex; }
+  .rstatus-pill:hover { transform: translateX(2px); }
+  .rstatus-pill .dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+
+  .rstatus-pill.open {
+    background: rgba(46, 165, 110, 0.12);
+    border: 1px solid rgba(46, 165, 110, 0.4);
+    color: #8fe0b6;
+  }
+  .rstatus-pill.open .dot {
+    background: #2ea56e;
+    box-shadow: 0 0 0 0 rgba(46,165,110,0.6);
+    animation: dotPulseGreen 1.6s ease-out infinite;
+  }
+  .rstatus-pill.closed {
+    background: rgba(214, 69, 69, 0.12);
+    border: 1px solid rgba(214, 69, 69, 0.4);
+    color: #f2a3a3;
+  }
+  .rstatus-pill.closed .dot { background: var(--red, #d64545); }
+  @keyframes dotPulseGreen { 0%{box-shadow:0 0 0 0 rgba(46,165,110,.55);}70%{box-shadow:0 0 0 6px rgba(46,165,110,0);}100%{box-shadow:0 0 0 0 rgba(46,165,110,0);} }
+
   .maint-pill {
     display: none;
     margin: 0.8rem 1rem 0;
@@ -179,6 +216,12 @@
     </div>
   </div>
 
+  <!-- NEW: live restaurant open / closed pill (click to open the status page) -->
+  <a class="rstatus-pill" id="rstatusPill" href="superadminrestaurantstatus.html" title="Manage restaurant status">
+    <span class="dot"></span>
+    <span id="rstatusPillText">Restaurant status</span>
+  </a>
+
   <div class="maint-pill" id="maintPill"><span class="dot"></span> Maintenance mode is ON</div>
   <div class="testmode-pill" id="testModePill"><span class="dot"></span> Test mode is ON</div>
 
@@ -200,6 +243,13 @@
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M3 15h18M9 3v18M15 3v18"/></svg>
         Tables
       </a>
+
+      <!-- ============ NEW: Restaurant Status ============ -->
+      <a class="nav-item" data-page="superadminrestaurantstatus.html" href="superadminrestaurantstatus.html">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M3 9.5 4.5 4h15L21 9.5"/><path d="M4 9.5V20h16V9.5"/><path d="M3 9.5a3 3 0 0 0 6 0 3 3 0 0 0 6 0 3 3 0 0 0 6 0"/><path d="M10 20v-5h4v5"/></svg>
+        Restaurant Status
+      </a>
+      <!-- ============ END NEW ============ -->
 
       <a class="nav-item" data-page="superadmintestmode.html" href="superadmintestmode.html">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="9"/></svg>
@@ -241,12 +291,11 @@
         Login Logs
       </a>
 
-      <!-- ============ NEW: Admin Logs (separate from superadmin's own Login Logs above) ============ -->
+      <!-- Admin Logs (separate from superadmin's own Login Logs above) -->
       <a class="nav-item" data-page="superadminadminlogs.html" href="superadminadminlogs.html">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 19V5a2 2 0 0 1 2-2h8l6 6v10a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2Z"/><path d="M14 3v6h6"/><path d="M8 13h8M8 17h5"/></svg>
         Admin Logs
       </a>
-      <!-- ============ END NEW ============ -->
 
       <a class="nav-item" data-page="superadminmaintenancemode.html" href="superadminmaintenancemode.html">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M14.7 6.3a4 4 0 0 1-5.4 5.4L4 17l3 3 5.3-5.3a4 4 0 0 1 5.4-5.4l-3-3Z"/><path d="M14.7 6.3 21 12.6M4 17l3 3M9.3 11.7 3 18"/></svg>
@@ -308,6 +357,59 @@
         }
       })
       .catch(() => {});
+
+    /* ---------- NEW: restaurant open / closed pill ----------
+       Reads GET /api/restaurant-status ({ success, data: { accepting_orders, reason, ... } }).
+       Refreshes every 30s, when the tab becomes visible, and instantly on the
+       "restaurant-status-changed" socket event (only if Socket.IO is loaded on the page).
+       If the request fails, the pill simply stays hidden / keeps its last state. */
+    const rPill = document.getElementById('rstatusPill');
+    const rPillText = document.getElementById('rstatusPillText');
+
+    function renderRestaurantPill(s) {
+      if (!rPill || !s) return;
+      const open = s.accepting_orders !== false;
+      let text;
+      if (open) {
+        text = 'Restaurant is OPEN';
+      } else if (s.reason === 'closure') {
+        text = 'Restaurant on BREAK';
+      } else if (s.reason === 'hours') {
+        text = 'Closed (outside hours)';
+      } else {
+        text = 'Restaurant is CLOSED';
+      }
+      rPill.classList.toggle('open', open);
+      rPill.classList.toggle('closed', !open);
+      rPill.classList.add('show');
+      rPillText.textContent = text;
+    }
+
+    let rLoading = false;
+    async function loadRestaurantPill() {
+      if (rLoading) return;
+      rLoading = true;
+      try {
+        const res = await fetch('/api/restaurant-status', { cache: 'no-store' });
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        const json = await res.json();
+        renderRestaurantPill(json.data || json);
+      } catch (e) {
+        /* keep last state */
+      } finally {
+        rLoading = false;
+      }
+    }
+
+    loadRestaurantPill();
+    setInterval(loadRestaurantPill, 30000);
+    document.addEventListener('visibilitychange', () => { if (!document.hidden) loadRestaurantPill(); });
+
+    if (typeof io === 'function') {
+      try {
+        io().on('restaurant-status-changed', loadRestaurantPill);
+      } catch (e) { /* ignore */ }
+    }
   })();
 </script>
 <!-- =================== END SIDEBAR COMPONENT =================== -->
