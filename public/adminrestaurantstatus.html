@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Restaurant Status | DELICUTE</title>
+<link rel="icon" href="https://i.postimg.cc/W3pgQx9q/DELICUTE-Imgur-1-modified.png">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+<style>
+:root{--p:#8e44ad;--pd:#5c3a52;--bg:#fbf6ee;--dark:#2a1f26;--muted:#8a7688;--bd:#ecdfe8;--gold:#d9a94c;--gl:#f2d49b;--ok:#2e9e6b;--bad:#d64545;--sh:0 2px 12px rgba(92,58,82,.08);--shm:0 10px 28px rgba(92,58,82,.16)}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{font-family:'Roboto',sans-serif;background:var(--bg);color:var(--dark);min-height:100vh;line-height:1.5;padding-bottom:calc(110px + env(safe-area-inset-bottom))}
+header{background:linear-gradient(90deg,var(--pd),var(--p));color:#fff;padding:.8rem 1rem;padding-top:calc(.8rem + env(safe-area-inset-top));display:flex;align-items:center;gap:.8rem;position:sticky;top:0;z-index:50;box-shadow:var(--shm)}
+.hbtn{width:42px;height:42px;border-radius:50%;background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.25);color:#fff;display:flex;align-items:center;justify-content:center;text-decoration:none;cursor:pointer;font-size:1rem;flex-shrink:0}
+header .t{flex:1;min-width:0}
+header h1{font-family:'Playfair Display',serif;font-size:1.25rem;font-weight:800;line-height:1.15}
+header small{font-size:.75rem;opacity:.85}
+main{max-width:640px;margin:0 auto;padding:1rem}
+.hero{border-radius:18px;padding:1.2rem;color:#fff;display:flex;align-items:center;gap:1rem;box-shadow:var(--shm);background:linear-gradient(135deg,#2e9e6b,#1f7a52);transition:background .4s}
+.hero.closed{background:linear-gradient(135deg,#d64545,#a52f2f)}
+.hero-ic{width:58px;height:58px;border-radius:50%;background:rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;font-size:1.5rem;flex-shrink:0}
+.hero-t{flex:1;min-width:0}
+.hero-t small{font-size:.8rem;opacity:.9;font-weight:500}
+.hero-t h2{font-family:'Playfair Display',serif;font-size:2.1rem;font-weight:800;line-height:1.1}
+.hero-t p{font-size:.82rem;opacity:.92;margin-top:.15rem}
+.sw{position:relative;width:64px;height:36px;flex-shrink:0;display:inline-block}
+.sw input{opacity:0;width:0;height:0;position:absolute}
+.sw span{position:absolute;inset:0;background:#d8ccd5;border-radius:36px;cursor:pointer;transition:.25s}
+.sw span::before{content:'';position:absolute;width:28px;height:28px;left:4px;top:4px;background:#fff;border-radius:50%;box-shadow:0 2px 6px rgba(0,0,0,.25);transition:.25s}
+.sw input:checked+span{background:var(--p)}
+.sw input:checked+span::before{transform:translateX(28px)}
+.sw input:focus-visible+span{outline:3px solid var(--gl)}
+.hero .sw{width:72px;height:40px}
+.hero .sw span{background:rgba(255,255,255,.35)}
+.hero .sw span::before{width:32px;height:32px}
+.hero .sw input:checked+span{background:rgba(255,255,255,.35)}
+.hero .sw input:checked+span::before{transform:translateX(32px)}
+.card{background:#fff;border:1px solid var(--bd);border-radius:16px;box-shadow:var(--sh);margin-top:1rem;overflow:hidden}
+.ch{display:flex;align-items:center;gap:.8rem;padding:1rem}
+.ch>div{flex:1;min-width:0}
+.ci{width:42px;height:42px;border-radius:12px;background:var(--bg);color:var(--p);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:1.05rem}
+.ch h3{font-family:'Playfair Display',serif;font-size:1.05rem;color:var(--pd);line-height:1.2}
+.ch p{font-size:.78rem;color:var(--muted)}
+.cb{display:none;padding:1rem 1rem 1.1rem;border-top:1px solid var(--bd)}
+.card.on .cb,.card.always .cb{display:block}
+.card.on .cb{animation:fade .25s ease}
+@keyframes fade{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:none}}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:.8rem}
+label.f{display:block;font-size:.8rem;font-weight:700;color:var(--muted);margin-bottom:.35rem}
+.in{width:100%;min-height:52px;padding:.7rem .85rem;border:1.5px solid var(--bd);border-radius:12px;font:500 1rem 'Roboto',sans-serif;color:var(--dark);background:#fff;transition:border-color .2s,box-shadow .2s}
+.in:focus{outline:none;border-color:var(--p);box-shadow:0 0 0 3px rgba(142,68,173,.15)}
+textarea.in{min-height:88px;resize:none;line-height:1.4}
+.cnt{text-align:right;font-size:.72rem;color:var(--muted);margin-top:.25rem}
+.lbl{font-size:.8rem;font-weight:700;color:var(--muted);margin:.9rem 0 .1rem}
+.chips{display:flex;gap:.5rem;flex-wrap:wrap;margin-top:.5rem}
+.chip{border:1px solid var(--bd);background:var(--bg);color:var(--pd);border-radius:20px;padding:.5rem .9rem;font:700 .8rem 'Roboto',sans-serif;cursor:pointer;min-height:40px}
+.chip:active{background:var(--gl)}
+.note{margin-top:.85rem;font-size:.84rem;color:var(--pd);background:rgba(217,169,76,.15);border-radius:10px;padding:.65rem .8rem;display:flex;gap:.55rem;align-items:center}
+.note i{color:var(--gold)}
+.note:empty{display:none}
+.pv{border-radius:14px;padding:1rem;border:1.5px dashed var(--bd);background:var(--bg)}
+.pv-b{display:inline-flex;align-items:center;gap:.45rem;font-weight:700;font-size:.9rem;padding:.35rem .8rem;border-radius:20px;color:#fff;background:var(--ok)}
+.pv.closed .pv-b{background:var(--bad)}
+.pv p{font-size:.88rem;margin-top:.5rem}
+.pv p:empty{display:none}
+.bar{position:fixed;left:0;right:0;bottom:0;background:#fff;border-top:1px solid var(--bd);box-shadow:0 -8px 24px rgba(92,58,82,.12);padding:.8rem 1rem calc(.8rem + env(safe-area-inset-bottom));display:flex;align-items:center;gap:.7rem;transform:translateY(110%);transition:transform .3s;z-index:60}
+.bar.show{transform:none}
+.bar .txt{flex:1;font-size:.82rem;font-weight:700;color:var(--pd);line-height:1.25}
+.btn{min-height:50px;border:none;border-radius:12px;padding:0 1.2rem;font:700 .95rem 'Roboto',sans-serif;cursor:pointer}
+.btn.pri{background:linear-gradient(135deg,var(--p),var(--pd));color:#fff;box-shadow:0 4px 12px rgba(92,58,82,.3)}
+.btn.sec{background:var(--bg);color:var(--pd);border:1px solid var(--bd)}
+.btn.bad{background:var(--bad);color:#fff}
+.btn:disabled{opacity:.6}
+#modal{position:fixed;inset:0;background:rgba(42,31,38,.55);display:none;align-items:flex-end;justify-content:center;z-index:100}
+#modal.show{display:flex}
+.sheet{background:#fff;width:100%;max-width:640px;border-radius:20px 20px 0 0;padding:1.4rem 1.2rem calc(1.2rem + env(safe-area-inset-bottom));animation:up .28s ease}
+@keyframes up{from{transform:translateY(100%)}to{transform:none}}
+.sheet h3{font-family:'Playfair Display',serif;color:var(--pd);font-size:1.25rem}
+.sheet p{color:var(--muted);font-size:.9rem;margin:.4rem 0 1.1rem}
+.sheet .row .btn{width:100%}
+#toast{position:fixed;top:calc(12px + env(safe-area-inset-top));left:50%;transform:translate(-50%,-20px);opacity:0;pointer-events:none;background:var(--ok);color:#fff;padding:.8rem 1.1rem;border-radius:10px;font-weight:500;font-size:.88rem;box-shadow:var(--shm);z-index:200;max-width:92vw;text-align:center;transition:.3s}
+#toast.show{opacity:1;transform:translate(-50%,0)}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.001ms!important;transition-duration:.001ms!important}}
+</style>
+</head>
+<body>
+<header>
+  <a href="admindashboard.html" class="hbtn" aria-label="Back to dashboard"><i class="fas fa-arrow-left"></i></a>
+  <div class="t"><h1>Restaurant Status</h1><small>Control when customers can order</small></div>
+  <button class="hbtn" onclick="logout()" aria-label="Logout"><i class="fas fa-right-from-bracket"></i></button>
+</header>
+
+<main>
+  <section class="hero" id="hero">
+    <div class="hero-ic"><i class="fas fa-store" id="hi"></i></div>
+    <div class="hero-t"><small>Your restaurant is</small><h2 id="st">Open</h2><p id="sub"></p></div>
+    <label class="sw"><input type="checkbox" id="tOpen" aria-label="Restaurant open"><span></span></label>
+  </section>
+
+  <section class="card" id="cH">
+    <div class="ch">
+      <div class="ci"><i class="fas fa-clock"></i></div>
+      <div><h3>Opening hours</h3><p>Optional. Orders are accepted only in this window.</p></div>
+      <label class="sw"><input type="checkbox" id="tH" aria-label="Use opening hours"><span></span></label>
+    </div>
+    <div class="cb">
+      <div class="row">
+        <div><label class="f" for="oT">Opens at</label><input type="time" class="in" id="oT"></div>
+        <div><label class="f" for="cT">Closes at</label><input type="time" class="in" id="cT"></div>
+      </div>
+      <div class="chips">
+        <button class="chip" data-o="09:00" data-c="23:00">9 AM – 11 PM</button>
+        <button class="chip" data-o="10:00" data-c="22:00">10 AM – 10 PM</button>
+        <button class="chip" data-o="11:00" data-c="23:30">11 AM – 11:30 PM</button>
+      </div>
+      <div class="note" id="nH"></div>
+    </div>
+  </section>
+
+  <section class="card" id="cC">
+    <div class="ch">
+      <div class="ci"><i class="fas fa-calendar-days"></i></div>
+      <div><h3>Closed dates</h3><p>Optional. Close for a holiday or a break.</p></div>
+      <label class="sw"><input type="checkbox" id="tC" aria-label="Schedule closed dates"><span></span></label>
+    </div>
+    <div class="cb">
+      <div class="row">
+        <div><label class="f" for="dF">From</label><input type="date" class="in" id="dF"></div>
+        <div><label class="f" for="dT">To</label><input type="date" class="in" id="dT"></div>
+      </div>
+      <div class="chips">
+        <button class="chip" data-f="0" data-n="1">Today</button>
+        <button class="chip" data-f="1" data-n="1">Tomorrow</button>
+        <button class="chip" data-f="0" data-n="3">Next 3 days</button>
+        <button class="chip" data-f="0" data-n="7">Next 7 days</button>
+      </div>
+      <div class="note" id="nC"></div>
+    </div>
+  </section>
+
+  <section class="card always">
+    <div class="ch">
+      <div class="ci"><i class="fas fa-message"></i></div>
+      <div><h3>Message for customers</h3><p>Optional. Shown when the restaurant is closed.</p></div>
+    </div>
+    <div class="cb">
+      <textarea class="in" id="msg" maxlength="140" placeholder="e.g. We're closed for Diwali. See you on the 25th!"></textarea>
+      <div class="cnt" id="cnt">0/140</div>
+    </div>
+  </section>
+
+  <section class="card always">
+    <div class="ch">
+      <div class="ci"><i class="fas fa-eye"></i></div>
+      <div><h3>What customers see</h3><p>Preview based on your current settings.</p></div>
+    </div>
+    <div class="cb">
+      <div class="pv" id="pv"><span class="pv-b"><i class="fas fa-circle" style="font-size:.5rem"></i><span id="pvT">Open</span></span><p id="pv1"></p><p id="pv2"></p></div>
+    </div>
+  </section>
+</main>
+
+<div class="bar" id="bar">
+  <div class="txt">You have unsaved changes</div>
+  <button class="btn sec" id="discard">Discard</button>
+  <button class="btn pri" id="save">Save changes</button>
+</div>
+
+<div id="modal"><div class="sheet"><h3 id="mt"></h3><p id="mp"></p><div class="row"><button class="btn sec" id="mno">Cancel</button><button class="btn bad" id="mok"></button></div></div></div>
+<div id="toast"></div>
+
+<script>
+const $ = id => document.getElementById(id);
+const D = { is_open: true, use_hours: false, opening_time: "09:00", closing_time: "23:00", use_closure: false, closure_from: "", closure_to: "", closed_message: "" };
+let S = { ...D }, SV = { ...D }, loaded = false, busy = false;
+
+const pad = n => String(n).padStart(2, "0");
+const iso = d => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+const addDays = (s, n) => { const d = s ? new Date(s + "T00:00:00") : new Date(); d.setDate(d.getDate() + n); return iso(d); };
+const fT = t => { if (!t) return ""; const [h, m] = t.split(":"); return `${(+h % 12) || 12}:${m} ${+h >= 12 ? "PM" : "AM"}`; };
+const fD = s => s ? new Date(s + "T00:00:00").toLocaleDateString("en-IN", { weekday: "short", day: "numeric", month: "short" }) : "";
+const mins = t => { const [h, m] = t.split(":"); return +h * 60 + +m; };
+const dirty = () => JSON.stringify(S) !== JSON.stringify(SV);
+const setV = (id, v) => { if ($(id).value !== v) $(id).value = v; };
+
+function toast(m, ok = true) {
+  const t = $("toast"); t.textContent = m; t.style.background = ok ? "#2e9e6b" : "#d64545"; t.className = "show";
+  clearTimeout(toast.t); toast.t = setTimeout(() => t.className = "", 2600);
+}
+
+function fromApi(d) {
+  d = d || {};
+  return {
+    is_open: d.is_open === true || d.is_open === 1 || d.is_open === "1",
+    use_hours: !!(d.opening_time && d.closing_time),
+    opening_time: d.opening_time ? String(d.opening_time).slice(0, 5) : D.opening_time,
+    closing_time: d.closing_time ? String(d.closing_time).slice(0, 5) : D.closing_time,
+    use_closure: !!(d.closure_from && d.closure_to),
+    closure_from: d.closure_from ? String(d.closure_from).slice(0, 10) : "",
+    closure_to: d.closure_to ? String(d.closure_to).slice(0, 10) : "",
+    closed_message: d.closed_message || ""
+  };
+}
+
+function toApi() {
+  return {
+    is_open: S.is_open,
+    opening_time: S.use_hours ? S.opening_time : null,
+    closing_time: S.use_hours ? S.closing_time : null,
+    closure_from: S.use_closure ? S.closure_from : null,
+    closure_to: S.use_closure ? S.closure_to : null,
+    closed_message: S.closed_message.trim()
+  };
+}
+
+function validate() {
+  if (S.use_hours) {
+    if (!S.opening_time || !S.closing_time) return "Set both opening and closing time";
+    if (S.opening_time === S.closing_time) return "Opening and closing time can't be the same";
+  }
+  if (S.use_closure) {
+    if (!S.closure_from || !S.closure_to) return "Pick both closed dates";
+    if (S.closure_to < S.closure_from) return "The 'To' date must be on or after 'From'";
+    if (S.closure_to < iso(new Date())) return "Closed dates are already in the past";
+  }
+  return "";
+}
+
+function inHours() {
+  const n = new Date(), c = n.getHours() * 60 + n.getMinutes(), o = mins(S.opening_time), e = mins(S.closing_time);
+  return o < e ? c >= o && c < e : c >= o || c < e;
+}
+
+function preview() {
+  const today = iso(new Date()), msg = S.closed_message.trim();
+  let closed = true, title, l1 = "";
+  const validClosure = S.use_closure && S.closure_from && S.closure_to && S.closure_to >= S.closure_from;
+  if (!S.is_open) { title = "Closed right now"; l1 = "The restaurant is switched off."; }
+  else if (validClosure && today >= S.closure_from && today <= S.closure_to) { title = "Closed for a break"; l1 = `Back on ${fD(addDays(S.closure_to, 1))}`; }
+  else if (S.use_hours && !inHours()) { title = "Closed for now"; l1 = `Opens at ${fT(S.opening_time)}`; }
+  else {
+    closed = false; title = "Open for orders";
+    if (S.use_hours) l1 = `Today ${fT(S.opening_time)} – ${fT(S.closing_time)}`;
+    if (validClosure && S.closure_from > today) l1 += `${l1 ? ". " : ""}Closed ${fD(S.closure_from)} to ${fD(S.closure_to)}`;
+  }
+  $("pv").classList.toggle("closed", closed);
+  $("pvT").textContent = title;
+  $("pv1").textContent = l1;
+  $("pv2").textContent = closed ? msg : "";
+}
+
+function render() {
+  const o = S.is_open, today = iso(new Date());
+  $("hero").classList.toggle("closed", !o);
+  $("st").textContent = o ? "Open" : "Closed";
+  $("hi").className = "fas " + (o ? "fa-store" : "fa-store-slash");
+  $("sub").textContent = o ? "Customers can place orders" : "Customers can't place orders";
+  $("tOpen").checked = o;
+  $("cH").classList.toggle("on", S.use_hours); $("tH").checked = S.use_hours;
+  $("cC").classList.toggle("on", S.use_closure); $("tC").checked = S.use_closure;
+  setV("oT", S.opening_time); setV("cT", S.closing_time);
+  setV("dF", S.closure_from); setV("dT", S.closure_to); setV("msg", S.closed_message);
+  $("dF").min = today; $("dT").min = S.closure_from || today;
+  $("cnt").textContent = `${S.closed_message.length}/140`;
+
+  $("nH").innerHTML = S.use_hours && S.opening_time && S.closing_time
+    ? (mins(S.closing_time) <= mins(S.opening_time)
+        ? `<i class="fas fa-moon"></i><span>Closes after midnight, at ${fT(S.closing_time)} the next day.</span>`
+        : `<i class="fas fa-circle-check"></i><span>Open ${fT(S.opening_time)} to ${fT(S.closing_time)} every day.</span>`)
+    : "";
+
+  let nc = "";
+  if (S.use_closure && S.closure_from && S.closure_to && S.closure_to >= S.closure_from) {
+    const days = Math.round((new Date(S.closure_to) - new Date(S.closure_from)) / 864e5) + 1;
+    nc = `<i class="fas fa-umbrella-beach"></i><span>Closed ${days} day${days > 1 ? "s" : ""}. Reopens ${fD(addDays(S.closure_to, 1))}.</span>`;
+  }
+  $("nC").innerHTML = nc;
+
+  preview();
+  $("bar").classList.toggle("show", dirty());
+  $("save").disabled = busy; $("discard").disabled = busy;
+  $("save").textContent = busy ? "Saving..." : "Save changes";
+}
+
+function ask(title, text, ok) {
+  return new Promise(res => {
+    $("mt").textContent = title; $("mp").textContent = text; $("mok").textContent = ok;
+    $("modal").classList.add("show");
+    const done = v => { $("modal").classList.remove("show"); res(v); };
+    $("mok").onclick = () => done(true); $("mno").onclick = () => done(false);
+  });
+}
+
+async function save() {
+  if (busy) return;
+  if (!loaded) return toast("Current status didn't load. Refresh the page first.", false);
+  const err = validate();
+  if (err) return toast(err, false);
+  if (SV.is_open && !S.is_open && !(await ask("Close the restaurant?", "Customers won't be able to place orders until you open it again.", "Yes, close"))) return;
+  busy = true; render();
+  try {
+    const res = await fetch("/api/restaurant-status", { method: "PUT", credentials: "include", headers: { "Content-Type": "application/json" }, body: JSON.stringify(toApi()) });
+    const json = await res.json().catch(() => ({}));
+    if (!res.ok || json.success === false) throw new Error(json.message || `HTTP ${res.status}`);
+    SV = { ...S };
+    toast("Status saved");
+  } catch (e) {
+    console.error("Save error:", e);
+    toast("Couldn't save: " + e.message, false);
+  } finally { busy = false; render(); }
+}
+
+async function load() {
+  try {
+    const r = await fetch("/api/restaurant-status", { credentials: "include", cache: "no-store" });
+    if (!r.ok) throw new Error("HTTP " + r.status);
+    const j = await r.json();
+    S = fromApi(j.data || j); SV = { ...S }; loaded = true;
+  } catch (e) { console.error("Load error:", e); toast("Couldn't load current status", false); }
+  render();
+}
+
+async function logout() {
+  try {
+    const r = await fetch("/api/auth/logout", { method: "POST", credentials: "include", cache: "no-store" });
+    if (!r.ok) throw new Error("Logout failed");
+    window.location.href = "/admin.html";
+  } catch (e) { toast("Logout failed: " + e.message, false); }
+}
+
+$("tOpen").onchange = e => { S.is_open = e.target.checked; render(); };
+$("tH").onchange = e => { S.use_hours = e.target.checked; render(); };
+$("tC").onchange = e => { S.use_closure = e.target.checked; if (S.use_closure && !S.closure_from) { S.closure_from = addDays("", 0); S.closure_to = S.closure_from; } render(); };
+[["oT", "opening_time"], ["cT", "closing_time"], ["dF", "closure_from"], ["dT", "closure_to"], ["msg", "closed_message"]].forEach(([id, k]) =>
+  $(id).addEventListener("input", e => {
+    S[k] = e.target.value;
+    if (k === "closure_from" && S.closure_to && S.closure_to < S.closure_from) S.closure_to = S.closure_from;
+    render();
+  }));
+document.addEventListener("click", e => {
+  const c = e.target.closest(".chip"); if (!c) return;
+  if (c.dataset.o) { S.opening_time = c.dataset.o; S.closing_time = c.dataset.c; }
+  else { S.closure_from = addDays("", +c.dataset.f); S.closure_to = addDays("", +c.dataset.f + +c.dataset.n - 1); }
+  render();
+});
+$("save").onclick = save;
+$("discard").onclick = () => { S = { ...SV }; render(); };
+window.addEventListener("beforeunload", e => { if (dirty()) { e.preventDefault(); e.returnValue = ""; } });
+
+(async () => {
+  try {
+    const r = await fetch("/api/auth/check", { credentials: "include", cache: "no-store" });
+    if (!r.ok) { toast("Please log in again", false); return setTimeout(() => window.location.href = "/admin.html", 1500); }
+  } catch (e) { toast("Authentication failed", false); return setTimeout(() => window.location.href = "/admin.html", 1500); }
+  load();
+})();
+</script>
+</body>
+</html>

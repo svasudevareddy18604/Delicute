@@ -45,6 +45,66 @@ async function syncTestMode() {
   }
 }
 
+/* =========================================================
+   RESTAURANT OPEN / CLOSED CHECK
+   Reads GET /api/restaurant-status (public). Used right before an
+   order is submitted so the customer gets a clear message instead
+   of a failed request. Fails OPEN: if the check itself fails, the
+   order is still sent and the server makes the final decision.
+   ========================================================= */
+function formatTime12(t) {
+  if (!t) return "";
+  const [h, m] = String(t).split(":");
+  const hour = Number(h);
+  if (Number.isNaN(hour)) return "";
+  return `${hour % 12 || 12}:${(m || "00").slice(0, 2)} ${hour >= 12 ? "PM" : "AM"}`;
+}
+
+function formatReopenDate(dateStr) {
+  if (!dateStr) return "";
+  const d = new Date(dateStr + "T00:00:00");
+  if (isNaN(d)) return "";
+  return d.toLocaleDateString("en-IN", { weekday: "short", day: "numeric", month: "short" });
+}
+
+/* Builds the customer-facing text from the status payload */
+function buildClosedMessage(status) {
+  let base = (status.closed_message || "").trim();
+
+  if (!base) {
+    if (status.reason === "closure") {
+      base = "We're closed for a short break.";
+    } else if (status.reason === "hours" && status.opening_time) {
+      base = `We're closed right now. We open at ${formatTime12(status.opening_time)}.`;
+    } else {
+      base = "We're closed right now. Please check back soon.";
+    }
+  }
+
+  const reopen = formatReopenDate(status.reopens_on);
+  if (reopen) base += ` Back on ${reopen}.`;
+
+  return `🔒 ${base}`;
+}
+
+/* Returns { open: true } or { open: false, message } */
+async function checkRestaurantOpen() {
+  try {
+    const res = await fetch('/api/restaurant-status', { cache: 'no-store' });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const json = await res.json();
+    const status = json.data || json;
+
+    if (status.accepting_orders === false) {
+      return { open: false, message: buildClosedMessage(status) };
+    }
+    return { open: true };
+  } catch (err) {
+    console.error('Restaurant status check failed (continuing):', err);
+    return { open: true }; // fail open — the server still enforces it
+  }
+}
+
 /* Effective per-unit price including any selected add-ons */
 function itemUnitPrice(item) {
   return (item.price || 0) + (item.addonsTotal || 0);
@@ -513,6 +573,14 @@ async function placeOrder() {
       return;
     }
 
+    // Restaurant closed? Tell the customer clearly before doing any other work.
+    // The cart is kept, so they can order as soon as we reopen.
+    const openCheck = await checkRestaurantOpen();
+    if (!openCheck.open) {
+      showToast(openCheck.message, false);
+      return;
+    }
+
     const subtotal = cart.reduce((s, i) => s + (itemUnitPrice(i) * (i?.qty || 0)), 0);
     const discount = await calculateDiscount(subtotal);
     let total = subtotal - discount;
@@ -550,6 +618,14 @@ async function placeOrder() {
       body: JSON.stringify(body)
     });
 
+    // 403 = the server says the restaurant is closed (it closed after the check
+    // above, or the page was left open). Show the server's message, keep the cart.
+    if (res.status === 403) {
+      const closed = await res.json().catch(() => ({}));
+      showToast(`🔒 ${closed.message || "We're closed right now. Please check back soon."}`, false);
+      return;
+    }
+
     // 409 = backend detected a duplicate. Treat it as "already placed":
     // don't let the customer retry, just send them to the status page.
     if (res.status === 409) {
@@ -561,7 +637,12 @@ async function placeOrder() {
       return;
     }
 
-    if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+    // Any other error: show the server's own message (e.g. "Invalid or expired coupon")
+    if (!res.ok) {
+      const errData = await res.json().catch(() => ({}));
+      throw new Error(errData.message || `Something went wrong (error ${res.status})`);
+    }
+
     const data = await res.json();
     if (data.success) {
       orderSucceeded = true;
@@ -582,11 +663,16 @@ async function placeOrder() {
       }, 1200);
       return;
     } else {
-      showToast(`Failed: ${data.message || "Unknown error"}`, false);
+      showToast(data.message || "Couldn't place your order. Please try again.", false);
     }
   } catch (err) {
-    showToast(`Error placing order: ${err.message}`, false);
     console.error("Order error:", err);
+    if (err instanceof TypeError) {
+      // fetch() itself failed: offline, server down, etc.
+      showToast("Connection problem. Please check your internet and try again.", false);
+    } else {
+      showToast(err.message || "Couldn't place your order. Please try again.", false);
+    }
   } finally {
     // Release the lock only if the order did NOT go through,
     // so the customer can fix the problem and try again.

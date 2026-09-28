@@ -88,6 +88,7 @@ const superadminTopPicksRoutes = require("./routes/superadmin-toppicks");
 const superadminPromotionsRoutes = require("./routes/superadmin-promotions"); // NEW
 const superadminCouponsRoutes = require("./routes/superadmin-coupons");
 const superadminAdminLogsRoutes = require("./routes/superadmin-adminlogs");
+const restaurantStatusRoutes = require("./routes/restaurantstatus"); // ✅ NEW: restaurant open/closed status
 
 app.use("/api/superadmin", superadminAdminLogsRoutes); 
 app.use("/api/tables", tablesRoutes);
@@ -101,6 +102,7 @@ app.use("/api/orders", ordersRoutes);
 app.use("/api/coupons", couponsRoutes);
 app.use("/api", customerMenuRoutes);
 app.use("/api/promotions", promotionsRoutes);
+app.use("/api/restaurant-status", restaurantStatusRoutes); // ✅ NEW: GET public, PUT admin
 app.use("/api/admin", adminAddonRoutes); // /api/admin/addon-groups, /api/admin/addons
 app.use("/api/superadmin/auth", superadminAuthRoutes);
 app.use("/api/superadmin/maintenance", superadminMaintenanceRoutes);

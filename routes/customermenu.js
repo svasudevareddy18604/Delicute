@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const pool = require("../db"); // centralized pool import
+const { getStatusRow, evaluate } = require("../utils/restaurantStatus"); // restaurant open/closed check
 
 ///////////////////////////
 // Helper: effective per-unit price including selected add-ons
@@ -110,8 +111,22 @@ router.post("/orders", async (req, res) => {
       return res.status(400).json({ success: false, message: "Invalid order data" });
     }
 
-    // ====== Change 1: transaction starts right after validation ======
-    // Coupon update + order insert now succeed or fail together.
+    // ====== Block orders while the restaurant is closed ======
+    // Checked before the transaction starts, so nothing is touched (no coupon, no order).
+    const restaurantState = evaluate(await getStatusRow());
+    if (!restaurantState.accepting) {
+      console.log(
+        `[ORDER BLOCKED - CLOSED] ${customer_name} Table:${table_number} Reason:${restaurantState.reason}`
+      );
+      return res.status(403).json({
+        success: false,
+        code: "RESTAURANT_CLOSED",
+        message: restaurantState.message,
+      });
+    }
+
+    // ====== Transaction starts right after validation ======
+    // Coupon update + order insert succeed or fail together.
     conn = await pool.getConnection();
     await conn.beginTransaction();
 
@@ -198,7 +213,7 @@ router.post("/orders", async (req, res) => {
         }
       }
 
-      // ====== Changes 3 & 4: coupon update inside the transaction, guarded ======
+      // ====== Coupon update inside the transaction, guarded ======
       if (coupon.quantity !== null) {
         const [couponUpdate] = await conn.query(
           `UPDATE coupons
@@ -221,7 +236,7 @@ router.post("/orders", async (req, res) => {
     total = subtotal - discount;
     if (total < 0) total = 0;
 
-    // ====== Change 2: duplicate order protection (10-second window) ======
+    // ====== Duplicate order protection (10-second window) ======
     // If this is a duplicate, the rollback below also undoes the coupon deduction.
     const [existing] = await conn.query(
       `
@@ -247,7 +262,7 @@ router.post("/orders", async (req, res) => {
       });
     }
 
-    // ====== Change 5: logging ======
+    // ====== Logging ======
     console.log(
       `[ORDER ATTEMPT] ${new Date().toISOString()} ${customer_name} Table:${table_number} Total:${total}`
     );
