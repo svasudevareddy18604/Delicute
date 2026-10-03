@@ -124,8 +124,8 @@
   }
 
   /* =====================================================
-     RESTAURANT STATUS BANNER (open / closed + why)
-     Driven by GET /api/restaurant-status
+     DINE OUT STATUS BANNER (open / closed + why)
+     Driven by GET /api/restaurant-status  ->  data.dine_out
      ===================================================== */
   .rs-wrap {
     max-width: 1400px;
@@ -679,7 +679,7 @@
     transition: transform 0.15s ease;
   }
   .copy-order-btn:active { transform: scale(0.98); }
-  /* Copy button while the restaurant is closed */
+  /* Copy button while Dine Out is closed */
   .copy-order-btn:disabled,
   .copy-order-btn.is-closed {
     background: #B9B3C4;
@@ -803,15 +803,14 @@
     </div>
   </header>
 
-  <!-- ================= RESTAURANT STATUS BANNER =================
+  <!-- ================= DINE OUT STATUS BANNER =================
        Hidden until the first successful response from /api/restaurant-status.
-       If that request fails, it stays hidden (customers can still browse;
-       the server enforces open/closed on its own). -->
+       If that request fails, it stays hidden (customers can still browse). -->
   <div class="rs-wrap" id="rsWrap" hidden>
     <section class="rs-banner open" id="rsBanner" aria-live="polite">
-      <div class="rs-icon"><i class="fas fa-utensils" id="rsIcon"></i></div>
+      <div class="rs-icon"><i class="fas fa-bag-shopping" id="rsIcon"></i></div>
       <div class="rs-main">
-        <div class="rs-title"><span class="rs-dot"></span><span id="rsTitle">We're open!</span></div>
+        <div class="rs-title"><span class="rs-dot"></span><span id="rsTitle">Dine Out is open!</span></div>
         <p class="rs-sub" id="rsSub"></p>
         <div class="rs-chips" id="rsChips"></div>
         <div class="rs-msg" id="rsMsg"></div>
@@ -877,7 +876,7 @@
           <span id="cartModalTotal">₹0</span>
         </div>
 
-        <!-- Shown only while the restaurant is closed -->
+        <!-- Shown only while Dine Out is closed -->
         <div class="cart-closed-note" id="cartClosedNote" hidden>
           <i class="fas fa-lock"></i>
           <span id="cartClosedText"></span>
@@ -1299,10 +1298,10 @@
 
      The "Address" lines are left out if no address is typed. */
   function copyOrder() {
-    // Backup guard: the button is already disabled while closed, but this
-    // also blocks any other way of triggering the function.
-    if (window.DELICUTE_RESTAURANT_OPEN === false) {
-      showToast("We're closed right now — ordering is paused", 'fa-lock');
+    // Backup guard: the button is already disabled while Dine Out is closed,
+    // but this also blocks any other way of triggering the function.
+    if (window.DELICUTE_DINE_OUT_OPEN === false) {
+      showToast("Dine Out is closed right now — ordering is paused", 'fa-lock');
       return;
     }
 
@@ -1585,18 +1584,20 @@
   <script src="/socket.io/socket.io.js"></script>
 
   <!-- ================================================================
-       RESTAURANT STATUS
-       Reads GET /api/restaurant-status and expects:
-       { success, data: { accepting_orders, reason ("manual" | "closure" | "hours" | null),
-                          opening_time, closing_time, closure_from, closure_to,
-                          reopens_on, closed_message } }
+       DINE OUT STATUS
+       Reads GET /api/restaurant-status and uses ONLY data.dine_out:
+       { success, data: { dine_out: { accepting_orders, reason ("manual" | "closure" | "hours" | null),
+                                      opening_time, closing_time, closure_from, closure_to,
+                                      reopens_on, closed_message },
+                          dine_in: { ... ignored on this page } } }
+       - Old flat format { accepting_orders, reason, ... } still works as a fallback.
        - Updates the banner, the "Copy Order for WhatsApp" button and the cart note.
        - Refreshes instantly on the "restaurant-status-changed" socket event,
          every 30 seconds (hours-based open/close needs no admin action),
          and whenever the tab becomes visible again.
        - Shows a toast if the status flips while the customer is on the page.
        - Fails open: if the request fails, the last known state stays.
-       - Publishes window.DELICUTE_RESTAURANT_OPEN so copyOrder() can double-check.
+       - Publishes window.DELICUTE_DINE_OUT_OPEN so copyOrder() can double-check.
        ================================================================ -->
   <script>
     (function () {
@@ -1606,7 +1607,7 @@
       const cartNote = $('cartClosedNote'), cartNoteText = $('cartClosedText');
 
       const OPEN_BTN_TEXT = 'Copy Order for WhatsApp';
-      const CLOSED_BTN_TEXT = 'Closed · Ordering is paused';
+      const CLOSED_BTN_TEXT = 'Dine Out closed · Ordering is paused';
 
       let lastOpen = null; // null until the first successful load
 
@@ -1622,10 +1623,12 @@
       /* "YYYY-MM-DD" -> "Fri, 3 Oct" */
       function fD(s) {
         if (!s) return '';
-        const d = new Date(s + 'T00:00:00');
+        const d = new Date(String(s).slice(0, 10) + 'T00:00:00');
         if (isNaN(d)) return '';
         return d.toLocaleDateString('en-IN', { weekday: 'short', day: 'numeric', month: 'short' });
       }
+
+      function d10(s) { return s ? String(s).slice(0, 10) : ''; }
 
       function todayStr() {
         const d = new Date();
@@ -1658,11 +1661,22 @@
         txt.textContent = open ? OPEN_BTN_TEXT : CLOSED_BTN_TEXT;
       }
 
+      /* Pick the Dine Out block from the API data (falls back to the old flat format) */
+      function pickDineOut(data) {
+        if (!data) return null;
+        if (data.dine_out) return data.dine_out;
+        if (data.dine_in) return null;       // new format but no dine_out block: ignore
+        return data;                          // old flat format
+      }
+
       function render(s) {
         if (!s) return;
 
-        const open = s.accepting_orders !== false;
+        const open = s.accepting_orders !== undefined
+          ? s.accepting_orders !== false
+          : !(s.is_open === false || s.is_open === 0 || s.is_open === '0');
         const reason = s.reason || null;
+        const from = d10(s.closure_from), to = d10(s.closure_to);
         const hasHours = !!(s.opening_time && s.closing_time);
         const hoursTxt = hasHours ? fT(s.opening_time) + ' – ' + fT(s.closing_time) : '';
         const chips = [];
@@ -1670,35 +1684,35 @@
         let iconClass, title, sub, cartText = '';
 
         if (open) {
-          iconClass = 'fa-utensils';
-          title = "We're open!";
+          iconClass = 'fa-bag-shopping';
+          title = 'Dine Out is open!';
           sub = hasHours
-            ? 'Serving until ' + fT(s.closing_time) + '. Build your order and copy it to WhatsApp.'
+            ? 'Taking orders until ' + fT(s.closing_time) + '. Build your order and copy it to WhatsApp.'
             : 'Build your order and copy it to WhatsApp.';
           if (hasHours) chips.push(['fa-clock', 'Open ' + hoursTxt]);
           // Heads-up about an upcoming scheduled closure
-          if (s.closure_from && s.closure_to && s.closure_from > todayStr()) {
-            chips.push(['fa-calendar-days', 'Closed ' + rangeText(s.closure_from, s.closure_to)]);
+          if (from && to && from > todayStr()) {
+            chips.push(['fa-calendar-days', 'Closed ' + rangeText(from, to)]);
           }
         } else if (reason === 'closure') {
           iconClass = 'fa-umbrella-beach';
-          title = "We're on a short break";
+          title = 'Dine Out is on a short break';
           sub = s.reopens_on ? "We'll be back on " + fD(s.reopens_on) + '.' : "We'll be back soon.";
           chips.push(['fa-circle-info', 'Scheduled break']);
-          if (s.closure_from && s.closure_to) chips.push(['fa-calendar-days', rangeText(s.closure_from, s.closure_to)]);
+          if (from && to) chips.push(['fa-calendar-days', rangeText(from, to)]);
           if (hasHours) chips.push(['fa-clock', 'Usual hours ' + hoursTxt]);
-          cartText = s.reopens_on ? 'Ordering opens on ' + fD(s.reopens_on) + '.' : 'Ordering will open again soon.';
+          cartText = s.reopens_on ? 'Dine Out ordering opens on ' + fD(s.reopens_on) + '.' : 'Ordering will open again soon.';
         } else if (reason === 'hours') {
           iconClass = 'fa-moon';
-          title = "We're closed for now";
+          title = 'Dine Out is closed for now';
           sub = s.opening_time ? 'We open at ' + fT(s.opening_time) + '.' : 'Please check back soon.';
           chips.push(['fa-circle-info', 'Outside opening hours']);
           if (hasHours) chips.push(['fa-clock', 'Hours ' + hoursTxt]);
-          cartText = s.opening_time ? 'Ordering opens at ' + fT(s.opening_time) + '.' : 'Ordering will open again soon.';
+          cartText = s.opening_time ? 'Dine Out ordering opens at ' + fT(s.opening_time) + '.' : 'Ordering will open again soon.';
         } else {
           iconClass = 'fa-store-slash';
-          title = "We're closed right now";
-          sub = "We're not taking orders at the moment. Please check back soon.";
+          title = 'Dine Out is closed right now';
+          sub = "We're not taking Dine Out orders at the moment. Please check back soon.";
           chips.push(['fa-circle-info', 'Temporarily closed']);
           if (hasHours) chips.push(['fa-clock', 'Usual hours ' + hoursTxt]);
           cartText = 'Ordering is paused for now.';
@@ -1719,18 +1733,18 @@
         if (open) {
           cartNote.hidden = true;
         } else {
-          cartNoteText.textContent = "We're closed. You can still build your cart. " + cartText;
+          cartNoteText.textContent = 'Dine Out is closed. You can still build your cart. ' + cartText;
           cartNote.hidden = false;
         }
         applyCopyButton(open);
 
         // Let copyOrder() double-check the state
-        window.DELICUTE_RESTAURANT_OPEN = open;
+        window.DELICUTE_DINE_OUT_OPEN = open;
 
         // Tell the customer if the status changed while they were on the page
         if (lastOpen !== null && lastOpen !== open && typeof showToast === 'function') {
           showToast(
-            open ? "We're open now — you can order!" : "We've just closed — ordering is paused",
+            open ? 'Dine Out is open now — you can order!' : 'Dine Out has just closed — ordering is paused',
             open ? 'fa-circle-check' : 'fa-lock'
           );
         }
@@ -1745,9 +1759,9 @@
           const res = await fetch('/api/restaurant-status', { cache: 'no-store' });
           if (!res.ok) throw new Error('HTTP ' + res.status);
           const json = await res.json();
-          render(json.data || json);
+          render(pickDineOut(json.data || json));
         } catch (err) {
-          console.error('Restaurant status load failed:', err);
+          console.error('Dine Out status load failed:', err);
         } finally {
           loading = false;
         }

@@ -1,13 +1,13 @@
 const express = require("express");
 const jwt = require("jsonwebtoken");
 const pool = require("../db");
-const { getStatusRow, evaluate, localNow } = require("../utils/restaurantStatus");
+const { MODES, getStatusRow, evaluateMode, localNow } = require("../utils/restaurantStatus");
 
 const router = express.Router();
 
 ///////////////////////////
 // Admin auth
-// NOTE: written to read a JWT from the "token" cookie (or Bearer header).
+// NOTE: reads a JWT from the "token" cookie (or Bearer header).
 // If your admin routes already use a middleware, replace this with it.
 ///////////////////////////
 function requireAdmin(req, res, next) {
@@ -29,6 +29,7 @@ function requireAdmin(req, res, next) {
 ///////////////////////////
 const TIME_RE = /^([01]\d|2[0-3]):[0-5]\d$/;
 const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
+const LABEL = { dine_in: "Dine In", dine_out: "Dine Out" };
 
 const isRealDate = (s) => {
   if (!DATE_RE.test(s)) return false;
@@ -38,18 +39,72 @@ const isRealDate = (s) => {
 
 /* Shape sent to the admin page, dashboard and customers */
 function buildPayload(s) {
-  const e = evaluate(s);
+  const now = localNow();
+  const payload = { updated_at: s.updated_at };
+  for (const m of MODES) {
+    const e = evaluateMode(s[m], now);
+    payload[m] = {
+      is_open: s[m].is_open,
+      opening_time: s[m].opening_time,
+      closing_time: s[m].closing_time,
+      closure_from: s[m].closure_from,
+      closure_to: s[m].closure_to,
+      closed_message: s[m].closed_message || "",
+      accepting_orders: e.accepting,
+      reason: e.reason,
+      reopens_on: e.reopens_on,
+    };
+  }
+  payload.accepting_orders = MODES.some((m) => payload[m].accepting_orders);
+  return payload;
+}
+
+/* Validate one mode. Returns { error } or { value } */
+function validateMode(mode, b) {
+  const name = LABEL[mode];
+  if (!b || typeof b !== "object") return { error: `${name}: settings missing` };
+
+  const { is_open, opening_time, closing_time, closure_from, closure_to, closed_message } = b;
+
+  if (typeof is_open !== "boolean") return { error: `${name}: is_open must be true or false` };
+
+  const hasHours = opening_time != null || closing_time != null;
+  if (hasHours) {
+    if (!TIME_RE.test(opening_time || "") || !TIME_RE.test(closing_time || "")) {
+      return { error: `${name}: opening and closing time must both be valid (HH:MM)` };
+    }
+    if (opening_time === closing_time) {
+      return { error: `${name}: opening and closing time can't be the same` };
+    }
+  }
+
+  const hasClosure = closure_from != null || closure_to != null;
+  if (hasClosure) {
+    if (!isRealDate(closure_from || "") || !isRealDate(closure_to || "")) {
+      return { error: `${name}: both closed dates must be valid` };
+    }
+    if (closure_to < closure_from) {
+      return { error: `${name}: the 'To' date must be on or after 'From'` };
+    }
+    if (closure_to < localNow().date) {
+      return { error: `${name}: closed dates are already in the past` };
+    }
+  }
+
+  const message = typeof closed_message === "string" ? closed_message.trim() : "";
+  if (message.length > 140) {
+    return { error: `${name}: message must be 140 characters or less` };
+  }
+
   return {
-    is_open: s.is_open,
-    opening_time: s.opening_time,
-    closing_time: s.closing_time,
-    closure_from: s.closure_from,
-    closure_to: s.closure_to,
-    closed_message: s.closed_message || "",
-    accepting_orders: e.accepting,
-    reason: e.reason,
-    reopens_on: e.reopens_on,
-    updated_at: s.updated_at,
+    value: {
+      is_open: is_open ? 1 : 0,
+      opening_time: hasHours ? opening_time : null,
+      closing_time: hasHours ? closing_time : null,
+      closure_from: hasClosure ? closure_from : null,
+      closure_to: hasClosure ? closure_to : null,
+      closed_message: message,
+    },
   };
 }
 
@@ -69,77 +124,48 @@ router.get("/", async (req, res) => {
 
 ///////////////////////////
 // PUT /api/restaurant-status  (admin only)
+// Body: { dine_in: {...}, dine_out: {...} }
 ///////////////////////////
 router.put("/", requireAdmin, async (req, res) => {
   try {
-    const { is_open, opening_time, closing_time, closure_from, closure_to, closed_message } = req.body || {};
+    const body = req.body || {};
+    const values = {};
 
-    // ---- Validation ----
-    if (typeof is_open !== "boolean") {
-      return res.status(400).json({ success: false, message: "is_open must be true or false" });
-    }
-
-    const hasHours = opening_time != null || closing_time != null;
-    if (hasHours) {
-      if (!TIME_RE.test(opening_time || "") || !TIME_RE.test(closing_time || "")) {
-        return res.status(400).json({ success: false, message: "Opening and closing time must both be valid (HH:MM)" });
-      }
-      if (opening_time === closing_time) {
-        return res.status(400).json({ success: false, message: "Opening and closing time can't be the same" });
-      }
-    }
-
-    const hasClosure = closure_from != null || closure_to != null;
-    if (hasClosure) {
-      if (!isRealDate(closure_from || "") || !isRealDate(closure_to || "")) {
-        return res.status(400).json({ success: false, message: "Both closed dates must be valid" });
-      }
-      if (closure_to < closure_from) {
-        return res.status(400).json({ success: false, message: "The 'To' date must be on or after 'From'" });
-      }
-      if (closure_to < localNow().date) {
-        return res.status(400).json({ success: false, message: "Closed dates are already in the past" });
-      }
-    }
-
-    const message = typeof closed_message === "string" ? closed_message.trim() : "";
-    if (message.length > 140) {
-      return res.status(400).json({ success: false, message: "Message must be 140 characters or less" });
+    for (const m of MODES) {
+      const r = validateMode(m, body[m]);
+      if (r.error) return res.status(400).json({ success: false, message: r.error });
+      values[m] = r.value;
     }
 
     const updatedBy = String(
       (req.user && (req.user.name || req.user.email || req.user.username || req.user.id)) || "admin"
     ).slice(0, 100);
 
+    const FIELDS = ["is_open", "opening_time", "closing_time", "closure_from", "closure_to", "closed_message"];
+    const cols = [];
+    const params = [];
+    for (const m of MODES) {
+      for (const f of FIELDS) {
+        cols.push(`${m}_${f}`);
+        params.push(values[m][f]);
+      }
+    }
+    cols.push("updated_by");
+    params.push(updatedBy);
+
     // ---- Save (creates the row if it's missing) ----
     await pool.query(
-      `INSERT INTO restaurant_status
-         (id, is_open, opening_time, closing_time, closure_from, closure_to, closed_message, updated_by)
-       VALUES (1, ?, ?, ?, ?, ?, ?, ?)
-       ON DUPLICATE KEY UPDATE
-         is_open        = VALUES(is_open),
-         opening_time   = VALUES(opening_time),
-         closing_time   = VALUES(closing_time),
-         closure_from   = VALUES(closure_from),
-         closure_to     = VALUES(closure_to),
-         closed_message = VALUES(closed_message),
-         updated_by     = VALUES(updated_by)`,
-      [
-        is_open ? 1 : 0,
-        hasHours ? opening_time : null,
-        hasHours ? closing_time : null,
-        hasClosure ? closure_from : null,
-        hasClosure ? closure_to : null,
-        message,
-        updatedBy,
-      ]
+      `INSERT INTO restaurant_status (id, ${cols.join(", ")})
+       VALUES (1, ${cols.map(() => "?").join(", ")})
+       ON DUPLICATE KEY UPDATE ${cols.map((c) => `${c} = VALUES(${c})`).join(", ")}`,
+      params
     );
 
     const status = await getStatusRow();
     const data = buildPayload(status);
 
     console.log(
-      `[RESTAURANT STATUS] ${updatedBy} set is_open=${data.is_open} hours=${data.opening_time || "-"}-${data.closing_time || "-"} closed=${data.closure_from || "-"}..${data.closure_to || "-"}`
+      `[RESTAURANT STATUS] ${updatedBy} -> dine_in: ${data.dine_in.accepting_orders ? "OPEN" : "CLOSED"}, dine_out: ${data.dine_out.accepting_orders ? "OPEN" : "CLOSED"}`
     );
 
     // Live update for open dashboards (and any customer page that listens)

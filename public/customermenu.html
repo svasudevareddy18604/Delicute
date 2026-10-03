@@ -196,10 +196,7 @@
   .track-order-btn .track-label-full { display: inline; }
   .track-order-btn .track-label-short { display: none; }
 
-  /* ---------- MOBILE: pull the button out of the corner, into normal flow ----------
-     Instead of floating absolutely over the logo (which caused the overlap/clutter
-     seen on phones), it becomes a normal flex child that sits on its own row,
-     centered, below the anniversary banner. No overlap possible at any width. */
+  /* ---------- MOBILE: pull the button out of the corner, into normal flow ---------- */
   @media (max-width: 480px) {
     .header-inner { position: static; }
     .track-order-btn {
@@ -268,8 +265,8 @@
   }
 
   /* =====================================================
-     RESTAURANT STATUS BANNER (open / closed + why)
-     Driven by GET /api/restaurant-status
+     RESTAURANT STATUS BANNER (Dine In open / closed + why)
+     Driven by GET /api/restaurant-status  ->  data.dine_in
      ===================================================== */
   .rs-wrap {
     max-width: 1400px;
@@ -295,7 +292,6 @@
   .rs-banner.open   { background: linear-gradient(135deg, #1B8A5A 0%, #2EA56E 55%, #3CC48A 100%); }
   .rs-banner.closed { background: linear-gradient(135deg, #7B1F33 0%, #A5332F 55%, #C0392B 100%); }
 
-  /* soft light sweep + decorative circle */
   .rs-banner::before {
     content: '';
     position: absolute;
@@ -896,7 +892,7 @@
     box-shadow: 0 2px 5px rgba(216, 183, 210, 0.1);
   }
   .order-form button:hover { background: linear-gradient(45deg, var(--lilac), var(--primary-purple-dark)); }
-  /* Place Order button while the restaurant is closed (or an order is being sent) */
+  /* Place Order button while Dine In is closed (or an order is being sent) */
   .order-form button:disabled,
   .order-form button:disabled:hover,
   .order-form button.is-closed {
@@ -952,7 +948,7 @@
   .no-items-msg { text-align: center; color: var(--muted); font-size: clamp(0.8rem, 1.8vw, 0.9rem); padding: 1.5rem 0; }
 
   /* =====================================================
-     ADD-ON MODAL — "stunner" polish pass
+     ADD-ON MODAL
      ===================================================== */
   .addon-modal-overlay {
     display: none;
@@ -1209,7 +1205,7 @@
     </div>
   </header>
 
-  <!-- ================= RESTAURANT STATUS BANNER =================
+  <!-- ================= DINE IN STATUS BANNER =================
        Hidden until the first successful response from /api/restaurant-status.
        If that request fails, it stays hidden (customers can still browse/order;
        the server enforces open/closed on its own). -->
@@ -1217,7 +1213,7 @@
     <section class="rs-banner open" id="rsBanner" aria-live="polite">
       <div class="rs-icon"><i class="fas fa-utensils" id="rsIcon"></i></div>
       <div class="rs-main">
-        <div class="rs-title"><span class="rs-dot"></span><span id="rsTitle">We're open!</span></div>
+        <div class="rs-title"><span class="rs-dot"></span><span id="rsTitle">Dine In is open!</span></div>
         <p class="rs-sub" id="rsSub"></p>
         <div class="rs-chips" id="rsChips"></div>
         <div class="rs-msg" id="rsMsg"></div>
@@ -1264,7 +1260,7 @@
       <div class="line bold"><span>Total:</span><span id="total">₹0</span></div>
     </div>
 
-    <!-- Shown only while the restaurant is closed -->
+    <!-- Shown only while Dine In is closed -->
     <div class="cart-closed-note" id="cartClosedNote" hidden>
       <i class="fas fa-lock"></i>
       <span id="cartClosedText"></span>
@@ -1358,8 +1354,7 @@
           banner.textContent = '✓ Table ' + tableId + ' detected automatically';
         }
         // Show "Track My Order" in the header the moment we have a valid
-        // session — it doesn't matter yet whether an order exists;
-        // customerstatus.html itself handles the "no orders yet" state.
+        // session — customerstatus.html itself handles the "no orders yet" state.
         if (trackBtn) trackBtn.classList.add('show');
       });
     })();
@@ -1386,10 +1381,6 @@
       }
 
       window.addEventListener('load', () => {
-        // cart.js's syncTestMode() runs on 'load' too — give it a brief
-        // moment to resolve, then reflect the result onto the badge.
-        // Also re-checks periodically so if a superadmin flips test mode
-        // while this tab is open, the badge updates without a refresh.
         setTimeout(reflectTestModeBadge, 400);
         setInterval(reflectTestModeBadge, 5000);
       });
@@ -1406,11 +1397,13 @@
   <script src="/socket.io/socket.io.js"></script>
 
   <!-- ================================================================
-       RESTAURANT STATUS
-       Reads GET /api/restaurant-status and expects:
-       { success, data: { accepting_orders, reason ("manual" | "closure" | "hours" | null),
-                          opening_time, closing_time, closure_from, closure_to,
-                          reopens_on, closed_message } }
+       DINE IN STATUS
+       Reads GET /api/restaurant-status and uses ONLY data.dine_in:
+       { success, data: { dine_in: { accepting_orders, reason ("manual" | "closure" | "hours" | null),
+                                     opening_time, closing_time, closure_from, closure_to,
+                                     reopens_on, closed_message },
+                          dine_out: { ... ignored on this page } } }
+       - Old flat format { accepting_orders, reason, ... } still works as a fallback.
        - Updates the banner, the Place Order button and the cart note.
        - Refreshes instantly on the "restaurant-status-changed" socket event,
          every 30 seconds (hours-based open/close needs no admin action),
@@ -1425,7 +1418,7 @@
       const cartNote = $('cartClosedNote'), cartNoteText = $('cartClosedText');
 
       const OPEN_BTN_TEXT = 'Place Order';
-      const CLOSED_BTN_TEXT = 'Closed · Ordering is paused';
+      const CLOSED_BTN_TEXT = 'Dine In closed · Ordering is paused';
 
       /* "HH:MM" -> "9:00 AM" */
       function fT(t) {
@@ -1439,7 +1432,7 @@
       /* "YYYY-MM-DD" -> "Fri, 3 Oct" */
       function fD(s) {
         if (!s) return '';
-        const d = new Date(s + 'T00:00:00');
+        const d = new Date(String(s).slice(0, 10) + 'T00:00:00');
         if (isNaN(d)) return '';
         return d.toLocaleDateString('en-IN', { weekday: 'short', day: 'numeric', month: 'short' });
       }
@@ -1485,10 +1478,20 @@
         }
       }
 
+      /* Pick the Dine In block from the API data (falls back to the old flat format) */
+      function pickDineIn(data) {
+        if (!data) return null;
+        if (data.dine_in) return data.dine_in;
+        if (data.dine_out) return null;      // new format but no dine_in block: ignore
+        return data;                          // old flat format
+      }
+
       function render(s) {
         if (!s) return;
 
-        const open = s.accepting_orders !== false;
+        const open = s.accepting_orders !== undefined
+          ? s.accepting_orders !== false
+          : !(s.is_open === false || s.is_open === 0 || s.is_open === '0');
         const reason = s.reason || null;
         const hasHours = !!(s.opening_time && s.closing_time);
         const hoursTxt = hasHours ? fT(s.opening_time) + ' – ' + fT(s.closing_time) : '';
@@ -1498,34 +1501,34 @@
 
         if (open) {
           iconClass = 'fa-utensils';
-          title = "We're open!";
+          title = 'Dine In is open!';
           sub = hasHours
             ? 'Serving until ' + fT(s.closing_time) + '. Order right from your table.'
             : 'Order right from your table.';
           if (hasHours) chips.push(['fa-clock', 'Open ' + hoursTxt]);
           // Heads-up about an upcoming scheduled closure
-          if (s.closure_from && s.closure_to && s.closure_from > todayStr()) {
-            chips.push(['fa-calendar-days', 'Closed ' + rangeText(s.closure_from, s.closure_to)]);
+          if (s.closure_from && s.closure_to && String(s.closure_from).slice(0, 10) > todayStr()) {
+            chips.push(['fa-calendar-days', 'Closed ' + rangeText(String(s.closure_from).slice(0, 10), String(s.closure_to).slice(0, 10))]);
           }
         } else if (reason === 'closure') {
           iconClass = 'fa-umbrella-beach';
-          title = "We're on a short break";
+          title = 'Dine In is on a short break';
           sub = s.reopens_on ? "We'll be back on " + fD(s.reopens_on) + '.' : "We'll be back soon.";
           chips.push(['fa-circle-info', 'Scheduled break']);
-          if (s.closure_from && s.closure_to) chips.push(['fa-calendar-days', rangeText(s.closure_from, s.closure_to)]);
+          if (s.closure_from && s.closure_to) chips.push(['fa-calendar-days', rangeText(String(s.closure_from).slice(0, 10), String(s.closure_to).slice(0, 10))]);
           if (hasHours) chips.push(['fa-clock', 'Usual hours ' + hoursTxt]);
-          cartText = s.reopens_on ? 'Ordering opens on ' + fD(s.reopens_on) + '.' : 'Ordering will open again soon.';
+          cartText = s.reopens_on ? 'Dine In ordering opens on ' + fD(s.reopens_on) + '.' : 'Ordering will open again soon.';
         } else if (reason === 'hours') {
           iconClass = 'fa-moon';
-          title = "We're closed for now";
+          title = 'Dine In is closed for now';
           sub = s.opening_time ? 'We open at ' + fT(s.opening_time) + '.' : 'Please check back soon.';
           chips.push(['fa-circle-info', 'Outside opening hours']);
           if (hasHours) chips.push(['fa-clock', 'Hours ' + hoursTxt]);
-          cartText = s.opening_time ? 'Ordering opens at ' + fT(s.opening_time) + '.' : 'Ordering will open again soon.';
+          cartText = s.opening_time ? 'Dine In ordering opens at ' + fT(s.opening_time) + '.' : 'Ordering will open again soon.';
         } else {
           iconClass = 'fa-store-slash';
-          title = "We're closed right now";
-          sub = "We're not taking orders at the moment. Please check back soon.";
+          title = 'Dine In is closed right now';
+          sub = "We're not taking Dine In orders at the moment. Please check back soon.";
           chips.push(['fa-circle-info', 'Temporarily closed']);
           if (hasHours) chips.push(['fa-clock', 'Usual hours ' + hoursTxt]);
           cartText = 'Ordering is paused for now.';
@@ -1546,7 +1549,7 @@
         if (open) {
           cartNote.hidden = true;
         } else {
-          cartNoteText.textContent = "We're closed. You can still build your cart. " + cartText;
+          cartNoteText.textContent = "Dine In is closed. You can still build your cart. " + cartText;
           cartNote.hidden = false;
         }
         applyOrderButton(open);
@@ -1560,9 +1563,9 @@
           const res = await fetch('/api/restaurant-status', { cache: 'no-store' });
           if (!res.ok) throw new Error('HTTP ' + res.status);
           const json = await res.json();
-          render(json.data || json);
+          render(pickDineIn(json.data || json));
         } catch (err) {
-          console.error('Restaurant status load failed:', err);
+          console.error('Dine In status load failed:', err);
         } finally {
           loading = false;
         }

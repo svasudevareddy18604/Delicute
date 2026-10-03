@@ -3,6 +3,10 @@ const router = express.Router();
 const pool = require("../db"); // MySQL pool
 const authenticate = require("../middleware/authenticate");
 const { sendEmail } = require("../utils/email");
+const { isAccepting } = require("../utils/restaurantStatus");
+
+const ORDER_TYPES = ["dine_in", "dine_out"];
+const TYPE_LABEL = { dine_in: "Dine In", dine_out: "Dine Out" };
 
 // Defensive version — falls back to the raw internal id if order_number /
 // test_number is ever missing (e.g. an old pre-migration row that wasn't
@@ -16,32 +20,119 @@ function buildDisplayId(order) {
   return order.order_number != null ? String(order.order_number) : String(order.id);
 }
 
+/* Shared formatter for order rows (admin list + customer session list) */
+function formatOrderRow(order) {
+  let items = order.items;
+  if (typeof items === "string") {
+    try {
+      items = JSON.parse(items);
+    } catch (err) {
+      console.error(`Failed to parse items for order ${order.id}:`, order.items, err);
+      items = [];
+    }
+  }
+  items = Array.isArray(items)
+    ? items.map((item) => ({
+        ...item,
+        qty: item.qty ?? item.quantity ?? 1,
+        price: parseFloat(item.price),
+        size: item.size || null,
+        addons: Array.isArray(item.addons)
+          ? item.addons.map((a) => ({
+              addon_id: a.addon_id,
+              name: a.name,
+              price: parseFloat(a.price) || 0,
+            }))
+          : [],
+      }))
+    : [];
+
+  return {
+    ...order,
+    items,
+    subtotal: parseFloat(order.subtotal),
+    discount: parseFloat(order.discount),
+    total: parseFloat(order.total),
+    instructions: order.instructions || "",
+    order_type: order.order_type || "dine_in",
+    displayId: buildDisplayId(order),
+    orderNumber: order.order_number,
+  };
+}
+
 // ================== CREATE ORDER ==================
 router.post("/", async (req, res) => {
-  const { customer_name, table_number, session_id, items, coupon_code, subtotal, discount, total, instructions, test_mode } = req.body;
+  const {
+    customer_name,
+    table_number,
+    session_id,
+    items,
+    coupon_code,
+    subtotal,
+    discount,
+    total,
+    instructions,
+    test_mode,
+    order_type: rawOrderType,
+  } = req.body;
 
-  // Validate request
-  if (!customer_name || !table_number || !session_id || !items || !Array.isArray(items) || items.length === 0) {
+  // Order type: the Dine In menu page doesn't send it, so default to dine_in.
+  const orderType = rawOrderType || "dine_in";
+  if (!ORDER_TYPES.includes(orderType)) {
+    return res.status(400).json({ success: false, message: "Invalid order type" });
+  }
+
+  // Validate request (a table number is only required for Dine In)
+  if (!customer_name || !session_id || !items || !Array.isArray(items) || items.length === 0) {
     return res.status(400).json({ success: false, message: "Missing required fields" });
+  }
+  if (orderType === "dine_in" && !table_number) {
+    return res.status(400).json({ success: false, message: "Table number is required for Dine In" });
   }
   if (typeof subtotal !== "number" || typeof discount !== "number" || typeof total !== "number") {
     return res.status(400).json({ success: false, message: "Subtotal, discount, and total must be numbers" });
   }
 
+  // ---- Is this mode open right now? (the real enforcement) ----
+  try {
+    const status = await isAccepting(orderType);
+    if (!status.accepting) {
+      const label = TYPE_LABEL[orderType];
+      let message = `${label} is closed right now. Please try again later.`;
+      if (status.reason === "closure") message = `${label} is on a short break. Please try again later.`;
+      if (status.reason === "hours") message = `${label} is outside opening hours. Please try again later.`;
+      if (status.message) message += ` ${status.message}`;
+
+      return res.status(403).json({
+        success: false,
+        message,
+        reason: status.reason,
+        reopens_on: status.reopens_on,
+        order_type: orderType,
+      });
+    }
+  } catch (err) {
+    // If the status check itself fails, don't silently let the order through
+    console.error("Restaurant status check error:", err);
+    return res.status(500).json({ success: false, message: "Could not verify restaurant status. Please try again." });
+  }
+
   const isTest = test_mode === true ? 1 : 0;
 
   // Normalize items to ensure qty, and PRESERVE size + addons.
-  const normalizedItems = items.map(item => ({
+  const normalizedItems = items.map((item) => ({
     id: item.id,
     name: item.name,
     price: item.price,
     qty: item.qty || 1, // Fallback to 1 if qty is missing
     size: item.size || null,
-    addons: Array.isArray(item.addons) ? item.addons.map(a => ({
-      addon_id: a.addon_id,
-      name: a.name,
-      price: a.price
-    })) : []
+    addons: Array.isArray(item.addons)
+      ? item.addons.map((a) => ({
+          addon_id: a.addon_id,
+          name: a.name,
+          price: a.price,
+        }))
+      : [],
   }));
 
   // ---- Assign a gap-free display number ----
@@ -60,19 +151,16 @@ router.post("/", async (req, res) => {
       [counterName]
     );
     const nextVal = (counterRow?.value || 0) + 1;
-    await conn.query(
-      "UPDATE order_counters SET value = ? WHERE name = ?",
-      [nextVal, counterName]
-    );
+    await conn.query("UPDATE order_counters SET value = ? WHERE name = ?", [nextVal, counterName]);
 
     orderNumber = isTest ? null : nextVal;
     testNumber = isTest ? nextVal : null;
 
     const [result] = await conn.query(
-      "INSERT INTO orders (customer_name, table_number, session_id, items, coupon_code, subtotal, discount, total, instructions, status, is_test, order_number, test_number, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'Pending', ?, ?, ?, NOW())",
+      "INSERT INTO orders (customer_name, table_number, session_id, items, coupon_code, subtotal, discount, total, instructions, status, is_test, order_number, test_number, order_type, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'Pending', ?, ?, ?, ?, NOW())",
       [
         customer_name,
-        table_number,
+        orderType === "dine_in" ? table_number : table_number || null,
         session_id,
         JSON.stringify(normalizedItems),
         coupon_code || null,
@@ -82,7 +170,8 @@ router.post("/", async (req, res) => {
         instructions || "",
         isTest,
         orderNumber,
-        testNumber
+        testNumber,
+        orderType,
       ]
     );
 
@@ -99,7 +188,7 @@ router.post("/", async (req, res) => {
   try {
     // Fetch the created order for notifications
     const [orderRows] = await pool.query(
-      "SELECT id, customer_name, table_number, session_id, items, coupon_code, subtotal, discount, total, instructions, status, is_test, order_number, test_number, created_at FROM orders WHERE id = ?",
+      "SELECT id, customer_name, table_number, session_id, items, coupon_code, subtotal, discount, total, instructions, status, is_test, order_number, test_number, order_type, created_at FROM orders WHERE id = ?",
       [orderId]
     );
     const order = {
@@ -108,10 +197,11 @@ router.post("/", async (req, res) => {
       subtotal: parseFloat(orderRows[0].subtotal),
       discount: parseFloat(orderRows[0].discount),
       total: parseFloat(orderRows[0].total),
-      instructions: orderRows[0].instructions || ""
+      instructions: orderRows[0].instructions || "",
     };
     const displayId = buildDisplayId(order);
-    console.log(`Fetched order for notifications (test=${!!order.is_test}, display=${displayId}):`, order); // Debug log
+    const typeLabel = TYPE_LABEL[order.order_type] || "Dine In";
+    console.log(`Fetched order for notifications (test=${!!order.is_test}, type=${order.order_type}, display=${displayId}):`, order);
 
     // Skip email + admin broadcast entirely for test orders — real staff
     // never see or get emailed about anything created in test mode.
@@ -120,11 +210,12 @@ router.post("/", async (req, res) => {
       try {
         await sendEmail({
           to: "contactdelicute@gmail.com",
-          subject: `New Order #${displayId} - DELICUTE`,
+          subject: `New ${typeLabel} Order #${displayId} - DELICUTE`,
           html: `
-            <h2>🍽️ New Order #${displayId}</h2>
+            <h2>🍽️ New ${typeLabel} Order #${displayId}</h2>
+            <p><b>Order type:</b> ${typeLabel}</p>
             <p><b>Customer:</b> ${order.customer_name}</p>
-            <p><b>Table:</b> ${order.table_number}</p>
+            <p><b>Table:</b> ${order.table_number || "N/A"}</p>
             <p><b>Subtotal:</b> ₹${order.subtotal.toFixed(2)}</p>
             <p><b>Discount:</b> ₹${order.discount.toFixed(2)}</p>
             <p><b>Total:</b> ₹${order.total.toFixed(2)}</p>
@@ -136,7 +227,7 @@ router.post("/", async (req, res) => {
                   (item) =>
                     `<li>${item.name}${item.size ? ` (${item.size})` : ""} × ${item.qty} - ₹${item.price.toFixed(2)}${
                       Array.isArray(item.addons) && item.addons.length
-                        ? `<br/><small>+ ${item.addons.map(a => `${a.name} (₹${Number(a.price).toFixed(2)})`).join(", ")}</small>`
+                        ? `<br/><small>+ ${item.addons.map((a) => `${a.name} (₹${Number(a.price).toFixed(2)})`).join(", ")}</small>`
                         : ""
                     }</li>`
                 )
@@ -153,14 +244,13 @@ router.post("/", async (req, res) => {
       }
 
       // Emit WebSocket event — cafe/admin dashboard listens for "new-order" globally.
-      // Not emitted at all for test orders, so the kitchen/admin screen never
-      // flickers or shows a test order.
       const io = req.app.get("io");
       io.emit("new-order", {
         id: order.id,
         displayId,
         orderNumber: order.order_number,
         isTest: !!order.is_test,
+        order_type: order.order_type,
         customer_name: order.customer_name,
         table_number: order.table_number,
         session_id: order.session_id,
@@ -170,7 +260,7 @@ router.post("/", async (req, res) => {
         discount: order.discount,
         total: order.total,
         instructions: order.instructions,
-        status: order.status
+        status: order.status,
       });
     } else {
       console.log(`🧪 Test order ${displayId} created — email and admin broadcast skipped`);
@@ -182,71 +272,50 @@ router.post("/", async (req, res) => {
     io.to(`session:${order.session_id}`).emit("orderStatusUpdated", {
       orderId: order.id,
       displayId,
-      status: order.status
+      status: order.status,
     });
 
-    res.json({ success: true, orderId, displayId, is_test: !!isTest });
+    res.json({ success: true, orderId, displayId, is_test: !!isTest, order_type: order.order_type });
   } catch (err) {
     console.error("Post-create notification error:", err);
     // Order was already saved successfully — still tell the client it worked.
-    res.json({ success: true, orderId, displayId: buildDisplayId({ id: orderId, is_test: isTest, order_number: orderNumber, test_number: testNumber }), is_test: !!isTest });
+    res.json({
+      success: true,
+      orderId,
+      displayId: buildDisplayId({ id: orderId, is_test: isTest, order_number: orderNumber, test_number: testNumber }),
+      is_test: !!isTest,
+      order_type: orderType,
+    });
   }
 });
 
 // ================== GET ALL ORDERS (admin/cafe dashboard) ==================
 // Real staff only ever see real orders. Pass ?includeTest=1 explicitly
-// (e.g. from a hidden dev-only view) if you ever want to see test orders here too.
+// to see test orders too. Optional filter: ?type=dine_in or ?type=dine_out
 router.get("/", authenticate, async (req, res) => {
   const includeTest = req.query.includeTest === "1";
+  const type = ORDER_TYPES.includes(req.query.type) ? req.query.type : null;
+
+  const where = [];
+  const params = [];
+  if (!includeTest) where.push("o.is_test = 0");
+  if (type) {
+    where.push("o.order_type = ?");
+    params.push(type);
+  }
+
   try {
-    const [rows] = await pool.query(`
-      SELECT o.id, o.customer_name, o.table_number, o.session_id, o.items, o.coupon_code, 
-             o.subtotal, o.discount, o.total, o.instructions, o.status, o.is_test,
-             o.order_number, o.test_number, o.created_at
-      FROM orders o
-      ${includeTest ? "" : "WHERE o.is_test = 0"}
-      ORDER BY o.created_at DESC
-    `);
+    const [rows] = await pool.query(
+      `SELECT o.id, o.customer_name, o.table_number, o.session_id, o.items, o.coupon_code,
+              o.subtotal, o.discount, o.total, o.instructions, o.status, o.is_test,
+              o.order_number, o.test_number, o.order_type, o.created_at
+       FROM orders o
+       ${where.length ? "WHERE " + where.join(" AND ") : ""}
+       ORDER BY o.created_at DESC`,
+      params
+    );
 
-    // Parse items and normalize qty/size/addons
-    const orders = rows.map(order => {
-      let items = order.items;
-      if (typeof order.items === "string") {
-        try {
-          items = JSON.parse(order.items);
-        } catch (err) {
-          console.error(`Failed to parse items for order ${order.id}:`, order.items, err);
-          items = [];
-        }
-      }
-      items = Array.isArray(items)
-        ? items.map(item => ({
-            ...item,
-            qty: item.qty ?? item.quantity ?? 1,
-            price: parseFloat(item.price), // Ensure price is a number
-            size: item.size || null,
-            addons: Array.isArray(item.addons)
-              ? item.addons.map(a => ({
-                  addon_id: a.addon_id,
-                  name: a.name,
-                  price: parseFloat(a.price) || 0
-                }))
-              : []
-          }))
-        : [];
-      return {
-        ...order,
-        items,
-        subtotal: parseFloat(order.subtotal),
-        discount: parseFloat(order.discount),
-        total: parseFloat(order.total),
-        instructions: order.instructions || "",
-        displayId: buildDisplayId(order),
-        orderNumber: order.order_number
-      };
-    });
-
-    res.json({ success: true, data: orders });
+    res.json({ success: true, data: rows.map(formatOrderRow) });
   } catch (err) {
     console.error("Get orders error:", err);
     res.status(500).json({ success: false, message: "Failed to fetch orders" });
@@ -268,7 +337,7 @@ router.get("/session/:sessionId", async (req, res) => {
     const [rows] = await pool.query(
       `SELECT id, customer_name, table_number, session_id, items, coupon_code,
               subtotal, discount, total, instructions, status, is_test,
-              order_number, test_number, created_at
+              order_number, test_number, order_type, created_at
        FROM orders
        WHERE session_id = ?
        ORDER BY created_at DESC
@@ -276,39 +345,7 @@ router.get("/session/:sessionId", async (req, res) => {
       [sessionId]
     );
 
-    const orders = rows.map(order => {
-      let items = order.items;
-      if (typeof items === "string") {
-        try { items = JSON.parse(items); } catch { items = []; }
-      }
-      items = Array.isArray(items)
-        ? items.map(item => ({
-            ...item,
-            qty: item.qty ?? item.quantity ?? 1,
-            price: parseFloat(item.price),
-            size: item.size || null,
-            addons: Array.isArray(item.addons)
-              ? item.addons.map(a => ({
-                  addon_id: a.addon_id,
-                  name: a.name,
-                  price: parseFloat(a.price) || 0
-                }))
-              : []
-          }))
-        : [];
-      return {
-        ...order,
-        items,
-        subtotal: parseFloat(order.subtotal),
-        discount: parseFloat(order.discount),
-        total: parseFloat(order.total),
-        instructions: order.instructions || "",
-        displayId: buildDisplayId(order),
-        orderNumber: order.order_number
-      };
-    });
-
-    res.json({ success: true, data: orders });
+    res.json({ success: true, data: rows.map(formatOrderRow) });
   } catch (err) {
     console.error("Get session orders error:", err);
     res.status(500).json({ success: false, message: "Failed to fetch orders" });
@@ -319,10 +356,7 @@ router.get("/session/:sessionId", async (req, res) => {
 router.put("/:id/cancel", authenticate, async (req, res) => {
   const { id } = req.params;
   try {
-    const [result] = await pool.query(
-      "UPDATE orders SET status = 'Cancelled' WHERE id = ?",
-      [id]
-    );
+    const [result] = await pool.query("UPDATE orders SET status = 'Cancelled' WHERE id = ?", [id]);
 
     if (result.affectedRows === 0) {
       return res.status(400).json({ success: false, message: "Order not found" });
@@ -333,7 +367,7 @@ router.put("/:id/cancel", authenticate, async (req, res) => {
       const io = req.app.get("io");
       io.to(`session:${rows[0].session_id}`).emit("orderStatusUpdated", {
         orderId: Number(id),
-        status: "Cancelled"
+        status: "Cancelled",
       });
     }
 
@@ -372,10 +406,7 @@ router.put("/:id/status", authenticate, async (req, res) => {
   }
 
   try {
-    const [result] = await pool.query(
-      "UPDATE orders SET status = ? WHERE id = ?",
-      [status, id]
-    );
+    const [result] = await pool.query("UPDATE orders SET status = ? WHERE id = ?", [status, id]);
 
     if (result.affectedRows === 0) {
       return res.status(404).json({ success: false, message: "Order not found" });
@@ -386,7 +417,7 @@ router.put("/:id/status", authenticate, async (req, res) => {
       const io = req.app.get("io");
       io.to(`session:${rows[0].session_id}`).emit("orderStatusUpdated", {
         orderId: Number(id),
-        status
+        status,
       });
     }
 

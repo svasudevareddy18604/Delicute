@@ -147,31 +147,68 @@
     .welcome-strip .welcome-text h2 span { color: var(--primary-purple); }
     .welcome-strip .welcome-text p { font-size: 0.8rem; color: var(--muted); margin-top: 0.1rem; }
 
-    /* ================= RESTAURANT STATUS CARD ================= */
+    /* ================= RESTAURANT STATUS (DINE IN / DINE OUT) ================= */
+    .status-wrap { margin-bottom: 1.4rem; }
+
+    .status-head {
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 0.7rem; flex-wrap: wrap; margin-bottom: 0.8rem;
+    }
+    .status-head-left { display: flex; align-items: center; gap: 0.6rem; flex-wrap: wrap; }
+    .status-head h3 {
+      font-family: 'Playfair Display', serif; font-weight: 700; font-size: 1.1rem;
+      color: var(--primary-purple-dark); display: flex; align-items: center; gap: 0.55rem;
+    }
+    .status-head h3 i { color: var(--gold); font-size: 0.95rem; }
+
+    .summary-pill {
+      display: inline-flex; align-items: center; gap: 0.4rem;
+      font-size: 0.75rem; font-weight: 700; padding: 0.3rem 0.7rem; border-radius: 20px;
+      background: var(--border); color: var(--muted);
+    }
+    .summary-pill i { font-size: 0.5rem; }
+    .summary-pill.all-open { background: rgba(46, 158, 107, 0.14); color: var(--delivered); }
+    .summary-pill.all-closed { background: rgba(214, 69, 69, 0.14); color: var(--cancelled); }
+    .summary-pill.partial { background: rgba(217, 169, 76, 0.2); color: #8a6414; }
+
+    .status-manage {
+      display: inline-flex; align-items: center; gap: 0.45rem; text-decoration: none;
+      background: linear-gradient(135deg, var(--primary-purple), var(--primary-purple-dark));
+      color: #fff; font-size: 0.82rem; font-weight: 700;
+      padding: 0.55rem 0.95rem; border-radius: 8px;
+      box-shadow: 0 3px 10px rgba(92, 58, 82, 0.25);
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .status-manage:hover { transform: translateY(-1px); box-shadow: 0 5px 14px rgba(92, 58, 82, 0.32); }
+    .status-manage i { font-size: 0.75rem; transition: transform 0.2s ease; }
+    .status-manage:hover i { transform: translateX(3px); }
+
+    .status-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+
     .status-card {
-      display: flex; align-items: center; gap: 1rem;
-      background: #fff; border: 1px solid var(--border); border-left: 5px solid var(--muted);
-      border-radius: 12px; box-shadow: var(--shadow-sm);
-      padding: 1rem 1.1rem; margin-bottom: 1.4rem;
-      text-decoration: none; color: var(--dark); cursor: pointer;
-      transition: transform 0.22s ease, box-shadow 0.22s ease, border-color 0.22s ease;
+      display: flex; flex-direction: column; gap: 0.75rem;
+      background: #fff; border: 1px solid var(--border); border-top: 5px solid var(--muted);
+      border-radius: 14px; box-shadow: var(--shadow-sm);
+      padding: 1rem 1.1rem; text-decoration: none; color: var(--dark); cursor: pointer;
+      transition: transform 0.22s ease, box-shadow 0.22s ease;
     }
     .status-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-md); }
-    .status-card.open { border-left-color: var(--delivered); }
-    .status-card.closed { border-left-color: var(--cancelled); }
+    .status-card.open { border-top-color: var(--delivered); }
+    .status-card.closed { border-top-color: var(--cancelled); }
 
+    .status-top { display: flex; align-items: center; gap: 0.8rem; }
     .status-icon {
-      width: 48px; height: 48px; flex-shrink: 0; border-radius: 50%;
+      width: 46px; height: 46px; flex-shrink: 0; border-radius: 50%;
       display: flex; align-items: center; justify-content: center;
-      background: var(--bg-lilac); color: var(--muted); font-size: 1.25rem;
+      background: var(--bg-lilac); color: var(--muted); font-size: 1.2rem;
     }
     .status-card.open .status-icon { background: rgba(46, 158, 107, 0.12); color: var(--delivered); }
     .status-card.closed .status-icon { background: rgba(214, 69, 69, 0.12); color: var(--cancelled); }
 
     .status-info { flex: 1; min-width: 0; }
     .status-title { font-size: 0.75rem; font-weight: 700; letter-spacing: 0.6px; text-transform: uppercase; color: var(--muted); }
-    .status-line { display: flex; align-items: center; gap: 0.5rem; margin-top: 0.1rem; flex-wrap: wrap; }
-    .status-text { font-family: 'Playfair Display', serif; font-weight: 800; font-size: 1.35rem; color: var(--primary-purple-dark); line-height: 1.2; }
+    .status-line { display: flex; align-items: center; gap: 0.5rem; margin-top: 0.05rem; }
+    .status-text { font-family: 'Playfair Display', serif; font-weight: 800; font-size: 1.5rem; color: var(--primary-purple-dark); line-height: 1.2; }
     .status-card.open .status-text { color: var(--delivered); }
     .status-card.closed .status-text { color: var(--cancelled); }
 
@@ -185,21 +222,14 @@
       100% { box-shadow: 0 0 0 0 rgba(46, 158, 107, 0); }
     }
 
-    .status-timing { font-size: 0.82rem; color: var(--muted); margin-top: 0.2rem; }
-    .status-timing i { color: var(--gold); margin-right: 0.3rem; }
-
-    .status-manage {
-      flex-shrink: 0; display: flex; align-items: center; gap: 0.45rem;
-      background: linear-gradient(135deg, var(--primary-purple), var(--primary-purple-dark));
-      color: #fff; font-size: 0.82rem; font-weight: 700;
-      padding: 0.55rem 0.95rem; border-radius: 8px;
-      box-shadow: 0 3px 10px rgba(92, 58, 82, 0.25);
-    }
-    .status-manage i { font-size: 0.75rem; transition: transform 0.2s ease; }
-    .status-card:hover .status-manage i { transform: translateX(3px); }
+    .status-details { display: flex; flex-direction: column; gap: 0.4rem; border-top: 1px dashed var(--border); padding-top: 0.7rem; }
+    .status-detail { font-size: 0.82rem; color: var(--muted); display: flex; gap: 0.5rem; align-items: flex-start; line-height: 1.35; }
+    .status-detail i { color: var(--gold); width: 14px; text-align: center; margin-top: 0.15rem; flex-shrink: 0; }
+    .status-detail.msg { color: var(--primary-purple-dark); font-style: italic; }
+    .status-detail[hidden] { display: none; }
 
     .status-card.loading .status-text { color: var(--muted); }
-    /* ========================================================== */
+    /* ========================================================================== */
 
     .section-label {
       margin: 1.6rem 0 0.9rem; font-family: 'Playfair Display', serif; font-weight: 700; font-size: 1.1rem;
@@ -259,11 +289,10 @@
       .welcome-strip .icon-badge { width: 38px; height: 38px; font-size: 1rem; }
       .welcome-strip .welcome-text h2 { font-size: 0.95rem; }
       .welcome-strip .welcome-text p { font-size: 0.75rem; }
-      .status-card { padding: 0.85rem 0.85rem; gap: 0.7rem; }
+      .status-grid { grid-template-columns: 1fr; gap: 0.8rem; }
+      .status-card { padding: 0.9rem; }
       .status-icon { width: 42px; height: 42px; font-size: 1.1rem; }
-      .status-text { font-size: 1.15rem; }
-      .status-manage { padding: 0.5rem 0.7rem; font-size: 0.78rem; }
-      .status-manage span { display: none; }
+      .status-text { font-size: 1.35rem; }
       .quick-links { grid-template-columns: repeat(2, 1fr); gap: 0.8rem; }
       .quick-link { padding: 1.1rem 0.6rem; font-size: 0.85rem; }
       .quick-link .link-icon { width: 42px; height: 42px; }
@@ -316,21 +345,58 @@
       </div>
     </div>
 
-    <!-- Restaurant Status (click to manage) -->
-    <a href="adminrestaurantstatus.html" class="status-card loading" id="status-card" title="Manage restaurant status">
-      <div class="status-icon"><i class="fas fa-store" id="status-icon-i"></i></div>
-      <div class="status-info">
-        <div class="status-title">Restaurant Status</div>
-        <div class="status-line">
-          <span class="status-dot"></span>
-          <span class="status-text" id="status-text">Checking...</span>
+    <!-- Restaurant Status: Dine In + Dine Out -->
+    <section class="status-wrap">
+      <div class="status-head">
+        <div class="status-head-left">
+          <h3><i class="fas fa-store"></i>Restaurant Status</h3>
+          <span class="summary-pill" id="summary-pill"><i class="fas fa-circle"></i><span id="summary-text">Checking...</span></span>
         </div>
-        <div class="status-timing" id="status-timing" style="display:none;">
-          <i class="fas fa-clock"></i><span id="status-timing-text"></span>
-        </div>
+        <a href="adminrestaurantstatus.html" class="status-manage" title="Manage Cafe status">
+          <span>Manage</span><i class="fas fa-arrow-right"></i>
+        </a>
       </div>
-      <div class="status-manage"><span>Manage</span><i class="fas fa-arrow-right"></i></div>
-    </a>
+
+      <div class="status-grid">
+        <!-- DINE IN -->
+        <a href="adminrestaurantstatus.html" class="status-card loading" id="card-dine_in">
+          <div class="status-top">
+            <div class="status-icon"><i class="fas fa-utensils" id="icon-dine_in"></i></div>
+            <div class="status-info">
+              <div class="status-title">Dine In</div>
+              <div class="status-line">
+                <span class="status-dot"></span>
+                <span class="status-text" id="text-dine_in">Checking...</span>
+              </div>
+            </div>
+          </div>
+          <div class="status-details">
+            <div class="status-detail" id="d1-dine_in" hidden><i class="fas fa-clock"></i><span></span></div>
+            <div class="status-detail" id="d2-dine_in" hidden><i class="fas fa-calendar-days"></i><span></span></div>
+            <div class="status-detail msg" id="d3-dine_in" hidden><i class="fas fa-message"></i><span></span></div>
+          </div>
+        </a>
+
+        <!-- DINE OUT -->
+        <a href="adminrestaurantstatus.html" class="status-card loading" id="card-dine_out">
+          <div class="status-top">
+            <div class="status-icon"><i class="fas fa-bag-shopping" id="icon-dine_out"></i></div>
+            <div class="status-info">
+              <div class="status-title">Dine Out</div>
+              <div class="status-line">
+                <span class="status-dot"></span>
+                <span class="status-text" id="text-dine_out">Checking...</span>
+              </div>
+            </div>
+          </div>
+          <div class="status-details">
+            <div class="status-detail" id="d1-dine_out" hidden><i class="fas fa-clock"></i><span></span></div>
+            <div class="status-detail" id="d2-dine_out" hidden><i class="fas fa-calendar-days"></i><span></span></div>
+            <div class="status-detail msg" id="d3-dine_out" hidden><i class="fas fa-message"></i><span></span></div>
+          </div>
+        </a>
+      </div>
+    </section>
 
     <div class="section-label"><i class="fas fa-list-check"></i>Manage</div>
     <div class="quick-links">
@@ -411,13 +477,32 @@
     }
 
     /* =========================================================
-       RESTAURANT STATUS
-       Reads GET /api/restaurant-status and expects JSON like:
-       { success: true, data: { is_open: true,
-                                opening_time: "09:00",
-                                closing_time: "23:00" } }
-       (opening_time / closing_time are optional. "HH:MM" or "HH:MM:SS")
+       RESTAURANT STATUS  (Dine In / Dine Out)
+       GET /api/restaurant-status returns:
+       { success: true, data: {
+           dine_in:  { is_open, accepting_orders, reason, reopens_on,
+                       opening_time, closing_time, closure_from, closure_to, closed_message },
+           dine_out: { ...same fields... },
+           accepting_orders
+       } }
+       Old flat format { is_open, opening_time, closing_time } still works
+       (it is shown for both modes).
        ========================================================= */
+    const MODES = ["dine_in", "dine_out"];
+    const LABEL = { dine_in: "Dine In", dine_out: "Dine Out" };
+    const ICONS = {
+      dine_in:  { open: "fa-utensils",     closed: "fa-utensils" },
+      dine_out: { open: "fa-bag-shopping", closed: "fa-bag-shopping" }
+    };
+
+    const toBool = v => v === true || v === 1 || v === "1";
+
+    function pad(n) { return String(n).padStart(2, "0"); }
+    function todayISO() {
+      const d = new Date();
+      return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+    }
+
     function formatTime(t) {
       if (!t) return "";
       const [hStr, mStr] = String(t).split(":");
@@ -429,35 +514,118 @@
       return `${h}:${m} ${suffix}`;
     }
 
-    function renderRestaurantStatus(status) {
-      const card = document.getElementById("status-card");
-      const text = document.getElementById("status-text");
-      const icon = document.getElementById("status-icon-i");
-      const timingBox = document.getElementById("status-timing");
-      const timingText = document.getElementById("status-timing-text");
+    function formatDate(s) {
+      if (!s) return "";
+      const d = new Date(String(s).slice(0, 10) + "T00:00:00");
+      if (isNaN(d)) return "";
+      return d.toLocaleDateString("en-IN", { weekday: "short", day: "numeric", month: "short" });
+    }
+
+    /* Accept new { dine_in, dine_out } shape or old flat shape */
+    function normalize(data) {
+      if (!data) return null;
+      if (data.dine_in || data.dine_out) {
+        return { dine_in: data.dine_in || null, dine_out: data.dine_out || null };
+      }
+      return { dine_in: data, dine_out: data };
+    }
+
+    /* Work out what to show for one mode */
+    function describe(m) {
+      const open = m.accepting_orders !== undefined ? toBool(m.accepting_orders) : toBool(m.is_open);
+      const opening = formatTime(m.opening_time);
+      const closing = formatTime(m.closing_time);
+      const hours = opening && closing ? `${opening} – ${closing}` : "";
+      const today = todayISO();
+      const from = m.closure_from ? String(m.closure_from).slice(0, 10) : "";
+      const to = m.closure_to ? String(m.closure_to).slice(0, 10) : "";
+      const message = (m.closed_message || "").trim();
+
+      let line1 = "", line2 = "", line3 = "";
+
+      if (open) {
+        line1 = hours ? `Today ${hours}` : "Open all day";
+        if (from && to && from > today) line2 = `Break: ${formatDate(from)} to ${formatDate(to)}`;
+      } else {
+        const reopen = m.reopens_on ? formatDate(m.reopens_on) : (to ? formatDate(addOneDay(to)) : "");
+        if (m.reason === "manual" || (!m.reason && !toBool(m.is_open))) {
+          line1 = "Switched off. Orders are paused";
+        } else if (m.reason === "closure") {
+          line1 = "On a break";
+          if (reopen) line2 = `Back on ${reopen}`;
+        } else if (m.reason === "hours") {
+          line1 = "Outside opening hours";
+          if (opening) line2 = `Opens at ${opening}`;
+        } else {
+          line1 = "Closed";
+        }
+        if (message) line3 = message;
+      }
+      return { open, line1, line2, line3 };
+    }
+
+    function addOneDay(s) {
+      const d = new Date(s + "T00:00:00");
+      d.setDate(d.getDate() + 1);
+      return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+    }
+
+    function setDetail(id, text) {
+      const el = document.getElementById(id);
+      el.hidden = !text;
+      el.querySelector("span").textContent = text || "";
+    }
+
+    function renderMode(mode, data) {
+      const card = document.getElementById("card-" + mode);
+      const text = document.getElementById("text-" + mode);
+      const icon = document.getElementById("icon-" + mode);
 
       card.classList.remove("loading", "open", "closed");
 
-      if (!status) {
-        text.textContent = "Status unavailable";
+      if (!data) {
+        text.textContent = "Unavailable";
         icon.className = "fas fa-triangle-exclamation";
-        timingBox.style.display = "none";
-        return;
+        setDetail("d1-" + mode, "");
+        setDetail("d2-" + mode, "");
+        setDetail("d3-" + mode, "");
+        return null;
       }
 
-      const isOpen = status.is_open === true || status.is_open === 1 || status.is_open === "1";
-      card.classList.add(isOpen ? "open" : "closed");
-      text.textContent = isOpen ? "Open" : "Closed";
-      icon.className = isOpen ? "fas fa-store" : "fas fa-store-slash";
+      const d = describe(data);
+      card.classList.add(d.open ? "open" : "closed");
+      text.textContent = d.open ? "Open" : "Closed";
+      icon.className = "fas " + (d.open ? ICONS[mode].open : ICONS[mode].closed);
+      setDetail("d1-" + mode, d.line1);
+      setDetail("d2-" + mode, d.line2);
+      setDetail("d3-" + mode, d.line3);
+      return d.open;
+    }
 
-      const opening = formatTime(status.opening_time);
-      const closing = formatTime(status.closing_time);
-      if (opening && closing) {
-        timingText.textContent = `${opening} – ${closing}`;
-        timingBox.style.display = "block";
+    function renderSummary(openIn, openOut) {
+      const pill = document.getElementById("summary-pill");
+      const txt = document.getElementById("summary-text");
+      pill.classList.remove("all-open", "all-closed", "partial");
+
+      if (openIn === null || openOut === null) {
+        txt.textContent = "Status unavailable";
+      } else if (openIn && openOut) {
+        pill.classList.add("all-open");
+        txt.textContent = "Both open";
+      } else if (!openIn && !openOut) {
+        pill.classList.add("all-closed");
+        txt.textContent = "Both closed";
       } else {
-        timingBox.style.display = "none";
+        pill.classList.add("partial");
+        txt.textContent = openIn ? "Only Dine In open" : "Only Dine Out open";
       }
+    }
+
+    function renderRestaurantStatus(raw) {
+      const s = normalize(raw);
+      const openIn = renderMode("dine_in", s && s.dine_in);
+      const openOut = renderMode("dine_out", s && s.dine_out);
+      renderSummary(openIn, openOut);
     }
 
     async function loadRestaurantStatus() {
@@ -471,6 +639,9 @@
         renderRestaurantStatus(null);
       }
     }
+
+    /* Refresh every minute so "opens at" / hours-based status stays correct */
+    setInterval(loadRestaurantStatus, 60000);
 
     document.addEventListener("DOMContentLoaded", async () => {
       loadRestaurantStatus();
@@ -568,8 +739,8 @@
       showToast(`New order #${order.id} received!`, true);
     });
 
-    /* Live update when the status is changed from adminrestaurantstatus.html.
-       Your backend should emit: io.emit("restaurant-status-changed", { is_open, opening_time, closing_time }) */
+    /* Live update when status is saved from adminrestaurantstatus.html.
+       Backend emits: io.emit("restaurant-status-changed", { dine_in: {...}, dine_out: {...} }) */
     socket.on("restaurant-status-changed", (status) => renderRestaurantStatus(status));
 
     socket.on("connect_error", (err) => {

@@ -17,13 +17,17 @@ header .t{flex:1;min-width:0}
 header h1{font-family:'Playfair Display',serif;font-size:1.25rem;font-weight:800;line-height:1.15}
 header small{font-size:.75rem;opacity:.85}
 main{max-width:640px;margin:0 auto;padding:1rem}
-.hero{border-radius:18px;padding:1.2rem;color:#fff;display:flex;align-items:center;gap:1rem;box-shadow:var(--shm);background:linear-gradient(135deg,#2e9e6b,#1f7a52);transition:background .4s}
-.hero.closed{background:linear-gradient(135deg,#d64545,#a52f2f)}
-.hero-ic{width:58px;height:58px;border-radius:50%;background:rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;font-size:1.5rem;flex-shrink:0}
-.hero-t{flex:1;min-width:0}
-.hero-t small{font-size:.8rem;opacity:.9;font-weight:500}
-.hero-t h2{font-family:'Playfair Display',serif;font-size:2.1rem;font-weight:800;line-height:1.1}
-.hero-t p{font-size:.82rem;opacity:.92;margin-top:.15rem}
+
+/* Overview tiles */
+.tiles{display:grid;grid-template-columns:1fr 1fr;gap:.8rem}
+.tile{border-radius:18px;padding:1rem;color:#fff;display:flex;flex-direction:column;gap:.55rem;box-shadow:var(--shm);background:linear-gradient(135deg,#2e9e6b,#1f7a52);transition:background .4s;cursor:pointer;border:3px solid transparent}
+.tile.closed{background:linear-gradient(135deg,#d64545,#a52f2f)}
+.tile.sel{border-color:var(--gl)}
+.tile-top{display:flex;align-items:center;justify-content:space-between;gap:.5rem}
+.tile-ic{width:44px;height:44px;border-radius:50%;background:rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;font-size:1.15rem;flex-shrink:0}
+.tile small{font-size:.78rem;opacity:.92;font-weight:700;letter-spacing:.02em}
+.tile h2{font-family:'Playfair Display',serif;font-size:1.7rem;font-weight:800;line-height:1.1}
+.tile p{font-size:.78rem;opacity:.92;line-height:1.3}
 .sw{position:relative;width:64px;height:36px;flex-shrink:0;display:inline-block}
 .sw input{opacity:0;width:0;height:0;position:absolute}
 .sw span{position:absolute;inset:0;background:#d8ccd5;border-radius:36px;cursor:pointer;transition:.25s}
@@ -31,11 +35,23 @@ main{max-width:640px;margin:0 auto;padding:1rem}
 .sw input:checked+span{background:var(--p)}
 .sw input:checked+span::before{transform:translateX(28px)}
 .sw input:focus-visible+span{outline:3px solid var(--gl)}
-.hero .sw{width:72px;height:40px}
-.hero .sw span{background:rgba(255,255,255,.35)}
-.hero .sw span::before{width:32px;height:32px}
-.hero .sw input:checked+span{background:rgba(255,255,255,.35)}
-.hero .sw input:checked+span::before{transform:translateX(32px)}
+.tile .sw{width:56px;height:32px}
+.tile .sw span{background:rgba(255,255,255,.35)}
+.tile .sw span::before{width:24px;height:24px}
+.tile .sw input:checked+span{background:rgba(255,255,255,.35)}
+.tile .sw input:checked+span::before{transform:translateX(24px)}
+
+.qa{display:grid;grid-template-columns:1fr 1fr;gap:.8rem;margin-top:.8rem}
+
+/* Tabs */
+.tabs{display:grid;grid-template-columns:1fr 1fr;gap:.4rem;background:#fff;border:1px solid var(--bd);border-radius:14px;padding:.3rem;margin-top:1.2rem;box-shadow:var(--sh)}
+.tab{min-height:46px;border:none;border-radius:11px;background:transparent;font:700 .9rem 'Roboto',sans-serif;color:var(--muted);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:.5rem}
+.tab.on{background:linear-gradient(135deg,var(--p),var(--pd));color:#fff}
+.dot{width:9px;height:9px;border-radius:50%;background:var(--ok)}
+.dot.closed{background:var(--bad)}
+.tab.on .dot{box-shadow:0 0 0 2px rgba(255,255,255,.75)}
+.edit-t{font-family:'Playfair Display',serif;color:var(--pd);font-size:1.1rem;margin:1.1rem .2rem 0}
+
 .card{background:#fff;border:1px solid var(--bd);border-radius:16px;box-shadow:var(--sh);margin-top:1rem;overflow:hidden}
 .ch{display:flex;align-items:center;gap:.8rem;padding:1rem}
 .ch>div{flex:1;min-width:0}
@@ -52,26 +68,31 @@ label.f{display:block;font-size:.8rem;font-weight:700;color:var(--muted);margin-
 .in:focus{outline:none;border-color:var(--p);box-shadow:0 0 0 3px rgba(142,68,173,.15)}
 textarea.in{min-height:88px;resize:none;line-height:1.4}
 .cnt{text-align:right;font-size:.72rem;color:var(--muted);margin-top:.25rem}
-.lbl{font-size:.8rem;font-weight:700;color:var(--muted);margin:.9rem 0 .1rem}
 .chips{display:flex;gap:.5rem;flex-wrap:wrap;margin-top:.5rem}
 .chip{border:1px solid var(--bd);background:var(--bg);color:var(--pd);border-radius:20px;padding:.5rem .9rem;font:700 .8rem 'Roboto',sans-serif;cursor:pointer;min-height:40px}
 .chip:active{background:var(--gl)}
 .note{margin-top:.85rem;font-size:.84rem;color:var(--pd);background:rgba(217,169,76,.15);border-radius:10px;padding:.65rem .8rem;display:flex;gap:.55rem;align-items:center}
 .note i{color:var(--gold)}
 .note:empty{display:none}
+
 .pv{border-radius:14px;padding:1rem;border:1.5px dashed var(--bd);background:var(--bg)}
+.pv+.pv{margin-top:.7rem}
+.pv .lab{font-size:.78rem;font-weight:700;color:var(--muted);margin-bottom:.4rem}
 .pv-b{display:inline-flex;align-items:center;gap:.45rem;font-weight:700;font-size:.9rem;padding:.35rem .8rem;border-radius:20px;color:#fff;background:var(--ok)}
 .pv.closed .pv-b{background:var(--bad)}
 .pv p{font-size:.88rem;margin-top:.5rem}
 .pv p:empty{display:none}
+
 .bar{position:fixed;left:0;right:0;bottom:0;background:#fff;border-top:1px solid var(--bd);box-shadow:0 -8px 24px rgba(92,58,82,.12);padding:.8rem 1rem calc(.8rem + env(safe-area-inset-bottom));display:flex;align-items:center;gap:.7rem;transform:translateY(110%);transition:transform .3s;z-index:60}
 .bar.show{transform:none}
 .bar .txt{flex:1;font-size:.82rem;font-weight:700;color:var(--pd);line-height:1.25}
-.btn{min-height:50px;border:none;border-radius:12px;padding:0 1.2rem;font:700 .95rem 'Roboto',sans-serif;cursor:pointer}
+.btn{min-height:50px;border:none;border-radius:12px;padding:0 1.2rem;font:700 .95rem 'Roboto',sans-serif;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:.5rem}
 .btn.pri{background:linear-gradient(135deg,var(--p),var(--pd));color:#fff;box-shadow:0 4px 12px rgba(92,58,82,.3)}
-.btn.sec{background:var(--bg);color:var(--pd);border:1px solid var(--bd)}
+.btn.sec{background:#fff;color:var(--pd);border:1px solid var(--bd)}
 .btn.bad{background:var(--bad);color:#fff}
+.btn.full{width:100%;margin-top:1rem}
 .btn:disabled{opacity:.6}
+
 #modal{position:fixed;inset:0;background:rgba(42,31,38,.55);display:none;align-items:flex-end;justify-content:center;z-index:100}
 #modal.show{display:flex}
 .sheet{background:#fff;width:100%;max-width:640px;border-radius:20px 20px 0 0;padding:1.4rem 1.2rem calc(1.2rem + env(safe-area-inset-bottom));animation:up .28s ease}
@@ -81,22 +102,32 @@ textarea.in{min-height:88px;resize:none;line-height:1.4}
 .sheet .row .btn{width:100%}
 #toast{position:fixed;top:calc(12px + env(safe-area-inset-top));left:50%;transform:translate(-50%,-20px);opacity:0;pointer-events:none;background:var(--ok);color:#fff;padding:.8rem 1.1rem;border-radius:10px;font-weight:500;font-size:.88rem;box-shadow:var(--shm);z-index:200;max-width:92vw;text-align:center;transition:.3s}
 #toast.show{opacity:1;transform:translate(-50%,0)}
+@media(max-width:380px){.tile h2{font-size:1.4rem}}
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.001ms!important;transition-duration:.001ms!important}}
 </style>
 </head>
 <body>
 <header>
   <a href="admindashboard.html" class="hbtn" aria-label="Back to dashboard"><i class="fas fa-arrow-left"></i></a>
-  <div class="t"><h1>Restaurant Status</h1><small>Control when customers can order</small></div>
+  <div class="t"><h1>Restaurant Status</h1><small>Control Dine In and Dine Out separately</small></div>
   <button class="hbtn" onclick="logout()" aria-label="Logout"><i class="fas fa-right-from-bracket"></i></button>
 </header>
 
 <main>
-  <section class="hero" id="hero">
-    <div class="hero-ic"><i class="fas fa-store" id="hi"></i></div>
-    <div class="hero-t"><small>Your restaurant is</small><h2 id="st">Open</h2><p id="sub"></p></div>
-    <label class="sw"><input type="checkbox" id="tOpen" aria-label="Restaurant open"><span></span></label>
-  </section>
+  <!-- Overview: one tile per mode -->
+  <section class="tiles" id="tiles"></section>
+
+  <div class="qa">
+    <button class="btn sec" id="openAll"><i class="fas fa-door-open"></i> Open both</button>
+    <button class="btn sec" id="closeAll"><i class="fas fa-door-closed"></i> Close both</button>
+  </div>
+
+  <!-- Mode selector -->
+  <div class="tabs" id="tabs">
+    <button class="tab" data-m="dine_in"><span class="dot"></span><i class="fas fa-utensils"></i> Dine In</button>
+    <button class="tab" data-m="dine_out"><span class="dot"></span><i class="fas fa-bag-shopping"></i> Dine Out</button>
+  </div>
+  <h2 class="edit-t" id="editT">Settings for Dine In</h2>
 
   <section class="card" id="cH">
     <div class="ch">
@@ -142,7 +173,7 @@ textarea.in{min-height:88px;resize:none;line-height:1.4}
   <section class="card always">
     <div class="ch">
       <div class="ci"><i class="fas fa-message"></i></div>
-      <div><h3>Message for customers</h3><p>Optional. Shown when the restaurant is closed.</p></div>
+      <div><h3>Message for customers</h3><p>Optional. Shown when this mode is closed.</p></div>
     </div>
     <div class="cb">
       <textarea class="in" id="msg" maxlength="140" placeholder="e.g. We're closed for Diwali. See you on the 25th!"></textarea>
@@ -150,14 +181,14 @@ textarea.in{min-height:88px;resize:none;line-height:1.4}
     </div>
   </section>
 
+  <button class="btn sec full" id="copyBtn"><i class="fas fa-copy"></i> <span id="copyTxt">Copy these settings to Dine Out</span></button>
+
   <section class="card always">
     <div class="ch">
       <div class="ci"><i class="fas fa-eye"></i></div>
       <div><h3>What customers see</h3><p>Preview based on your current settings.</p></div>
     </div>
-    <div class="cb">
-      <div class="pv" id="pv"><span class="pv-b"><i class="fas fa-circle" style="font-size:.5rem"></i><span id="pvT">Open</span></span><p id="pv1"></p><p id="pv2"></p></div>
-    </div>
+    <div class="cb" id="pvBox"></div>
   </section>
 </main>
 
@@ -172,8 +203,14 @@ textarea.in{min-height:88px;resize:none;line-height:1.4}
 
 <script>
 const $ = id => document.getElementById(id);
+const MODES = ["dine_in", "dine_out"];
+const LBL = { dine_in: "Dine In", dine_out: "Dine Out" };
+const ICON = { dine_in: "fa-utensils", dine_out: "fa-bag-shopping" };
 const D = { is_open: true, use_hours: false, opening_time: "09:00", closing_time: "23:00", use_closure: false, closure_from: "", closure_to: "", closed_message: "" };
-let S = { ...D }, SV = { ...D }, loaded = false, busy = false;
+const clone = o => JSON.parse(JSON.stringify(o));
+const fresh = () => ({ dine_in: { ...D }, dine_out: { ...D } });
+
+let S = fresh(), SV = fresh(), T = "dine_in", loaded = false, busy = false;
 
 const pad = n => String(n).padStart(2, "0");
 const iso = d => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
@@ -189,7 +226,8 @@ function toast(m, ok = true) {
   clearTimeout(toast.t); toast.t = setTimeout(() => t.className = "", 2600);
 }
 
-function fromApi(d) {
+/* ---------- API mapping ---------- */
+function modeFromApi(d) {
   d = d || {};
   return {
     is_open: d.is_open === true || d.is_open === 1 || d.is_open === "1",
@@ -203,86 +241,133 @@ function fromApi(d) {
   };
 }
 
-function toApi() {
+function modeToApi(s) {
   return {
-    is_open: S.is_open,
-    opening_time: S.use_hours ? S.opening_time : null,
-    closing_time: S.use_hours ? S.closing_time : null,
-    closure_from: S.use_closure ? S.closure_from : null,
-    closure_to: S.use_closure ? S.closure_to : null,
-    closed_message: S.closed_message.trim()
+    is_open: s.is_open,
+    opening_time: s.use_hours ? s.opening_time : null,
+    closing_time: s.use_hours ? s.closing_time : null,
+    closure_from: s.use_closure ? s.closure_from : null,
+    closure_to: s.use_closure ? s.closure_to : null,
+    closed_message: s.closed_message.trim()
   };
 }
 
+const fromApi = d => ({ dine_in: modeFromApi(d && d.dine_in), dine_out: modeFromApi(d && d.dine_out) });
+const toApi = () => ({ dine_in: modeToApi(S.dine_in), dine_out: modeToApi(S.dine_out) });
+
+/* ---------- Validation (returns { mode, msg } or null) ---------- */
 function validate() {
-  if (S.use_hours) {
-    if (!S.opening_time || !S.closing_time) return "Set both opening and closing time";
-    if (S.opening_time === S.closing_time) return "Opening and closing time can't be the same";
+  const today = iso(new Date());
+  for (const m of MODES) {
+    const s = S[m], n = LBL[m];
+    if (s.use_hours) {
+      if (!s.opening_time || !s.closing_time) return { mode: m, msg: `${n}: set both opening and closing time` };
+      if (s.opening_time === s.closing_time) return { mode: m, msg: `${n}: opening and closing time can't be the same` };
+    }
+    if (s.use_closure) {
+      if (!s.closure_from || !s.closure_to) return { mode: m, msg: `${n}: pick both closed dates` };
+      if (s.closure_to < s.closure_from) return { mode: m, msg: `${n}: the 'To' date must be on or after 'From'` };
+      if (s.closure_to < today) return { mode: m, msg: `${n}: closed dates are already in the past` };
+    }
   }
-  if (S.use_closure) {
-    if (!S.closure_from || !S.closure_to) return "Pick both closed dates";
-    if (S.closure_to < S.closure_from) return "The 'To' date must be on or after 'From'";
-    if (S.closure_to < iso(new Date())) return "Closed dates are already in the past";
-  }
-  return "";
+  return null;
 }
 
-function inHours() {
-  const n = new Date(), c = n.getHours() * 60 + n.getMinutes(), o = mins(S.opening_time), e = mins(S.closing_time);
+/* ---------- Status logic ---------- */
+function inHours(s) {
+  const n = new Date(), c = n.getHours() * 60 + n.getMinutes(), o = mins(s.opening_time), e = mins(s.closing_time);
   return o < e ? c >= o && c < e : c >= o || c < e;
 }
 
-function preview() {
-  const today = iso(new Date()), msg = S.closed_message.trim();
+function statusOf(s) {
+  const today = iso(new Date()), msg = s.closed_message.trim();
+  const validClosure = s.use_closure && s.closure_from && s.closure_to && s.closure_to >= s.closure_from;
   let closed = true, title, l1 = "";
-  const validClosure = S.use_closure && S.closure_from && S.closure_to && S.closure_to >= S.closure_from;
-  if (!S.is_open) { title = "Closed right now"; l1 = "The restaurant is switched off."; }
-  else if (validClosure && today >= S.closure_from && today <= S.closure_to) { title = "Closed for a break"; l1 = `Back on ${fD(addDays(S.closure_to, 1))}`; }
-  else if (S.use_hours && !inHours()) { title = "Closed for now"; l1 = `Opens at ${fT(S.opening_time)}`; }
+  if (!s.is_open) { title = "Closed right now"; l1 = "This mode is switched off."; }
+  else if (validClosure && today >= s.closure_from && today <= s.closure_to) { title = "Closed for a break"; l1 = `Back on ${fD(addDays(s.closure_to, 1))}`; }
+  else if (s.use_hours && !inHours(s)) { title = "Closed for now"; l1 = `Opens at ${fT(s.opening_time)}`; }
   else {
     closed = false; title = "Open for orders";
-    if (S.use_hours) l1 = `Today ${fT(S.opening_time)} – ${fT(S.closing_time)}`;
-    if (validClosure && S.closure_from > today) l1 += `${l1 ? ". " : ""}Closed ${fD(S.closure_from)} to ${fD(S.closure_to)}`;
+    if (s.use_hours) l1 = `Today ${fT(s.opening_time)} – ${fT(s.closing_time)}`;
+    if (validClosure && s.closure_from > today) l1 += `${l1 ? ". " : ""}Closed ${fD(s.closure_from)} to ${fD(s.closure_to)}`;
   }
-  $("pv").classList.toggle("closed", closed);
-  $("pvT").textContent = title;
-  $("pv1").textContent = l1;
-  $("pv2").textContent = closed ? msg : "";
+  return { closed, title, l1, msg };
+}
+
+/* ---------- Render ---------- */
+function buildTiles() {
+  $("tiles").innerHTML = MODES.map(m => `
+    <div class="tile" id="tile_${m}" data-m="${m}">
+      <div class="tile-top">
+        <div class="tile-ic"><i class="fas ${ICON[m]}"></i></div>
+        <label class="sw"><input type="checkbox" id="sw_${m}" aria-label="${LBL[m]} open"><span></span></label>
+      </div>
+      <div><small>${LBL[m].toUpperCase()}</small><h2 id="st_${m}">Open</h2><p id="sub_${m}"></p></div>
+    </div>`).join("");
+
+  MODES.forEach(m => {
+    $("sw_" + m).onchange = e => { S[m].is_open = e.target.checked; render(); };
+    $("sw_" + m).onclick = e => e.stopPropagation();
+    $("sw_" + m).parentElement.onclick = e => e.stopPropagation();
+    $("tile_" + m).onclick = () => { T = m; render(); };
+  });
 }
 
 function render() {
-  const o = S.is_open, today = iso(new Date());
-  $("hero").classList.toggle("closed", !o);
-  $("st").textContent = o ? "Open" : "Closed";
-  $("hi").className = "fas " + (o ? "fa-store" : "fa-store-slash");
-  $("sub").textContent = o ? "Customers can place orders" : "Customers can't place orders";
-  $("tOpen").checked = o;
-  $("cH").classList.toggle("on", S.use_hours); $("tH").checked = S.use_hours;
-  $("cC").classList.toggle("on", S.use_closure); $("tC").checked = S.use_closure;
-  setV("oT", S.opening_time); setV("cT", S.closing_time);
-  setV("dF", S.closure_from); setV("dT", S.closure_to); setV("msg", S.closed_message);
-  $("dF").min = today; $("dT").min = S.closure_from || today;
-  $("cnt").textContent = `${S.closed_message.length}/140`;
+  const s = S[T], today = iso(new Date());
 
-  $("nH").innerHTML = S.use_hours && S.opening_time && S.closing_time
-    ? (mins(S.closing_time) <= mins(S.opening_time)
-        ? `<i class="fas fa-moon"></i><span>Closes after midnight, at ${fT(S.closing_time)} the next day.</span>`
-        : `<i class="fas fa-circle-check"></i><span>Open ${fT(S.opening_time)} to ${fT(S.closing_time)} every day.</span>`)
+  MODES.forEach(m => {
+    const o = S[m].is_open;
+    $("tile_" + m).classList.toggle("closed", !o);
+    $("tile_" + m).classList.toggle("sel", m === T);
+    $("st_" + m).textContent = o ? "Open" : "Closed";
+    $("sub_" + m).textContent = o ? "Customers can order" : "Orders are off";
+    $("sw_" + m).checked = o;
+    const tab = document.querySelector(`.tab[data-m="${m}"]`);
+    tab.classList.toggle("on", m === T);
+    tab.querySelector(".dot").classList.toggle("closed", !o);
+  });
+
+  const other = T === "dine_in" ? "dine_out" : "dine_in";
+  $("editT").textContent = `Settings for ${LBL[T]}`;
+  $("copyTxt").textContent = `Copy these settings to ${LBL[other]}`;
+
+  $("cH").classList.toggle("on", s.use_hours); $("tH").checked = s.use_hours;
+  $("cC").classList.toggle("on", s.use_closure); $("tC").checked = s.use_closure;
+  setV("oT", s.opening_time); setV("cT", s.closing_time);
+  setV("dF", s.closure_from); setV("dT", s.closure_to); setV("msg", s.closed_message);
+  $("dF").min = today; $("dT").min = s.closure_from || today;
+  $("cnt").textContent = `${s.closed_message.length}/140`;
+
+  $("nH").innerHTML = s.use_hours && s.opening_time && s.closing_time
+    ? (mins(s.closing_time) <= mins(s.opening_time)
+        ? `<i class="fas fa-moon"></i><span>Closes after midnight, at ${fT(s.closing_time)} the next day.</span>`
+        : `<i class="fas fa-circle-check"></i><span>Open ${fT(s.opening_time)} to ${fT(s.closing_time)} every day.</span>`)
     : "";
 
   let nc = "";
-  if (S.use_closure && S.closure_from && S.closure_to && S.closure_to >= S.closure_from) {
-    const days = Math.round((new Date(S.closure_to) - new Date(S.closure_from)) / 864e5) + 1;
-    nc = `<i class="fas fa-umbrella-beach"></i><span>Closed ${days} day${days > 1 ? "s" : ""}. Reopens ${fD(addDays(S.closure_to, 1))}.</span>`;
+  if (s.use_closure && s.closure_from && s.closure_to && s.closure_to >= s.closure_from) {
+    const days = Math.round((new Date(s.closure_to) - new Date(s.closure_from)) / 864e5) + 1;
+    nc = `<i class="fas fa-umbrella-beach"></i><span>Closed ${days} day${days > 1 ? "s" : ""}. Reopens ${fD(addDays(s.closure_to, 1))}.</span>`;
   }
   $("nC").innerHTML = nc;
 
-  preview();
+  $("pvBox").innerHTML = MODES.map(m => {
+    const v = statusOf(S[m]);
+    const esc = t => t.replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    return `<div class="pv ${v.closed ? "closed" : ""}">
+      <div class="lab">${LBL[m]}</div>
+      <span class="pv-b"><i class="fas fa-circle" style="font-size:.5rem"></i><span>${v.title}</span></span>
+      <p>${esc(v.l1)}</p><p>${v.closed ? esc(v.msg) : ""}</p>
+    </div>`;
+  }).join("");
+
   $("bar").classList.toggle("show", dirty());
   $("save").disabled = busy; $("discard").disabled = busy;
   $("save").textContent = busy ? "Saving..." : "Save changes";
 }
 
+/* ---------- Modal ---------- */
 function ask(title, text, ok) {
   return new Promise(res => {
     $("mt").textContent = title; $("mp").textContent = text; $("mok").textContent = ok;
@@ -292,18 +377,27 @@ function ask(title, text, ok) {
   });
 }
 
+/* ---------- Save / Load ---------- */
 async function save() {
   if (busy) return;
   if (!loaded) return toast("Current status didn't load. Refresh the page first.", false);
+
   const err = validate();
-  if (err) return toast(err, false);
-  if (SV.is_open && !S.is_open && !(await ask("Close the restaurant?", "Customers won't be able to place orders until you open it again.", "Yes, close"))) return;
+  if (err) { T = err.mode; render(); return toast(err.msg, false); }
+
+  const closing = MODES.filter(m => SV[m].is_open && !S[m].is_open);
+  if (closing.length) {
+    const names = closing.map(m => LBL[m]).join(" and ");
+    const ok = await ask(`Close ${names}?`, `Customers won't be able to place ${names} orders until you open it again.`, "Yes, close");
+    if (!ok) return;
+  }
+
   busy = true; render();
   try {
     const res = await fetch("/api/restaurant-status", { method: "PUT", credentials: "include", headers: { "Content-Type": "application/json" }, body: JSON.stringify(toApi()) });
     const json = await res.json().catch(() => ({}));
     if (!res.ok || json.success === false) throw new Error(json.message || `HTTP ${res.status}`);
-    SV = { ...S };
+    SV = clone(S);
     toast("Status saved");
   } catch (e) {
     console.error("Save error:", e);
@@ -316,7 +410,7 @@ async function load() {
     const r = await fetch("/api/restaurant-status", { credentials: "include", cache: "no-store" });
     if (!r.ok) throw new Error("HTTP " + r.status);
     const j = await r.json();
-    S = fromApi(j.data || j); SV = { ...S }; loaded = true;
+    S = fromApi(j.data || j); SV = clone(S); loaded = true;
   } catch (e) { console.error("Load error:", e); toast("Couldn't load current status", false); }
   render();
 }
@@ -329,25 +423,46 @@ async function logout() {
   } catch (e) { toast("Logout failed: " + e.message, false); }
 }
 
-$("tOpen").onchange = e => { S.is_open = e.target.checked; render(); };
-$("tH").onchange = e => { S.use_hours = e.target.checked; render(); };
-$("tC").onchange = e => { S.use_closure = e.target.checked; if (S.use_closure && !S.closure_from) { S.closure_from = addDays("", 0); S.closure_to = S.closure_from; } render(); };
+/* ---------- Events ---------- */
+$("tH").onchange = e => { S[T].use_hours = e.target.checked; render(); };
+$("tC").onchange = e => {
+  const s = S[T];
+  s.use_closure = e.target.checked;
+  if (s.use_closure && !s.closure_from) { s.closure_from = addDays("", 0); s.closure_to = s.closure_from; }
+  render();
+};
 [["oT", "opening_time"], ["cT", "closing_time"], ["dF", "closure_from"], ["dT", "closure_to"], ["msg", "closed_message"]].forEach(([id, k]) =>
   $(id).addEventListener("input", e => {
-    S[k] = e.target.value;
-    if (k === "closure_from" && S.closure_to && S.closure_to < S.closure_from) S.closure_to = S.closure_from;
+    const s = S[T];
+    s[k] = e.target.value;
+    if (k === "closure_from" && s.closure_to && s.closure_to < s.closure_from) s.closure_to = s.closure_from;
     render();
   }));
+
 document.addEventListener("click", e => {
   const c = e.target.closest(".chip"); if (!c) return;
-  if (c.dataset.o) { S.opening_time = c.dataset.o; S.closing_time = c.dataset.c; }
-  else { S.closure_from = addDays("", +c.dataset.f); S.closure_to = addDays("", +c.dataset.f + +c.dataset.n - 1); }
+  const s = S[T];
+  if (c.dataset.o) { s.opening_time = c.dataset.o; s.closing_time = c.dataset.c; }
+  else { s.closure_from = addDays("", +c.dataset.f); s.closure_to = addDays("", +c.dataset.f + +c.dataset.n - 1); }
   render();
 });
+
+document.querySelectorAll(".tab").forEach(b => b.onclick = () => { T = b.dataset.m; render(); });
+$("openAll").onclick = () => { MODES.forEach(m => S[m].is_open = true); render(); };
+$("closeAll").onclick = () => { MODES.forEach(m => S[m].is_open = false); render(); };
+$("copyBtn").onclick = () => {
+  const other = T === "dine_in" ? "dine_out" : "dine_in";
+  S[other] = { ...S[T], is_open: S[other].is_open };
+  render();
+  toast(`Copied to ${LBL[other]}. Save to apply.`);
+};
 $("save").onclick = save;
-$("discard").onclick = () => { S = { ...SV }; render(); };
+$("discard").onclick = () => { S = clone(SV); render(); };
 window.addEventListener("beforeunload", e => { if (dirty()) { e.preventDefault(); e.returnValue = ""; } });
 
+/* ---------- Init ---------- */
+buildTiles();
+render();
 (async () => {
   try {
     const r = await fetch("/api/auth/check", { credentials: "include", cache: "no-store" });
