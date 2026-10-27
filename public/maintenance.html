@@ -2,266 +2,364 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#0b0b14" />
   <title>Delicute | We'll be right back</title>
   <link rel="icon" href="https://i.postimg.cc/W3pgQx9q/DELICUTE-Imgur-1-modified.png" />
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Roboto+Mono:wght@500;600&family=Roboto:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@700;800&display=swap" rel="stylesheet" />
   <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    html, body { width: 100%; height: 100%; overflow-x: hidden; }
+    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+    html, body { width: 100%; min-height: 100%; overflow-x: hidden; }
 
     :root {
-      --graphite: #121218;
-      --panel: #1d1d26;
-      --crimson: #c0392b;
-      --crimson-bright: #e8543f;
-      --gold: #d9a94c;
-      --gold-light: #f2d49b;
-      --text: #ece9f2;
-      --muted: #9a97a8;
-      --border: #302f3b;
+      --bg: #0b0b14;
+      --crimson: #ff4d6d;
+      --gold: #ffc857;
+      --amber: #ff9f43;
+      --violet: #8b5cf6;
+      --teal: #2dd4bf;
+      --text: #f5f3fa;
+      --muted: #a7a3bd;
+      --line: rgba(255,255,255,0.09);
     }
 
     body {
-      font-family: 'Roboto', sans-serif;
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
       color: var(--text);
-      background: var(--graphite);
+      background: var(--bg);
       min-height: 100vh;
+      min-height: 100dvh;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
+      gap: 1.25rem;
+      padding: calc(1.25rem + env(safe-area-inset-top)) 1rem calc(1.25rem + env(safe-area-inset-bottom));
       position: relative;
-      padding: 2rem 1.5rem;
-      gap: 1.7rem;
+      -webkit-font-smoothing: antialiased;
     }
 
-    /* ---------- Ambient background ---------- */
-    .bg-glow {
+    /* ---------- Aurora background ---------- */
+    .aurora {
       position: fixed;
       inset: 0;
       z-index: 0;
-      background:
-        radial-gradient(circle at 50% 0%, rgba(192, 57, 43, 0.16), transparent 45%),
-        radial-gradient(circle at 10% 95%, rgba(217, 169, 76, 0.09), transparent 50%),
-        radial-gradient(circle at 92% 90%, rgba(142, 68, 173, 0.07), transparent 50%);
-      animation: glowPulse 9s ease-in-out infinite;
+      overflow: hidden;
       pointer-events: none;
     }
-    @keyframes glowPulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.8; } }
+    .aurora span {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(80px);
+      opacity: 0.55;
+      will-change: transform;
+    }
+    .aurora .a1 { width: 70vmax; height: 70vmax; max-width: 520px; max-height: 520px; background: radial-gradient(circle, var(--crimson), transparent 70%); top: -18%; left: -25%; animation: drift1 16s ease-in-out infinite; }
+    .aurora .a2 { width: 65vmax; height: 65vmax; max-width: 480px; max-height: 480px; background: radial-gradient(circle, var(--violet), transparent 70%); top: 25%; right: -30%; animation: drift2 20s ease-in-out infinite; }
+    .aurora .a3 { width: 60vmax; height: 60vmax; max-width: 440px; max-height: 440px; background: radial-gradient(circle, var(--teal), transparent 70%); bottom: -20%; left: -15%; opacity: 0.38; animation: drift3 18s ease-in-out infinite; }
+    .aurora .a4 { width: 45vmax; height: 45vmax; max-width: 340px; max-height: 340px; background: radial-gradient(circle, var(--gold), transparent 70%); bottom: 5%; right: -8%; opacity: 0.3; animation: drift1 22s ease-in-out infinite reverse; }
 
-    .bg-grid {
+    @keyframes drift1 { 0%,100% { transform: translate(0,0) scale(1); } 50% { transform: translate(40px,50px) scale(1.12); } }
+    @keyframes drift2 { 0%,100% { transform: translate(0,0) scale(1); } 50% { transform: translate(-45px,30px) scale(1.1); } }
+    @keyframes drift3 { 0%,100% { transform: translate(0,0) scale(1); } 50% { transform: translate(50px,-35px) scale(1.14); } }
+
+    .grid {
       position: fixed;
       inset: 0;
       z-index: 0;
+      pointer-events: none;
       background-image:
-        linear-gradient(rgba(217, 169, 76, 0.035) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(217, 169, 76, 0.035) 1px, transparent 1px);
-      background-size: 46px 46px;
-      mask-image: radial-gradient(circle at 50% 42%, rgba(0,0,0,0.85), transparent 70%);
-      -webkit-mask-image: radial-gradient(circle at 50% 42%, rgba(0,0,0,0.85), transparent 70%);
-      pointer-events: none;
+        linear-gradient(rgba(255,255,255,0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.04) 1px, transparent 1px);
+      background-size: 44px 44px;
+      -webkit-mask-image: radial-gradient(circle at 50% 40%, #000, transparent 72%);
+      mask-image: radial-gradient(circle at 50% 40%, #000, transparent 72%);
     }
 
     /* ---------- Card ---------- */
     .card {
       position: relative;
       z-index: 1;
-      max-width: 440px;
       width: 100%;
+      max-width: 430px;
       text-align: center;
-      background: rgba(29, 29, 38, 0.78);
-      backdrop-filter: blur(20px);
-      -webkit-backdrop-filter: blur(20px);
-      border: 1px solid rgba(217, 169, 76, 0.18);
-      border-radius: 22px;
-      padding: 2.8rem 2.3rem 2.5rem;
-      box-shadow: 0 30px 80px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.02) inset;
+      padding: 2.4rem 1.5rem 1.9rem;
+      border-radius: 28px;
+      background: linear-gradient(165deg, rgba(255,255,255,0.10), rgba(255,255,255,0.03));
+      backdrop-filter: blur(26px) saturate(140%);
+      -webkit-backdrop-filter: blur(26px) saturate(140%);
+      box-shadow: 0 30px 80px rgba(0,0,0,0.55), inset 0 1px 0 rgba(255,255,255,0.18);
       opacity: 0;
-      transform: translateY(18px);
-      animation: cardIn 0.65s cubic-bezier(.2,.7,.3,1) forwards;
-      overflow: hidden;
+      transform: translateY(22px) scale(0.98);
+      animation: cardIn 0.8s cubic-bezier(.2,.7,.3,1) forwards;
     }
-    @keyframes cardIn { to { opacity: 1; transform: translateY(0); } }
+    @keyframes cardIn { to { opacity: 1; transform: translateY(0) scale(1); } }
 
+    /* Gradient border */
     .card::before {
       content: '';
       position: absolute;
-      top: 0; left: 0; right: 0;
-      height: 2px;
-      background: linear-gradient(90deg, transparent, var(--crimson-bright), var(--gold), transparent);
-      opacity: 0.85;
-    }
-
-    .logo {
-      width: 56px;
-      height: 56px;
-      border-radius: 50%;
-      box-shadow: 0 0 0 2px rgba(217,169,76,0.32), 0 6px 18px rgba(0,0,0,0.4);
-      margin-bottom: 1.3rem;
-      opacity: 0;
-      transform: scale(0.85);
-      animation: fadeInScale 0.6s ease-out 0.15s forwards;
-    }
-    @keyframes fadeInScale { to { opacity: 1; transform: scale(1); } }
-
-    .icon-wrap {
-      width: 68px;
-      height: 68px;
-      margin: 0 auto 1.5rem;
-      border-radius: 50%;
-      background: radial-gradient(circle, rgba(217,169,76,0.14), transparent 70%);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      position: relative;
-    }
-    .icon-wrap svg {
-      width: 30px;
-      height: 30px;
-      color: var(--gold-light);
-      animation: gentleSpin 3.2s ease-in-out infinite;
-      transform-origin: center;
-      position: relative;
-      z-index: 1;
-    }
-    @keyframes gentleSpin {
-      0%, 100% { transform: rotate(0deg); }
-      50% { transform: rotate(32deg); }
-    }
-    .icon-wrap .ring {
-      position: absolute;
       inset: 0;
+      padding: 1px;
+      border-radius: inherit;
+      background: linear-gradient(150deg, rgba(255,200,87,0.7), rgba(255,255,255,0.08) 35%, rgba(255,255,255,0.05) 65%, rgba(255,77,109,0.6));
+      -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+      -webkit-mask-composite: xor;
+      mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0);
+      pointer-events: none;
+    }
+
+    /* Staggered entrance */
+    .rise { opacity: 0; transform: translateY(12px); animation: rise 0.7s ease-out forwards; }
+    .d1 { animation-delay: 0.2s; } .d2 { animation-delay: 0.3s; } .d3 { animation-delay: 0.4s; }
+    .d4 { animation-delay: 0.5s; } .d5 { animation-delay: 0.6s; } .d6 { animation-delay: 0.7s; }
+    @keyframes rise { to { opacity: 1; transform: translateY(0); } }
+
+    /* ---------- Logo ---------- */
+    .logo-wrap {
+      position: relative;
+      width: 84px;
+      height: 84px;
+      margin: 0 auto 1.3rem;
+    }
+    .logo-wrap::before {
+      content: '';
+      position: absolute;
+      inset: -10px;
       border-radius: 50%;
-      border: 1.5px solid rgba(217,169,76,0.32);
-      animation: ringPulse 2.4s ease-out infinite;
+      background: conic-gradient(from 0deg, var(--crimson), var(--gold), var(--teal), var(--violet), var(--crimson));
+      filter: blur(14px);
+      opacity: 0.6;
+      animation: spin 8s linear infinite;
     }
-    .icon-wrap .ring.delay { animation-delay: 1.2s; }
-    @keyframes ringPulse {
-      0% { transform: scale(0.85); opacity: 0.75; }
-      100% { transform: scale(1.4); opacity: 0; }
+    .logo-wrap::after {
+      content: '';
+      position: absolute;
+      inset: -3px;
+      border-radius: 50%;
+      background: conic-gradient(from 0deg, var(--crimson), var(--gold), var(--teal), var(--violet), var(--crimson));
+      animation: spin 8s linear infinite;
     }
-
-    h1 {
-      font-family: 'Playfair Display', serif;
-      font-weight: 800;
-      font-size: 1.55rem;
-      letter-spacing: 0.2px;
-      line-height: 1.3;
-      margin-bottom: 0.75rem;
-      opacity: 0;
-      transform: translateY(10px);
-      animation: fadeInUp 0.6s ease-out 0.28s forwards;
+    .logo-wrap img {
+      position: relative;
+      z-index: 2;
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      object-fit: cover;
+      display: block;
+      background: #14141f;
+      border: 3px solid var(--bg);
     }
+    @keyframes spin { to { transform: rotate(360deg); } }
 
-    #maintMessage {
-      font-size: 0.93rem;
-      line-height: 1.68;
-      color: var(--muted);
-      max-width: 360px;
-      margin: 0 auto 1.7rem;
-      opacity: 0;
-      transform: translateY(10px);
-      animation: fadeInUp 0.6s ease-out 0.4s forwards;
-    }
-
-    @keyframes fadeInUp { to { opacity: 1; transform: translateY(0); } }
-
+    /* ---------- Status pill ---------- */
     .status-pill {
       display: inline-flex;
       align-items: center;
       gap: 0.5rem;
-      font-family: 'Roboto Mono', monospace;
-      font-size: 0.66rem;
-      letter-spacing: 1.4px;
-      text-transform: uppercase;
+      font-size: 0.7rem;
       font-weight: 600;
-      color: var(--gold-light);
-      background: rgba(217, 169, 76, 0.09);
-      border: 1px solid rgba(217, 169, 76, 0.28);
-      padding: 0.45rem 1rem;
-      border-radius: 20px;
-      margin-bottom: 1.7rem;
-      opacity: 0;
-      animation: fadeInUp 0.6s ease-out 0.52s forwards;
+      letter-spacing: 1.3px;
+      text-transform: uppercase;
+      color: var(--gold);
+      background: rgba(255,200,87,0.10);
+      border: 1px solid rgba(255,200,87,0.30);
+      padding: 0.45rem 0.95rem;
+      border-radius: 999px;
+      margin-bottom: 1.1rem;
     }
     .status-pill .dot {
-      width: 6px;
-      height: 6px;
+      width: 7px;
+      height: 7px;
       border-radius: 50%;
       background: var(--gold);
-      box-shadow: 0 0 0 0 rgba(217,169,76,0.55);
-      animation: dotPulse 1.7s ease-out infinite;
       flex-shrink: 0;
+      animation: dotPulse 1.8s ease-out infinite;
     }
     @keyframes dotPulse {
-      0%   { box-shadow: 0 0 0 0 rgba(217,169,76,0.5); }
-      70%  { box-shadow: 0 0 0 7px rgba(217,169,76,0); }
-      100% { box-shadow: 0 0 0 0 rgba(217,169,76,0); }
+      0%   { box-shadow: 0 0 0 0 rgba(255,200,87,0.65); }
+      70%  { box-shadow: 0 0 0 8px rgba(255,200,87,0); }
+      100% { box-shadow: 0 0 0 0 rgba(255,200,87,0); }
     }
 
-    .progress-track {
-      width: 100%;
-      height: 4px;
-      background: rgba(255,255,255,0.055);
-      border-radius: 4px;
-      overflow: hidden;
-      margin-bottom: 0.9rem;
-      opacity: 0;
-      animation: fadeInUp 0.6s ease-out 0.62s forwards;
+    /* ---------- Text ---------- */
+    h1 {
+      font-family: 'Playfair Display', serif;
+      font-weight: 800;
+      font-size: clamp(1.7rem, 7.4vw, 2.1rem);
+      line-height: 1.18;
+      letter-spacing: -0.3px;
+      margin-bottom: 0.8rem;
     }
-    .progress-fill {
-      height: 100%;
-      width: 0%;
-      background: linear-gradient(90deg, var(--crimson), var(--gold));
-      border-radius: 4px;
-      transition: width 1s linear;
+    h1 .accent {
+      background: linear-gradient(90deg, var(--gold), var(--amber), var(--crimson), var(--gold));
+      background-size: 250% auto;
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+      color: transparent;
+      animation: shine 6s linear infinite;
     }
+    @keyframes shine { to { background-position: 250% center; } }
 
-    .refresh-note {
-      font-family: 'Roboto Mono', monospace;
-      font-size: 0.65rem;
+    #maintMessage {
+      font-size: clamp(0.92rem, 3.9vw, 1rem);
+      line-height: 1.7;
       color: var(--muted);
-      letter-spacing: 0.3px;
-      opacity: 0;
-      animation: fadeInUp 0.6s ease-out 0.7s forwards;
+      max-width: 340px;
+      margin: 0 auto 1.6rem;
+      overflow-wrap: anywhere;
     }
 
-    .divider {
-      width: 100%;
-      height: 1px;
+    /* ---------- Steps ---------- */
+    .steps {
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      gap: 0;
+      margin: 0 auto 1.7rem;
+      max-width: 330px;
+    }
+    .step { flex: 0 0 auto; width: 76px; display: flex; flex-direction: column; align-items: center; gap: 0.45rem; }
+    .step .node {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: var(--muted);
       background: rgba(255,255,255,0.06);
-      margin: 1.7rem 0 1.3rem;
-      opacity: 0;
-      animation: fadeInUp 0.6s ease-out 0.78s forwards;
+      border: 1px solid var(--line);
     }
+    .step .node svg { width: 14px; height: 14px; }
+    .step.done .node { background: linear-gradient(135deg, var(--teal), #22b8a7); color: #04201c; border-color: transparent; }
+    .step.active .node {
+      background: linear-gradient(135deg, var(--gold), var(--crimson));
+      color: #fff;
+      border-color: transparent;
+      box-shadow: 0 0 0 0 rgba(255,120,90,0.6);
+      animation: nodePulse 2s ease-out infinite;
+    }
+    @keyframes nodePulse {
+      0%   { box-shadow: 0 0 0 0 rgba(255,120,90,0.55); }
+      70%  { box-shadow: 0 0 0 10px rgba(255,120,90,0); }
+      100% { box-shadow: 0 0 0 0 rgba(255,120,90,0); }
+    }
+    .step .label { font-size: 0.68rem; font-weight: 500; color: var(--muted); letter-spacing: 0.2px; }
+    .step.active .label, .step.done .label { color: var(--text); }
+    .bar { flex: 1; height: 2px; margin-top: 13px; border-radius: 2px; background: rgba(255,255,255,0.10); min-width: 18px; }
+    .bar.done { background: linear-gradient(90deg, var(--teal), var(--gold)); }
 
-    .contact-note {
-      font-size: 0.78rem;
-      color: var(--muted);
-      opacity: 0;
-      animation: fadeInUp 0.6s ease-out 0.85s forwards;
+    /* ---------- Countdown ring ---------- */
+    .countdown {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 1rem;
+      text-align: left;
+      padding: 0.9rem 1.1rem;
+      border-radius: 18px;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid var(--line);
+      margin-bottom: 1.4rem;
     }
-    .contact-note a {
-      color: var(--gold-light);
-      text-decoration: none;
+    .ring-box { position: relative; width: 62px; height: 62px; flex-shrink: 0; }
+    .ring-box svg { width: 100%; height: 100%; transform: rotate(-90deg); }
+    .ring-bg { fill: none; stroke: rgba(255,255,255,0.10); stroke-width: 5; }
+    .ring-fg {
+      fill: none;
+      stroke: url(#ringGrad);
+      stroke-width: 5;
+      stroke-linecap: round;
+      transition: stroke-dashoffset 1s linear;
+    }
+    .ring-num {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.05rem;
+      font-weight: 700;
+      font-variant-numeric: tabular-nums;
+    }
+    .cd-text strong { display: block; font-size: 0.9rem; font-weight: 600; margin-bottom: 0.15rem; }
+    .cd-text span { font-size: 0.76rem; color: var(--muted); }
+
+    /* ---------- Buttons ---------- */
+    .actions { display: flex; flex-direction: column; gap: 0.7rem; }
+    .btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      min-height: 48px;
+      padding: 0.8rem 1.2rem;
+      border-radius: 14px;
+      font-family: inherit;
+      font-size: 0.9rem;
       font-weight: 600;
+      text-decoration: none;
+      cursor: pointer;
+      border: none;
+      transition: transform 0.15s ease, box-shadow 0.2s ease, background 0.2s ease;
     }
-    .contact-note a:hover { text-decoration: underline; }
+    .btn svg { width: 17px; height: 17px; flex-shrink: 0; }
+    .btn:active { transform: scale(0.97); }
+    .btn-primary {
+      color: #1a0e0a;
+      background: linear-gradient(135deg, var(--gold), var(--amber) 50%, var(--crimson));
+      box-shadow: 0 10px 28px rgba(255,120,90,0.35);
+    }
+    .btn-primary:hover { box-shadow: 0 14px 34px rgba(255,120,90,0.5); }
+    .btn-primary.loading svg { animation: spin 0.8s linear infinite; }
+    .btn-ghost {
+      color: var(--text);
+      background: rgba(255,255,255,0.06);
+      border: 1px solid var(--line);
+      font-size: 0.82rem;
+      font-weight: 500;
+      overflow-wrap: anywhere;
+    }
+    .btn-ghost:hover { background: rgba(255,255,255,0.11); }
+
+    .contact-label { font-size: 0.74rem; color: var(--muted); margin: 1.3rem 0 0.6rem; }
 
     /* ---------- Footer ---------- */
     .footer-note {
       position: relative;
       z-index: 1;
-      font-family: 'Roboto Mono', monospace;
-      font-size: 0.65rem;
+      font-size: 0.68rem;
       color: var(--muted);
-      letter-spacing: 0.5px;
+      letter-spacing: 0.4px;
       text-align: center;
+      line-height: 1.6;
+      padding: 0 0.5rem;
       opacity: 0;
-      animation: fadeInUp 0.6s ease-out 0.95s forwards;
+      animation: rise 0.7s ease-out 0.9s forwards;
     }
 
+    /* ---------- Responsive ---------- */
+    @media (max-width: 380px) {
+      .card { padding: 2rem 1.1rem 1.6rem; border-radius: 24px; }
+      .logo-wrap { width: 72px; height: 72px; }
+      .step { width: 66px; }
+      .countdown { padding: 0.8rem 0.9rem; gap: 0.8rem; }
+    }
+    @media (max-height: 640px) and (orientation: landscape) {
+      body { justify-content: flex-start; }
+    }
+    @media (min-width: 768px) {
+      .card { padding: 2.9rem 2.5rem 2.3rem; }
+      .actions { flex-direction: row; }
+      .actions .btn { flex: 1; }
+    }
     @media (prefers-reduced-motion: reduce) {
       *, *::before, *::after {
         animation-duration: 0.001ms !important;
@@ -269,84 +367,152 @@
         transition-duration: 0.001ms !important;
       }
     }
-
-    @media (max-width: 480px) {
-      .card { padding: 2.3rem 1.6rem 2.1rem; border-radius: 18px; }
-      h1 { font-size: 1.3rem; }
-      #maintMessage { font-size: 0.88rem; }
-    }
   </style>
 </head>
 <body>
 
-  <div class="bg-grid"></div>
-  <div class="bg-glow"></div>
+  <div class="aurora"><span class="a1"></span><span class="a2"></span><span class="a3"></span><span class="a4"></span></div>
+  <div class="grid"></div>
 
-  <div class="card">
-    <img class="logo" src="https://i.postimg.cc/W3pgQx9q/DELICUTE-Imgur-1-modified.png" alt="Delicute" />
-
-    <div class="icon-wrap">
-      <span class="ring"></span>
-      <span class="ring delay"></span>
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7">
-        <path d="M14.7 6.3a4 4 0 0 1-5.4 5.4L4 17l3 3 5.3-5.3a4 4 0 0 1 5.4-5.4l-3-3-2.6 2.6a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0L18 9" stroke-linecap="round" stroke-linejoin="round"/>
-      </svg>
+  <main class="card">
+    <div class="logo-wrap rise d1">
+      <img src="https://i.postimg.cc/W3pgQx9q/DELICUTE-Imgur-1-modified.png" alt="Delicute" />
     </div>
 
-    <h1>We're setting the table</h1>
-    <p id="maintMessage">Delicute is briefly offline for a few improvements. We'll be back shortly — thanks for your patience.</p>
+    <div class="rise d2">
+      <div class="status-pill"><span class="dot"></span> Maintenance in progress</div>
+    </div>
 
-    <div class="status-pill"><span class="dot"></span> Maintenance in progress</div>
+    <h1 class="rise d3">We're setting the <span class="accent">table</span></h1>
+    <p id="maintMessage" class="rise d3">Delicute is briefly offline for a few improvements. We'll be back shortly — thanks for your patience.</p>
 
-    <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
-    <div class="refresh-note" id="refreshNote">Checking again in 30s…</div>
+    <!-- Progress steps -->
+    <div class="steps rise d4" aria-hidden="true">
+      <div class="step done">
+        <div class="node">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg>
+        </div>
+        <span class="label">Paused</span>
+      </div>
+      <div class="bar done"></div>
+      <div class="step active">
+        <div class="node">2</div>
+        <span class="label">Updating</span>
+      </div>
+      <div class="bar"></div>
+      <div class="step">
+        <div class="node">3</div>
+        <span class="label">Back live</span>
+      </div>
+    </div>
 
-    <div class="divider"></div>
-    <p class="contact-note">Something urgent? <a href="mailto:contactdelicute@gmail.com">contactdelicute@gmail.com</a></p>
-  </div>
+    <!-- Countdown -->
+    <div class="countdown rise d5">
+      <div class="ring-box">
+        <svg viewBox="0 0 70 70">
+          <defs>
+            <linearGradient id="ringGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#2dd4bf" />
+              <stop offset="50%" stop-color="#ffc857" />
+              <stop offset="100%" stop-color="#ff4d6d" />
+            </linearGradient>
+          </defs>
+          <circle class="ring-bg" cx="35" cy="35" r="30" />
+          <circle class="ring-fg" id="ringFg" cx="35" cy="35" r="30" />
+        </svg>
+        <div class="ring-num" id="ringNum">30</div>
+      </div>
+      <div class="cd-text">
+        <strong id="refreshNote">Checking again in 30s</strong>
+        <span>This page reconnects automatically.</span>
+      </div>
+    </div>
+
+    <!-- Actions -->
+    <div class="actions rise d6">
+      <button class="btn btn-primary" id="checkBtn" type="button">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-3-6.7"/><path d="M21 4v5h-5"/></svg>
+        <span id="checkLabel">Check now</span>
+      </button>
+    </div>
+
+    <p class="contact-label rise d6">Something urgent?</p>
+    <a class="btn btn-ghost rise d6" href="mailto:contactdelicute@gmail.com">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="3"/><path d="M3 7l9 6 9-6"/></svg>
+      contactdelicute@gmail.com
+    </a>
+  </main>
 
   <div class="footer-note">DELICUTE &middot; Back online automatically, no action needed</div>
 
   <script>
-    const CHECK_INTERVAL_MS = 30000;
+    const TOTAL_SECONDS = 30;
     const STATUS_ENDPOINT = "/api/superadmin/maintenance";
-    let secondsLeft = CHECK_INTERVAL_MS / 1000;
+    let secondsLeft = TOTAL_SECONDS;
 
-    const messageEl = document.getElementById('maintMessage');
-    const progressFill = document.getElementById('progressFill');
+    const messageEl  = document.getElementById('maintMessage');
     const refreshNote = document.getElementById('refreshNote');
+    const ringFg     = document.getElementById('ringFg');
+    const ringNum    = document.getElementById('ringNum');
+    const checkBtn   = document.getElementById('checkBtn');
+    const checkLabel = document.getElementById('checkLabel');
+
+    const RADIUS = 30;
+    const CIRC = 2 * Math.PI * RADIUS;
+    ringFg.style.strokeDasharray = CIRC;
+    ringFg.style.strokeDashoffset = CIRC;
+
+    function renderRing() {
+      ringFg.style.strokeDashoffset = CIRC * (secondsLeft / TOTAL_SECONDS);
+      ringNum.textContent = secondsLeft;
+      refreshNote.textContent = secondsLeft > 0
+        ? `Checking again in ${secondsLeft}s`
+        : 'Checking now…';
+    }
 
     async function loadMessage() {
       try {
-        const res = await fetch(STATUS_ENDPOINT, { credentials: 'include' });
+        const res = await fetch(STATUS_ENDPOINT, { credentials: 'include', cache: 'no-store' });
         const data = await res.json();
         if (data.message && data.message.trim()) {
           messageEl.textContent = data.message.trim();
         }
         if (data.enabled === false) {
-          // Maintenance was switched off while the user was on this page — send them home.
-          window.location.href = "/";
+          // Maintenance switched off while user was on this page — send them home.
+          window.location.replace("/");
         }
       } catch (e) {
-        // Silent — page still shows the default message, no need to alarm the visitor.
+        // Silent — default message stays, no need to alarm the visitor.
       }
     }
 
     function tick() {
       secondsLeft -= 1;
-      const pct = Math.max(0, 100 - (secondsLeft / (CHECK_INTERVAL_MS / 1000)) * 100);
-      progressFill.style.width = pct + '%';
-      refreshNote.textContent = secondsLeft > 0
-        ? `Checking again in ${secondsLeft}s…`
-        : `Checking now…`;
-
       if (secondsLeft <= 0) {
-        secondsLeft = CHECK_INTERVAL_MS / 1000;
-        progressFill.style.width = '0%';
+        secondsLeft = 0;
+        renderRing();
         loadMessage();
+        setTimeout(() => { secondsLeft = TOTAL_SECONDS; renderRing(); }, 900);
+        return;
       }
+      renderRing();
     }
 
+    checkBtn.addEventListener('click', async () => {
+      checkBtn.classList.add('loading');
+      checkLabel.textContent = 'Checking…';
+      await loadMessage();
+      setTimeout(() => {
+        checkBtn.classList.remove('loading');
+        checkLabel.textContent = 'Check now';
+      }, 700);
+      secondsLeft = TOTAL_SECONDS;
+      renderRing();
+    });
+
+    renderRing();
+    // Start ring from full on first paint
+    requestAnimationFrame(() => requestAnimationFrame(renderRing));
     loadMessage();
     setInterval(tick, 1000);
   </script>
